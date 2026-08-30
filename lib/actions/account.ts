@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db"
 import { bulkGiftRequests, orderItems, orders, supportTickets } from "@/lib/db/schema"
-import { getUserId, getOptionalUserId } from "@/lib/session"
+import { getUserId, getOptionalUserId, getOptionalOwnerId } from "@/lib/session"
 import { desc, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
@@ -13,7 +13,9 @@ export async function getUserOrders() {
 }
 
 export async function getOrderByNumber(orderNumber: string) {
-  const userId = await getUserId()
+  const ownerId = await getOptionalOwnerId()
+  if (!ownerId) return null
+
   const rows = await db
     .select()
     .from(orders)
@@ -21,7 +23,7 @@ export async function getOrderByNumber(orderNumber: string) {
     .limit(1)
 
   const order = rows[0]
-  if (!order || order.userId !== userId) return null
+  if (!order || order.userId !== ownerId) return null
 
   const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id))
   return { order, items }

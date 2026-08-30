@@ -3,7 +3,7 @@
 import { db } from "@/lib/db"
 import { cartItems, coupons, orderItems, orders, productVariants, products } from "@/lib/db/schema"
 import { generateOrderNumber, generateRedemptionCode } from "@/lib/format"
-import { getUserId } from "@/lib/session"
+import { getOptionalOwnerId, getOwnerId } from "@/lib/session"
 import { and, eq, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
@@ -37,19 +37,31 @@ export async function applyCouponPreview(code: string, subtotal: number) {
   return { valid: true as const, discountPercent: coupon.discountPercent }
 }
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 export async function checkout(input: {
   billingEmail: string
   billingName: string
   couponCode?: string
 }) {
-  const userId = await getUserId()
+  const billingEmail = input.billingEmail.trim()
+  const billingName = input.billingName.trim()
+
+  if (!EMAIL_PATTERN.test(billingEmail)) {
+    throw new Error("Enter a valid email address so we know where to deliver your codes.")
+  }
+  if (!billingName) {
+    throw new Error("Enter the name on this order.")
+  }
+
+  const ownerId = await getOwnerId()
 
   const rows = await db
     .select({ cartItem: cartItems, variant: productVariants, product: products })
     .from(cartItems)
     .innerJoin(productVariants, eq(cartItems.variantId, productVariants.id))
     .innerJoin(products, eq(cartItems.productId, products.id))
-    .where(eq(cartItems.userId, userId))
+    .where(eq(cartItems.userId, ownerId))
 
   if (rows.length === 0) {
     throw new Error("Your cart is empty")
@@ -83,14 +95,14 @@ export async function checkout(input: {
     .insert(orders)
     .values({
       orderNumber,
-      userId,
+      userId: ownerId,
       status: "completed",
       subtotalUsd: subtotal.toFixed(2),
       discountUsd: discount.toFixed(2),
       totalUsd: total.toFixed(2),
       couponCode: coupon?.code ?? null,
-      billingEmail: input.billingEmail,
-      billingName: input.billingName,
+      billingEmail,
+      billingName,
       paymentMethod: "card",
     })
     .returning()
@@ -117,7 +129,7 @@ export async function checkout(input: {
       .where(eq(coupons.code, coupon.code))
   }
 
-  await db.delete(cartItems).where(eq(cartItems.userId, userId))
+  await db.delete(cartItems).where(eq(cartItems.userId, ownerId))
 
   revalidatePath("/cart")
   revalidatePath("/account/orders")
@@ -126,13 +138,14 @@ export async function checkout(input: {
 }
 
 export async function revealOrderItemCode(orderItemId: number) {
-  const userId = await getUserId()
+  const ownerId = await getOptionalOwnerId()
+  if (!ownerId) throw new Error("Not found")
 
   const rows = await db
     .select({ orderItem: orderItems, order: orders })
     .from(orderItems)
     .innerJoin(orders, eq(orderItems.orderId, orders.id))
-    .where(and(eq(orderItems.id, orderItemId), eq(orders.userId, userId)))
+    .where(and(eq(orderItems.id, orderItemId), eq(orders.userId, ownerId)))
     .limit(1)
 
   if (!rows[0]) throw new Error("Not found")

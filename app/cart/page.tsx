@@ -1,8 +1,6 @@
 import Link from "next/link"
-import { redirect } from "next/navigation"
 import { ShoppingBag } from "lucide-react"
 import { getCartItems } from "@/lib/actions/cart"
-import { getOptionalUserId } from "@/lib/session"
 import { CartLineItem } from "@/components/cart/cart-line-item"
 import { CartSummary } from "@/components/cart/cart-summary"
 import { Button } from "@/components/ui/button"
@@ -14,11 +12,6 @@ export const metadata = {
 }
 
 export default async function CartPage() {
-  const userId = await getOptionalUserId()
-  if (!userId) {
-    redirect("/sign-in?redirect=/cart")
-  }
-
   const items = await getCartItems()
   const subtotal = items.reduce((sum, i) => sum + Number.parseFloat(i.variant.priceUsd) * i.cartItem.quantity, 0)
 

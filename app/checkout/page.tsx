@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import { getCartItems } from "@/lib/actions/cart"
 import { applyCouponPreview } from "@/lib/actions/checkout"
-import { getOptionalUserId, getSession } from "@/lib/session"
+import { getSession } from "@/lib/session"
 import { CheckoutForm } from "@/components/checkout/checkout-form"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
@@ -15,9 +15,6 @@ export default async function CheckoutPage({
 }: {
   searchParams: Promise<{ coupon?: string }>
 }) {
-  const userId = await getOptionalUserId()
-  if (!userId) redirect("/sign-in?redirect=/checkout")
-
   const { coupon } = await searchParams
   const items = await getCartItems()
   if (items.length === 0) redirect("/cart")
@@ -45,6 +42,7 @@ export default async function CheckoutPage({
             defaultName={session?.user?.name ?? ""}
             subtotal={subtotal}
             discountPercent={discountPercent}
+            isGuest={!session?.user}
           />
         </div>
       </main>

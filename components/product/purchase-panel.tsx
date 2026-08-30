@@ -46,8 +46,7 @@ export function PurchasePanel({
           description: `${selected.denominationLabel} x${quantity}`,
         })
       } catch {
-        toast.error("Please sign in to add items to your cart")
-        router.push("/sign-in")
+        toast.error("Couldn't add this to your cart. Please try again.")
       }
     })
   }
