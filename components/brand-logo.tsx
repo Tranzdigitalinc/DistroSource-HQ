@@ -26,13 +26,15 @@ export function BrandLogo({
 
   const isDark = mounted ? resolvedTheme === "dark" : true
   const src = isDark ? "/images/logos/redeemcove-logo-light-text.png" : "/images/logos/redeemcove-logo-dark-text.png"
+  const [intrinsicWidth, intrinsicHeight] = isDark ? [2109, 358] : [2003, 343]
 
   const logo = (
     <Image
+      key={src}
       src={src}
       alt="RedeemCove"
-      width={2172}
-      height={724}
+      width={intrinsicWidth}
+      height={intrinsicHeight}
       priority
       className={cn("w-auto", imgClassName)}
       style={{ height }}
