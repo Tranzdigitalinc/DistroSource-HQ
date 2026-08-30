@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { ShieldCheck, Zap, Globe2, HeartHandshake } from "lucide-react"
+import Image from "next/image"
+import { ShieldCheck } from "lucide-react"
 
 const footerColumns = [
   {
@@ -32,27 +33,20 @@ const footerColumns = [
   },
 ]
 
-const trustBadges = [
-  { icon: Zap, label: "Instant Delivery" },
-  { icon: ShieldCheck, label: "Secure Checkout" },
-  { icon: Globe2, label: "190+ Countries" },
-  { icon: HeartHandshake, label: "24/7 Support" },
+const paymentIcons = [
+  { file: "visa.svg", label: "Visa" },
+  { file: "mastercard.svg", label: "Mastercard" },
+  { file: "american-express.svg", label: "American Express" },
+  { file: "paypal.svg", label: "PayPal" },
+  { file: "apple-pay.svg", label: "Apple Pay" },
+  { file: "google-pay.svg", label: "Google Pay" },
 ]
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-border/60 bg-secondary/40">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-        <div className="grid grid-cols-2 gap-8 border-b border-border/60 pb-8 sm:grid-cols-4">
-          {trustBadges.map((badge) => (
-            <div key={badge.label} className="flex items-center gap-2.5">
-              <badge.icon className="size-5 shrink-0 text-primary" />
-              <span className="text-sm font-medium text-foreground/80">{badge.label}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-2 gap-8 py-10 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 pb-10 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <Link href="/" className="flex items-center gap-2">
               <span className="flex size-8 items-center justify-center rounded-lg bg-primary font-display text-sm font-bold text-primary-foreground">
@@ -64,6 +58,10 @@ export function SiteFooter() {
               Your one-stop marketplace for gift cards, game top-ups, mobile recharges, and software licenses —
               delivered instantly, worldwide.
             </p>
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+              <ShieldCheck className="size-4 text-primary" />
+              Encrypted checkout on every order
+            </div>
           </div>
 
           {footerColumns.map((column) => (
@@ -82,10 +80,29 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="flex flex-col gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>&copy; {new Date().getFullYear()} RedeemCove. All rights reserved.</p>
-          <p>Digital codes are delivered to your account instantly after purchase.</p>
+        <div className="flex flex-col gap-4 border-t border-border/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} RedeemCove. All rights reserved.</p>
+          <div className="flex items-center gap-2">
+            {paymentIcons.map((icon) => (
+              <span
+                key={icon.file}
+                className="flex h-7 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-white"
+                title={icon.label}
+              >
+                <Image
+                  src={`/payment-icons/${icon.file}`}
+                  alt={icon.label}
+                  width={28}
+                  height={18}
+                  className="h-4 w-auto object-contain"
+                />
+              </span>
+            ))}
+          </div>
         </div>
+        <p className="mt-4 text-center text-xs text-muted-foreground sm:text-left">
+          Digital codes are delivered to your account instantly after purchase.
+        </p>
       </div>
     </footer>
   )

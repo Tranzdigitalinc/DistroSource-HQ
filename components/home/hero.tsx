@@ -1,9 +1,22 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, ShieldCheck, Zap, Globe2 } from "lucide-react"
+import { ArrowRight, ShieldCheck, Star } from "lucide-react"
 
-export function Hero() {
+interface HeroStats {
+  productCount: number
+  brandCount: number
+  countryCount: number
+  reviewCount: number
+  avgRating: number
+}
+
+function formatCount(value: number) {
+  if (value >= 1000) return `${Math.floor(value / 100) / 10}k`
+  return `${value}`
+}
+
+export function Hero({ stats }: { stats: HeroStats }) {
   return (
     <section className="relative overflow-hidden bg-primary">
       <div
@@ -13,10 +26,11 @@ export function Hero() {
             "radial-gradient(circle at 15% 30%, oklch(0.72 0.14 220 / 0.45), transparent 45%), radial-gradient(circle at 85% 80%, oklch(0.6 0.15 240 / 0.35), transparent 45%)",
         }}
       />
-      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-6 py-16 sm:px-8 lg:grid-cols-2 lg:py-24">
+      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-6 py-16 sm:px-8 lg:grid-cols-2 lg:py-20">
         <div className="flex flex-col gap-6">
-          <span className="w-fit rounded-full bg-primary-foreground/10 px-3 py-1 text-xs font-medium text-primary-foreground/90 ring-1 ring-inset ring-primary-foreground/20">
-            Trusted by 2M+ shoppers worldwide
+          <span className="flex w-fit items-center gap-1.5 rounded-full bg-primary-foreground/10 px-3 py-1 text-xs font-medium text-primary-foreground/90 ring-1 ring-inset ring-primary-foreground/20">
+            <ShieldCheck className="size-3.5 text-accent" />
+            Verified codes, sourced from authorized distributors
           </span>
           <h1 className="font-display text-4xl font-bold leading-[1.1] tracking-tight text-primary-foreground text-balance sm:text-5xl lg:text-6xl">
             Gift cards & digital codes, delivered instantly
@@ -45,17 +59,33 @@ export function Hero() {
               View today&apos;s deals
             </Button>
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-primary-foreground/70">
-            <span className="flex items-center gap-1.5">
-              <Zap className="size-4 text-accent" /> Instant delivery
-            </span>
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="size-4 text-accent" /> Secure checkout
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Globe2 className="size-4 text-accent" /> 190+ countries
-            </span>
-          </div>
+
+          <dl className="mt-4 grid grid-cols-2 gap-4 border-t border-primary-foreground/15 pt-5 sm:grid-cols-4">
+            <div>
+              <dt className="text-xs text-primary-foreground/60">Products</dt>
+              <dd className="font-display text-xl font-bold text-primary-foreground">
+                {formatCount(stats.productCount)}+
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-primary-foreground/60">Brands</dt>
+              <dd className="font-display text-xl font-bold text-primary-foreground">{stats.brandCount}+</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-primary-foreground/60">Countries</dt>
+              <dd className="font-display text-xl font-bold text-primary-foreground">{stats.countryCount}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-primary-foreground/60">Customer rating</dt>
+              <dd className="flex items-center gap-1 font-display text-xl font-bold text-primary-foreground">
+                {stats.avgRating.toFixed(1)}
+                <Star className="size-4 fill-accent text-accent" />
+                <span className="text-xs font-normal text-primary-foreground/60">
+                  ({formatCount(stats.reviewCount)})
+                </span>
+              </dd>
+            </div>
+          </dl>
         </div>
         <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-2xl lg:max-w-lg">
           <Image

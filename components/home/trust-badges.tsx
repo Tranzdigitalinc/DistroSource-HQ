@@ -4,38 +4,52 @@ const badges = [
   {
     icon: Zap,
     title: "Instant delivery",
-    body: "Codes land in your account and inbox within seconds of payment.",
+    body: "Codes land in your account and inbox within seconds of payment — no waiting, no queues.",
   },
   {
     icon: ShieldCheck,
     title: "Secure checkout",
-    body: "Every order is encrypted and protected end-to-end.",
+    body: "Every order is encrypted end-to-end and every code is generated fresh at the point of sale.",
   },
   {
     icon: RefreshCcw,
     title: "Verified codes",
-    body: "Sourced directly from authorized distributors and publishers.",
+    body: "Every catalog listing is sourced directly from authorized distributors and publishers.",
   },
   {
     icon: Headphones,
     title: "24/7 support",
-    body: "Real help from our team whenever you need it.",
+    body: "Real people review every ticket — order issues get a response, not a bot loop.",
   },
 ]
 
 export function TrustBadges() {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-14 sm:px-8">
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {badges.map((badge) => (
-          <div key={badge.title} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-5">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <badge.icon className="size-5" />
+    <section className="border-t border-border/60 bg-secondary/30">
+      <div className="mx-auto max-w-7xl px-6 py-16 sm:px-8">
+        <div className="mb-10 max-w-2xl">
+          <h2 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Why shoppers trust RedeemCove
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            No middlemen guesswork, no delivery delays — just a straightforward marketplace built around getting
+            your code into your hands correctly, the first time.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {badges.map((badge) => (
+            <div
+              key={badge.title}
+              className="flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40"
+            >
+              <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <badge.icon className="size-5" />
+              </div>
+              <h3 className="font-display text-base font-bold text-foreground">{badge.title}</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">{badge.body}</p>
             </div>
-            <h3 className="font-display text-base font-bold">{badge.title}</h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">{badge.body}</p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   )

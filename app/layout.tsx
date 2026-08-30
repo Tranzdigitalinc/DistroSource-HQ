@@ -4,6 +4,7 @@ import { Inter, Space_Grotesk } from 'next/font/google'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from 'sonner'
 import { CurrencyProvider } from '@/lib/currency-context'
+import { ThemeProvider } from '@/components/theme-provider'
 import { getCountries } from '@/lib/queries/catalog'
 import './globals.css'
 
@@ -50,12 +51,18 @@ export default async function RootLayout({
   const countries = await getCountries()
 
   return (
-    <html lang="en" className={`bg-background ${_inter.variable} ${_spaceGrotesk.variable}`}>
+    <html
+      lang="en"
+      className={`dark bg-background ${_inter.variable} ${_spaceGrotesk.variable}`}
+      suppressHydrationWarning
+    >
       <body className="antialiased">
-        <CurrencyProvider countries={countries}>
-          <TooltipProvider>{children}</TooltipProvider>
-        </CurrencyProvider>
-        <Toaster position="bottom-right" richColors />
+        <ThemeProvider>
+          <CurrencyProvider countries={countries}>
+            <TooltipProvider>{children}</TooltipProvider>
+          </CurrencyProvider>
+          <Toaster position="bottom-right" richColors />
+        </ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

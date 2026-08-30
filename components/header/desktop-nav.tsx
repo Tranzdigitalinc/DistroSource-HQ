@@ -21,6 +21,7 @@ interface Brand {
   name: string
   categoryId: number
   isFeatured: boolean
+  logoUrl?: string | null
 }
 
 export function DesktopNav({ categories, brands }: { categories: Category[]; brands: Brand[] }) {

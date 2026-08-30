@@ -173,6 +173,47 @@ export async function getDealProducts(limit = 12) {
   return getProducts({ deal: true, sort: "price-asc", limit })
 }
 
+export async function getMarketplaceStats() {
+  const [[productCount], [brandCount], [countryCount], [reviewStats]] = await Promise.all([
+    db.select({ count: sql<number>`count(*)::int` }).from(products),
+    db.select({ count: sql<number>`count(*)::int` }).from(brands),
+    db.select({ count: sql<number>`count(*)::int` }).from(countries),
+    db
+      .select({
+        count: sql<number>`count(*)::int`,
+        avgRating: sql<number>`coalesce(avg(${reviews.rating}), 0)`,
+      })
+      .from(reviews),
+  ])
+
+  return {
+    productCount: productCount?.count ?? 0,
+    brandCount: brandCount?.count ?? 0,
+    countryCount: countryCount?.count ?? 0,
+    reviewCount: reviewStats?.count ?? 0,
+    avgRating: Number(reviewStats?.avgRating ?? 0),
+  }
+}
+
+export async function getTopReviews(limit = 8) {
+  const rows = await db
+    .select({
+      review: reviews,
+      product: products,
+      brand: brands,
+    })
+    .from(reviews)
+    .innerJoin(products, eq(reviews.productId, products.id))
+    .innerJoin(brands, eq(products.brandId, brands.id))
+    .where(
+      and(eq(reviews.isVerifiedPurchase, true), sql`${reviews.rating} >= 4`, sql`length(${reviews.body}) > 40`),
+    )
+    .orderBy(desc(reviews.rating), desc(reviews.createdAt))
+    .limit(limit)
+
+  return rows
+}
+
 export async function getRelatedProducts(categoryId: number, excludeProductId: number, limit = 8) {
   const rows = await db
     .select({

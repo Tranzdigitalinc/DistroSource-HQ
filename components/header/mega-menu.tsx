@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useState } from "react"
 import { getCategoryIcon } from "@/lib/category-icons"
 import { cn } from "@/lib/utils"
@@ -19,6 +20,7 @@ interface Brand {
   name: string
   categoryId: number
   isFeatured: boolean
+  logoUrl?: string | null
 }
 
 export function MegaMenu({ categories, brands }: { categories: Category[]; brands: Brand[] }) {
@@ -64,8 +66,13 @@ export function MegaMenu({ categories, brands }: { categories: Category[]; brand
             <Link
               key={brand.id}
               href={`/brands/${brand.slug}`}
-              className="rounded-lg px-3 py-2 text-sm text-foreground/80 transition-colors hover:bg-secondary hover:text-foreground"
+              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-foreground/80 transition-colors hover:bg-secondary hover:text-foreground"
             >
+              {brand.logoUrl ? (
+                <span className="flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-md bg-card ring-1 ring-border/60">
+                  <Image src={brand.logoUrl} alt="" width={20} height={20} className="size-4 object-contain" />
+                </span>
+              ) : null}
               {brand.name}
             </Link>
           ))}
