@@ -28,6 +28,7 @@ export function Hero() {
           <div className="flex flex-wrap items-center gap-3">
             <Button
               size="lg"
+              nativeButton={false}
               className="h-12 bg-primary-foreground px-6 font-semibold text-primary hover:bg-primary-foreground/90"
               render={<Link href="/products" />}
             >
@@ -37,6 +38,7 @@ export function Hero() {
             <Button
               size="lg"
               variant="outline"
+              nativeButton={false}
               className="h-12 border-primary-foreground/25 bg-transparent px-6 font-semibold text-primary-foreground hover:bg-primary-foreground/10"
               render={<Link href="/deals" />}
             >

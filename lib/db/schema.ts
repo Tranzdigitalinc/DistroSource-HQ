@@ -40,6 +40,7 @@ export const account = pgTable("account", {
   refreshTokenExpiresAt: timestamp("refreshTokenExpiresAt"),
   scope: text("scope"),
   password: text("password"),
+  issuer: text("issuer"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 })
@@ -123,7 +124,7 @@ export const productVariants = pgTable("product_variants", {
 export const reviews = pgTable("reviews", {
   id: serial("id").primaryKey(),
   productId: integer("product_id").notNull(),
-  userId: text("userId"),
+  userId: text("user_id"),
   authorName: text("author_name").notNull(),
   rating: integer("rating").notNull(),
   title: text("title"),
