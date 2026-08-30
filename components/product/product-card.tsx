@@ -44,44 +44,48 @@ export function ProductCard({
       href={`/products/${item.product.slug}`}
       style={style}
       className={cn(
-        "group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5",
+        "group flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-xl hover:shadow-black/5",
         className,
       )}
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden">
+      <div className="relative aspect-[4/3] w-full overflow-hidden border-b border-border/60">
         <BrandThumbnail
           logoUrl={item.brand.logoUrl}
           brandColor={item.brand.brandColor ?? null}
           brandName={item.brand.name}
-          className="transition-transform duration-300 group-hover:scale-105"
+          className="transition-transform duration-500 group-hover:scale-[1.04]"
         />
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-3 py-2">
-          <span className="font-display text-sm font-bold text-white drop-shadow-sm">{item.brand.name}</span>
-        </div>
         {maxDiscount > 0 && (
-          <Badge className="absolute left-2 top-2 bg-accent text-accent-foreground">-{maxDiscount}%</Badge>
+          <Badge className="absolute left-2.5 top-2.5 border-none bg-accent font-semibold text-accent-foreground">
+            -{maxDiscount}%
+          </Badge>
         )}
         {item.country?.code && (
           <span
             className={cn(
-              "absolute top-2 flex h-6 items-center justify-center rounded-full bg-background/90 px-1.5 shadow-sm",
-              maxDiscount > 0 ? "left-14" : "left-2",
+              "absolute top-2.5 flex h-6 items-center justify-center rounded-full bg-background/95 px-1.5 shadow-sm ring-1 ring-border/60",
+              maxDiscount > 0 ? "left-16" : "left-2.5",
             )}
           >
             <FlagIcon code={item.country.code} className="h-3 w-4" />
           </span>
         )}
-        <WishlistButton productId={item.product.id} className="absolute right-2 top-2" />
+        <WishlistButton productId={item.product.id} className="absolute right-2.5 top-2.5" />
       </div>
-      <div className="flex flex-1 flex-col gap-1.5 p-3.5">
-        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-balance">{item.product.name}</h3>
+      <div className="flex flex-1 flex-col gap-2 p-4">
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          {item.brand.name}
+        </span>
+        <h3 className="-mt-1 line-clamp-2 text-sm font-medium leading-snug text-balance text-foreground/90">
+          {item.product.name}
+        </h3>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <Star className="size-3 fill-accent text-accent" />
           <span className="font-medium text-foreground">{item.product.rating}</span>
           <span>({item.product.reviewCount.toLocaleString()})</span>
         </div>
-        <div className="mt-1.5 flex items-baseline gap-2">
-          <span className="font-display text-base font-bold">
+        <div className="mt-1 flex items-baseline gap-2 border-t border-border/60 pt-2.5">
+          <span className="font-display text-lg font-semibold">
             <PriceDisplay usdAmount={Number.parseFloat(cheapest.priceUsd)} />
           </span>
           {Number.parseFloat(cheapest.faceValueUsd) > Number.parseFloat(cheapest.priceUsd) && (

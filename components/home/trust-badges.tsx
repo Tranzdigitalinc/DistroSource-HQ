@@ -28,7 +28,7 @@ export function TrustBadges() {
     <section className="border-t border-border/60 bg-secondary/30">
       <div className="mx-auto max-w-7xl px-6 py-16 sm:px-8">
         <div className="mb-10 max-w-2xl">
-          <h2 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          <h2 className="font-display text-2xl font-medium tracking-tight text-foreground sm:text-3xl">
             Why shoppers trust RedeemCove
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -40,12 +40,10 @@ export function TrustBadges() {
           {badges.map((badge) => (
             <div
               key={badge.title}
-              className="flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40"
+              className="flex flex-col gap-3 rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/40"
             >
-              <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <badge.icon className="size-5" />
-              </div>
-              <h3 className="font-display text-base font-bold text-foreground">{badge.title}</h3>
+              <badge.icon className="size-5 text-accent" />
+              <h3 className="font-display text-base font-semibold text-foreground">{badge.title}</h3>
               <p className="text-sm leading-relaxed text-muted-foreground">{badge.body}</p>
             </div>
           ))}

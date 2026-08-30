@@ -24,7 +24,7 @@ export function Testimonials({ reviews, stats }: TestimonialsProps) {
     <section className="mx-auto max-w-7xl px-6 py-16 sm:px-8">
       <div className="mb-10 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          <h2 className="font-display text-2xl font-medium tracking-tight text-foreground sm:text-3xl">
             What shoppers are saying
           </h2>
           <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">

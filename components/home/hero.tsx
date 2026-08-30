@@ -20,26 +20,26 @@ export function Hero({ stats }: { stats: HeroStats }) {
   return (
     <section className="relative overflow-hidden bg-hero">
       <div
-        className="absolute inset-0 opacity-50"
+        className="absolute inset-0 opacity-70"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 15% 30%, oklch(0.72 0.14 220 / 0.45), transparent 45%), radial-gradient(circle at 85% 80%, oklch(0.6 0.15 240 / 0.35), transparent 45%)",
+            "radial-gradient(circle at 12% 20%, oklch(0.7 0.15 55 / 0.18), transparent 45%), radial-gradient(circle at 88% 85%, oklch(0.7 0.15 55 / 0.12), transparent 45%)",
         }}
       />
-      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-6 py-16 sm:px-8 lg:grid-cols-2 lg:py-20">
-        <div className="flex flex-col gap-6">
+      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 py-20 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:py-28">
+        <div className="flex flex-col gap-7">
           <span className="flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3 py-1 text-xs font-medium text-hero-foreground/90 ring-1 ring-inset ring-hero-foreground/20">
             <ShieldCheck className="size-3.5 text-hero-accent" />
             Verified codes, sourced from authorized distributors
           </span>
-          <h1 className="font-display text-4xl font-bold leading-[1.1] tracking-tight text-hero-foreground text-balance sm:text-5xl lg:text-6xl">
-            Gift cards & digital codes, delivered instantly
+          <h1 className="font-display text-5xl font-medium leading-[1.05] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.25rem]">
+            Gift cards & digital codes, <em className="italic text-hero-accent">delivered instantly</em>
           </h1>
-          <p className="max-w-lg text-lg leading-relaxed text-hero-foreground/75 text-pretty">
+          <p className="max-w-lg text-lg leading-relaxed text-hero-foreground/70 text-pretty">
             Top up games, stream more, and shop your favorite brands — all from one marketplace with instant
             delivery to your inbox and account.
           </p>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-4">
             <Button
               size="lg"
               nativeButton={false}
@@ -60,37 +60,21 @@ export function Hero({ stats }: { stats: HeroStats }) {
             </Button>
           </div>
 
-          <dl className="mt-4 grid grid-cols-2 gap-4 border-t border-hero-foreground/15 pt-5 sm:grid-cols-4">
-            <div>
-              <dt className="text-xs text-hero-foreground/60">Products</dt>
-              <dd className="font-display text-xl font-bold text-hero-foreground">
-                {formatCount(stats.productCount)}+
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs text-hero-foreground/60">Brands</dt>
-              <dd className="font-display text-xl font-bold text-hero-foreground">{stats.brandCount}+</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-hero-foreground/60">Countries</dt>
-              <dd className="font-display text-xl font-bold text-hero-foreground">{stats.countryCount}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-hero-foreground/60">Customer rating</dt>
-              <dd className="flex items-center gap-1 font-display text-xl font-bold text-hero-foreground">
-                {stats.avgRating.toFixed(1)}
-                <Star className="size-4 fill-hero-accent text-hero-accent" />
-                <span className="text-xs font-normal text-hero-foreground/60">
-                  ({formatCount(stats.reviewCount)})
-                </span>
-              </dd>
-            </div>
-          </dl>
+          <div className="mt-2 flex items-center gap-2 text-sm text-hero-foreground/65">
+            <span className="flex items-center gap-1 font-display font-semibold text-hero-foreground">
+              {stats.avgRating.toFixed(1)}
+              <Star className="size-3.5 fill-hero-accent text-hero-accent" />
+            </span>
+            <span>from {formatCount(stats.reviewCount)} reviews across</span>
+            <span className="font-semibold text-hero-foreground">{stats.brandCount}+ brands</span>
+            <span aria-hidden="true">·</span>
+            <span>{stats.countryCount} countries</span>
+          </div>
         </div>
-        <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-2xl lg:max-w-lg">
+        <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-2xl shadow-2xl shadow-black/40 lg:max-w-lg">
           <Image
             src="/hero-cards.png"
-            alt="A collection of glossy digital gift cards"
+            alt="A collection of premium gift cards fanned across a warm walnut surface"
             fill
             priority
             className="object-cover"

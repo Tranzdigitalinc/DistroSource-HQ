@@ -20,7 +20,7 @@ export function ProductRail({
     <section className="mx-auto max-w-7xl px-6 py-10 sm:px-8">
       <div className="mb-6 flex items-end justify-between">
         <div>
-          <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">{title}</h2>
+          <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">{title}</h2>
           {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
         </div>
         <Link
