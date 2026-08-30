@@ -20,7 +20,7 @@ export async function SiteHeader() {
         <MobileNav categories={categories} />
 
         <Link href="/" className="flex shrink-0 items-center">
-          <BrandLogo href={null} height={30} />
+          <BrandLogo href={null} height={44} />
         </Link>
 
         <DesktopNav categories={categories} brands={brands} />

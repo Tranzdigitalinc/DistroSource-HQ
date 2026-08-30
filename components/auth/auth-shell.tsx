@@ -16,7 +16,7 @@ export function AuthShell({
     <div className="flex min-h-screen flex-col">
       <header className="flex h-16 shrink-0 items-center justify-between border-b border-border/60 px-6 sm:px-10 lg:px-16">
         <Link href="/" className="flex items-center">
-          <BrandLogo href={null} height={28} />
+          <BrandLogo href={null} height={40} />
         </Link>
         <div className="flex items-center gap-2">
           <Link

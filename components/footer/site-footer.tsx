@@ -50,7 +50,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <Reveal className="grid grid-cols-2 gap-8 pb-10 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
-            <BrandLogo height={32} />
+            <BrandLogo height={48} />
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Your one-stop marketplace for gift cards, game top-ups, mobile recharges, and software licenses —
               delivered instantly, worldwide.
