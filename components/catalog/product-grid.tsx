@@ -1,10 +1,11 @@
 import { PackageSearch } from "lucide-react"
 import { ProductCard, type ProductCardData } from "@/components/product/product-card"
+import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 
 export function ProductGrid({ items }: { items: ProductCardData[] }) {
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 py-20 text-center">
+      <Reveal className="flex flex-col items-center gap-3 py-20 text-center">
         <div className="flex size-14 items-center justify-center rounded-full bg-secondary text-muted-foreground">
           <PackageSearch className="size-6" />
         </div>
@@ -12,20 +13,17 @@ export function ProductGrid({ items }: { items: ProductCardData[] }) {
         <p className="max-w-sm text-sm text-muted-foreground">
           Try adjusting your filters or search terms to find what you&apos;re looking for.
         </p>
-      </div>
+      </Reveal>
     )
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 pt-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-      {items.map((item, index) => (
-        <ProductCard
-          key={item.product.id}
-          item={item}
-          className="animate-in fade-in slide-in-from-bottom-2 fill-mode-backwards duration-500"
-          style={{ animationDelay: `${Math.min(index, 10) * 40}ms` }}
-        />
+    <RevealGroup className="grid grid-cols-2 gap-4 pt-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5" stagger={0.04}>
+      {items.map((item) => (
+        <RevealItem key={item.product.id}>
+          <ProductCard item={item} />
+        </RevealItem>
       ))}
-    </div>
+    </RevealGroup>
   )
 }

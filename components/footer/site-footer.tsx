@@ -1,6 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { ShieldCheck } from "lucide-react"
+import { Reveal } from "@/components/motion/reveal"
 
 const footerColumns = [
   {
@@ -46,10 +47,10 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-border/60 bg-secondary/40">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-        <div className="grid grid-cols-2 gap-8 pb-10 sm:grid-cols-4">
+        <Reveal className="grid grid-cols-2 gap-8 pb-10 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <Link href="/" className="flex items-center gap-2">
-              <span className="flex size-8 items-center justify-center rounded-lg bg-primary font-display text-sm font-bold text-primary-foreground">
+              <span className="flex size-8 items-center justify-center rounded-lg bg-primary font-display text-sm font-bold text-primary-foreground shadow-[0_0_0_1px_oklch(1_0_0/8%),0_2px_8px_-2px_var(--primary)]">
                 RC
               </span>
               <span className="font-display text-lg font-semibold tracking-tight text-foreground">RedeemCove</span>
@@ -70,7 +71,10 @@ export function SiteFooter() {
               <ul className="mt-3 flex flex-col gap-2">
                 {column.links.map((link) => (
                   <li key={link.label}>
-                    <Link href={link.href} className="text-sm text-muted-foreground hover:text-foreground">
+                    <Link
+                      href={link.href}
+                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    >
                       {link.label}
                     </Link>
                   </li>
@@ -78,7 +82,7 @@ export function SiteFooter() {
               </ul>
             </div>
           ))}
-        </div>
+        </Reveal>
 
         <div className="flex flex-col gap-4 border-t border-border/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} RedeemCove. All rights reserved.</p>

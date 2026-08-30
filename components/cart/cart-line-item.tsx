@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { motion } from "motion/react"
 import { Minus, Plus, X } from "lucide-react"
 import { PriceDisplay } from "@/components/price-display"
 import { BrandThumbnail } from "@/components/product/brand-thumbnail"
@@ -51,7 +52,12 @@ export function CartLineItem({
   }
 
   return (
-    <div className="flex gap-4 border-b border-border py-5 last:border-0">
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
+      className="flex gap-4 border-b border-border py-5 last:border-0"
+    >
       <Link href={`/products/${productSlug}`} className="relative size-20 shrink-0 overflow-hidden rounded-lg">
         {imageUrl ? (
           <Image src={imageUrl || "/placeholder.svg"} alt={productName} fill className="object-cover" sizes="80px" />
@@ -73,43 +79,46 @@ export function CartLineItem({
             </Link>
             <p className="text-xs text-muted-foreground">{denominationLabel}</p>
           </div>
-          <button
+          <motion.button
             type="button"
+            whileTap={{ scale: 0.85 }}
             onClick={handleRemove}
             disabled={isPending}
             className="shrink-0 text-muted-foreground hover:text-destructive"
             aria-label="Remove item"
           >
             <X className="size-4" />
-          </button>
+          </motion.button>
         </div>
         <div className="mt-2 flex items-center justify-between">
           <div className="flex items-center rounded-lg border border-border">
-            <button
+            <motion.button
               type="button"
+              whileTap={{ scale: 0.85 }}
               onClick={() => updateQty(qty - 1)}
               disabled={isPending}
               className="flex size-8 items-center justify-center text-muted-foreground hover:text-foreground"
               aria-label="Decrease quantity"
             >
               <Minus className="size-3.5" />
-            </button>
+            </motion.button>
             <span className="w-7 text-center text-sm font-medium">{qty}</span>
-            <button
+            <motion.button
               type="button"
+              whileTap={{ scale: 0.85 }}
               onClick={() => updateQty(qty + 1)}
               disabled={isPending}
               className="flex size-8 items-center justify-center text-muted-foreground hover:text-foreground"
               aria-label="Increase quantity"
             >
               <Plus className="size-3.5" />
-            </button>
+            </motion.button>
           </div>
           <span className="font-display text-base font-bold">
             <PriceDisplay usdAmount={Number.parseFloat(unitPriceUsd) * qty} />
           </span>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }

@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
+import { Reveal } from "@/components/motion/reveal"
 
 export async function generateMetadata({
   params,
@@ -59,7 +60,7 @@ export default async function ProductDetailPage({
             <span className="text-foreground">{product.name}</span>
           </nav>
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          <Reveal className="grid grid-cols-1 gap-8 md:grid-cols-2">
             <div className="flex flex-col gap-4">
               <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl">
                 {product.imageUrl ? (
@@ -136,7 +137,7 @@ export default async function ProductDetailPage({
                 }))}
               />
             </div>
-          </div>
+          </Reveal>
 
           <Tabs defaultValue="details" className="mt-12">
             <TabsList variant="line" className="border-b border-border">
@@ -162,10 +163,10 @@ export default async function ProductDetailPage({
           </Tabs>
 
           {related.length > 0 && (
-            <div className="mt-12">
+            <Reveal className="mt-12">
               <h2 className="mb-4 font-display text-xl font-bold">You might also like</h2>
               <ProductGrid items={related} />
-            </div>
+            </Reveal>
           )}
         </div>
       </main>

@@ -6,6 +6,7 @@ import { CartSummary } from "@/components/cart/cart-summary"
 import { Button } from "@/components/ui/button"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
+import { Reveal } from "@/components/motion/reveal"
 
 export const metadata = {
   title: "Your Cart — RedeemCove",
@@ -23,7 +24,7 @@ export default async function CartPage() {
           <h1 className="mb-6 font-display text-2xl font-bold md:text-3xl">Your cart</h1>
 
           {items.length === 0 ? (
-            <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed border-border py-20 text-center">
+            <Reveal className="flex flex-col items-center gap-4 rounded-xl border border-dashed border-border py-20 text-center">
               <ShoppingBag className="size-10 text-muted-foreground" aria-hidden="true" />
               <div>
                 <p className="font-semibold">Your cart is empty</p>
@@ -34,7 +35,7 @@ export default async function CartPage() {
               <Button render={<Link href="/products" />} nativeButton={false}>
                 Browse products
               </Button>
-            </div>
+            </Reveal>
           ) : (
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
               <div className="rounded-xl border border-border bg-card px-5">

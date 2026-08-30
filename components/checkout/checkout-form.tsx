@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PriceDisplay } from "@/components/price-display"
+import { Reveal } from "@/components/motion/reveal"
 import { checkout } from "@/lib/actions/checkout"
 
 interface CheckoutFormProps {
@@ -48,7 +49,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-8">
       {isGuest && (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
+        <Reveal className="flex items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
           <span className="flex items-center gap-2 text-foreground/80">
             <Mail className="size-4 shrink-0 text-primary" aria-hidden="true" />
             Checking out as a guest — codes go to your email below.
@@ -56,10 +57,10 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
           <Link href="/sign-in?redirect=/checkout" className="shrink-0 font-semibold text-primary hover:underline">
             Sign in
           </Link>
-        </div>
+        </Reveal>
       )}
 
-      <section className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
+      <Reveal delay={0.05} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
         <h2 className="font-display text-lg font-bold">Contact details</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
@@ -78,9 +79,9 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             />
           </div>
         </div>
-      </section>
+      </Reveal>
 
-      <section className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
+      <Reveal delay={0.1} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
         <div className="flex items-center gap-2">
           <Lock className="size-4 text-muted-foreground" aria-hidden="true" />
           <h2 className="font-display text-lg font-bold">Payment</h2>
@@ -102,9 +103,9 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             <Input id="cvc" value={cvc} onChange={(e) => setCvc(e.target.value)} required />
           </div>
         </div>
-      </section>
+      </Reveal>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-6">
+      <Reveal delay={0.15} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-6">
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Subtotal</span>
           <PriceDisplay usdAmount={subtotal} />
@@ -128,7 +129,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
           <ShieldCheck className="size-3.5" aria-hidden="true" />
           Secured checkout — your details are protected
         </p>
-      </div>
+      </Reveal>
     </form>
   )
 }

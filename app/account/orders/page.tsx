@@ -4,6 +4,7 @@ import { getUserOrderItems } from "@/lib/actions/account"
 import { PriceDisplay } from "@/components/price-display"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 
 export const metadata = {
   title: "Your orders — RedeemCove",
@@ -21,50 +22,51 @@ export default async function AccountOrdersPage() {
 
   if (orderGroups.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-secondary/30 py-16 text-center">
+      <Reveal className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-secondary/30 py-16 text-center">
         <Package className="size-8 text-muted-foreground" aria-hidden="true" />
         <p className="text-sm text-muted-foreground">You haven&apos;t placed any orders yet.</p>
         <Button size="sm" render={<Link href="/products" />} nativeButton={false}>
           Browse products
         </Button>
-      </div>
+      </Reveal>
     )
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <RevealGroup className="flex flex-col gap-3" stagger={0.05}>
       {orderGroups.map(({ order, items }) => (
-        <Link
-          key={order.id}
-          href={`/account/orders/${order.orderNumber}`}
-          className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div>
-            <div className="flex items-center gap-2">
-              <p className="font-mono text-sm font-semibold">{order.orderNumber}</p>
-              <Badge variant={statusVariant[order.status] ?? "outline"} className="capitalize">
-                {order.status}
-              </Badge>
+        <RevealItem key={order.id}>
+          <Link
+            href={`/account/orders/${order.orderNumber}`}
+            className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="font-mono text-sm font-semibold">{order.orderNumber}</p>
+                <Badge variant={statusVariant[order.status] ?? "outline"} className="capitalize">
+                  {order.status}
+                </Badge>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {new Date(order.createdAt).toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}{" "}
+                · {items.length} {items.length === 1 ? "item" : "items"}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {items
+                  .slice(0, 2)
+                  .map((i) => i.productName)
+                  .join(", ")}
+                {items.length > 2 ? ` +${items.length - 2} more` : ""}
+              </p>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {new Date(order.createdAt).toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              })}{" "}
-              · {items.length} {items.length === 1 ? "item" : "items"}
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {items
-                .slice(0, 2)
-                .map((i) => i.productName)
-                .join(", ")}
-              {items.length > 2 ? ` +${items.length - 2} more` : ""}
-            </p>
-          </div>
-          <PriceDisplay usdAmount={Number.parseFloat(order.totalUsd)} className="font-display text-lg font-bold" />
-        </Link>
+            <PriceDisplay usdAmount={Number.parseFloat(order.totalUsd)} className="font-display text-lg font-bold" />
+          </Link>
+        </RevealItem>
       ))}
-    </div>
+    </RevealGroup>
   )
 }

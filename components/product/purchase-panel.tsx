@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { motion, AnimatePresence } from "motion/react"
 import { Heart, Minus, Plus, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PriceDisplay } from "@/components/price-display"
@@ -72,10 +73,11 @@ export function PurchasePanel({
         </p>
         <div className="grid grid-cols-2 gap-2">
           {variants.map((variant) => (
-            <button
+            <motion.button
               key={variant.id}
               type="button"
               onClick={() => setSelectedId(variant.id)}
+              whileTap={{ scale: 0.96 }}
               className={cn(
                 "flex flex-col items-start gap-0.5 rounded-lg border px-3 py-2.5 text-left transition-all",
                 selectedId === variant.id
@@ -87,15 +89,24 @@ export function PurchasePanel({
               <span className="text-xs text-muted-foreground">
                 <PriceDisplay usdAmount={Number.parseFloat(variant.priceUsd)} />
               </span>
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="font-display text-2xl font-bold">
-          <PriceDisplay usdAmount={Number.parseFloat(selected.priceUsd) * quantity} />
-        </span>
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.span
+            key={`${selected.id}-${quantity}`}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.18 }}
+            className="font-display text-2xl font-bold"
+          >
+            <PriceDisplay usdAmount={Number.parseFloat(selected.priceUsd) * quantity} />
+          </motion.span>
+        </AnimatePresence>
         {selected.discountPercent > 0 && (
           <span className="rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-accent-foreground">
             Save {selected.discountPercent}%
@@ -106,23 +117,25 @@ export function PurchasePanel({
       <div className="flex items-center gap-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Qty</p>
         <div className="flex items-center rounded-lg border border-border">
-          <button
+          <motion.button
             type="button"
+            whileTap={{ scale: 0.85 }}
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground"
             aria-label="Decrease quantity"
           >
             <Minus className="size-3.5" />
-          </button>
+          </motion.button>
           <span className="w-8 text-center text-sm font-medium">{quantity}</span>
-          <button
+          <motion.button
             type="button"
+            whileTap={{ scale: 0.85 }}
             onClick={() => setQuantity((q) => Math.min(10, q + 1))}
             className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground"
             aria-label="Increase quantity"
           >
             <Plus className="size-3.5" />
-          </button>
+          </motion.button>
         </div>
       </div>
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { motion } from "motion/react"
 import { LayoutDashboard, Package, KeyRound, Heart, User, ShieldCheck, Bell, LifeBuoy } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -29,14 +30,19 @@ export function AccountNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-              isActive
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+              "relative flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              isActive ? "text-primary" : "text-muted-foreground hover:bg-secondary hover:text-foreground",
             )}
           >
-            <Icon className="size-4" aria-hidden="true" />
-            {item.label}
+            {isActive && (
+              <motion.span
+                layoutId="account-nav-active"
+                className="absolute inset-0 rounded-lg bg-primary/10"
+                transition={{ type: "spring", stiffness: 500, damping: 40 }}
+              />
+            )}
+            <Icon className="relative z-10 size-4" aria-hidden="true" />
+            <span className="relative z-10">{item.label}</span>
           </Link>
         )
       })}

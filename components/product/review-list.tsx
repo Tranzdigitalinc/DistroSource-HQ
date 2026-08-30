@@ -1,5 +1,9 @@
+"use client"
+
 import { Star, ShieldCheck } from "lucide-react"
+import { motion } from "motion/react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { revealItemVariants } from "@/components/motion/reveal"
 
 interface Review {
   id: number
@@ -21,9 +25,19 @@ export function ReviewList({ reviews }: { reviews: Review[] }) {
   }
 
   return (
-    <ul className="flex flex-col gap-6">
+    <motion.ul
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-64px" }}
+      transition={{ staggerChildren: 0.05 }}
+      className="flex flex-col gap-6"
+    >
       {reviews.map((review) => (
-        <li key={review.id} className="flex gap-3 border-b border-border pb-6 last:border-0 last:pb-0">
+        <motion.li
+          key={review.id}
+          variants={revealItemVariants}
+          className="flex gap-3 border-b border-border pb-6 last:border-0 last:pb-0"
+        >
           <Avatar className="h-9 w-9 shrink-0">
             <AvatarFallback className="bg-secondary text-xs font-semibold text-secondary-foreground">
               {review.authorName
@@ -56,8 +70,8 @@ export function ReviewList({ reviews }: { reviews: Review[] }) {
             {review.title && <p className="text-sm font-semibold">{review.title}</p>}
             <p className="text-sm leading-relaxed text-muted-foreground">{review.body}</p>
           </div>
-        </li>
+        </motion.li>
       ))}
-    </ul>
+    </motion.ul>
   )
 }

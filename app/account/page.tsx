@@ -4,6 +4,7 @@ import { getUserOrderItems } from "@/lib/actions/account"
 import { getWishlistItems } from "@/lib/actions/wishlist"
 import { PriceDisplay } from "@/components/price-display"
 import { Button } from "@/components/ui/button"
+import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 
 export const metadata = {
   title: "Account overview — RedeemCove",
@@ -25,28 +26,29 @@ export default async function AccountOverviewPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-3" stagger={0.08}>
         {stats.map((stat) => (
-          <Link
-            key={stat.label}
-            href={stat.href}
-            className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40"
-          >
-            <div className="flex items-center justify-between">
-              <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <stat.icon className="size-4.5" aria-hidden="true" />
-              </span>
-              <ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-            </div>
-            <div>
-              <p className="font-display text-2xl font-bold">{stat.value}</p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
-            </div>
-          </Link>
+          <RevealItem key={stat.label}>
+            <Link
+              href={stat.href}
+              className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40"
+            >
+              <div className="flex items-center justify-between">
+                <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <stat.icon className="size-4.5" aria-hidden="true" />
+                </span>
+                <ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+              </div>
+              <div>
+                <p className="font-display text-2xl font-bold">{stat.value}</p>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+              </div>
+            </Link>
+          </RevealItem>
         ))}
-      </div>
+      </RevealGroup>
 
-      <div className="rounded-xl border border-border bg-card p-5">
+      <Reveal className="rounded-xl border border-border bg-card p-5">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold">Lifetime spend</h2>
         </div>
@@ -54,7 +56,7 @@ export default async function AccountOverviewPage() {
           <PriceDisplay usdAmount={totalSpent} />
         </p>
         <p className="mt-1 text-sm text-muted-foreground">Across {totalOrders} completed orders</p>
-      </div>
+      </Reveal>
 
       <div>
         <div className="mb-3 flex items-center justify-between">
@@ -65,35 +67,39 @@ export default async function AccountOverviewPage() {
         </div>
 
         {recentOrders.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-secondary/30 py-10 text-center">
+          <Reveal className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-secondary/30 py-10 text-center">
             <p className="text-sm text-muted-foreground">You haven&apos;t placed any orders yet.</p>
             <Button size="sm" render={<Link href="/products" />} nativeButton={false}>
               Browse products
             </Button>
-          </div>
+          </Reveal>
         ) : (
-          <div className="flex flex-col gap-3">
+          <RevealGroup className="flex flex-col gap-3" stagger={0.06}>
             {recentOrders.map(({ order, items }) => (
-              <Link
-                key={order.id}
-                href={`/account/orders/${order.orderNumber}`}
-                className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40"
-              >
-                <div>
-                  <p className="font-mono text-sm font-semibold">{order.orderNumber}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {items.length} {items.length === 1 ? "item" : "items"} ·{" "}
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <PriceDisplay usdAmount={Number.parseFloat(order.totalUsd)} className="font-display font-semibold" />
-              </Link>
+              <RevealItem key={order.id}>
+                <Link
+                  href={`/account/orders/${order.orderNumber}`}
+                  className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40"
+                >
+                  <div>
+                    <p className="font-mono text-sm font-semibold">{order.orderNumber}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {items.length} {items.length === 1 ? "item" : "items"} ·{" "}
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <PriceDisplay
+                    usdAmount={Number.parseFloat(order.totalUsd)}
+                    className="font-display font-semibold"
+                  />
+                </Link>
+              </RevealItem>
             ))}
-          </div>
+          </RevealGroup>
         )}
       </div>
 
-      <div className="rounded-xl border border-border bg-secondary/40 p-5">
+      <Reveal className="rounded-xl border border-border bg-secondary/40 p-5">
         <div className="flex items-center gap-3">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <LifeBuoy className="size-4.5" aria-hidden="true" />
@@ -106,7 +112,7 @@ export default async function AccountOverviewPage() {
             Contact support
           </Button>
         </div>
-      </div>
+      </Reveal>
     </div>
   )
 }
