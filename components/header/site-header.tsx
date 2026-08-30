@@ -11,7 +11,13 @@ import { TrustStrip } from "@/components/header/trust-strip"
 import { BrandLogo } from "@/components/brand-logo"
 
 export async function SiteHeader() {
-  const [categories, brands] = await Promise.all([getCategories(), getBrands()])
+  let categories: Awaited<ReturnType<typeof getCategories>> = []
+  let brands: Awaited<ReturnType<typeof getBrands>> = []
+  try {
+    ;[categories, brands] = await Promise.all([getCategories(), getBrands()])
+  } catch {
+    // DB unavailable at build time — nav renders without categories/brands
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/95 backdrop-blur-md supports-backdrop-filter:bg-background/80">

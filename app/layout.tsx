@@ -45,12 +45,19 @@ export const viewport: Viewport = {
   ],
 }
 
+export const dynamic = "force-dynamic"
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const countries = await getCountries()
+  let countries: Awaited<ReturnType<typeof getCountries>> = []
+  try {
+    countries = await getCountries()
+  } catch {
+    // DB unavailable at build time — CurrencyProvider falls back to USD
+  }
 
   return (
     <html
