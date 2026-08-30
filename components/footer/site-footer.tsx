@@ -7,10 +7,10 @@ const footerColumns = [
     links: [
       { label: "Gaming", href: "/categories/gaming" },
       { label: "Gift Cards", href: "/categories/gift-cards" },
-      { label: "Mobile & Recharge", href: "/categories/mobile-recharge" },
-      { label: "Software & Subscriptions", href: "/categories/software" },
+      { label: "Mobile Top-Up", href: "/categories/mobile-topup" },
+      { label: "Software & Productivity", href: "/categories/software" },
       { label: "Food & Delivery", href: "/categories/food-delivery" },
-      { label: "Social & Entertainment", href: "/categories/social-entertainment" },
+      { label: "Streaming & Entertainment", href: "/categories/streaming" },
       { label: "Today's Deals", href: "/deals" },
     ],
   },

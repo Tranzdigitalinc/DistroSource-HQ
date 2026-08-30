@@ -6,7 +6,7 @@ import { PriceDisplay } from "@/components/price-display"
 import { getCategoryImage } from "@/lib/category-icons"
 import { cn } from "@/lib/utils"
 
-interface ProductCardData {
+export interface ProductCardData {
   product: {
     slug: string
     name: string

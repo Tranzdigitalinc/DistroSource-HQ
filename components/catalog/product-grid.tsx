@@ -1,8 +1,7 @@
 import { PackageSearch } from "lucide-react"
-import { ProductCard } from "@/components/product/product-card"
-import type { getProducts } from "@/lib/queries/catalog"
+import { ProductCard, type ProductCardData } from "@/components/product/product-card"
 
-export function ProductGrid({ items }: { items: Awaited<ReturnType<typeof getProducts>> }) {
+export function ProductGrid({ items }: { items: ProductCardData[] }) {
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-center">
