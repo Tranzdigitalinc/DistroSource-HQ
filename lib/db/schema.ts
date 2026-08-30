@@ -82,6 +82,7 @@ export const brands = pgTable("brands", {
   name: text("name").notNull(),
   categoryId: integer("category_id").notNull(),
   logoUrl: text("logo_url"),
+  brandColor: text("brand_color"),
   description: text("description"),
   isFeatured: boolean("is_featured").notNull().default(false),
   rating: numeric("rating", { precision: 3, scale: 2 }).notNull().default("4.5"),

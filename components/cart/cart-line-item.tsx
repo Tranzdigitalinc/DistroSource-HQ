@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Minus, Plus, X } from "lucide-react"
 import { PriceDisplay } from "@/components/price-display"
-import { getCategoryImage } from "@/lib/category-icons"
+import { BrandThumbnail } from "@/components/product/brand-thumbnail"
 import { updateCartItemQuantity, removeCartItem } from "@/lib/actions/cart"
 
 interface CartLineItemProps {
@@ -13,8 +13,9 @@ interface CartLineItemProps {
   productSlug: string
   productName: string
   brandName: string
+  brandLogoUrl?: string | null
+  brandColor?: string | null
   denominationLabel: string
-  categorySlug?: string
   imageUrl: string | null
   unitPriceUsd: string
   quantity: number
@@ -25,8 +26,9 @@ export function CartLineItem({
   productSlug,
   productName,
   brandName,
+  brandLogoUrl,
+  brandColor,
   denominationLabel,
-  categorySlug,
   imageUrl,
   unitPriceUsd,
   quantity,
@@ -50,14 +52,17 @@ export function CartLineItem({
 
   return (
     <div className="flex gap-4 border-b border-border py-5 last:border-0">
-      <Link href={`/products/${productSlug}`} className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-secondary">
-        <Image
-          src={imageUrl || getCategoryImage(categorySlug ?? "gift-cards")}
-          alt={productName}
-          fill
-          className="object-cover"
-          sizes="80px"
-        />
+      <Link href={`/products/${productSlug}`} className="relative size-20 shrink-0 overflow-hidden rounded-lg">
+        {imageUrl ? (
+          <Image src={imageUrl || "/placeholder.svg"} alt={productName} fill className="object-cover" sizes="80px" />
+        ) : (
+          <BrandThumbnail
+            logoUrl={brandLogoUrl ?? null}
+            brandColor={brandColor ?? null}
+            brandName={brandName}
+            logoClassName="rounded-lg shadow-none"
+          />
+        )}
       </Link>
       <div className="flex flex-1 flex-col gap-1">
         <div className="flex items-start justify-between gap-3">

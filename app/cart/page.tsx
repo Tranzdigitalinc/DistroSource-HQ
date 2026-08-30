@@ -52,6 +52,8 @@ export default async function CartPage() {
                     productSlug={item.product.slug}
                     productName={item.product.name}
                     brandName={item.brand.name}
+                    brandLogoUrl={item.brand.logoUrl}
+                    brandColor={item.brand.brandColor}
                     denominationLabel={item.variant.denominationLabel}
                     imageUrl={item.product.imageUrl}
                     unitPriceUsd={item.variant.priceUsd}

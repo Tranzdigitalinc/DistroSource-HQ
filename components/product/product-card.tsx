@@ -1,9 +1,8 @@
 import Link from "next/link"
-import Image from "next/image"
 import { Star } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { PriceDisplay } from "@/components/price-display"
-import { getCategoryImage } from "@/lib/category-icons"
+import { BrandThumbnail } from "@/components/product/brand-thumbnail"
 import { cn } from "@/lib/utils"
 
 export interface ProductCardData {
@@ -15,7 +14,7 @@ export interface ProductCardData {
     rating: string
     reviewCount: number
   }
-  brand: { name: string; logoUrl: string | null }
+  brand: { name: string; logoUrl: string | null; brandColor?: string | null }
   category: { slug: string }
   country?: { code: string; flagEmoji: string | null } | null
   variants: { priceUsd: string; faceValueUsd: string; discountPercent: number }[]
@@ -37,33 +36,21 @@ export function ProductCard({ item, className }: { item: ProductCardData; classN
         className,
       )}
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-secondary">
-        <Image
-          src={item.product.imageUrl || getCategoryImage(item.category.slug)}
-          alt={item.product.name}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-          sizes="(max-width: 768px) 50vw, 25vw"
+      <div className="relative aspect-[4/3] w-full overflow-hidden">
+        <BrandThumbnail
+          logoUrl={item.brand.logoUrl}
+          brandColor={item.brand.brandColor ?? null}
+          brandName={item.brand.name}
+          className="transition-transform duration-300 group-hover:scale-105"
         />
-        {item.brand.logoUrl && (
-          <div className="absolute left-2 top-2 flex size-9 items-center justify-center rounded-lg bg-white p-1.5 shadow-sm">
-            <Image
-              src={item.brand.logoUrl || "/placeholder.svg"}
-              alt={`${item.brand.name} logo`}
-              width={28}
-              height={28}
-              className="size-full object-contain"
-            />
-          </div>
-        )}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-2">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-3 py-2">
           <span className="font-display text-sm font-bold text-white drop-shadow-sm">{item.brand.name}</span>
         </div>
         {maxDiscount > 0 && (
           <Badge className="absolute right-2 top-2 bg-accent text-accent-foreground">-{maxDiscount}%</Badge>
         )}
         {item.country?.flagEmoji && (
-          <span className="absolute right-2 top-11 flex size-6 items-center justify-center rounded-full bg-background/90 text-sm shadow-sm">
+          <span className="absolute left-2 top-2 flex size-6 items-center justify-center rounded-full bg-background/90 text-sm shadow-sm">
             {item.country.flagEmoji}
           </span>
         )}

@@ -5,10 +5,10 @@ import type { Metadata } from "next"
 import { Star, ChevronRight } from "lucide-react"
 import { getProductBySlug, getRelatedProducts } from "@/lib/queries/catalog"
 import { getWishlistProductIds } from "@/lib/actions/wishlist"
-import { getCategoryImage } from "@/lib/category-icons"
 import { PurchasePanel } from "@/components/product/purchase-panel"
 import { ReviewList } from "@/components/product/review-list"
 import { ProductGrid } from "@/components/catalog/product-grid"
+import { BrandThumbnail } from "@/components/product/brand-thumbnail"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { SiteHeader } from "@/components/header/site-header"
@@ -39,7 +39,6 @@ export default async function ProductDetailPage({
 
   const { product, brand, category, country, variants, reviews } = data
   const related = await getRelatedProducts(category.id, product.id, 8)
-  const imageSrc = product.imageUrl || getCategoryImage(category.slug)
   const wishlistIds = await getWishlistProductIds()
 
   return (
@@ -61,28 +60,26 @@ export default async function ProductDetailPage({
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             <div className="flex flex-col gap-4">
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-secondary">
-                <Image
-                  src={imageSrc || "/placeholder.svg"}
-                  alt={product.name}
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl">
+                {product.imageUrl ? (
+                  <Image
+                    src={product.imageUrl || "/placeholder.svg"}
+                    alt={product.name}
+                    fill
+                    priority
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                ) : (
+                  <BrandThumbnail
+                    logoUrl={brand.logoUrl}
+                    brandColor={brand.brandColor ?? null}
+                    brandName={brand.name}
+                    logoClassName="shadow-xl"
+                  />
+                )}
                 {product.isDeal && (
                   <Badge className="absolute left-3 top-3 bg-accent text-accent-foreground">Deal</Badge>
-                )}
-                {brand.logoUrl && (
-                  <div className="absolute bottom-3 left-3 flex size-14 items-center justify-center rounded-xl bg-white p-2.5 shadow-md">
-                    <Image
-                      src={brand.logoUrl || "/placeholder.svg"}
-                      alt={`${brand.name} logo`}
-                      width={44}
-                      height={44}
-                      className="size-full object-contain"
-                    />
-                  </div>
                 )}
               </div>
               <div className="flex flex-wrap items-center gap-3 text-sm">
