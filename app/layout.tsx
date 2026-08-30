@@ -5,6 +5,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from 'sonner'
 import { CurrencyProvider } from '@/lib/currency-context'
 import { ThemeProvider } from '@/components/theme-provider'
+import { MotionProvider } from '@/components/motion/motion-provider'
 import { getCountries } from '@/lib/queries/catalog'
 import './globals.css'
 
@@ -62,12 +63,14 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased">
-        <ThemeProvider>
-          <CurrencyProvider countries={countries}>
-            <TooltipProvider>{children}</TooltipProvider>
-          </CurrencyProvider>
-          <Toaster position="bottom-right" richColors />
-        </ThemeProvider>
+        <MotionProvider>
+          <ThemeProvider>
+            <CurrencyProvider countries={countries}>
+              <TooltipProvider>{children}</TooltipProvider>
+            </CurrencyProvider>
+            <Toaster position="bottom-right" richColors />
+          </ThemeProvider>
+        </MotionProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

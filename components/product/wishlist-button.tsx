@@ -1,6 +1,7 @@
 "use client"
 
 import useSWR from "swr"
+import { motion, AnimatePresence } from "motion/react"
 import { Heart } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -32,17 +33,29 @@ export function WishlistButton({ productId, className }: { productId: number; cl
   }
 
   return (
-    <button
+    <motion.button
       type="button"
       onClick={handleClick}
+      whileTap={{ scale: 0.85 }}
       aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
       aria-pressed={isWishlisted}
       className={cn(
-        "flex size-8 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm ring-1 ring-border/60 backdrop-blur transition-all hover:scale-110 hover:bg-background",
+        "flex size-8 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm ring-1 ring-border/60 backdrop-blur transition-colors hover:bg-background",
         className,
       )}
     >
-      <Heart className={cn("size-4 transition-colors", isWishlisted && "fill-destructive text-destructive")} />
-    </button>
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span
+          key={isWishlisted ? "on" : "off"}
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.5, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 500, damping: 20 }}
+          className="flex"
+        >
+          <Heart className={cn("size-4 transition-colors", isWishlisted && "fill-destructive text-destructive")} />
+        </motion.span>
+      </AnimatePresence>
+    </motion.button>
   )
 }

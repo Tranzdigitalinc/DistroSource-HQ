@@ -1,4 +1,7 @@
+"use client"
+
 import Link from "next/link"
+import { motion } from "motion/react"
 import { Star } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { PriceDisplay } from "@/components/price-display"
@@ -6,6 +9,8 @@ import { BrandThumbnail } from "@/components/product/brand-thumbnail"
 import { WishlistButton } from "@/components/product/wishlist-button"
 import { FlagIcon } from "@/components/flag-icon"
 import { cn } from "@/lib/utils"
+
+const MotionLink = motion.create(Link)
 
 export interface ProductCardData {
   product: {
@@ -40,11 +45,14 @@ export function ProductCard({
   const maxDiscount = Math.max(...item.variants.map((v) => v.discountPercent), 0)
 
   return (
-    <Link
+    <MotionLink
       href={`/products/${item.product.slug}`}
       style={style}
+      whileHover={{ y: -4 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 400, damping: 28 }}
       className={cn(
-        "group flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-xl hover:shadow-black/5",
+        "group flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-colors duration-300 hover:border-primary/25 hover:shadow-xl hover:shadow-black/5",
         className,
       )}
     >
@@ -95,6 +103,6 @@ export function ProductCard({
           )}
         </div>
       </div>
-    </Link>
+    </MotionLink>
   )
 }

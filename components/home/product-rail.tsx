@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { ProductCard } from "@/components/product/product-card"
+import { RevealGroup, RevealItem } from "@/components/motion/reveal"
 import type { getProducts } from "@/lib/queries/catalog"
 
 export function ProductRail({
@@ -31,11 +32,13 @@ export function ProductRail({
           <ArrowRight className="size-4" />
         </Link>
       </div>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+      <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6" stagger={0.05}>
         {items.slice(0, 12).map((item) => (
-          <ProductCard key={item.product.id} item={item} />
+          <RevealItem key={item.product.id}>
+            <ProductCard item={item} />
+          </RevealItem>
         ))}
-      </div>
+      </RevealGroup>
     </section>
   )
 }

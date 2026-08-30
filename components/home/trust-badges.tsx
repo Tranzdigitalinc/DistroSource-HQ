@@ -1,4 +1,5 @@
 import { Zap, ShieldCheck, Headphones, RefreshCcw } from "lucide-react"
+import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 
 const badges = [
   {
@@ -27,7 +28,7 @@ export function TrustBadges() {
   return (
     <section className="border-t border-border/60 bg-secondary/30">
       <div className="mx-auto max-w-7xl px-6 py-16 sm:px-8">
-        <div className="mb-10 max-w-2xl">
+        <Reveal className="mb-10 max-w-2xl">
           <h2 className="font-display text-2xl font-medium tracking-tight text-foreground sm:text-3xl">
             Why shoppers trust RedeemCove
           </h2>
@@ -35,19 +36,18 @@ export function TrustBadges() {
             No middlemen guesswork, no delivery delays — just a straightforward marketplace built around getting
             your code into your hands correctly, the first time.
           </p>
-        </div>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        </Reveal>
+        <RevealGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" stagger={0.08}>
           {badges.map((badge) => (
-            <div
-              key={badge.title}
-              className="flex flex-col gap-3 rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/40"
-            >
-              <badge.icon className="size-5 text-accent" />
-              <h3 className="font-display text-base font-semibold text-foreground">{badge.title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">{badge.body}</p>
-            </div>
+            <RevealItem key={badge.title}>
+              <div className="flex h-full flex-col gap-3 rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/40">
+                <badge.icon className="size-5 text-accent" />
+                <h3 className="font-display text-base font-semibold text-foreground">{badge.title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{badge.body}</p>
+              </div>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
       </div>
     </section>
   )
