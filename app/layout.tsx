@@ -2,6 +2,9 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { Toaster } from 'sonner'
+import { CurrencyProvider } from '@/lib/currency-context'
+import { getCountries } from '@/lib/queries/catalog'
 import './globals.css'
 
 const _inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
@@ -39,15 +42,20 @@ export const viewport: Viewport = {
   ],
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const countries = await getCountries()
+
   return (
     <html lang="en" className={`bg-background ${_inter.variable} ${_spaceGrotesk.variable}`}>
       <body className="antialiased">
-        <TooltipProvider>{children}</TooltipProvider>
+        <CurrencyProvider countries={countries}>
+          <TooltipProvider>{children}</TooltipProvider>
+        </CurrencyProvider>
+        <Toaster position="bottom-right" richColors />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
