@@ -3,12 +3,13 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { ShieldCheck, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PriceDisplay } from "@/components/price-display"
 import { applyCouponPreview } from "@/lib/actions/checkout"
 
-export function CartSummary({ subtotal }: { subtotal: number }) {
+export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCount: number }) {
   const router = useRouter()
   const [code, setCode] = useState("")
   const [discountPercent, setDiscountPercent] = useState(0)
@@ -44,7 +45,8 @@ export function CartSummary({ subtotal }: { subtotal: number }) {
       <h2 className="font-display text-lg font-bold">Order summary</h2>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="coupon" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <label htmlFor="coupon" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <Tag className="size-3" />
           Coupon code
         </label>
         <div className="flex gap-2">
@@ -61,9 +63,9 @@ export function CartSummary({ subtotal }: { subtotal: number }) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 border-t border-border pt-4 text-sm">
+      <div className="flex flex-col gap-2.5 border-t border-border pt-4 text-sm">
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Subtotal</span>
+          <span className="text-muted-foreground">Subtotal ({itemCount} {itemCount === 1 ? "item" : "items"})</span>
           <PriceDisplay usdAmount={subtotal} />
         </div>
         {discountPercent > 0 && (
@@ -74,7 +76,7 @@ export function CartSummary({ subtotal }: { subtotal: number }) {
             </span>
           </div>
         )}
-        <div className="flex justify-between border-t border-border pt-2 font-display text-base font-bold">
+        <div className="flex justify-between border-t border-border pt-3 font-display text-base font-bold">
           <span>Total</span>
           <PriceDisplay usdAmount={total} />
         </div>
@@ -83,6 +85,11 @@ export function CartSummary({ subtotal }: { subtotal: number }) {
       <Button size="lg" className="h-11 font-semibold" onClick={handleCheckout} disabled={subtotal <= 0}>
         Proceed to checkout
       </Button>
+
+      <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+        <ShieldCheck className="size-3.5" />
+        Secured checkout — your details are protected
+      </p>
     </div>
   )
 }

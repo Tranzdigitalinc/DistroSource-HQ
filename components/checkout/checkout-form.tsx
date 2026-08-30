@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
-import { Lock, Mail, ShieldCheck } from "lucide-react"
+import { Lock, Mail, ShieldCheck, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,15 +12,24 @@ import { PriceDisplay } from "@/components/price-display"
 import { Reveal } from "@/components/motion/reveal"
 import { checkout } from "@/lib/actions/checkout"
 
+interface OrderItem {
+  name: string
+  brand: string
+  denomination: string
+  quantity: number
+  unitPriceUsd: string
+}
+
 interface CheckoutFormProps {
   defaultEmail: string
   defaultName: string
   subtotal: number
   discountPercent: number
   isGuest: boolean
+  orderItems: OrderItem[]
 }
 
-export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPercent, isGuest }: CheckoutFormProps) {
+export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPercent, isGuest, orderItems }: CheckoutFormProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const couponCode = searchParams.get("coupon") ?? undefined
@@ -61,6 +70,28 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
       )}
 
       <Reveal delay={0.05} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
+        <div className="flex items-center gap-2">
+          <Package className="size-4 text-muted-foreground" aria-hidden="true" />
+          <h2 className="font-display text-lg font-bold">Your items</h2>
+        </div>
+        <div className="flex flex-col divide-y divide-border">
+          {orderItems.map((item, i) => (
+            <div key={i} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-foreground">{item.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {item.brand} &middot; {item.denomination} &times; {item.quantity}
+                </p>
+              </div>
+              <span className="shrink-0 text-sm font-semibold">
+                <PriceDisplay usdAmount={Number.parseFloat(item.unitPriceUsd) * item.quantity} />
+              </span>
+            </div>
+          ))}
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.1} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
         <h2 className="font-display text-lg font-bold">Contact details</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
@@ -81,7 +112,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
         </div>
       </Reveal>
 
-      <Reveal delay={0.1} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
+      <Reveal delay={0.15} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
         <div className="flex items-center gap-2">
           <Lock className="size-4 text-muted-foreground" aria-hidden="true" />
           <h2 className="font-display text-lg font-bold">Payment</h2>
@@ -105,7 +136,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
         </div>
       </Reveal>
 
-      <Reveal delay={0.15} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-6">
+      <Reveal delay={0.2} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-6">
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Subtotal</span>
           <PriceDisplay usdAmount={subtotal} />

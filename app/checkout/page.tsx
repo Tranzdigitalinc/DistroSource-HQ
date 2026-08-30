@@ -31,6 +31,14 @@ export default async function CheckoutPage({
 
   const session = await getSession()
 
+  const orderItems = items.map((item) => ({
+    name: item.product.name,
+    brand: item.brand.name,
+    denomination: item.variant.denominationLabel,
+    quantity: item.cartItem.quantity,
+    unitPriceUsd: item.variant.priceUsd,
+  }))
+
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
@@ -43,6 +51,7 @@ export default async function CheckoutPage({
             subtotal={subtotal}
             discountPercent={discountPercent}
             isGuest={!session?.user}
+            orderItems={orderItems}
           />
         </div>
       </main>

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ShoppingBag } from "lucide-react"
+import { ShoppingBag, ArrowRight, Tag } from "lucide-react"
 import { getCartItems } from "@/lib/actions/cart"
 import { CartLineItem } from "@/components/cart/cart-line-item"
 import { CartSummary } from "@/components/cart/cart-summary"
@@ -15,26 +15,43 @@ export const metadata = {
 export default async function CartPage() {
   const items = await getCartItems()
   const subtotal = items.reduce((sum, i) => sum + Number.parseFloat(i.variant.priceUsd) * i.cartItem.quantity, 0)
+  const totalItems = items.reduce((sum, i) => sum + i.cartItem.quantity, 0)
 
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
-          <h1 className="mb-6 font-display text-2xl font-bold md:text-3xl">Your cart</h1>
+          <div className="mb-6 flex items-baseline gap-3">
+            <h1 className="font-display text-2xl font-bold md:text-3xl">Your cart</h1>
+            {items.length > 0 && (
+              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                {totalItems} {totalItems === 1 ? "item" : "items"}
+              </span>
+            )}
+          </div>
 
           {items.length === 0 ? (
-            <Reveal className="flex flex-col items-center gap-4 rounded-xl border border-dashed border-border py-20 text-center">
-              <ShoppingBag className="size-10 text-muted-foreground" aria-hidden="true" />
+            <Reveal className="flex flex-col items-center gap-5 rounded-xl border border-dashed border-border bg-card py-20 text-center">
+              <div className="flex size-16 items-center justify-center rounded-full bg-muted">
+                <ShoppingBag className="size-7 text-muted-foreground" aria-hidden="true" />
+              </div>
               <div>
-                <p className="font-semibold">Your cart is empty</p>
-                <p className="text-sm text-muted-foreground">
-                  Browse our marketplace to find gift cards and top-ups.
+                <p className="font-display text-lg font-semibold">Your cart is empty</p>
+                <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                  Browse our marketplace to find gift cards, game top-ups, and digital codes at great prices.
                 </p>
               </div>
-              <Button render={<Link href="/products" />} nativeButton={false}>
-                Browse products
-              </Button>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button render={<Link href="/products" />} nativeButton={false}>
+                  Browse products
+                  <ArrowRight className="size-4" />
+                </Button>
+                <Button variant="outline" render={<Link href="/deals" />} nativeButton={false}>
+                  <Tag className="size-4" />
+                  View deals
+                </Button>
+              </div>
             </Reveal>
           ) : (
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
@@ -55,7 +72,9 @@ export default async function CartPage() {
                   />
                 ))}
               </div>
-              <CartSummary subtotal={Math.round(subtotal * 100) / 100} />
+              <div className="lg:sticky lg:top-36 lg:self-start">
+                <CartSummary subtotal={Math.round(subtotal * 100) / 100} itemCount={totalItems} />
+              </div>
             </div>
           )}
         </div>

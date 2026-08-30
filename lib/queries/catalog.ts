@@ -10,7 +10,20 @@ import {
 import { and, asc, desc, eq, ilike, inArray, or, sql } from "drizzle-orm"
 
 export async function getCategories() {
-  return db.select().from(categories).orderBy(asc(categories.sortOrder))
+  return db
+    .select({
+      id: categories.id,
+      slug: categories.slug,
+      name: categories.name,
+      description: categories.description,
+      iconName: categories.iconName,
+      sortOrder: categories.sortOrder,
+      productCount: sql<number>`cast(count(${products.id}) as int)`,
+    })
+    .from(categories)
+    .leftJoin(products, eq(products.categoryId, categories.id))
+    .groupBy(categories.id)
+    .orderBy(asc(categories.sortOrder))
 }
 
 export async function getCategoryBySlug(slug: string) {

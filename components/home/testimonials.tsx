@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { motion } from "motion/react"
-import { Star, BadgeCheck } from "lucide-react"
+import { Star, BadgeCheck, Quote } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 import type { getTopReviews } from "@/lib/queries/catalog"
@@ -59,8 +59,9 @@ export function Testimonials({ reviews, stats }: TestimonialsProps) {
               whileHover={{ y: -3 }}
               whileTap={{ scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 28 }}
-              className="flex h-full flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40"
+              className="group relative flex h-full flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40"
             >
+              <Quote className="absolute right-4 top-4 size-8 text-primary/8" aria-hidden />
               <div className="flex items-center gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
@@ -73,7 +74,9 @@ export function Testimonials({ reviews, stats }: TestimonialsProps) {
               <p className="line-clamp-4 text-sm leading-relaxed text-muted-foreground">{review.body}</p>
               <div className="mt-auto flex items-center gap-2.5 border-t border-border/60 pt-3">
                 <Avatar size="sm">
-                  <AvatarFallback>{initials(review.authorName)}</AvatarFallback>
+                  <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+                    {initials(review.authorName)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex min-w-0 flex-col">
                   <span className="flex items-center gap-1 text-xs font-medium text-foreground">
@@ -82,7 +85,9 @@ export function Testimonials({ reviews, stats }: TestimonialsProps) {
                       <BadgeCheck className="size-3.5 shrink-0 text-primary" aria-label="Verified purchase" />
                     )}
                   </span>
-                  <span className="truncate text-xs text-muted-foreground">on {brand.name}</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    on {brand.name} &middot; {product.name}
+                  </span>
                 </div>
               </div>
             </MotionLink>

@@ -38,6 +38,7 @@ export default async function HomePage() {
           subtitle="Limited-time discounts across our top brands"
           href="/deals"
           items={deals}
+          variant="deals"
         />
         <Testimonials reviews={topReviews} stats={stats} />
         <TrustBadges />

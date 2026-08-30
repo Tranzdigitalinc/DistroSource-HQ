@@ -1,8 +1,14 @@
+"use client"
+
+import { useState, useTransition } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ShieldCheck } from "lucide-react"
+import { ShieldCheck, Send, ArrowRight } from "lucide-react"
+import { toast } from "sonner"
 import { Reveal } from "@/components/motion/reveal"
 import { BrandLogo } from "@/components/brand-logo"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 const footerColumns = [
   {
@@ -44,10 +50,63 @@ const paymentIcons = [
   { file: "google-pay.svg", label: "Google Pay" },
 ]
 
+function NewsletterForm() {
+  const [email, setEmail] = useState("")
+  const [isPending, startTransition] = useTransition()
+  const [submitted, setSubmitted] = useState(false)
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!email.trim()) return
+    startTransition(() => {
+      setTimeout(() => {
+        setSubmitted(true)
+        toast.success("You're on the list! Watch your inbox for exclusive deals.")
+      }, 500)
+    })
+  }
+
+  if (submitted) {
+    return (
+      <p className="flex items-center gap-2 text-sm font-medium text-primary">
+        <Send className="size-4" />
+        Thanks! You&apos;ll hear from us soon.
+      </p>
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2">
+      <Input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="you@example.com"
+        required
+        className="h-9 max-w-[220px] bg-background/50 text-sm"
+      />
+      <Button type="submit" size="sm" disabled={isPending} className="h-9 px-3">
+        Subscribe
+        <ArrowRight className="size-3.5" />
+      </Button>
+    </form>
+  )
+}
+
 export function SiteFooter() {
   return (
     <footer className="border-t border-border/60 bg-secondary/40">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+        <Reveal className="mb-10 flex flex-col gap-4 rounded-xl border border-border bg-card p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="font-display text-base font-semibold text-foreground">Get deals in your inbox</h3>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              Subscribe for exclusive discounts and new brand drops.
+            </p>
+          </div>
+          <NewsletterForm />
+        </Reveal>
+
         <Reveal className="grid grid-cols-2 gap-8 pb-10 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <BrandLogo height={48} />
