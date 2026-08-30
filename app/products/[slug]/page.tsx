@@ -73,6 +73,17 @@ export default async function ProductDetailPage({
                 {product.isDeal && (
                   <Badge className="absolute left-3 top-3 bg-accent text-accent-foreground">Deal</Badge>
                 )}
+                {brand.logoUrl && (
+                  <div className="absolute bottom-3 left-3 flex size-14 items-center justify-center rounded-xl bg-white p-2.5 shadow-md">
+                    <Image
+                      src={brand.logoUrl || "/placeholder.svg"}
+                      alt={`${brand.name} logo`}
+                      width={44}
+                      height={44}
+                      className="size-full object-contain"
+                    />
+                  </div>
+                )}
               </div>
               <div className="flex flex-wrap items-center gap-3 text-sm">
                 <div className="flex items-center gap-1">

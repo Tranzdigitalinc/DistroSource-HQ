@@ -45,14 +45,25 @@ export function ProductCard({ item, className }: { item: ProductCardData; classN
           className="object-cover transition-transform duration-300 group-hover:scale-105"
           sizes="(max-width: 768px) 50vw, 25vw"
         />
+        {item.brand.logoUrl && (
+          <div className="absolute left-2 top-2 flex size-9 items-center justify-center rounded-lg bg-white p-1.5 shadow-sm">
+            <Image
+              src={item.brand.logoUrl || "/placeholder.svg"}
+              alt={`${item.brand.name} logo`}
+              width={28}
+              height={28}
+              className="size-full object-contain"
+            />
+          </div>
+        )}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-2">
           <span className="font-display text-sm font-bold text-white drop-shadow-sm">{item.brand.name}</span>
         </div>
         {maxDiscount > 0 && (
-          <Badge className="absolute left-2 top-2 bg-accent text-accent-foreground">-{maxDiscount}%</Badge>
+          <Badge className="absolute right-2 top-2 bg-accent text-accent-foreground">-{maxDiscount}%</Badge>
         )}
         {item.country?.flagEmoji && (
-          <span className="absolute right-2 top-2 flex size-6 items-center justify-center rounded-full bg-background/90 text-sm shadow-sm">
+          <span className="absolute right-2 top-11 flex size-6 items-center justify-center rounded-full bg-background/90 text-sm shadow-sm">
             {item.country.flagEmoji}
           </span>
         )}

@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { getBrands } from "@/lib/queries/catalog"
@@ -18,8 +19,19 @@ export default async function BrandsPage() {
               <Link
                 key={brand.slug}
                 href={`/brands/${brand.slug}`}
-                className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-6 text-center transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+                className="flex flex-col items-center justify-center gap-3 rounded-xl border border-border bg-card px-4 py-6 text-center transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
               >
+                {brand.logoUrl ? (
+                  <div className="flex size-12 items-center justify-center rounded-lg bg-white p-2">
+                    <Image
+                      src={brand.logoUrl || "/placeholder.svg"}
+                      alt={`${brand.name} logo`}
+                      width={40}
+                      height={40}
+                      className="size-full object-contain"
+                    />
+                  </div>
+                ) : null}
                 <span className="font-display text-sm font-bold">{brand.name}</span>
               </Link>
             ))}

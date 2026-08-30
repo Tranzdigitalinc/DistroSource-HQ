@@ -26,6 +26,7 @@ export default async function BrandDetailPage({
     <CatalogPage
       title={brand.name}
       subtitle={brand.description ?? `Shop gift cards and codes from ${brand.name}`}
+      logoUrl={brand.logoUrl}
       products={products}
     />
   )
