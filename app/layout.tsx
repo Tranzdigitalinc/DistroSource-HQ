@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Inter, Fraunces } from 'next/font/google'
+import { Inter, Geist } from 'next/font/google'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from 'sonner'
 import { CurrencyProvider } from '@/lib/currency-context'
@@ -10,12 +10,7 @@ import { getCountries } from '@/lib/queries/catalog'
 import './globals.css'
 
 const _inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
-const _fraunces = Fraunces({
-  subsets: ['latin'],
-  variable: '--font-fraunces',
-  style: ['normal', 'italic'],
-  axes: ['opsz', 'SOFT', 'WONK'],
-})
+const _geist = Geist({ subsets: ['latin'], variable: '--font-geist' })
 
 export const metadata: Metadata = {
   title: 'RedeemCove — Gift Cards, Game Top-Ups & Digital Codes',
@@ -59,7 +54,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark bg-background ${_inter.variable} ${_fraunces.variable}`}
+      className={`dark bg-background ${_inter.variable} ${_geist.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased">

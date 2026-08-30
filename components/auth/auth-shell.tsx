@@ -44,7 +44,7 @@ export function AuthShell({
             className="absolute inset-0 opacity-40"
             style={{
               backgroundImage:
-                "radial-gradient(circle at 20% 20%, oklch(0.72 0.14 220 / 0.5), transparent 40%), radial-gradient(circle at 80% 70%, oklch(0.6 0.15 240 / 0.4), transparent 45%)",
+                "radial-gradient(circle at 20% 20%, oklch(0.68 0.19 262 / 0.35), transparent 40%), radial-gradient(circle at 80% 70%, oklch(0.64 0.21 262 / 0.28), transparent 45%)",
             }}
           />
           <div className="relative flex h-full flex-col items-start justify-end p-16">

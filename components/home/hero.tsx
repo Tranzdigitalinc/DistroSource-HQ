@@ -33,7 +33,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
         className="absolute inset-0 opacity-70"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 12% 20%, oklch(0.7 0.15 55 / 0.18), transparent 45%), radial-gradient(circle at 88% 85%, oklch(0.7 0.15 55 / 0.12), transparent 45%)",
+            "radial-gradient(circle at 12% 20%, oklch(0.68 0.19 262 / 0.22), transparent 45%), radial-gradient(circle at 88% 85%, oklch(0.68 0.19 262 / 0.14), transparent 45%)",
         }}
       />
       <motion.div
@@ -56,7 +56,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
             transition={{ duration: 0.6, ease: EASE }}
             className="font-display text-5xl font-medium leading-[1.05] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.25rem]"
           >
-            Gift cards & digital codes, <em className="italic text-hero-accent">delivered instantly</em>
+            Gift cards & digital codes, <span className="text-hero-accent">delivered instantly</span>
           </motion.h1>
           <motion.p
             variants={item}
