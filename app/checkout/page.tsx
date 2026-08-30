@@ -3,6 +3,8 @@ import { getCartItems } from "@/lib/actions/cart"
 import { applyCouponPreview } from "@/lib/actions/checkout"
 import { getOptionalUserId, getSession } from "@/lib/session"
 import { CheckoutForm } from "@/components/checkout/checkout-form"
+import { SiteHeader } from "@/components/header/site-header"
+import { SiteFooter } from "@/components/footer/site-footer"
 
 export const metadata = {
   title: "Checkout — RedeemCove",
@@ -33,14 +35,20 @@ export default async function CheckoutPage({
   const session = await getSession()
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 md:px-6">
-      <h1 className="mb-6 font-display text-2xl font-bold md:text-3xl">Checkout</h1>
-      <CheckoutForm
-        defaultEmail={session?.user?.email ?? ""}
-        defaultName={session?.user?.name ?? ""}
-        subtotal={subtotal}
-        discountPercent={discountPercent}
-      />
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
+      <main className="flex-1">
+        <div className="mx-auto max-w-2xl px-4 py-8 md:px-6">
+          <h1 className="mb-6 font-display text-2xl font-bold md:text-3xl">Checkout</h1>
+          <CheckoutForm
+            defaultEmail={session?.user?.email ?? ""}
+            defaultName={session?.user?.name ?? ""}
+            subtotal={subtotal}
+            discountPercent={discountPercent}
+          />
+        </div>
+      </main>
+      <SiteFooter />
     </div>
   )
 }
