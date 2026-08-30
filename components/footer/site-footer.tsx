@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { ShieldCheck } from "lucide-react"
 import { Reveal } from "@/components/motion/reveal"
+import { BrandLogo } from "@/components/brand-logo"
 
 const footerColumns = [
   {
@@ -49,12 +50,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <Reveal className="grid grid-cols-2 gap-8 pb-10 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="flex size-8 items-center justify-center rounded-lg bg-primary font-display text-sm font-bold text-primary-foreground shadow-[0_0_0_1px_oklch(1_0_0/8%),0_2px_8px_-2px_var(--primary)]">
-                RC
-              </span>
-              <span className="font-display text-lg font-semibold tracking-tight text-foreground">RedeemCove</span>
-            </Link>
+            <BrandLogo height={32} />
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Your one-stop marketplace for gift cards, game top-ups, mobile recharges, and software licenses —
               delivered instantly, worldwide.

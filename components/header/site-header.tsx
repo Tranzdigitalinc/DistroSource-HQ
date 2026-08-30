@@ -8,6 +8,7 @@ import { CartTrigger } from "@/components/header/cart-trigger"
 import { AccountMenu } from "@/components/header/account-menu"
 import { ThemeToggle } from "@/components/header/theme-toggle"
 import { TrustStrip } from "@/components/header/trust-strip"
+import { BrandLogo } from "@/components/brand-logo"
 
 export async function SiteHeader() {
   const [categories, brands] = await Promise.all([getCategories(), getBrands()])
@@ -18,13 +19,8 @@ export async function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
         <MobileNav categories={categories} />
 
-        <Link href="/" className="flex items-center gap-2 shrink-0">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-primary font-display text-sm font-bold text-primary-foreground shadow-[0_0_0_1px_oklch(1_0_0/8%),0_2px_8px_-2px_var(--primary)]">
-            RC
-          </span>
-          <span className="hidden font-display text-lg font-semibold tracking-tight text-foreground sm:inline">
-            RedeemCove
-          </span>
+        <Link href="/" className="flex shrink-0 items-center">
+          <BrandLogo href={null} height={30} />
         </Link>
 
         <DesktopNav categories={categories} brands={brands} />

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { ThemeToggle } from "@/components/header/theme-toggle"
+import { BrandLogo } from "@/components/brand-logo"
 
 export function AuthShell({
   title,
@@ -14,11 +15,8 @@ export function AuthShell({
   return (
     <div className="flex min-h-screen flex-col">
       <header className="flex h-16 shrink-0 items-center justify-between border-b border-border/60 px-6 sm:px-10 lg:px-16">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-primary font-display text-sm font-bold text-primary-foreground">
-            RC
-          </span>
-          <span className="font-display text-lg font-semibold tracking-tight text-foreground">RedeemCove</span>
+        <Link href="/" className="flex items-center">
+          <BrandLogo href={null} height={28} />
         </Link>
         <div className="flex items-center gap-2">
           <Link
