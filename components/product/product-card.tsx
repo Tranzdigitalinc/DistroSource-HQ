@@ -3,10 +3,12 @@ import { Star } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { PriceDisplay } from "@/components/price-display"
 import { BrandThumbnail } from "@/components/product/brand-thumbnail"
+import { WishlistButton } from "@/components/product/wishlist-button"
 import { cn } from "@/lib/utils"
 
 export interface ProductCardData {
   product: {
+    id: number
     slug: string
     name: string
     imageUrl: string | null
@@ -21,7 +23,15 @@ export interface ProductCardData {
   minPrice?: number
 }
 
-export function ProductCard({ item, className }: { item: ProductCardData; className?: string }) {
+export function ProductCard({
+  item,
+  className,
+  style,
+}: {
+  item: ProductCardData
+  className?: string
+  style?: React.CSSProperties
+}) {
   const cheapest = item.variants.reduce(
     (min, v) => (Number.parseFloat(v.priceUsd) < Number.parseFloat(min.priceUsd) ? v : min),
     item.variants[0],
@@ -31,6 +41,7 @@ export function ProductCard({ item, className }: { item: ProductCardData; classN
   return (
     <Link
       href={`/products/${item.product.slug}`}
+      style={style}
       className={cn(
         "group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5",
         className,
@@ -47,13 +58,19 @@ export function ProductCard({ item, className }: { item: ProductCardData; classN
           <span className="font-display text-sm font-bold text-white drop-shadow-sm">{item.brand.name}</span>
         </div>
         {maxDiscount > 0 && (
-          <Badge className="absolute right-2 top-2 bg-accent text-accent-foreground">-{maxDiscount}%</Badge>
+          <Badge className="absolute left-2 top-2 bg-accent text-accent-foreground">-{maxDiscount}%</Badge>
         )}
         {item.country?.flagEmoji && (
-          <span className="absolute left-2 top-2 flex size-6 items-center justify-center rounded-full bg-background/90 text-sm shadow-sm">
+          <span
+            className={cn(
+              "absolute top-2 flex size-6 items-center justify-center rounded-full bg-background/90 text-sm shadow-sm",
+              maxDiscount > 0 ? "left-14" : "left-2",
+            )}
+          >
             {item.country.flagEmoji}
           </span>
         )}
+        <WishlistButton productId={item.product.id} className="absolute right-2 top-2" />
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-3.5">
         <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-balance">{item.product.name}</h3>
