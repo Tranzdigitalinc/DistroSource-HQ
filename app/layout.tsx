@@ -1,10 +1,16 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { Inter, Space_Grotesk } from 'next/font/google'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import './globals.css'
 
+const _inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const _spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk' })
+
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'RedeemCove — Gift Cards, Game Top-Ups & Digital Codes',
+  description:
+    'Shop gift cards, game top-ups, mobile recharges, and software licenses from trusted brands worldwide. Instant digital delivery, every time.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -39,9 +45,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`bg-background ${_inter.variable} ${_spaceGrotesk.variable}`}>
       <body className="antialiased">
-        {children}
+        <TooltipProvider>{children}</TooltipProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
