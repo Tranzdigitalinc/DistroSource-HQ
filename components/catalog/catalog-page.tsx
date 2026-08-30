@@ -13,7 +13,7 @@ export async function CatalogPage({
   banner,
   products,
 }: {
-  title: string
+  title: React.ReactNode
   subtitle?: string
   logoUrl?: string | null
   banner?: React.ReactNode

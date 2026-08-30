@@ -9,6 +9,7 @@ import { PurchasePanel } from "@/components/product/purchase-panel"
 import { ReviewList } from "@/components/product/review-list"
 import { ProductGrid } from "@/components/catalog/product-grid"
 import { BrandThumbnail } from "@/components/product/brand-thumbnail"
+import { FlagIcon } from "@/components/flag-icon"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { SiteHeader } from "@/components/header/site-header"
@@ -110,8 +111,9 @@ export default async function ProductDetailPage({
                   {country && (
                     <>
                       <span aria-hidden="true">·</span>
-                      <span>
-                        {country.flagEmoji} {country.name}
+                      <span className="flex items-center gap-1.5 normal-case tracking-normal">
+                        <FlagIcon code={country.code} />
+                        {country.name}
                       </span>
                     </>
                   )}

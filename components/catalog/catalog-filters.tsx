@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { X } from "lucide-react"
 import { getCategoryIcon } from "@/lib/category-icons"
+import { FlagIcon } from "@/components/flag-icon"
 import { cn } from "@/lib/utils"
 import type { getCategories, getBrands, getCountries } from "@/lib/queries/catalog"
 
@@ -70,7 +71,7 @@ export function CatalogFilters({ categories, brands, countries }: Props) {
                 href={buildHref("country", c.code)}
                 active={activeCountry === c.code}
                 label={c.name}
-                emoji={c.flagEmoji}
+                countryCode={c.code}
               />
             ))}
           </FilterGroup>
@@ -106,13 +107,13 @@ function FilterLink({
   active,
   label,
   icon,
-  emoji,
+  countryCode,
 }: {
   href: string
   active: boolean
   label: string
   icon?: React.ReactNode
-  emoji?: string | null
+  countryCode?: string | null
 }) {
   return (
     <Link
@@ -128,7 +129,7 @@ function FilterLink({
           active ? "bg-primary" : "bg-transparent group-hover:bg-border",
         )}
       />
-      {emoji && <span className="text-sm leading-none">{emoji}</span>}
+      {countryCode && <FlagIcon code={countryCode} />}
       {icon && <span className={cn("shrink-0", active ? "text-primary" : "text-muted-foreground")}>{icon}</span>}
       <span className="truncate">{label}</span>
     </Link>

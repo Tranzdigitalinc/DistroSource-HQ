@@ -1,12 +1,13 @@
 "use client"
 
-import { ChevronDown, Globe } from "lucide-react"
+import { Check, ChevronDown } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { FlagIcon } from "@/components/flag-icon"
 import { useCurrency } from "@/lib/currency-context"
 
 export function CountrySelector() {
@@ -22,18 +23,17 @@ export function CountrySelector() {
           />
         }
       >
-        <Globe className="size-4" />
-        <span className="hidden sm:inline">
-          {selected?.flagEmoji} {selected?.currencyCode}
-        </span>
+        <FlagIcon code={selected?.code} className="h-3.5 w-5" />
+        <span className="hidden sm:inline">{selected?.currencyCode}</span>
         <ChevronDown className="size-3.5 opacity-60" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="max-h-80 w-56">
+      <DropdownMenuContent align="end" className="max-h-80 w-60">
         {countries.map((country) => (
           <DropdownMenuItem key={country.code} onClick={() => setSelectedCode(country.code)}>
-            <span className="text-base">{country.flagEmoji}</span>
+            <FlagIcon code={country.code} className="h-3.5 w-5" />
             <span className="flex-1">{country.name}</span>
             <span className="text-xs text-muted-foreground">{country.currencyCode}</span>
+            {selected?.code === country.code && <Check className="size-3.5 text-primary" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

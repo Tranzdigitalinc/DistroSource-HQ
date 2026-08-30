@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { CatalogPage } from "@/components/catalog/catalog-page"
+import { FlagIcon } from "@/components/flag-icon"
 import { getCountryByCode, getProducts } from "@/lib/queries/catalog"
 
 export default async function CountryDetailPage({
@@ -24,7 +25,12 @@ export default async function CountryDetailPage({
 
   return (
     <CatalogPage
-      title={`${country.flagEmoji ?? ""} Products for ${country.name}`}
+      title={
+        <span className="flex items-center gap-2.5">
+          <FlagIcon code={country.code} className="h-6 w-8" />
+          Products for {country.name}
+        </span>
+      }
       subtitle={`Priced in ${country.currencyCode}, ready for instant delivery`}
       products={products}
     />

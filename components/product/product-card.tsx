@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { PriceDisplay } from "@/components/price-display"
 import { BrandThumbnail } from "@/components/product/brand-thumbnail"
 import { WishlistButton } from "@/components/product/wishlist-button"
+import { FlagIcon } from "@/components/flag-icon"
 import { cn } from "@/lib/utils"
 
 export interface ProductCardData {
@@ -60,14 +61,14 @@ export function ProductCard({
         {maxDiscount > 0 && (
           <Badge className="absolute left-2 top-2 bg-accent text-accent-foreground">-{maxDiscount}%</Badge>
         )}
-        {item.country?.flagEmoji && (
+        {item.country?.code && (
           <span
             className={cn(
-              "absolute top-2 flex size-6 items-center justify-center rounded-full bg-background/90 text-sm shadow-sm",
+              "absolute top-2 flex h-6 items-center justify-center rounded-full bg-background/90 px-1.5 shadow-sm",
               maxDiscount > 0 ? "left-14" : "left-2",
             )}
           >
-            {item.country.flagEmoji}
+            <FlagIcon code={item.country.code} className="h-3 w-4" />
           </span>
         )}
         <WishlistButton productId={item.product.id} className="absolute right-2 top-2" />
