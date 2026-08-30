@@ -18,7 +18,7 @@ function formatCount(value: number) {
 
 export function Hero({ stats }: { stats: HeroStats }) {
   return (
-    <section className="relative overflow-hidden bg-primary">
+    <section className="relative overflow-hidden bg-hero">
       <div
         className="absolute inset-0 opacity-50"
         style={{
@@ -28,14 +28,14 @@ export function Hero({ stats }: { stats: HeroStats }) {
       />
       <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-6 py-16 sm:px-8 lg:grid-cols-2 lg:py-20">
         <div className="flex flex-col gap-6">
-          <span className="flex w-fit items-center gap-1.5 rounded-full bg-primary-foreground/10 px-3 py-1 text-xs font-medium text-primary-foreground/90 ring-1 ring-inset ring-primary-foreground/20">
-            <ShieldCheck className="size-3.5 text-accent" />
+          <span className="flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3 py-1 text-xs font-medium text-hero-foreground/90 ring-1 ring-inset ring-hero-foreground/20">
+            <ShieldCheck className="size-3.5 text-hero-accent" />
             Verified codes, sourced from authorized distributors
           </span>
-          <h1 className="font-display text-4xl font-bold leading-[1.1] tracking-tight text-primary-foreground text-balance sm:text-5xl lg:text-6xl">
+          <h1 className="font-display text-4xl font-bold leading-[1.1] tracking-tight text-hero-foreground text-balance sm:text-5xl lg:text-6xl">
             Gift cards & digital codes, delivered instantly
           </h1>
-          <p className="max-w-lg text-lg leading-relaxed text-primary-foreground/75 text-pretty">
+          <p className="max-w-lg text-lg leading-relaxed text-hero-foreground/75 text-pretty">
             Top up games, stream more, and shop your favorite brands — all from one marketplace with instant
             delivery to your inbox and account.
           </p>
@@ -43,7 +43,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
             <Button
               size="lg"
               nativeButton={false}
-              className="h-12 bg-primary-foreground px-6 font-semibold text-primary hover:bg-primary-foreground/90"
+              className="h-12 bg-hero-foreground px-6 font-semibold text-hero hover:bg-hero-foreground/90"
               render={<Link href="/products" />}
             >
               Browse all products
@@ -53,34 +53,34 @@ export function Hero({ stats }: { stats: HeroStats }) {
               size="lg"
               variant="outline"
               nativeButton={false}
-              className="h-12 border-primary-foreground/25 bg-transparent px-6 font-semibold text-primary-foreground hover:bg-primary-foreground/10"
+              className="h-12 border-hero-foreground/25 bg-transparent px-6 font-semibold text-hero-foreground hover:bg-hero-foreground/10"
               render={<Link href="/deals" />}
             >
               View today&apos;s deals
             </Button>
           </div>
 
-          <dl className="mt-4 grid grid-cols-2 gap-4 border-t border-primary-foreground/15 pt-5 sm:grid-cols-4">
+          <dl className="mt-4 grid grid-cols-2 gap-4 border-t border-hero-foreground/15 pt-5 sm:grid-cols-4">
             <div>
-              <dt className="text-xs text-primary-foreground/60">Products</dt>
-              <dd className="font-display text-xl font-bold text-primary-foreground">
+              <dt className="text-xs text-hero-foreground/60">Products</dt>
+              <dd className="font-display text-xl font-bold text-hero-foreground">
                 {formatCount(stats.productCount)}+
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-primary-foreground/60">Brands</dt>
-              <dd className="font-display text-xl font-bold text-primary-foreground">{stats.brandCount}+</dd>
+              <dt className="text-xs text-hero-foreground/60">Brands</dt>
+              <dd className="font-display text-xl font-bold text-hero-foreground">{stats.brandCount}+</dd>
             </div>
             <div>
-              <dt className="text-xs text-primary-foreground/60">Countries</dt>
-              <dd className="font-display text-xl font-bold text-primary-foreground">{stats.countryCount}</dd>
+              <dt className="text-xs text-hero-foreground/60">Countries</dt>
+              <dd className="font-display text-xl font-bold text-hero-foreground">{stats.countryCount}</dd>
             </div>
             <div>
-              <dt className="text-xs text-primary-foreground/60">Customer rating</dt>
-              <dd className="flex items-center gap-1 font-display text-xl font-bold text-primary-foreground">
+              <dt className="text-xs text-hero-foreground/60">Customer rating</dt>
+              <dd className="flex items-center gap-1 font-display text-xl font-bold text-hero-foreground">
                 {stats.avgRating.toFixed(1)}
-                <Star className="size-4 fill-accent text-accent" />
-                <span className="text-xs font-normal text-primary-foreground/60">
+                <Star className="size-4 fill-hero-accent text-hero-accent" />
+                <span className="text-xs font-normal text-hero-foreground/60">
                   ({formatCount(stats.reviewCount)})
                 </span>
               </dd>
