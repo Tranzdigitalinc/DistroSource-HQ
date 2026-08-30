@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "motion/react"
-import { Heart, Minus, Plus, ShoppingCart } from "lucide-react"
+import { Heart, Minus, Plus, ShoppingCart, Check, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PriceDisplay } from "@/components/price-display"
 import { addToCart } from "@/lib/actions/cart"
@@ -35,6 +35,7 @@ export function PurchasePanel({
   const [quantity, setQuantity] = useState(1)
   const [wishlisted, setWishlisted] = useState(initialWishlisted)
   const [isPending, startTransition] = useTransition()
+  const [justAdded, setJustAdded] = useState(false)
 
   const selected = variants.find((v) => v.id === selectedId) ?? variants[0]
 
@@ -43,9 +44,11 @@ export function PurchasePanel({
       try {
         await addToCart(productId, selected.id, quantity)
         mutate("/api/cart/summary")
+        setJustAdded(true)
         toast.success("Added to cart", {
           description: `${selected.denominationLabel} x${quantity}`,
         })
+        setTimeout(() => setJustAdded(false), 2000)
       } catch {
         toast.error("Couldn't add this to your cart. Please try again.")
       }
@@ -76,25 +79,33 @@ export function PurchasePanel({
             <motion.button
               key={variant.id}
               type="button"
-              onClick={() => setSelectedId(variant.id)}
+              onClick={() => { setSelectedId(variant.id); setQuantity(1) }}
               whileTap={{ scale: 0.96 }}
               className={cn(
-                "flex flex-col items-start gap-0.5 rounded-lg border px-3 py-2.5 text-left transition-all",
+                "relative flex flex-col items-start gap-0.5 rounded-lg border px-3 py-2.5 text-left transition-all",
                 selectedId === variant.id
                   ? "border-primary bg-primary/5 ring-1 ring-primary"
                   : "border-border hover:border-primary/40",
               )}
             >
               <span className="text-sm font-semibold">{variant.denominationLabel}</span>
-              <span className="text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <PriceDisplay usdAmount={Number.parseFloat(variant.priceUsd)} />
+                {variant.discountPercent > 0 && (
+                  <span className="font-semibold text-success">-{variant.discountPercent}%</span>
+                )}
               </span>
+              {variant.stockCount <= 5 && variant.stockCount > 0 && (
+                <span className="mt-0.5 text-[10px] font-medium text-amber-500">
+                  Only {variant.stockCount} left
+                </span>
+              )}
             </motion.button>
           ))}
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between rounded-lg bg-secondary/50 px-4 py-3">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.span
             key={`${selected.id}-${quantity}`}
@@ -108,7 +119,7 @@ export function PurchasePanel({
           </motion.span>
         </AnimatePresence>
         {selected.discountPercent > 0 && (
-          <span className="rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-accent-foreground">
+          <span className="rounded-full bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
             Save {selected.discountPercent}%
           </span>
         )}
@@ -121,7 +132,8 @@ export function PurchasePanel({
             type="button"
             whileTap={{ scale: 0.85 }}
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground"
+            className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
+            disabled={quantity <= 1}
             aria-label="Decrease quantity"
           >
             <Minus className="size-3.5" />
@@ -131,7 +143,8 @@ export function PurchasePanel({
             type="button"
             whileTap={{ scale: 0.85 }}
             onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-            className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground"
+            className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
+            disabled={quantity >= 10}
             aria-label="Increase quantity"
           >
             <Plus className="size-3.5" />
@@ -140,9 +153,22 @@ export function PurchasePanel({
       </div>
 
       <div className="flex items-center gap-2">
-        <Button onClick={handleAddToCart} disabled={isPending} className="h-11 flex-1 font-semibold">
-          <ShoppingCart className="size-4" />
-          Add to cart
+        <Button
+          onClick={handleAddToCart}
+          disabled={isPending || justAdded}
+          className={cn("h-11 flex-1 font-semibold transition-all", justAdded && "bg-success hover:bg-success")}
+        >
+          {justAdded ? (
+            <>
+              <Check className="size-4" />
+              Added!
+            </>
+          ) : (
+            <>
+              <ShoppingCart className="size-4" />
+              Add to cart
+            </>
+          )}
         </Button>
         <Button
           onClick={handleWishlist}
@@ -152,8 +178,13 @@ export function PurchasePanel({
           className="size-11 shrink-0 bg-transparent"
           aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
-          <Heart className={cn("size-4.5", wishlisted && "fill-destructive text-destructive")} />
+          <Heart className={cn("size-4.5 transition-all", wishlisted && "fill-destructive text-destructive scale-110")} />
         </Button>
+      </div>
+
+      <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+        <Zap className="size-3 text-amber-500" />
+        Instant delivery — code appears immediately after purchase
       </div>
     </div>
   )

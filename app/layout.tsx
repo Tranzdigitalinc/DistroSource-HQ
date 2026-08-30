@@ -7,6 +7,7 @@ import { CurrencyProvider } from '@/lib/currency-context'
 import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion/motion-provider'
 import { getCountries } from '@/lib/queries/catalog'
+import { ScrollToTop } from '@/components/scroll-to-top'
 import './globals.css'
 
 const _inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
@@ -64,6 +65,7 @@ export default async function RootLayout({
               <TooltipProvider>{children}</TooltipProvider>
             </CurrencyProvider>
             <Toaster position="bottom-right" richColors />
+            <ScrollToTop />
           </ThemeProvider>
         </MotionProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
