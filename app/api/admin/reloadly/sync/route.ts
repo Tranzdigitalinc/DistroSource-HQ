@@ -17,8 +17,8 @@ function money(value: number) {
 
 export async function POST(request: Request) {
   const session = await getSession()
-  const adminEmail = (process.env.RELOADLY_ADMIN_EMAIL || "Info@CoreValleyJo.com").trim().toLowerCase()
-  if (!session?.user?.email || session.user.email.trim().toLowerCase() !== adminEmail) {
+  const userEmail = session?.user?.email?.trim().toLowerCase()
+  if (userEmail !== "info@corevalleyjo.com") {
     return NextResponse.json({ error: "Admin access required" }, { status: 403 })
   }
 
