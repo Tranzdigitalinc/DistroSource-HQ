@@ -81,39 +81,39 @@ export function Hero({ stats }: { stats: HeroStats }) {
         }}
       />
       <motion.div
+        initial={{ opacity: 0, scale: 1.02 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.9, ease: EASE }}
+        className="relative w-full"
+      >
+        {/* Wide banner for tablet/desktop */}
+        <Image
+          src="/redeemcove-hero-banner.png"
+          alt="RedeemCove — digital value without borders. Top brands, global access, and instant delivery of gift cards and digital codes worldwide"
+          width={1792}
+          height={896}
+          priority
+          className="hidden h-auto w-full sm:block"
+          sizes="100vw"
+        />
+        {/* Square ad for mobile */}
+        <Image
+          src="/redeemcove-hero-square.jpg"
+          alt="RedeemCove — one place, endless possibilities. Digital gift cards and codes delivered instantly"
+          width={1280}
+          height={1280}
+          priority
+          className="block h-auto w-full sm:hidden"
+          sizes="100vw"
+        />
+      </motion.div>
+
+      <motion.div
         initial="hidden"
         animate="visible"
-        transition={{ staggerChildren: 0.09, delayChildren: 0.05 }}
+        transition={{ staggerChildren: 0.09, delayChildren: 0.3 }}
         className="relative mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 py-10 sm:px-8 lg:py-14"
       >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97, y: 12 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: EASE }}
-          className="relative w-full overflow-hidden rounded-3xl ring-1 ring-hero-foreground/10 shadow-[0_30px_80px_-40px_rgba(0,0,0,0.8)]"
-        >
-          {/* Wide banner for tablet/desktop */}
-          <Image
-            src="/redeemcove-hero-banner.png"
-            alt="RedeemCove — digital value without borders. Top brands, global access, and instant delivery of gift cards and digital codes worldwide"
-            width={1792}
-            height={896}
-            priority
-            className="hidden h-auto w-full sm:block"
-            sizes="(max-width: 1280px) 100vw, 1280px"
-          />
-          {/* Square ad for mobile */}
-          <Image
-            src="/redeemcove-hero-square.jpg"
-            alt="RedeemCove — one place, endless possibilities. Digital gift cards and codes delivered instantly"
-            width={1280}
-            height={1280}
-            priority
-            className="block h-auto w-full sm:hidden"
-            sizes="100vw"
-          />
-        </motion.div>
-
         <motion.div
           variants={item}
           transition={{ duration: 0.6, ease: EASE }}
