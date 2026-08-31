@@ -20,7 +20,7 @@ export async function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/95 backdrop-blur-md supports-backdrop-filter:bg-background/80">
+    <header className="sticky top-0 z-40 border-b border-primary/20 bg-background/90 backdrop-blur-xl supports-backdrop-filter:bg-background/75">
       <TrustStrip />
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
         <MobileNav categories={categories} />

@@ -84,7 +84,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
         initial="hidden"
         animate="visible"
         transition={{ staggerChildren: 0.09, delayChildren: 0.05 }}
-        className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 py-20 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:py-28"
+        className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-4 lg:py-24"
       >
         <div className="flex flex-col gap-7">
           <motion.span
@@ -93,7 +93,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
             className="flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3.5 py-1.5 text-xs font-medium text-hero-foreground/90 ring-1 ring-inset ring-hero-foreground/20 backdrop-blur-sm"
           >
             <ShieldCheck className="size-3.5 text-hero-accent" />
-            Verified codes, sourced from authorized distributors
+            GLOBAL VALUE. VERIFIED DELIVERY.
           </motion.span>
           <motion.h1
             variants={item}
@@ -170,7 +170,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
           <div className="animate-float relative aspect-square overflow-hidden rounded-2xl shadow-2xl shadow-black/40 ring-1 ring-white/10">
             <Image
               src="/hero-cards.png"
-              alt="A collection of premium gift cards fanned across a warm walnut surface"
+              alt="RedeemCove digital gift cards from popular global brands"
               fill
               priority
               className="object-cover"

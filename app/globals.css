@@ -53,21 +53,21 @@
 }
 
 :root {
-  color-scheme: light;
-  --background: oklch(0.99 0.002 260);
-  --foreground: oklch(0.17 0.014 260);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.17 0.014 260);
+  color-scheme: dark;
+  --background: oklch(0.09 0.025 265);
+  --foreground: oklch(0.96 0.01 250);
+  --card: oklch(0.13 0.03 265);
+  --card-foreground: oklch(0.96 0.01 250);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.17 0.014 260);
-  --primary: oklch(0.546 0.245 262.881);
-  --primary-foreground: oklch(0.99 0.002 260);
-  --secondary: oklch(0.96 0.006 260);
-  --secondary-foreground: oklch(0.22 0.014 260);
-  --muted: oklch(0.96 0.006 260);
-  --muted-foreground: oklch(0.5 0.014 260);
-  --accent: oklch(0.94 0.03 262);
-  --accent-foreground: oklch(0.4 0.18 263);
+  --primary: oklch(0.68 0.22 250);
+  --primary-foreground: oklch(0.08 0.025 265);
+  --secondary: oklch(0.16 0.04 265);
+  --secondary-foreground: oklch(0.94 0.02 250);
+  --muted: oklch(0.15 0.03 265);
+  --muted-foreground: oklch(0.68 0.03 250);
+  --accent: oklch(0.75 0.16 195);
+  --accent-foreground: oklch(0.1 0.03 265);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.91 0.006 260);
   --input: oklch(0.91 0.006 260);
@@ -137,9 +137,22 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    background: var(--background);
+  }
   body {
     @apply bg-background text-foreground font-sans;
+    background-image: radial-gradient(circle at 78% 4%, oklch(0.48 0.2 250 / 0.15), transparent 30rem), radial-gradient(circle at 8% 32%, oklch(0.5 0.16 195 / 0.08), transparent 24rem);
   }
+}
+
+@keyframes signal-line {
+  0%, 100% { opacity: 0.3; transform: scaleX(0.65); }
+  50% { opacity: 1; transform: scaleX(1); }
+}
+
+.signal-line {
+  animation: signal-line 3s ease-in-out infinite;
 }
 
 @keyframes marquee-scroll {
