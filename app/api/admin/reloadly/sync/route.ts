@@ -15,6 +15,18 @@ function money(value: number) {
   return Math.max(0, Number(value || 0)).toFixed(2)
 }
 
+function uniqueSlug(base: string, used: Set<string>) {
+  const normalized = slugify(base)
+  let slug = normalized
+  let suffix = 2
+  while (used.has(slug)) {
+    slug = `${normalized}-${suffix}`
+    suffix += 1
+  }
+  used.add(slug)
+  return slug
+}
+
 export async function POST(request: Request) {
   const session = await getSession()
   const userEmail = session?.user?.email?.trim().toLowerCase()
@@ -49,15 +61,18 @@ export async function POST(request: Request) {
       console.log("[v0] Reloadly sync: inserting normalized catalog")
       const categoryMap = new Map<number, number>()
       const brandMap = new Map<number, number>()
+      const usedCategorySlugs = new Set<string>()
+      const usedBrandSlugs = new Set<string>()
+      const usedProductSlugs = new Set<string>()
       const categoryRows = [...new Map(catalog.map((p) => [p.category?.id ?? 0, p.category?.name ?? "Other"])).entries()]
       for (const [reloadlyId, name] of categoryRows) {
-        const [row] = await tx.insert(categories).values({ slug: `${slugify(name)}-${reloadlyId}`, name, description: `Reloadly ${name} gift cards`, iconName: "tag", sortOrder: categoryMap.size, reloadlyCategoryId: reloadlyId || null }).returning({ id: categories.id })
+        const [row] = await tx.insert(categories).values({ slug: uniqueSlug(`${name}-${reloadlyId}`, usedCategorySlugs), name, description: `Reloadly ${name} gift cards`, iconName: "tag", sortOrder: categoryMap.size, reloadlyCategoryId: reloadlyId || null }).returning({ id: categories.id })
         categoryMap.set(reloadlyId, row.id)
       }
 
       const brandRows = [...new Map(catalog.map((p) => [p.brand?.brandId ?? 0, p.brand?.brandName ?? "Other"])).entries()]
       for (const [reloadlyId, name] of brandRows) {
-        const [row] = await tx.insert(brands).values({ slug: `${slugify(name)}-${reloadlyId}`, name, categoryId: categoryMap.get(catalog.find((p) => (p.brand?.brandId ?? 0) === reloadlyId)?.category?.id ?? 0) ?? [...categoryMap.values()][0], logoUrl: getProductImage(catalog.find((p) => (p.brand?.brandId ?? 0) === reloadlyId)!), reloadlyBrandId: reloadlyId || null }).returning({ id: brands.id })
+        const [row] = await tx.insert(brands).values({ slug: uniqueSlug(`${name}-${reloadlyId}`, usedBrandSlugs), name, categoryId: categoryMap.get(catalog.find((p) => (p.brand?.brandId ?? 0) === reloadlyId)?.category?.id ?? 0) ?? [...categoryMap.values()][0], logoUrl: getProductImage(catalog.find((p) => (p.brand?.brandId ?? 0) === reloadlyId)!), reloadlyBrandId: reloadlyId || null }).returning({ id: brands.id })
         brandMap.set(reloadlyId, row.id)
       }
 
@@ -65,7 +80,7 @@ export async function POST(request: Request) {
       for (const product of catalog) {
         const categoryId = categoryMap.get(product.category?.id ?? 0) ?? [...categoryMap.values()][0]
         const brandId = brandMap.get(product.brand?.brandId ?? 0) ?? [...brandMap.values()][0]
-        const [inserted] = await tx.insert(products).values({ slug: `${slugify(product.productName)}-${product.id}`, name: product.productName, brandId, categoryId, productType: "gift_card", shortDescription: `${product.productName} digital gift card`, description: `Buy a ${product.productName} gift card and receive your code instantly.`, imageUrl: getProductImage(product), deliveryType: "instant_code", reloadlyProductId: product.id }).returning({ id: products.id })
+        const [inserted] = await tx.insert(products).values({ slug: uniqueSlug(`${product.productName}-${product.id}`, usedProductSlugs), name: product.productName, brandId, categoryId, productType: "gift_card", shortDescription: `${product.productName} digital gift card`, description: `Buy a ${product.productName} gift card and receive your code instantly.`, imageUrl: getProductImage(product), deliveryType: "instant_code", reloadlyProductId: product.id }).returning({ id: products.id })
         const denominations = getDenominations(product)
         if (!denominations.length) continue
         await tx.insert(productVariants).values(denominations.map((amount: number, index: number) => ({ productId: inserted.id, denominationLabel: `$${money(amount)}`, faceValueUsd: money(amount), priceUsd: money(amount * (1 - (product.discountPercentage ?? 0) / 100) + (product.senderFee ?? 0)), discountPercent: Math.max(0, Math.round(product.discountPercentage ?? 0)), stockCount: 500, sortOrder: index, reloadlyVariantId: `${product.id}-${amount}` })))
