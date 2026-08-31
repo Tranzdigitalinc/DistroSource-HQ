@@ -1,9 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { motion } from "motion/react"
 import { ArrowUpRight } from "lucide-react"
+import { getCategoryIcon } from "@/lib/category-icons"
 import { RevealGroup, RevealItem } from "@/components/motion/reveal"
 import { getCategoryImage } from "@/lib/category-icons"
 import type { getCategories } from "@/lib/queries/catalog"
@@ -34,26 +34,19 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
               whileHover={{ y: -4 }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 400, damping: 28 }}
-              className="group relative block aspect-[4/3] overflow-hidden rounded-xl"
+              className="group relative flex aspect-[4/3] flex-col justify-between overflow-hidden rounded-2xl border border-primary/20 bg-card p-5 shadow-[0_12px_35px_-18px_hsl(var(--primary)/0.7)] transition-colors hover:border-primary/60"
             >
-              <Image
-                src={getCategoryImage(category.slug)}
-                alt=""
-                fill
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/5 transition-colors duration-300 group-hover:from-black/90" />
-              <span className="absolute inset-x-0 bottom-0 flex items-center justify-between p-4">
-                <span className="flex flex-col gap-0.5">
-                  <span className="font-display text-base font-semibold text-white text-balance sm:text-lg">
-                    {category.name}
-                  </span>
-                  <span className="text-[11px] font-medium text-white/60">
-                    {category.productCount} {category.productCount === 1 ? "product" : "products"}
-                  </span>
+              <div className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-primary/10 blur-2xl transition-colors group-hover:bg-accent/20" />
+              <div className="relative flex size-12 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary shadow-[0_0_22px_hsl(var(--primary)/0.2)]">
+                {(() => { const Icon = getCategoryIcon(category.iconName); return <Icon aria-hidden="true" /> })()}
+              </div>
+              <span className="relative flex items-end justify-between gap-3">
+                <span className="flex flex-col gap-1">
+                  <span className="font-display text-base font-semibold text-foreground text-balance sm:text-lg">{category.name}</span>
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{category.productCount} {category.productCount === 1 ? "product" : "products"}</span>
                 </span>
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/30 transition-all duration-300 group-hover:bg-white/25 group-hover:ring-white/50">
-                  <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-primary/30 text-primary transition-all group-hover:bg-primary group-hover:text-primary-foreground">
+                  <ArrowUpRight aria-hidden="true" />
                 </span>
               </span>
             </MotionLink>
