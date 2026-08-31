@@ -29,10 +29,13 @@ export async function POST(request: Request) {
   }
 
   try {
+    console.log("[v0] Reloadly sync: fetching catalog")
     const catalog = await fetchAllReloadlyProducts()
+    console.log(`[v0] Reloadly sync: received ${catalog.length} products`)
     if (!catalog.length) return NextResponse.json({ error: "Reloadly returned no products; existing catalog was preserved" }, { status: 502 })
 
     const result = await db.transaction(async (tx) => {
+      console.log("[v0] Reloadly sync: clearing dependent records")
       await tx.delete(orderItems)
       await tx.delete(orders)
       await tx.delete(reviews)
@@ -43,6 +46,7 @@ export async function POST(request: Request) {
       await tx.delete(brands)
       await tx.delete(categories)
 
+      console.log("[v0] Reloadly sync: inserting normalized catalog")
       const categoryMap = new Map<number, number>()
       const brandMap = new Map<number, number>()
       const categoryRows = [...new Map(catalog.map((p) => [p.category?.id ?? 0, p.category?.name ?? "Other"])).entries()]
@@ -73,6 +77,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, ...result })
   } catch (error) {
     console.error("[v0] Reloadly catalog sync failed:", error)
-    return NextResponse.json({ error: "Reloadly sync failed; the database transaction was rolled back" }, { status: 502 })
+    const detail = error instanceof Error ? error.message.slice(0, 240) : "Unknown sync error"
+    return NextResponse.json(
+      { error: "Reloadly sync failed; the database transaction was rolled back", detail },
+      { status: 502 },
+    )
   }
 }
