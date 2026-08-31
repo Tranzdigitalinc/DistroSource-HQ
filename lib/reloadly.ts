@@ -8,7 +8,21 @@ export type ReloadlyProduct = {
   images?: { url: string }[]
   logoUrls?: string[]
   imageUrls?: string[]
+  global?: boolean
+  status?: string
+  supportsPreOrder?: boolean
+  denominationType?: string
+  recipientCurrencyCode?: string
+  senderCurrencyCode?: string
+  minRecipientDenomination?: number
+  maxRecipientDenomination?: number
   fixedRecipientDenominations?: number[]
+  fixedRecipientToSenderDenominationsMap?: Record<string, number>
+  senderFeePercentage?: number
+  recipientCurrencyToSenderCurrencyExchangeRate?: number
+  redeemInstruction?: { concise?: string; verbose?: string }
+  additionalRequirements?: Record<string, unknown>
+  metadata?: Record<string, unknown> | null
   fixedSenderDenominations?: number[]
   minSenderDenomination?: number
   maxSenderDenomination?: number
