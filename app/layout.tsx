@@ -7,6 +7,7 @@ import { CurrencyProvider } from '@/lib/currency-context'
 import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion/motion-provider'
 import { getCountries } from '@/lib/queries/catalog'
+import { ScrollToTop } from '@/components/scroll-to-top'
 import './globals.css'
 
 const _inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
@@ -44,12 +45,19 @@ export const viewport: Viewport = {
   ],
 }
 
+export const dynamic = "force-dynamic"
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const countries = await getCountries()
+  let countries: Awaited<ReturnType<typeof getCountries>> = []
+  try {
+    countries = await getCountries()
+  } catch {
+    // DB unavailable at build time — CurrencyProvider falls back to USD
+  }
 
   return (
     <html
@@ -64,6 +72,7 @@ export default async function RootLayout({
               <TooltipProvider>{children}</TooltipProvider>
             </CurrencyProvider>
             <Toaster position="bottom-right" richColors />
+            <ScrollToTop />
           </ThemeProvider>
         </MotionProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
