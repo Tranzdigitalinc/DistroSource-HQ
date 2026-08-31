@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, serial, integer, numeric, unique } from "drizzle-orm/pg-core"
+import { pgTable, text, timestamp, boolean, serial, integer, numeric, jsonb, unique } from "drizzle-orm/pg-core"
 
 // --- Better Auth required tables -------------------------------------------
 // Column names are camelCase to match Better Auth's defaults. Do not rename.
@@ -112,6 +112,23 @@ export const products = pgTable("products", {
   salesCount: integer("sales_count").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   reloadlyProductId: integer("reloadly_product_id"),
+  reloadlyStatus: text("reloadly_status"),
+  reloadlyGlobal: boolean("reloadly_global"),
+  reloadlySupportsPreOrder: boolean("reloadly_supports_pre_order"),
+  reloadlyDenominationType: text("reloadly_denomination_type"),
+  recipientCurrencyCode: text("recipient_currency_code"),
+  senderCurrencyCode: text("sender_currency_code"),
+  minRecipientDenomination: numeric("min_recipient_denomination", { precision: 12, scale: 4 }),
+  maxRecipientDenomination: numeric("max_recipient_denomination", { precision: 12, scale: 4 }),
+  minSenderDenomination: numeric("min_sender_denomination", { precision: 12, scale: 4 }),
+  maxSenderDenomination: numeric("max_sender_denomination", { precision: 12, scale: 4 }),
+  senderFee: numeric("sender_fee", { precision: 12, scale: 4 }),
+  senderFeePercentage: numeric("sender_fee_percentage", { precision: 12, scale: 4 }),
+  recipientSenderExchangeRate: numeric("recipient_sender_exchange_rate", { precision: 18, scale: 8 }),
+  redeemInstruction: jsonb("redeem_instruction"),
+  additionalRequirements: jsonb("additional_requirements"),
+  reloadlyMetadata: jsonb("reloadly_metadata"),
+  reloadlyPayload: jsonb("reloadly_payload"),
 })
 
 export const productVariants = pgTable("product_variants", {

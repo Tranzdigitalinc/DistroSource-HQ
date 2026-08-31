@@ -7,7 +7,22 @@ export type ReloadlyProduct = {
   currency?: { code?: string; symbol?: string }
   images?: { url: string }[]
   logoUrls?: string[]
+  imageUrls?: string[]
+  global?: boolean
+  status?: string
+  supportsPreOrder?: boolean
+  denominationType?: string
+  recipientCurrencyCode?: string
+  senderCurrencyCode?: string
+  minRecipientDenomination?: number
+  maxRecipientDenomination?: number
   fixedRecipientDenominations?: number[]
+  fixedRecipientToSenderDenominationsMap?: Record<string, number>
+  senderFeePercentage?: number
+  recipientCurrencyToSenderCurrencyExchangeRate?: number
+  redeemInstruction?: { concise?: string; verbose?: string }
+  additionalRequirements?: Record<string, unknown>
+  metadata?: Record<string, unknown> | null
   fixedSenderDenominations?: number[]
   minSenderDenomination?: number
   maxSenderDenomination?: number
@@ -17,42 +32,58 @@ export type ReloadlyProduct = {
 
 function parseProducts(value: unknown): ReloadlyProduct[] {
   const items = Array.isArray(value) ? value : (value as { content?: unknown[] })?.content ?? []
-  return items.filter((item): item is ReloadlyProduct => {
-    const product = item as Partial<ReloadlyProduct>
-    return typeof product.id === "number" && typeof product.productName === "string"
+  return items.flatMap((item) => {
+    const product = item as Partial<ReloadlyProduct> & { productId?: number }
+    const id = product.id ?? product.productId
+    if (typeof id !== "number" || typeof product.productName !== "string") return []
+    return [{ ...product, id, images: product.images ?? product.imageUrls?.map((url) => ({ url })) } as ReloadlyProduct]
   })
 }
 
-async function getAccessToken() {
-  const clientId = process.env.RELOADLY_CLIENT_ID
-  const clientSecret = process.env.RELOADLY_CLIENT_SECRET
+type ReloadlyConnection = { token: string; apiBaseUrl: string }
+
+async function getAccessToken(): Promise<ReloadlyConnection> {
+  const clientId = process.env.RELOADLY_CLIENT_ID?.trim()
+  const clientSecret = process.env.RELOADLY_CLIENT_SECRET?.trim()
   if (!clientId || !clientSecret) throw new Error("Reloadly credentials are not configured")
 
-  const response = await fetch("https://auth.reloadly.com/oauth/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      client_id: clientId,
-      client_secret: clientSecret,
-      grant_type: "client_credentials",
-      audience: "https://giftcards.reloadly.com",
-    }),
-    cache: "no-store",
-  })
-  if (!response.ok) throw new Error(`Reloadly authentication failed (${response.status})`)
-  const data = (await response.json()) as { access_token?: string }
-  if (!data.access_token) throw new Error("Reloadly did not return an access token")
-  return data.access_token
+  const environments = [
+    { audience: "https://giftcards.reloadly.com", apiBaseUrl: "https://giftcards.reloadly.com" },
+    { audience: "https://giftcards-sandbox.reloadly.com", apiBaseUrl: "https://giftcards-sandbox.reloadly.com" },
+  ]
+  let lastStatus = 401
+
+  for (const environment of environments) {
+    const response = await fetch("https://auth.reloadly.com/oauth/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        client_id: clientId,
+        client_secret: clientSecret,
+        grant_type: "client_credentials",
+        audience: environment.audience,
+      }),
+      cache: "no-store",
+    })
+    if (!response.ok) {
+      lastStatus = response.status
+      continue
+    }
+    const data = (await response.json()) as { access_token?: string }
+    if (data.access_token) return { token: data.access_token, apiBaseUrl: environment.apiBaseUrl }
+  }
+
+  throw new Error(`Reloadly authentication failed (${lastStatus}); verify these are matching Live or Sandbox credentials`)
 }
 
 export async function fetchAllReloadlyProducts() {
-  const token = await getAccessToken()
+  const { token, apiBaseUrl } = await getAccessToken()
   const products: ReloadlyProduct[] = []
   let page = 1
   const size = 100
 
   while (true) {
-    const response = await fetch(`https://giftcards.reloadly.com/products?page=${page}&size=${size}`, {
+    const response = await fetch(`${apiBaseUrl}/products?page=${page}&size=${size}`, {
       headers: { Accept: "application/com.reloadly.giftcards-v1+json", Authorization: `Bearer ${token}` },
       cache: "no-store",
     })
