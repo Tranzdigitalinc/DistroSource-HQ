@@ -95,9 +95,9 @@ export function Hero({ stats }: { stats: HeroStats }) {
           {/* Wide banner for tablet/desktop */}
           <Image
             src="/redeemcove-hero-banner.png"
-            alt="RedeemCove — gift cards, digital codes, and instant value from top global brands, delivered instantly worldwide"
-            width={2000}
-            height={785}
+            alt="RedeemCove — digital value without borders. Top brands, global access, and instant delivery of gift cards and digital codes worldwide"
+            width={1792}
+            height={896}
             priority
             className="hidden h-auto w-full sm:block"
             sizes="(max-width: 1280px) 100vw, 1280px"
