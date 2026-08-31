@@ -10,11 +10,11 @@ export const metadata = {
 
 export default async function AdminPage() {
   const session = await auth.api.getSession({ headers: await headers() })
-  const adminEmail = process.env.RELOADLY_ADMIN_EMAIL?.trim().toLowerCase()
+  const adminEmail = (process.env.RELOADLY_ADMIN_EMAIL || "Info@CoreValleyJo.com").trim().toLowerCase()
   const userEmail = session?.user?.email?.trim().toLowerCase()
 
   if (!session?.user) redirect("/sign-in?next=/admin")
-  if (!adminEmail || userEmail !== adminEmail) redirect("/")
+  if (userEmail !== adminEmail) redirect("/")
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
