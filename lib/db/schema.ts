@@ -74,6 +74,7 @@ export const categories = pgTable("categories", {
   description: text("description"),
   iconName: text("icon_name").notNull().default("tag"),
   sortOrder: integer("sort_order").notNull().default(0),
+  reloadlyCategoryId: integer("reloadly_category_id"),
 })
 
 export const brands = pgTable("brands", {
@@ -87,6 +88,7 @@ export const brands = pgTable("brands", {
   isFeatured: boolean("is_featured").notNull().default(false),
   rating: numeric("rating", { precision: 3, scale: 2 }).notNull().default("4.5"),
   reviewCount: integer("review_count").notNull().default(0),
+  reloadlyBrandId: integer("reloadly_brand_id"),
 })
 
 export const products = pgTable("products", {
@@ -109,6 +111,7 @@ export const products = pgTable("products", {
   reviewCount: integer("review_count").notNull().default(0),
   salesCount: integer("sales_count").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  reloadlyProductId: integer("reloadly_product_id"),
 })
 
 export const productVariants = pgTable("product_variants", {
@@ -120,6 +123,7 @@ export const productVariants = pgTable("product_variants", {
   discountPercent: integer("discount_percent").notNull().default(0),
   stockCount: integer("stock_count").notNull().default(500),
   sortOrder: integer("sort_order").notNull().default(0),
+  reloadlyVariantId: text("reloadly_variant_id"),
 })
 
 export const reviews = pgTable("reviews", {
