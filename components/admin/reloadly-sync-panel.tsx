@@ -20,9 +20,19 @@ export function ReloadlySyncPanel() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ confirm: true }),
       })
-      const result = (await response.json()) as { error?: string; detail?: string; imported?: number; deleted?: number }
+      const result = (await response.json()) as {
+        error?: string
+        detail?: string
+        productCount?: number
+        variantCount?: number
+        categoryCount?: number
+        brandCount?: number
+        deletedCount?: number
+      }
       if (!response.ok) throw new Error([result.error, result.detail].filter(Boolean).join(" — ") || "Catalog sync failed")
-      setMessage(`Sync complete. Imported ${result.imported ?? 0} products and removed ${result.deleted ?? 0} related records.`)
+      setMessage(
+        `Sync complete. Imported ${result.productCount ?? 0} products, ${result.variantCount ?? 0} denominations, ${result.brandCount ?? 0} brands, and ${result.categoryCount ?? 0} categories. Existing related records were replaced.`,
+      )
       setConfirm(false)
     } catch (syncError) {
       setError(syncError instanceof Error ? syncError.message : "Catalog sync failed")
