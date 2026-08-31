@@ -10,10 +10,10 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 
-export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
+export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign-in" | "sign-up"; redirectTo?: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get("redirect") || "/account"
+  const redirectTo = providedRedirectTo || searchParams.get("redirect") || searchParams.get("next") || "/account"
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
