@@ -50,7 +50,7 @@ export function CatalogFilters({ categories, brands, countries }: Props) {
           <FilterGroup title="Category">
             <FilterLink href={buildHref("category", null)} active={!activeCategory} label="All categories" />
             {categories.map((c) => {
-              const Icon = getCategoryIcon(c.iconName)
+              const Icon = getCategoryIcon(c.name)
               return (
                 <FilterLink
                   key={c.slug}

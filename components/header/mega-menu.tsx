@@ -32,7 +32,7 @@ export function MegaMenu({ categories, brands }: { categories: Category[]; brand
     <div className="grid grid-cols-[240px_1fr]">
       <div className="border-r border-border/60 p-2">
         {categories.map((category) => {
-          const Icon = getCategoryIcon(category.iconName)
+          const Icon = getCategoryIcon(category.name)
           const isActive = category.id === activeCategory.id
           return (
             <button

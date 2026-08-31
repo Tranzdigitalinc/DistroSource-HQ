@@ -21,7 +21,7 @@ export default async function CategoriesPage() {
                 className="group flex min-h-44 flex-col justify-between rounded-2xl border border-primary/20 bg-card p-6 transition-colors hover:border-primary/60"
               >
                 <div className="flex size-12 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
-                  {(() => { const Icon = getCategoryIcon(category.iconName); return <Icon aria-hidden="true" /> })()}
+                  {(() => { const Icon = getCategoryIcon(category.name); return <Icon aria-hidden="true" /> })()}
                 </div>
                 <span className="flex flex-col gap-1">
                   <h2 className="font-display text-lg font-bold text-foreground">{category.name}</h2>

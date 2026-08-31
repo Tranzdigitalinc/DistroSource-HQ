@@ -35,7 +35,7 @@ export function MobileNav({ categories }: { categories: Category[] }) {
         <div className="flex flex-col gap-1 overflow-y-auto px-2">
           <p className="px-3 py-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">Categories</p>
           {categories.map((category) => {
-            const Icon = getCategoryIcon(category.iconName)
+            const Icon = getCategoryIcon(category.name)
             return (
               <Link
                 key={category.id}

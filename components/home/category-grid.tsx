@@ -5,7 +5,6 @@ import { motion } from "motion/react"
 import { ArrowUpRight } from "lucide-react"
 import { getCategoryIcon } from "@/lib/category-icons"
 import { RevealGroup, RevealItem } from "@/components/motion/reveal"
-import { getCategoryImage } from "@/lib/category-icons"
 import type { getCategories } from "@/lib/queries/catalog"
 
 const MotionLink = motion.create(Link)
@@ -38,7 +37,7 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
             >
               <div className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-primary/10 blur-2xl transition-colors group-hover:bg-accent/20" />
               <div className="relative flex size-12 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary shadow-[0_0_22px_hsl(var(--primary)/0.2)]">
-                {(() => { const Icon = getCategoryIcon(category.iconName); return <Icon aria-hidden="true" /> })()}
+                {(() => { const Icon = getCategoryIcon(category.name); return <Icon aria-hidden="true" /> })()}
               </div>
               <span className="relative flex items-end justify-between gap-3">
                 <span className="flex flex-col gap-1">

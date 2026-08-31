@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion, useInView } from "motion/react"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, ShieldCheck, Star, Sparkles } from "lucide-react"
+import { ArrowRight, Star, Sparkles } from "lucide-react"
 
 interface HeroStats {
   productCount: number
@@ -84,111 +84,80 @@ export function Hero({ stats }: { stats: HeroStats }) {
         initial="hidden"
         animate="visible"
         transition={{ staggerChildren: 0.09, delayChildren: 0.05 }}
-        className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-4 lg:py-24"
+        className="relative mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 py-10 sm:px-8 lg:py-14"
       >
-        <div className="flex flex-col gap-7">
-          <motion.span
-            variants={item}
-            transition={{ duration: 0.5, ease: EASE }}
-            className="flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3.5 py-1.5 text-xs font-medium text-hero-foreground/90 ring-1 ring-inset ring-hero-foreground/20 backdrop-blur-sm"
-          >
-            <ShieldCheck className="size-3.5 text-hero-accent" />
-            GLOBAL VALUE. VERIFIED DELIVERY.
-          </motion.span>
-          <motion.h1
-            variants={item}
-            transition={{ duration: 0.6, ease: EASE }}
-            className="font-display text-5xl font-medium leading-[1.05] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.25rem]"
-          >
-            Gift cards & digital codes,{" "}
-            <span className="relative text-hero-accent">
-              delivered instantly
-              <motion.span
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.6, ease: EASE, delay: 0.6 }}
-                className="absolute -bottom-1 left-0 h-[3px] w-full origin-left rounded-full bg-hero-accent/40"
-              />
-            </span>
-          </motion.h1>
-          <motion.p
-            variants={item}
-            transition={{ duration: 0.6, ease: EASE }}
-            className="max-w-lg text-lg leading-relaxed text-hero-foreground/70 text-pretty"
-          >
-            Top up games, stream more, and shop your favorite brands — all from one marketplace with instant
-            delivery to your inbox and account.
-          </motion.p>
-          <motion.div
-            variants={item}
-            transition={{ duration: 0.6, ease: EASE }}
-            className="flex flex-wrap items-center gap-4"
-          >
-            <Button
-              size="lg"
-              nativeButton={false}
-              className="h-12 animate-pulse-glow bg-hero-foreground px-6 font-semibold text-hero transition-transform hover:bg-hero-foreground/90 active:scale-95"
-              render={<Link href="/products" />}
-            >
-              Browse all products
-              <ArrowRight className="size-4" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              nativeButton={false}
-              className="h-12 border-hero-foreground/25 bg-transparent px-6 font-semibold text-hero-foreground transition-all hover:border-hero-foreground/50 hover:bg-hero-foreground/10 active:scale-95"
-              render={<Link href="/deals" />}
-            >
-              <Sparkles className="size-4" />
-              View today&apos;s deals
-            </Button>
-          </motion.div>
-
-          <motion.div
-            variants={item}
-            transition={{ duration: 0.6, ease: EASE }}
-            className="mt-2 flex items-center gap-2 text-sm text-hero-foreground/65"
-          >
-            <span className="flex items-center gap-1 font-display font-semibold text-hero-foreground">
-              {stats.avgRating.toFixed(1)}
-              <Star className="size-3.5 fill-hero-accent text-hero-accent" />
-            </span>
-            <span>from {formatCount(stats.reviewCount)} reviews across</span>
-            <span className="font-semibold text-hero-foreground">{stats.brandCount}+ brands</span>
-            <span aria-hidden="true">·</span>
-            <span>{stats.countryCount} countries</span>
-          </motion.div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.97, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: EASE }}
+          className="relative w-full overflow-hidden rounded-3xl ring-1 ring-hero-foreground/10 shadow-[0_30px_80px_-40px_rgba(0,0,0,0.8)]"
+        >
+          {/* Wide banner for tablet/desktop */}
+          <Image
+            src="/redeemcove-hero-banner.png"
+            alt="RedeemCove — gift cards, digital codes, and instant value from top global brands, delivered instantly worldwide"
+            width={2000}
+            height={785}
+            priority
+            className="hidden h-auto w-full sm:block"
+            sizes="(max-width: 1280px) 100vw, 1280px"
+          />
+          {/* Square ad for mobile */}
+          <Image
+            src="/redeemcove-hero-square.jpg"
+            alt="RedeemCove — one place, endless possibilities. Digital gift cards and codes delivered instantly"
+            width={1280}
+            height={1280}
+            priority
+            className="block h-auto w-full sm:hidden"
+            sizes="100vw"
+          />
+        </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.94, x: 16 }}
-          animate={{ opacity: 1, scale: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: EASE, delay: 0.15 }}
-          className="relative mx-auto w-full max-w-md lg:max-w-lg"
+          variants={item}
+          transition={{ duration: 0.6, ease: EASE }}
+          className="flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-center"
         >
-          <div className="animate-float relative aspect-square overflow-hidden rounded-2xl shadow-2xl shadow-black/40 ring-1 ring-white/10">
-            <Image
-              src="/hero-cards.png"
-              alt="RedeemCove digital gift cards from popular global brands"
-              fill
-              priority
-              className="object-cover"
-              sizes="(max-width: 1024px) 90vw, 40vw"
-            />
-          </div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: EASE, delay: 0.7 }}
-            className="absolute -bottom-4 -left-4 flex items-center gap-3 rounded-xl border border-hero-foreground/10 bg-hero/90 px-4 py-3 shadow-lg backdrop-blur-md sm:-bottom-5 sm:-left-6"
+          <Button
+            size="lg"
+            nativeButton={false}
+            className="h-12 w-full animate-pulse-glow bg-hero-foreground px-8 font-semibold text-hero transition-transform hover:bg-hero-foreground/90 active:scale-95 sm:w-auto"
+            render={<Link href="/products" />}
           >
-            <StatCounter label="Brands" value={stats.brandCount} suffix="+" />
-            <div className="h-8 w-px bg-hero-foreground/15" />
-            <StatCounter label="Countries" value={stats.countryCount} />
-            <div className="h-8 w-px bg-hero-foreground/15" />
-            <StatCounter label="Reviews" value={stats.reviewCount} />
-          </motion.div>
+            Shop all gift cards
+            <ArrowRight className="size-4" />
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            nativeButton={false}
+            className="h-12 w-full border-hero-foreground/25 bg-transparent px-8 font-semibold text-hero-foreground transition-all hover:border-hero-foreground/50 hover:bg-hero-foreground/10 active:scale-95 sm:w-auto"
+            render={<Link href="/deals" />}
+          >
+            <Sparkles className="size-4" />
+            View today&apos;s deals
+          </Button>
+        </motion.div>
+
+        <motion.div
+          variants={item}
+          transition={{ duration: 0.6, ease: EASE }}
+          className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 rounded-2xl border border-hero-foreground/10 bg-hero-foreground/5 px-6 py-4 backdrop-blur-sm"
+        >
+          <StatCounter label="Brands" value={stats.brandCount} suffix="+" />
+          <div className="h-8 w-px bg-hero-foreground/15" />
+          <StatCounter label="Countries" value={stats.countryCount} />
+          <div className="h-8 w-px bg-hero-foreground/15" />
+          <StatCounter label="Reviews" value={stats.reviewCount} />
+          <div className="h-8 w-px bg-hero-foreground/15" />
+          <div className="flex flex-col items-center gap-1">
+            <span className="flex items-center gap-1 font-display text-2xl font-bold text-hero-foreground sm:text-3xl">
+              {stats.avgRating.toFixed(1)}
+              <Star className="size-4 fill-hero-accent text-hero-accent" />
+            </span>
+            <span className="text-[11px] font-medium uppercase tracking-wider text-hero-foreground/50">Avg rating</span>
+          </div>
         </motion.div>
       </motion.div>
     </section>
