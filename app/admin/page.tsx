@@ -32,6 +32,9 @@ export default async function AdminPage() {
           <p className="mt-3 text-sm leading-6 text-muted-foreground">Signed in as {session.user.email}</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" render={<Link href="/admin/visitors" />} nativeButton={false}>
+            Visitors
+          </Button>
           <Button variant="outline" size="sm" render={<Link href="/admin/affiliates" />} nativeButton={false}>
             Affiliates
           </Button>

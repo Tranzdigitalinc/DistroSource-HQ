@@ -333,6 +333,24 @@ export const newsletterSubscribers = pgTable("newsletter_subscribers", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 
+export const visitorLogs = pgTable("visitor_logs", {
+  id: serial("id").primaryKey(),
+  visitorId: text("visitor_id").notNull(),
+  userId: text("user_id"),
+  path: text("path").notNull(),
+  action: text("action").notNull().default("page_view"),
+  referrer: text("referrer"),
+  ipAddress: text("ip_address"),
+  country: text("country"),
+  region: text("region"),
+  city: text("city"),
+  deviceType: text("device_type"),
+  browser: text("browser"),
+  os: text("os"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
 export const bulkGiftRequests = pgTable("bulk_gift_requests", {
   id: serial("id").primaryKey(),
   userId: text("userId"),
