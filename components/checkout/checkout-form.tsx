@@ -76,11 +76,8 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (paymentMethod === "crypto") {
-      toast.info("Crypto payments are being connected. Please choose card payment for now.")
-      setPaymentMethod("card")
-      return
-    }
+    toast.info("Payments are temporarily unavailable. Please check back soon.")
+    return
     startTransition(async () => {
       try {
         const result = await checkout({ billingEmail: email, billingName: name, couponCode })
@@ -155,7 +152,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             <h2 className="font-display text-lg font-bold">Payment</h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            Choose how you&apos;d like to pay. Crypto is the preferred method; cards remain available as an alternative.
+            Payment methods are temporarily unavailable while we finish connecting secure checkout.
           </p>
           <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Payment method">
             <button
@@ -163,8 +160,9 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               role="radio"
               aria-checked={paymentMethod === "crypto"}
               onClick={() => setPaymentMethod("crypto")}
+              disabled
               className={cn(
-                "flex min-h-20 flex-col items-start justify-between rounded-xl border p-3 text-left transition-colors",
+                "flex min-h-20 flex-col items-start justify-between rounded-xl border p-3 text-left opacity-60 transition-colors disabled:cursor-not-allowed",
                 paymentMethod === "crypto"
                   ? "border-accent bg-accent/10 text-foreground ring-1 ring-accent"
                   : "border-border bg-background hover:border-accent/50",
@@ -178,8 +176,9 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               role="radio"
               aria-checked={paymentMethod === "card"}
               onClick={() => setPaymentMethod("card")}
+              disabled
               className={cn(
-                "flex min-h-20 flex-col items-start justify-between rounded-xl border p-3 text-left transition-colors",
+                "flex min-h-20 flex-col items-start justify-between rounded-xl border p-3 text-left opacity-60 transition-colors disabled:cursor-not-allowed",
                 paymentMethod === "card"
                   ? "border-accent bg-accent/10 text-foreground ring-1 ring-accent"
                   : "border-border bg-background hover:border-accent/50",
@@ -189,11 +188,10 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               <span className="text-[11px] text-muted-foreground">Alternative</span>
             </button>
           </div>
-          {paymentMethod === "crypto" ? (
-            <div className="rounded-lg border border-accent/20 bg-accent/5 p-3 text-xs leading-relaxed text-muted-foreground">
-              Coinbase Commerce setup is pending. Select card payment to complete this order today.
-            </div>
-          ) : (
+          <div className="rounded-lg border border-border bg-secondary/50 p-3 text-xs leading-relaxed text-muted-foreground">
+            Crypto and card payments are temporarily disabled. Your cart is saved, and you can return when checkout is available.
+          </div>
+          {false && (
             <>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="card">Card number</Label>
@@ -265,7 +263,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
           <Button
             type="submit"
             size="lg"
-            disabled={isPending}
+            disabled
             className="mt-2 hidden h-12 font-semibold lg:flex"
           >
             {isPending ? (
@@ -292,7 +290,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               <PriceDisplay usdAmount={total} />
             </span>
           </div>
-          <Button type="submit" form={FORM_ID} size="lg" disabled={isPending} className="h-11 flex-1 font-semibold">
+          <Button type="submit" form={FORM_ID} size="lg" disabled className="h-11 flex-1 font-semibold">
             {isPending ? (
               <span className="flex items-center gap-2">
                 <Loader2 className="size-4 animate-spin" />
