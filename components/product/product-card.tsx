@@ -150,7 +150,7 @@ export function ProductCard({
             </span>
           )}
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="grid grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] gap-1.5">
           <MotionButton
             type="button"
             onClick={handleQuickAdd}
@@ -158,7 +158,7 @@ export function ProductCard({
             aria-label="Add cheapest offer to cart"
             whileTap={{ scale: 0.96 }}
             className={cn(
-              "relative flex h-10 w-full items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-lg px-3 text-xs font-semibold transition-all disabled:opacity-70 sm:flex-1",
+              "relative flex h-9 min-w-0 w-full items-center justify-center gap-1.5 overflow-hidden rounded-lg px-2 text-[11px] font-semibold transition-all disabled:opacity-70",
               justAdded
                 ? "bg-success text-success-foreground"
                 : "bg-accent text-accent-foreground shadow-sm shadow-accent/25 hover:bg-accent/90",
@@ -196,14 +196,14 @@ export function ProductCard({
                   className="flex items-center gap-1.5"
                 >
                   <ShoppingCart className="size-4 shrink-0" />
-                  Add to cart
+                  Add
                 </motion.span>
               )}
             </AnimatePresence>
           </MotionButton>
           <Link
             href={href}
-            className="flex h-10 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-border bg-secondary/40 px-2 text-xs font-semibold text-foreground transition-colors hover:border-accent/40 hover:bg-secondary hover:text-accent sm:flex-1"
+            className="flex h-9 min-w-0 w-full items-center justify-center gap-1 whitespace-nowrap rounded-lg border border-border bg-secondary/40 px-1.5 text-[11px] font-semibold text-foreground transition-colors hover:border-accent/40 hover:bg-secondary hover:text-accent"
           >
             <Layers className="size-3.5 shrink-0" />
             {hasMultipleOffers ? `${item.variants.length} offers` : "View offer"}
