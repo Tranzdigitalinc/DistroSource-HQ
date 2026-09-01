@@ -39,16 +39,35 @@ export function AuthShell({
                 "radial-gradient(circle at 20% 20%, oklch(0.68 0.19 262 / 0.35), transparent 40%), radial-gradient(circle at 80% 70%, oklch(0.64 0.21 262 / 0.28), transparent 45%)",
             }}
           />
-          <div className="relative flex h-full flex-col items-start justify-end p-16">
-            <p className="max-w-md text-2xl font-medium leading-snug text-hero-foreground text-balance">
-              Instant codes for the games, streaming, and brands you already love — delivered in seconds.
-            </p>
-            <div className="mt-8 flex items-center gap-6 text-sm text-hero-foreground/70">
-              <span>500+ brands</span>
-              <span className="h-1 w-1 rounded-full bg-hero-foreground/40" />
-              <span>190+ countries</span>
-              <span className="h-1 w-1 rounded-full bg-hero-foreground/40" />
-              <span>Instant delivery</span>
+          <div className="relative flex h-full flex-col justify-center p-12 xl:p-16">
+            <div className="mx-auto flex w-full max-w-lg flex-col gap-8">
+              <div className="flex items-center gap-3 text-sm font-semibold tracking-wide text-hero-foreground/70">
+                <span className="h-px w-10 bg-primary" />
+                THE DIGITAL VALUE PLATFORM
+              </div>
+              <div className="flex flex-col gap-5">
+                <h2 className="max-w-xl text-4xl font-semibold leading-tight tracking-tight text-hero-foreground xl:text-5xl text-balance">
+                  Everything you love, delivered instantly.
+                </h2>
+                <p className="max-w-md text-base leading-relaxed text-hero-foreground/70">
+                  Buy gift cards, game top-ups, and streaming codes from trusted brands around the world.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-hero-foreground/10 bg-hero-foreground/[0.04] p-4">
+                  <p className="text-2xl font-semibold text-hero-foreground">500+</p>
+                  <p className="mt-1 text-xs text-hero-foreground/60">Trusted brands</p>
+                </div>
+                <div className="rounded-2xl border border-hero-foreground/10 bg-hero-foreground/[0.04] p-4">
+                  <p className="text-2xl font-semibold text-hero-foreground">190+</p>
+                  <p className="mt-1 text-xs text-hero-foreground/60">Countries supported</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs text-hero-foreground/70">
+                {['Gaming', 'Streaming', 'Shopping', 'Mobile top-up'].map((category) => (
+                  <span key={category} className="rounded-full border border-hero-foreground/10 px-3 py-2">{category}</span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
