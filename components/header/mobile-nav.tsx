@@ -33,7 +33,7 @@ export function MobileNav({ categories }: { categories: Category[] }) {
         <SheetHeader className="border-b border-border/70 px-5 pb-5 pt-7 text-left">
           <div>
             <SheetTitle className="sr-only">RedeemCove navigation</SheetTitle>
-            <BrandLogo href={null} heightClassName="h-14 max-w-[18rem]" />
+            <BrandLogo href={null} heightClassName="h-16 max-w-[20rem]" />
             <p className="mt-2 text-xs text-muted-foreground">Instant value, delivered digitally</p>
           </div>
         </SheetHeader>
