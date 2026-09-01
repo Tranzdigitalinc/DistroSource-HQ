@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Check, LockKeyhole, Zap } from "lucide-react"
 import { ThemeToggle } from "@/components/header/theme-toggle"
 import { BrandLogo } from "@/components/brand-logo"
 
@@ -30,11 +30,20 @@ export function AuthShell({
         </div>
       </header>
       <div className="grid flex-1 lg:grid-cols-2">
-        <div className="flex flex-col justify-center px-6 py-16 sm:px-10 lg:px-16">
+        <div className="flex flex-col justify-center px-5 py-8 sm:px-10 sm:py-16 lg:px-16">
           <div className="mx-auto w-full max-w-sm">
+            <div className="mb-7 flex items-center gap-3 lg:hidden">
+              <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20"><LockKeyhole className="size-5" /></span>
+              <div><p className="text-sm font-semibold">RedeemCove account</p><p className="text-xs text-muted-foreground">Secure digital gifting</p></div>
+            </div>
             <h1 className="font-display text-2xl font-bold tracking-tight text-balance">{title}</h1>
-            <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
-            <div className="mt-8">{children}</div>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{subtitle}</p>
+            <div className="mt-7 rounded-2xl border border-border/70 bg-card/70 p-4 shadow-sm sm:p-6">{children}</div>
+            <div className="mt-6 grid grid-cols-3 gap-2 text-center text-[11px] text-muted-foreground">
+              <div className="rounded-xl bg-secondary/60 px-2 py-3"><Zap className="mx-auto mb-1 size-4 text-primary" />Fast delivery</div>
+              <div className="rounded-xl bg-secondary/60 px-2 py-3"><LockKeyhole className="mx-auto mb-1 size-4 text-primary" />Protected</div>
+              <div className="rounded-xl bg-secondary/60 px-2 py-3"><Check className="mx-auto mb-1 size-4 text-primary" />Trusted</div>
+            </div>
           </div>
         </div>
         <div className="relative hidden overflow-hidden bg-hero lg:block">
