@@ -32,7 +32,7 @@ const cardFieldStyle = {
 }
 
 const fieldWrapperClass =
-  "flex h-10 w-full items-center rounded-md border border-border bg-input/30 px-3 shadow-xs transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40"
+  "flex min-h-14 w-full items-center overflow-hidden rounded-md border border-border bg-input/30 px-3 shadow-xs transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40"
 
 interface PaypalInlineCardFieldsProps {
   billingEmail: string
@@ -140,26 +140,26 @@ export function PaypalInlineCardFields(props: PaypalInlineCardFieldsProps) {
           <div className="flex flex-col gap-1.5">
             <Label className="text-xs text-muted-foreground">Name on card</Label>
             <div className={fieldWrapperClass}>
-              <PayPalNameField className="w-full" placeholder={billingName || "Full name"} />
+              <PayPalNameField className="block h-12 w-full" placeholder={billingName || "Full name"} />
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label className="text-xs text-muted-foreground">Card number</Label>
             <div className={fieldWrapperClass}>
-              <PayPalNumberField className="w-full" placeholder="1234 1234 1234 1234" />
+              <PayPalNumberField className="block h-12 w-full" placeholder="1234 1234 1234 1234" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs text-muted-foreground">Expiry</Label>
               <div className={fieldWrapperClass}>
-                <PayPalExpiryField className="w-full" placeholder="MM/YY" />
+                <PayPalExpiryField className="block h-12 w-full" placeholder="MM/YY" />
               </div>
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs text-muted-foreground">CVC</Label>
               <div className={fieldWrapperClass}>
-                <PayPalCVVField className="w-full" placeholder="CVC" />
+                <PayPalCVVField className="block h-12 w-full" placeholder="CVC" />
               </div>
             </div>
           </div>
