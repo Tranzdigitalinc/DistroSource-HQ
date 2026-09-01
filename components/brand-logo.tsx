@@ -2,7 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
-const BRAND_LOGO_SRC = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/MainLogoDark-ly1LYvKCoFf8p29vIU6OcA7bfsPeOW.png"
+const BRAND_LOGO_SRC = "/images/logos/redeemcove-main-logo.png"
 
 export function BrandLogo({
   href = "/",
