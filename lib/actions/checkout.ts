@@ -17,6 +17,7 @@ import {
 } from "@/lib/db/schema"
 import { generateOrderNumber, generateRedemptionCode } from "@/lib/format"
 import { sendOrderConfirmationEmail, sendReferralRewardEmail } from "@/lib/email"
+import { capturePaypalOrder, createPaypalOrder, refundPaypalCapture } from "@/lib/paypal"
 import { getOptionalOwnerId, getOwnerId, getSession } from "@/lib/session"
 import { and, eq, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
@@ -79,25 +80,39 @@ async function generateUniqueRewardCouponCode(): Promise<string> {
   throw new Error("Could not generate a reward coupon code.")
 }
 
-export async function checkout(input: {
-  billingEmail: string
-  billingName: string
-  couponCode?: string
-}) {
-  const billingEmail = input.billingEmail.trim()
-  const billingName = input.billingName.trim()
+interface OrderPricing {
+  ownerId: string
+  subtotal: number
+  discount: number
+  total: number
+  validatedItems: {
+    productId: number
+    variantId: number
+    productName: string
+    denominationLabel: string
+    unitPriceUsd: number
+    quantity: number
+  }[]
+  promotion: ValidatedCoupon | null
+  coupon: ValidatedCoupon | null
+  campaign: typeof promotionCampaigns.$inferSelect | null
+  campaignValid: boolean
+  referral: { id: number; code: string; refereeDiscountPercent: number; rewardDiscountPercent: number; referrerUserId: string } | null
+  affiliateCode: string | null
+}
 
-  if (!EMAIL_PATTERN.test(billingEmail)) {
-    throw new Error("Enter a valid email address so we know where to deliver your codes.")
-  }
-  if (!billingName) {
-    throw new Error("Enter the name on this order.")
-  }
-
-  const ownerId = await getOwnerId()
-  const session = await getSession()
-  const cookieStore = await cookies()
-
+/**
+ * Recomputes the cart total from server-side prices — never trusts a
+ * client-supplied amount. Call this immediately before charging a payment
+ * provider, and again immediately before fulfilling, so a cart change
+ * mid-checkout can never result in an under- or over-charge.
+ */
+async function computeOrderPricing(
+  ownerId: string,
+  couponCode: string | undefined,
+  session: Awaited<ReturnType<typeof getSession>>,
+  cookieStore: Awaited<ReturnType<typeof cookies>>,
+): Promise<OrderPricing> {
   const rows = await db
     .select({ cartItem: cartItems, variant: productVariants, product: products })
     .from(cartItems)
@@ -108,15 +123,6 @@ export async function checkout(input: {
   if (rows.length === 0) {
     throw new Error("Your cart is empty")
   }
-
-  await db.insert(operationEvents).values({
-    eventType: "checkout_started",
-    entityType: "cart",
-    entityId: ownerId,
-    status: "open",
-    payload: { itemCount: rows.length, couponApplied: Boolean(input.couponCode) },
-    createdBy: ownerId,
-  })
 
   // Server-side validation: recompute prices from DB, enforce quantity caps
   let subtotal = 0
@@ -136,20 +142,20 @@ export async function checkout(input: {
 
   subtotal = Math.round(subtotal * 100) / 100
 
-  const coupon = await validateCoupon(input.couponCode, subtotal)
-  const campaign = !coupon && input.couponCode
-    ? (await db.select().from(promotionCampaigns).where(and(eq(promotionCampaigns.code, input.couponCode.toUpperCase()), eq(promotionCampaigns.isActive, true))).limit(1))[0]
+  const coupon = await validateCoupon(couponCode, subtotal)
+  const campaign = !coupon && couponCode
+    ? (await db.select().from(promotionCampaigns).where(and(eq(promotionCampaigns.code, couponCode.toUpperCase()), eq(promotionCampaigns.isActive, true))).limit(1))[0] ?? null
     : null
-  const campaignValid = campaign && (!campaign.startsAt || new Date(campaign.startsAt) <= new Date()) && (!campaign.expiresAt || new Date(campaign.expiresAt) >= new Date()) && (campaign.maxUses === null || campaign.usedCount < campaign.maxUses) && subtotal >= Number.parseFloat(campaign.minOrderUsd)
-  const promotion = coupon ?? (campaignValid && campaign ? { code: campaign.code ?? input.couponCode, discountPercent: campaign.discountType === "percent" ? Number.parseFloat(campaign.discountValue) : Math.min(100, (Number.parseFloat(campaign.discountValue) / subtotal) * 100) } : null)
-  if (input.couponCode && !promotion) {
+  const campaignValid = Boolean(campaign && (!campaign.startsAt || new Date(campaign.startsAt) <= new Date()) && (!campaign.expiresAt || new Date(campaign.expiresAt) >= new Date()) && (campaign.maxUses === null || campaign.usedCount < campaign.maxUses) && subtotal >= Number.parseFloat(campaign.minOrderUsd))
+  const promotion = coupon ?? (campaignValid && campaign ? { code: campaign.code ?? couponCode!, discountPercent: campaign.discountType === "percent" ? Number.parseFloat(campaign.discountValue) : Math.min(100, (Number.parseFloat(campaign.discountValue) / subtotal) * 100) } : null)
+  if (couponCode && !promotion) {
     throw new Error("This promotion is invalid, expired, or does not apply to your order.")
   }
 
   // Referral welcome discount: only for signed-in first-time buyers who
   // arrived via a valid referral link and did not manually enter a coupon.
   // Referral and coupon discounts never stack.
-  let referral: { id: number; code: string; refereeDiscountPercent: number; rewardDiscountPercent: number; referrerUserId: string } | null = null
+  let referral: OrderPricing["referral"] = null
   if (session?.user && !promotion) {
     const refCode = cookieStore.get("rc_ref")?.value
     if (refCode) {
@@ -190,6 +196,25 @@ export async function checkout(input: {
   const discount = effectiveDiscountPercent ? Math.round(subtotal * (effectiveDiscountPercent / 100) * 100) / 100 : 0
   const total = Math.round((subtotal - discount) * 100) / 100
 
+  return { ownerId, subtotal, discount, total, validatedItems, promotion, coupon, campaign, campaignValid, referral, affiliateCode }
+}
+
+/**
+ * Persists a priced cart as a completed order: writes the order + items,
+ * increments coupon/campaign usage, records referral redemptions, clears the
+ * cart, sends the confirmation email, and issues referral rewards. Shared by
+ * every payment method so each one only has to price the cart and hand off
+ * the confirmed payment reference.
+ */
+async function persistOrder(
+  pricing: OrderPricing,
+  billingEmail: string,
+  billingName: string,
+  session: Awaited<ReturnType<typeof getSession>>,
+  paymentMethod: string,
+  paypalIds?: { paypalOrderId: string; paypalCaptureId: string },
+): Promise<{ orderNumber: string; id: number }> {
+  const { ownerId, subtotal, discount, total, validatedItems, promotion, coupon, campaign, campaignValid, referral, affiliateCode } = pricing
   const orderNumber = generateOrderNumber()
 
   const { order: orderResult, itemsForEmail } = await db.transaction(async (tx) => {
@@ -207,7 +232,9 @@ export async function checkout(input: {
         affiliateCode,
         billingEmail,
         billingName,
-        paymentMethod: "card",
+        paymentMethod,
+        paypalOrderId: paypalIds?.paypalOrderId ?? null,
+        paypalCaptureId: paypalIds?.paypalCaptureId ?? null,
       })
       .returning()
 
@@ -278,7 +305,7 @@ export async function checkout(input: {
     entityType: "order",
     entityId: String(orderResult.id),
     status: "resolved",
-    payload: { itemCount: itemsForEmail.length, totalUsd: total, confirmationEmailSent },
+    payload: { itemCount: itemsForEmail.length, totalUsd: total, paymentMethod, confirmationEmailSent },
     createdBy: ownerId,
     resolvedAt: new Date(),
   })
@@ -328,14 +355,189 @@ export async function checkout(input: {
         createdBy: ownerId,
       })
     }
-    cookieStore.delete("rc_ref")
   }
 
   revalidatePath("/cart")
   revalidatePath("/account/orders")
   revalidatePath("/account/referrals")
 
-  return { orderNumber: orderResult.orderNumber }
+  return { orderNumber: orderResult.orderNumber, id: orderResult.id }
+}
+
+export async function checkout(input: {
+  billingEmail: string
+  billingName: string
+  couponCode?: string
+}) {
+  const billingEmail = input.billingEmail.trim()
+  const billingName = input.billingName.trim()
+
+  if (!EMAIL_PATTERN.test(billingEmail)) {
+    throw new Error("Enter a valid email address so we know where to deliver your codes.")
+  }
+  if (!billingName) {
+    throw new Error("Enter the name on this order.")
+  }
+
+  const ownerId = await getOwnerId()
+  const session = await getSession()
+  const cookieStore = await cookies()
+
+  const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
+
+  await db.insert(operationEvents).values({
+    eventType: "checkout_started",
+    entityType: "cart",
+    entityId: ownerId,
+    status: "open",
+    payload: { itemCount: pricing.validatedItems.length, couponApplied: Boolean(input.couponCode) },
+    createdBy: ownerId,
+  })
+
+  const { orderNumber, id } = await persistOrder(pricing, billingEmail, billingName, session, "card")
+  if (referralCookieShouldClear(pricing)) cookieStore.delete("rc_ref")
+  return { orderNumber, id }
+}
+
+function referralCookieShouldClear(pricing: OrderPricing) {
+  return Boolean(pricing.referral)
+}
+
+const PAYPAL_MIN_USD = 0.5
+
+/**
+ * Step 1 of PayPal checkout: prices the cart from the server, creates a
+ * fixed-amount PayPal order for that total, and returns the PayPal order id
+ * for the client to render into the PayPal Buttons approval flow. No
+ * RedeemCove order is created yet — that only happens once payment is
+ * actually captured.
+ */
+export async function createPaypalCheckoutOrder(input: {
+  billingEmail: string
+  billingName: string
+  couponCode?: string
+}) {
+  const billingEmail = input.billingEmail.trim()
+  const billingName = input.billingName.trim()
+
+  if (!EMAIL_PATTERN.test(billingEmail)) {
+    throw new Error("Enter a valid email address so we know where to deliver your codes.")
+  }
+  if (!billingName) {
+    throw new Error("Enter the name on this order.")
+  }
+
+  const ownerId = await getOwnerId()
+  const session = await getSession()
+  const cookieStore = await cookies()
+
+  const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
+
+  if (pricing.total < PAYPAL_MIN_USD) {
+    throw new Error(
+      pricing.total <= 0
+        ? "Your order total is $0 after discounts — use the free checkout instead of PayPal."
+        : `PayPal requires a minimum order of $${PAYPAL_MIN_USD.toFixed(2)}.`,
+    )
+  }
+
+  await db.insert(operationEvents).values({
+    eventType: "checkout_started",
+    entityType: "cart",
+    entityId: ownerId,
+    status: "open",
+    payload: { itemCount: pricing.validatedItems.length, couponApplied: Boolean(input.couponCode), paymentMethod: "paypal" },
+    createdBy: ownerId,
+  })
+
+  const paypalOrder = await createPaypalOrder({
+    amountUsd: pricing.total,
+    referenceId: ownerId,
+    requestId: `order-${ownerId}-${Date.now()}`,
+  })
+
+  return { paypalOrderId: paypalOrder.id }
+}
+
+/**
+ * Step 2 of PayPal checkout: captures the approved PayPal order, then
+ * re-prices the current cart from the server and confirms it still matches
+ * the amount PayPal actually captured before fulfilling anything. If the
+ * cart changed while the buyer was approving payment, the capture is
+ * refunded immediately and no order is fulfilled.
+ */
+export async function capturePaypalCheckoutOrder(input: {
+  paypalOrderId: string
+  billingEmail: string
+  billingName: string
+  couponCode?: string
+}) {
+  const billingEmail = input.billingEmail.trim()
+  const billingName = input.billingName.trim()
+
+  if (!EMAIL_PATTERN.test(billingEmail)) {
+    throw new Error("Enter a valid email address so we know where to deliver your codes.")
+  }
+  if (!billingName) {
+    throw new Error("Enter the name on this order.")
+  }
+  if (!input.paypalOrderId) {
+    throw new Error("Missing PayPal order reference.")
+  }
+
+  // Idempotency: a retry or double-invoke of capture must never create a
+  // second order or attempt a second capture for the same PayPal order.
+  const [existing] = await db.select({ orderNumber: orders.orderNumber }).from(orders).where(eq(orders.paypalOrderId, input.paypalOrderId)).limit(1)
+  if (existing) return { orderNumber: existing.orderNumber }
+
+  const ownerId = await getOwnerId()
+  const session = await getSession()
+  const cookieStore = await cookies()
+
+  const capture = await capturePaypalOrder(input.paypalOrderId)
+  if (capture.status !== "COMPLETED") {
+    throw new Error("PayPal did not confirm this payment. Please try again.")
+  }
+
+  const captureRecord = capture.purchase_units[0]?.payments?.captures?.[0]
+  if (!captureRecord || captureRecord.status !== "COMPLETED") {
+    throw new Error("PayPal did not confirm this payment. Please try again.")
+  }
+  const capturedAmount = Number.parseFloat(captureRecord.amount.value)
+
+  // Re-check idempotency post-capture in case of a concurrent request racing
+  // us between the check above and now.
+  const [raceCheck] = await db.select({ orderNumber: orders.orderNumber }).from(orders).where(eq(orders.paypalOrderId, input.paypalOrderId)).limit(1)
+  if (raceCheck) return { orderNumber: raceCheck.orderNumber }
+
+  const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
+
+  if (Math.abs(capturedAmount - pricing.total) > 0.01) {
+    // The cart changed between order creation and approval. Refund the
+    // buyer immediately rather than fulfilling the wrong amount.
+    try {
+      await refundPaypalCapture(captureRecord.id, "Your cart changed before payment completed, so this charge was refunded automatically.")
+    } catch (error) {
+      console.error("[v0] Failed to auto-refund mismatched PayPal capture:", error)
+    }
+    await db.insert(operationEvents).values({
+      eventType: "paypal_amount_mismatch",
+      entityType: "cart",
+      entityId: ownerId,
+      status: "resolved",
+      payload: { paypalOrderId: input.paypalOrderId, capturedAmount, recomputedTotal: pricing.total },
+      createdBy: ownerId,
+      resolvedAt: new Date(),
+    })
+    throw new Error("Your cart changed while completing payment, so we refunded the charge automatically. Please review your cart and try again.")
+  }
+
+  const { orderNumber, id } = await persistOrder(pricing, billingEmail, billingName, session, "paypal", {
+    paypalOrderId: input.paypalOrderId,
+    paypalCaptureId: captureRecord.id,
+  })
+  if (pricing.referral) cookieStore.delete("rc_ref")
+  return { orderNumber, id }
 }
 
 export async function revealOrderItemCode(orderItemId: number) {
