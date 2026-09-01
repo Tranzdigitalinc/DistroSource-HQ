@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     url: 'https://redeemcove.com',
     siteName: 'RedeemCove',
     title: 'RedeemCove — Gift Cards, Game Top-Ups & Digital Codes',
-    description: 'Shop trusted gift cards, digital codes, and top-ups worldwide with instant delivery. Browse 500+ brands and get your code in seconds.',
+    description: 'Shop 500+ gift cards and digital codes worldwide with instant delivery.',
     images: [
       {
         url: '/og-redeemcove.jpg',
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'RedeemCove — Gift Cards, Game Top-Ups & Digital Codes',
-    description: 'Shop trusted gift cards, digital codes, and top-ups worldwide with instant delivery. Browse 500+ brands and get your code in seconds.',
+    description: 'Shop 500+ gift cards and digital codes worldwide with instant delivery.',
     images: ['/og-redeemcove.jpg'],
   },
   icons: {
