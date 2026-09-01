@@ -150,7 +150,7 @@ export function ProductCard({
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <MotionButton
             type="button"
             onClick={handleQuickAdd}
@@ -158,7 +158,7 @@ export function ProductCard({
             aria-label="Add cheapest offer to cart"
             whileTap={{ scale: 0.96 }}
             className={cn(
-              "relative flex h-9 flex-1 items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap rounded-md px-2 text-[11px] font-semibold transition-colors disabled:opacity-70",
+              "relative flex h-9 w-full items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap rounded-md px-2 text-[11px] font-semibold transition-colors disabled:opacity-70 sm:flex-1",
               justAdded
                 ? "bg-success text-success-foreground"
                 : "bg-accent text-accent-foreground shadow-sm shadow-accent/25 hover:bg-accent/90",
@@ -203,7 +203,7 @@ export function ProductCard({
           </MotionButton>
           <Link
             href={href}
-            className="flex h-9 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-border px-2 text-[11px] font-semibold text-foreground transition-colors hover:border-accent/40 hover:text-accent"
+            className="flex h-9 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-border px-2 text-[11px] font-semibold text-foreground transition-colors hover:border-accent/40 hover:text-accent sm:flex-1"
           >
             <Layers className="size-3.5 shrink-0" />
             {hasMultipleOffers ? `${item.variants.length} offers` : "View offer"}
