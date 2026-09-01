@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { ArrowRight, BriefcaseBusiness, Globe2, Menu, Sparkles, Store } from "lucide-react"
+import { ArrowRight, BriefcaseBusiness, CircleHelp, Globe2, Mail, Menu, ShieldCheck, Sparkles, Store } from "lucide-react"
+import { BrandLogo } from "@/components/brand-logo"
 import {
   Sheet,
   SheetContent,
@@ -31,9 +32,10 @@ export function MobileNav({ categories }: { categories: Category[] }) {
       <SheetContent side="left" className="w-[88vw] max-w-sm border-r border-accent/20 bg-background/95 p-0 supports-backdrop-filter:bg-background/80">
         <SheetHeader className="border-b border-border/70 px-5 pb-5 pt-7 text-left">
           <div className="flex items-center justify-between gap-3">
-            <div>
-              <SheetTitle className="font-display text-xl tracking-tight">RedeemCove</SheetTitle>
-              <p className="mt-1 text-xs text-muted-foreground">Instant value, delivered digitally</p>
+            <div className="min-w-0">
+              <SheetTitle className="sr-only">RedeemCove navigation</SheetTitle>
+              <BrandLogo href={null} heightClassName="h-11 max-w-[15rem]" />
+              <p className="mt-2 text-xs text-muted-foreground">Instant value, delivered digitally</p>
             </div>
             <div className="flex size-10 items-center justify-center rounded-xl bg-accent/10 text-accent ring-1 ring-accent/20">
               <Sparkles className="size-5" aria-hidden="true" />
@@ -73,9 +75,25 @@ export function MobileNav({ categories }: { categories: Category[] }) {
             <span className="flex size-9 items-center justify-center rounded-lg bg-secondary text-muted-foreground group-hover:bg-accent/15 group-hover:text-accent"><BriefcaseBusiness className="size-4" aria-hidden="true" /></span>
             <span className="flex-1">Bulk gifting</span><ArrowRight className="size-4 text-muted-foreground opacity-0 group-hover:text-accent group-hover:opacity-100" aria-hidden="true" />
           </Link>
+          <div className="my-4 h-px bg-border/70" />
+          <p className="px-3 pb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">Company & support</p>
+          <div className="grid grid-cols-2 gap-2 px-2">
+            <Link href="/about" onClick={() => setOpen(false)} className="flex min-h-11 items-center gap-2 rounded-xl border border-border/70 px-3 text-xs font-medium text-muted-foreground transition-colors hover:border-accent/40 hover:bg-accent/10 hover:text-foreground">
+              <CircleHelp className="size-4 text-accent" aria-hidden="true" /> About
+            </Link>
+            <Link href="/contact" onClick={() => setOpen(false)} className="flex min-h-11 items-center gap-2 rounded-xl border border-border/70 px-3 text-xs font-medium text-muted-foreground transition-colors hover:border-accent/40 hover:bg-accent/10 hover:text-foreground">
+              <Mail className="size-4 text-accent" aria-hidden="true" /> Contact
+            </Link>
+            <Link href="/faq" onClick={() => setOpen(false)} className="flex min-h-11 items-center gap-2 rounded-xl border border-border/70 px-3 text-xs font-medium text-muted-foreground transition-colors hover:border-accent/40 hover:bg-accent/10 hover:text-foreground">
+              <Store className="size-4 text-accent" aria-hidden="true" /> FAQ & help
+            </Link>
+            <Link href="/legal/terms" onClick={() => setOpen(false)} className="flex min-h-11 items-center gap-2 rounded-xl border border-border/70 px-3 text-xs font-medium text-muted-foreground transition-colors hover:border-accent/40 hover:bg-accent/10 hover:text-foreground">
+              <ShieldCheck className="size-4 text-accent" aria-hidden="true" /> Legal
+            </Link>
+          </div>
           <div className="mt-5 rounded-2xl border border-accent/20 bg-accent/5 p-4">
-            <div className="flex items-center gap-3"><Store className="size-4 text-accent" aria-hidden="true" /><p className="text-sm font-semibold">Need help choosing?</p></div>
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Explore popular gift cards and find the right digital code in seconds.</p>
+            <div className="flex items-center gap-3"><Sparkles className="size-4 text-accent" aria-hidden="true" /><p className="text-sm font-semibold">Shop with confidence</p></div>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Secure digital delivery, transparent pricing, and help whenever you need it.</p>
           </div>
         </div>
       </SheetContent>
