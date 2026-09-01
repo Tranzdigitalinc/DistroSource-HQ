@@ -38,7 +38,7 @@ export function Reveal({
 }
 
 export const revealItemVariants: Variants = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 1, y: 0 },
   visible: { opacity: 1, y: 0 },
 }
 
@@ -57,10 +57,10 @@ export function RevealGroup({
 }) {
   return (
     <motion.div
-      initial="hidden"
+      initial={false}
       whileInView="visible"
       viewport={{ once: true, margin: "-64px" }}
-      transition={{ staggerChildren: stagger }}
+      transition={{ staggerChildren: Math.min(stagger, 0.02) }}
       className={className}
     >
       {children}
