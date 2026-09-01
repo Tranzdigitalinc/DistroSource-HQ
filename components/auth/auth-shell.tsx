@@ -1,7 +1,6 @@
-import Link from "next/link"
-import { ArrowLeft, Check, LockKeyhole, Zap } from "lucide-react"
-import { ThemeToggle } from "@/components/header/theme-toggle"
-import { BrandLogo } from "@/components/brand-logo"
+import { Check, LockKeyhole, Zap } from "lucide-react"
+import { SiteHeader } from "@/components/header/site-header"
+import { SiteFooter } from "@/components/footer/site-footer"
 
 export function AuthShell({
   title,
@@ -14,21 +13,7 @@ export function AuthShell({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="flex h-16 shrink-0 items-center justify-between border-b border-border/60 px-6 sm:px-10 lg:px-16">
-        <Link href="/" className="flex items-center">
-          <BrandLogo href={null} height={40} />
-        </Link>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/"
-            className="hidden items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-foreground/70 transition-colors hover:bg-secondary hover:text-foreground sm:flex"
-          >
-            <ArrowLeft className="size-3.5" />
-            Back to store
-          </Link>
-          <ThemeToggle />
-        </div>
-      </header>
+      <SiteHeader />
       <div className="grid flex-1 lg:grid-cols-2">
         <div className="flex flex-col justify-center px-5 py-8 sm:px-10 sm:py-16 lg:px-16">
           <div className="mx-auto w-full max-w-sm">
@@ -68,6 +53,7 @@ export function AuthShell({
           </div>
         </div>
       </div>
+      <SiteFooter />
     </div>
   )
 }
