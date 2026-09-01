@@ -7,6 +7,7 @@ const sortOptions = [
   { value: "popular", label: "Most popular" },
   { value: "newest", label: "Newest" },
   { value: "rating", label: "Highest rated" },
+  { value: "best-value", label: "Best value" },
   { value: "price-asc", label: "Price: low to high" },
   { value: "price-desc", label: "Price: high to low" },
 ]

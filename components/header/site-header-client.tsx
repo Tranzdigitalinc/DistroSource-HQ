@@ -22,10 +22,10 @@ export function SiteHeaderClient({ categories = [], brands = [] }: { categories?
         <MobileNav categories={categories} />
         <Link href="/" className="flex min-w-0 shrink items-center gap-2 transition-opacity hover:opacity-90"><BrandLogo href={null} heightClassName="h-14 sm:h-16" /></Link>
         <DesktopNav categories={categories} brands={brands} />
-        <HeaderSearch className="mx-auto hidden max-w-md flex-1 md:block" />
+        <HeaderSearch className="mx-auto hidden max-w-md flex-1 md:block" brands={brands} categories={categories} />
         <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1"><ThemeToggle /><CountrySelector /><CartTrigger /><AccountMenu /></div>
       </div>
-      <div className="border-t border-border/60 px-4 py-2 md:hidden"><HeaderSearch /></div>
+      <div className="border-t border-border/60 px-4 py-2 md:hidden"><HeaderSearch brands={brands} categories={categories} /></div>
     </header>
   )
 }

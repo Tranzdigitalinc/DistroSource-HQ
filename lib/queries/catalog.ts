@@ -98,7 +98,7 @@ interface ProductQueryOptions {
   search?: string
   featured?: boolean
   deal?: boolean
-  sort?: "popular" | "price-asc" | "price-desc" | "rating" | "newest"
+  sort?: "popular" | "price-asc" | "price-desc" | "rating" | "newest" | "best-value"
   limit?: number
 }
 
@@ -173,6 +173,14 @@ export async function getProducts(options: ProductQueryOptions = {}) {
     result = result.sort((a, b) => a.minPrice - b.minPrice)
   } else if (options.sort === "price-desc") {
     result = result.sort((a, b) => b.minPrice - a.minPrice)
+  } else if (options.sort === "best-value") {
+    result = result.sort((a, b) => {
+      const aVariant = a.variants[0]
+      const bVariant = b.variants[0]
+      const aValue = aVariant ? Number(aVariant.discountPercent) + Number(a.product.rating) : 0
+      const bValue = bVariant ? Number(bVariant.discountPercent) + Number(b.product.rating) : 0
+      return bValue - aValue
+    })
   }
 
   return result

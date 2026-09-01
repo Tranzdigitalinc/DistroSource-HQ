@@ -6,10 +6,15 @@ import { Search, ArrowRight } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
-export function HeaderSearch({ className }: { className?: string }) {
+type SearchItem = { slug: string; name: string }
+
+export function HeaderSearch({ className, brands = [], categories = [] }: { className?: string; brands?: SearchItem[]; categories?: SearchItem[] }) {
   const router = useRouter()
   const [query, setQuery] = useState("")
   const [focused, setFocused] = useState(false)
+  const suggestions = query.trim().length < 2 ? [] : [...brands.map((item) => ({ ...item, type: "Brand" })), ...categories.map((item) => ({ ...item, type: "Category" }))]
+    .filter((item) => item.name.toLowerCase().includes(query.trim().toLowerCase()))
+    .slice(0, 6)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -47,6 +52,23 @@ export function HeaderSearch({ className }: { className?: string }) {
           >
             <ArrowRight className="size-3" />
           </button>
+        )}
+        {focused && suggestions.length > 0 && (
+          <div className="absolute inset-x-0 top-12 z-50 overflow-hidden rounded-2xl border border-border bg-card p-1.5 shadow-xl" role="listbox" aria-label="Search suggestions">
+            {suggestions.map((item) => (
+              <button
+                key={`${item.type}-${item.slug}`}
+                type="button"
+                role="option"
+                className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-secondary"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => router.push(`/products?${item.type === "Brand" ? "brand" : "category"}=${encodeURIComponent(item.slug)}`)}
+              >
+                <span className="truncate font-medium">{item.name}</span>
+                <span className="ml-3 shrink-0 text-[11px] text-muted-foreground">{item.type}</span>
+              </button>
+            ))}
+          </div>
         )}
       </div>
     </form>
