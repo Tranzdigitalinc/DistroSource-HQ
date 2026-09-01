@@ -26,7 +26,7 @@ export default async function CategoryDetailPage({
   return (
     <CatalogPage
       title={category.name}
-      subtitle={category.description}
+      subtitle={category.description ?? undefined}
       products={products}
       banner={
         <div className="relative flex h-40 w-full items-center gap-5 overflow-hidden border-b border-primary/20 bg-[radial-gradient(circle_at_85%_-20%,hsl(var(--primary)/0.35),transparent_60%),radial-gradient(circle_at_10%_120%,hsl(var(--accent)/0.2),transparent_55%)] px-6 sm:h-52 sm:px-10">

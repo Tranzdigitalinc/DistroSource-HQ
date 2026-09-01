@@ -35,9 +35,9 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const couponCode = searchParams.get("coupon") ?? undefined
   const [email, setEmail] = useState(defaultEmail)
   const [name, setName] = useState(defaultName)
-  const [cardNumber, setCardNumber] = useState("4242 4242 4242 4242")
-  const [expiry, setExpiry] = useState("12/28")
-  const [cvc, setCvc] = useState("123")
+  const [cardNumber, setCardNumber] = useState("")
+  const [expiry, setExpiry] = useState("")
+  const [cvc, setCvc] = useState("")
   const [isPending, startTransition] = useTransition()
 
   const discount = Math.round(subtotal * (discountPercent / 100) * 100) / 100
@@ -122,16 +122,39 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
         </p>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="card">Card number</Label>
-          <Input id="card" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} required />
+          <Input
+            id="card"
+            value={cardNumber}
+            onChange={(e) => setCardNumber(e.target.value)}
+            placeholder="1234 1234 1234 1234"
+            autoComplete="cc-number"
+            inputMode="numeric"
+            required
+          />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="expiry">Expiry</Label>
-            <Input id="expiry" value={expiry} onChange={(e) => setExpiry(e.target.value)} required />
+            <Input
+              id="expiry"
+              value={expiry}
+              onChange={(e) => setExpiry(e.target.value)}
+              placeholder="MM/YY"
+              autoComplete="cc-exp"
+              required
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="cvc">CVC</Label>
-            <Input id="cvc" value={cvc} onChange={(e) => setCvc(e.target.value)} required />
+            <Input
+              id="cvc"
+              value={cvc}
+              onChange={(e) => setCvc(e.target.value)}
+              placeholder="123"
+              autoComplete="cc-csc"
+              inputMode="numeric"
+              required
+            />
           </div>
         </div>
       </Reveal>

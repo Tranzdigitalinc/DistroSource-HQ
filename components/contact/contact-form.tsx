@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { submitContactMessage } from "@/lib/actions/contact"
+import { Loader2 } from "lucide-react"
 
 const topics = [
   { value: "order", label: "Order or delivery issue" },
@@ -29,11 +31,14 @@ export function ContactForm() {
     e.preventDefault()
     if (!name.trim() || !email.trim() || !message.trim()) return
 
-    startTransition(() => {
-      setTimeout(() => {
+    startTransition(async () => {
+      try {
+        await submitContactMessage({ name, email, topic, message })
         setSubmitted(true)
         toast.success("Message sent — our team will reply by email shortly.")
-      }, 500)
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Could not send your message. Please try again.")
+      }
     })
   }
 

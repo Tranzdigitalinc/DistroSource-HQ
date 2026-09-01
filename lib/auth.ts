@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth"
 import { pool } from "@/lib/db"
-import { saveResetLink } from "@/lib/reset-link-store"
+import { sendPasswordResetEmail } from "@/lib/email"
 
 export const auth = betterAuth({
   database: pool,
@@ -14,11 +14,8 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
-    // RedeemCove has no email provider configured. Instead of sending a real
-    // email, capture the reset link so the forgot-password page can display
-    // it directly on screen. Documented demo simplification.
     sendResetPassword: async ({ user, url }) => {
-      saveResetLink(user.email, url)
+      await sendPasswordResetEmail(user.email, url)
     },
   },
   trustedOrigins: [

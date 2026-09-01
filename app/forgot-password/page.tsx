@@ -8,22 +8,17 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, ExternalLink } from "lucide-react"
+import { Loader2, MailCheck } from "lucide-react"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const [resetUrl, setResetUrl] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    await authClient.forgetPassword({ email, redirectTo: "/reset-password" })
-
-    const res = await fetch(`/api/dev/reset-link?email=${encodeURIComponent(email)}`)
-    const data = await res.json()
-    setResetUrl(data.url ?? null)
+    await authClient.requestPasswordReset({ email, redirectTo: "/reset-password" })
     setSubmitted(true)
     setLoading(false)
   }
@@ -31,7 +26,7 @@ export default function ForgotPasswordPage() {
   return (
     <AuthShell
       title="Reset your password"
-      subtitle="Enter the email on your account and we'll generate a reset link."
+      subtitle="Enter the email on your account and we'll send you a reset link."
     >
       {!submitted ? (
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -43,6 +38,7 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoComplete="email"
               placeholder="you@example.com"
             />
           </div>
@@ -59,25 +55,24 @@ export default function ForgotPasswordPage() {
       ) : (
         <div className="flex flex-col gap-4">
           <Alert>
+            <MailCheck className="size-4" />
             <AlertDescription>
-              RedeemCove doesn&apos;t send real emails in this demo. Since no email provider is connected, your
-              reset link is shown below instead of being emailed.
+              If an account exists for <span className="font-medium text-foreground">{email}</span>, we&apos;ve
+              sent a password reset link to that address. The link expires in 15 minutes.
             </AlertDescription>
           </Alert>
-          {resetUrl ? (
-            <Link
-              href={resetUrl}
-              className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-4 py-3 text-sm font-medium text-primary hover:underline"
-            >
-              <ExternalLink className="size-4 shrink-0" />
-              <span className="truncate">{resetUrl}</span>
+          <p className="text-sm text-muted-foreground">
+            Didn&apos;t get an email? Check your spam folder, or{" "}
+            <Link href="/contact" className="font-medium text-primary hover:underline">
+              contact support
+            </Link>{" "}
+            for help.
+          </p>
+          <p className="text-center text-sm text-muted-foreground">
+            <Link href="/sign-in" className="font-medium text-primary hover:underline">
+              Back to sign in
             </Link>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              If an account exists for that email, a reset link has been generated. If nothing appears, double
-              check the address and try again.
-            </p>
-          )}
+          </p>
         </div>
       )}
     </AuthShell>

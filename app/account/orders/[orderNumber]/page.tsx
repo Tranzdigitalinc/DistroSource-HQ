@@ -75,7 +75,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ or
         <p>
           Billing: {order.billingName} &middot; {order.billingEmail}
         </p>
-        <p className="mt-1">Payment method: card ending in simulation (no real charge was made).</p>
+        <p className="mt-1 capitalize">Payment method: {order.paymentMethod}</p>
       </div>
     </div>
   )

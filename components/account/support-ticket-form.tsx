@@ -46,7 +46,7 @@ export function SupportTicketForm() {
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="category">Category</Label>
-          <Select value={category} onValueChange={setCategory}>
+          <Select value={category} onValueChange={(value) => setCategory(value ?? "general")}>
             <SelectTrigger id="category" className="w-full">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
