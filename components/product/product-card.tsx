@@ -81,7 +81,7 @@ export function ProductCard({
       whileHover={{ y: -5 }}
       transition={{ type: "spring", stiffness: 400, damping: 28 }}
       className={cn(
-        "group relative flex h-full min-h-[25rem] flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-300",
+        "group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-300",
         "hover:border-accent/40 hover:shadow-[0_0_0_1px_var(--accent),0_16px_40px_-12px_var(--glow)]",
         className,
       )}
@@ -122,7 +122,7 @@ export function ProductCard({
       </Link>
       <WishlistButton productId={item.product.id} className="absolute right-2.5 top-2.5 z-10" />
 
-      <Link href={href} className="flex flex-1 flex-col gap-2 p-4 pb-3">
+      <Link href={href} className="flex flex-col gap-1.5 p-3 pb-2.5">
         <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           {item.brand.name}
         </span>
@@ -136,7 +136,7 @@ export function ProductCard({
         </div>
       </Link>
 
-      <div className="flex flex-col gap-3 border-t border-border/60 px-4 pb-4 pt-3">
+      <div className="mt-auto flex flex-col gap-2 border-t border-border/60 px-3 pb-3 pt-2.5">
         <div className="flex items-baseline gap-2">
           {hasMultipleOffers && (
             <span className="text-[11px] font-medium text-muted-foreground">From</span>
@@ -158,7 +158,7 @@ export function ProductCard({
             aria-label="Add cheapest offer to cart"
             whileTap={{ scale: 0.96 }}
             className={cn(
-              "relative flex h-9 w-full items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap rounded-md px-2 text-[11px] font-semibold transition-colors disabled:opacity-70 sm:flex-1",
+              "relative flex h-10 w-full items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-lg px-3 text-xs font-semibold transition-all disabled:opacity-70 sm:flex-1",
               justAdded
                 ? "bg-success text-success-foreground"
                 : "bg-accent text-accent-foreground shadow-sm shadow-accent/25 hover:bg-accent/90",
@@ -195,15 +195,15 @@ export function ProductCard({
                   exit={{ opacity: 0, scale: 0.85 }}
                   className="flex items-center gap-1.5"
                 >
-                  <ShoppingCart className="size-3.5 shrink-0" />
-                  Add
+                  <ShoppingCart className="size-4 shrink-0" />
+                  Add to cart
                 </motion.span>
               )}
             </AnimatePresence>
           </MotionButton>
           <Link
             href={href}
-            className="flex h-9 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-border px-2 text-[11px] font-semibold text-foreground transition-colors hover:border-accent/40 hover:text-accent sm:flex-1"
+            className="flex h-10 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-border bg-secondary/40 px-2 text-xs font-semibold text-foreground transition-colors hover:border-accent/40 hover:bg-secondary hover:text-accent sm:flex-1"
           >
             <Layers className="size-3.5 shrink-0" />
             {hasMultipleOffers ? `${item.variants.length} offers` : "View offer"}
