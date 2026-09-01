@@ -31,7 +31,7 @@ export default async function AdminPage() {
           <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight text-foreground">Catalog control center</h1>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">Signed in as {session.user.email}</p>
         </div>
-        <Button variant="outline" size="sm" render={<Link href="/admin/orders" />}>
+        <Button variant="outline" size="sm" render={<Link href="/admin/orders" />} nativeButton={false}>
           Manage orders
         </Button>
       </header>

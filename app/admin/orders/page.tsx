@@ -35,7 +35,7 @@ export default async function AdminOrdersPage({
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-foreground">Orders</h1>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">Search by order number or billing email to refund, replace a code, or flag for fraud review.</p>
         </div>
-        <Button variant="outline" size="sm" render={<Link href="/admin" />}>
+        <Button variant="outline" size="sm" render={<Link href="/admin" />} nativeButton={false}>
           Back to control center
         </Button>
       </header>

@@ -51,7 +51,7 @@ export default async function AuditLogPage({
             Full history of order, fulfillment, fraud, sync, and checkout events.
           </p>
         </div>
-        <Button variant="outline" size="sm" render={<Link href="/admin" />}>
+        <Button variant="outline" size="sm" render={<Link href="/admin" />} nativeButton={false}>
           Back to control center
         </Button>
       </header>
@@ -124,6 +124,7 @@ export default async function AuditLogPage({
           size="sm"
           disabled={page <= 1}
           render={<Link href={buildHref("page", String(Math.max(1, page - 1)))} />}
+          nativeButton={false}
         >
           Previous
         </Button>
@@ -133,6 +134,7 @@ export default async function AuditLogPage({
           size="sm"
           disabled={rows.length < pageSize}
           render={<Link href={buildHref("page", String(page + 1))} />}
+          nativeButton={false}
         >
           Next
         </Button>

@@ -17,7 +17,7 @@ export async function OperationsPanel() {
           <CardTitle>Operations queue</CardTitle>
           <CardDescription>Recent order, fulfillment, fraud, and sync events.</CardDescription>
         </div>
-        <Button variant="ghost" size="sm" render={<Link href="/admin/audit" />}>
+        <Button variant="ghost" size="sm" render={<Link href="/admin/audit" />} nativeButton={false}>
           View full audit log
         </Button>
       </CardHeader>

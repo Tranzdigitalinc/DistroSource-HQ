@@ -39,7 +39,7 @@ export default async function AdminOrderDetailPage({
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-foreground">Order {order.orderNumber}</h1>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">{order.billingName} · {order.billingEmail}</p>
         </div>
-        <Button variant="outline" size="sm" render={<Link href="/admin/orders" />}>
+        <Button variant="outline" size="sm" render={<Link href="/admin/orders" />} nativeButton={false}>
           Back to orders
         </Button>
       </header>

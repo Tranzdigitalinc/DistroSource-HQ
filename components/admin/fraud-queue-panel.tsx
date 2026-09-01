@@ -29,7 +29,7 @@ export async function FraudQueuePanel() {
                 <div className="flex shrink-0 items-center gap-2">
                   <Badge variant="destructive">Flagged</Badge>
                   {payload?.orderNumber ? (
-                    <Button size="sm" variant="outline" render={<Link href={`/admin/orders/${payload.orderNumber}`} />}>
+                    <Button size="sm" variant="outline" render={<Link href={`/admin/orders/${payload.orderNumber}`} />} nativeButton={false}>
                       Review
                     </Button>
                   ) : null}
