@@ -19,6 +19,28 @@ export const metadata: Metadata = {
   description:
     'Shop gift cards, game top-ups, mobile recharges, and software licenses from trusted brands worldwide. Instant digital delivery, every time.',
   generator: 'v0.app',
+  metadataBase: new URL('https://redeemcove.com'),
+  openGraph: {
+    type: 'website',
+    url: 'https://redeemcove.com',
+    siteName: 'RedeemCove',
+    title: 'RedeemCove — Gift Cards, Game Top-Ups & Digital Codes',
+    description: 'Shop trusted gift cards, digital codes, and top-ups worldwide with instant delivery.',
+    images: [
+      {
+        url: '/og-redeemcove.png',
+        width: 2048,
+        height: 819,
+        alt: 'RedeemCove gift cards and digital codes',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'RedeemCove — Gift Cards, Game Top-Ups & Digital Codes',
+    description: 'Shop trusted gift cards, digital codes, and top-ups worldwide with instant delivery.',
+    images: ['/og-redeemcove.png'],
+  },
   icons: {
     icon: [
       {
