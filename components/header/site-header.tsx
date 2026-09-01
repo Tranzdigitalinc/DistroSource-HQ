@@ -26,7 +26,7 @@ export async function SiteHeader() {
         <MobileNav categories={categories} />
 
         <Link href="/" className="flex min-w-0 shrink items-center gap-2 transition-opacity hover:opacity-90">
-          <BrandLogo href={null} heightClassName="h-6 sm:h-9" />
+          <BrandLogo href={null} heightClassName="h-8 sm:h-9" />
         </Link>
 
         <DesktopNav categories={categories} brands={brands} />
