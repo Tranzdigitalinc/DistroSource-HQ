@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { authClient } from "@/lib/auth-client"
+import { mergeGuestActivityIntoAccount } from "@/lib/actions/recently-viewed"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -52,6 +53,7 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
       return
     }
 
+    await mergeGuestActivityIntoAccount()
     router.push(redirectTo)
     router.refresh()
   }

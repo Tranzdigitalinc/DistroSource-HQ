@@ -206,14 +206,23 @@ export async function getProductsByIds(ids: number[]) {
   return rows.map((row) => ({ ...row, variants: variants.filter((variant) => variant.productId === row.product.id) }))
 }
 
-export async function getRecommendedProducts(categoryId: number, brandId: number, excludeProductId: number, limit = 8) {
+export async function getRecommendedProducts(
+  categoryId: number,
+  brandId: number,
+  excludeProductId: number,
+  limit = 8,
+  personalization?: { categoryIds: number[]; brandIds: number[] },
+) {
+  const categoryIds = Array.from(new Set([categoryId, ...(personalization?.categoryIds ?? [])]))
+  const brandIds = Array.from(new Set([brandId, ...(personalization?.brandIds ?? [])]))
+
   const rows = await db
     .select({ product: products, brand: brands, category: categories, country: countries })
     .from(products)
     .innerJoin(brands, eq(products.brandId, brands.id))
     .innerJoin(categories, eq(products.categoryId, categories.id))
     .leftJoin(countries, eq(products.countryId, countries.id))
-    .where(and(or(eq(products.brandId, brandId), eq(products.categoryId, categoryId)), sql`${products.id} != ${excludeProductId}`))
+    .where(and(or(inArray(products.brandId, brandIds), inArray(products.categoryId, categoryIds)), sql`${products.id} != ${excludeProductId}`))
     .orderBy(desc(products.isFeatured), desc(products.salesCount), desc(products.rating))
     .limit(limit)
 

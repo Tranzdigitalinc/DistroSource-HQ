@@ -18,6 +18,7 @@ import { Reveal } from "@/components/motion/reveal"
 import { ShareProductButton } from "@/components/product/share-product-button"
 import { CompareButton } from "@/components/product/compare-button"
 import { RecentlyViewedTracker } from "@/components/product/recently-viewed-tracker"
+import { getRecentBrowsingSignal } from "@/lib/actions/recently-viewed"
 
 export async function generateMetadata({
   params,
@@ -54,7 +55,8 @@ export default async function ProductDetailPage({
   if (!data) notFound()
 
   const { product, brand, category, country, variants, reviews } = data
-  const related = await getRecommendedProducts(category.id, brand.id, product.id, 8)
+  const browsingSignal = await getRecentBrowsingSignal()
+  const related = await getRecommendedProducts(category.id, brand.id, product.id, 8, browsingSignal)
   const wishlistIds = await getWishlistProductIds()
 
   const avgRating = Number.parseFloat(product.rating)

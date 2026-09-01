@@ -32,6 +32,32 @@ export async function recordRecentlyViewed(productId: number) {
   await db.insert(operationEvents).values({ eventType: "product_viewed", entityType: "product", entityId: String(productId), status: "resolved", createdBy: ownerId, resolvedAt: new Date() })
 }
 
+/**
+ * Lightweight signal for recommendation personalization: the categories and
+ * brands the current visitor (guest or signed-in) has recently browsed,
+ * beyond just the single product they're currently viewing.
+ */
+export async function getRecentBrowsingSignal(limit = 10) {
+  const ownerId = await getOptionalOwnerId()
+  if (!ownerId) return { categoryIds: [], brandIds: [] }
+
+  const events = await db
+    .select({ entityId: operationEvents.entityId })
+    .from(operationEvents)
+    .where(and(eq(operationEvents.eventType, "product_viewed"), eq(operationEvents.createdBy, ownerId)))
+    .orderBy(desc(operationEvents.createdAt))
+    .limit(limit)
+
+  const ids = events.map((event) => Number(event.entityId)).filter(Number.isFinite)
+  if (!ids.length) return { categoryIds: [], brandIds: [] }
+
+  const rows = await db.select({ categoryId: products.categoryId, brandId: products.brandId }).from(products).where(inArray(products.id, ids))
+  return {
+    categoryIds: Array.from(new Set(rows.map((row) => row.categoryId))),
+    brandIds: Array.from(new Set(rows.map((row) => row.brandId))),
+  }
+}
+
 export async function getRecentlyViewed(limit = 6) {
   const ownerId = await getOptionalOwnerId()
   if (!ownerId) return []
