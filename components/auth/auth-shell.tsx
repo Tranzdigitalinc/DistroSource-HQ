@@ -1,5 +1,5 @@
 import { Check, LockKeyhole, Zap } from "lucide-react"
-import { SiteHeader } from "@/components/header/site-header"
+import { SiteHeaderClient } from "@/components/header/site-header-client"
 import { SiteFooter } from "@/components/footer/site-footer"
 
 export function AuthShell({
@@ -13,7 +13,7 @@ export function AuthShell({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteHeader />
+      <SiteHeaderClient />
       <div className="grid flex-1 lg:grid-cols-2">
         <div className="flex flex-col justify-center px-5 py-8 sm:px-10 sm:py-16 lg:px-16">
           <div className="mx-auto w-full max-w-sm">
