@@ -87,22 +87,25 @@ function StatCounter({ label, value, suffix = "" }: { label: string; value: numb
 export function Hero({ stats }: { stats: HeroStats }) {
   return (
     <section className="relative overflow-hidden bg-hero">
+      <div className="absolute inset-0">
+        <Image
+          src="/images/hero/redeemcove-hero.png"
+          alt=""
+          fill
+          priority
+          className="object-cover opacity-60 mix-blend-screen"
+        />
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-t from-hero via-hero/40 to-hero/80" />
       <div
-        className="absolute inset-0 opacity-70"
+        className="absolute inset-0 opacity-80"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 12% 20%, oklch(0.68 0.19 262 / 0.22), transparent 45%), radial-gradient(circle at 88% 85%, oklch(0.68 0.19 262 / 0.14), transparent 45%)",
+            "radial-gradient(circle at 10% 15%, oklch(0.8 0.17 195 / 0.2), transparent 45%), radial-gradient(circle at 90% 90%, oklch(0.7 0.2 258 / 0.18), transparent 45%)",
         }}
       />
       <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage:
-            "radial-gradient(ellipse at 50% 0%, oklch(0.64 0.21 262 / 0.18), transparent 60%)",
-        }}
-      />
-      <div
-        className="absolute inset-0 opacity-[0.07]"
+        className="absolute inset-0 opacity-[0.06]"
         style={{
           backgroundImage:
             "linear-gradient(oklch(0.98 0.003 260) 1px, transparent 1px), linear-gradient(90deg, oklch(0.98 0.003 260) 1px, transparent 1px)",
@@ -120,7 +123,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
           <motion.span
             variants={item}
             transition={{ duration: 0.5, ease: EASE }}
-            className="flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3.5 py-1.5 text-xs font-medium text-hero-foreground/80 ring-1 ring-inset ring-hero-foreground/15"
+            className="glow-ring flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3.5 py-1.5 text-xs font-medium text-hero-foreground/80 ring-1 ring-inset ring-accent/25"
           >
             <ShieldCheck className="size-3.5 text-hero-accent" />
             <span className="tracking-wide">Trusted digital marketplace</span>
@@ -132,13 +135,13 @@ export function Hero({ stats }: { stats: HeroStats }) {
             className="font-display text-5xl font-medium leading-[1.05] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.1rem]"
           >
             Digital value,{" "}
-            <span className="relative text-hero-accent">
+            <span className="text-gradient-cyan relative">
               delivered in seconds
               <motion.span
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
                 transition={{ duration: 0.6, ease: EASE, delay: 0.6 }}
-                className="absolute -bottom-1 left-0 h-[2px] w-full origin-left rounded-full bg-hero-accent/30"
+                className="absolute -bottom-1 left-0 h-[2px] w-full origin-left rounded-full bg-hero-accent/40"
               />
             </span>
           </motion.h1>
@@ -160,7 +163,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
             <Button
               size="lg"
               nativeButton={false}
-              className="h-12 bg-hero-foreground px-8 font-semibold text-hero shadow-lg shadow-black/20 transition-colors hover:bg-hero-foreground/90 active:scale-[0.98]"
+              className="h-12 bg-accent px-8 font-semibold text-accent-foreground shadow-lg shadow-accent/20 transition-colors hover:bg-accent/90 active:scale-[0.98]"
               render={<Link href="/products" />}
             >
               Shop all gift cards
@@ -170,7 +173,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
               size="lg"
               variant="outline"
               nativeButton={false}
-              className="h-12 border-hero-foreground/20 bg-transparent px-8 font-semibold text-hero-foreground transition-colors hover:border-hero-foreground/40 hover:bg-hero-foreground/5 active:scale-[0.98]"
+              className="h-12 border-hero-foreground/20 bg-transparent px-8 font-semibold text-hero-foreground transition-colors hover:border-accent/50 hover:bg-hero-foreground/5 active:scale-[0.98]"
               render={<Link href="/deals" />}
             >
               <Sparkles className="size-4" />
@@ -215,7 +218,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
           initial="hidden"
           animate="visible"
           transition={{ staggerChildren: 0.06, delayChildren: 0.35 }}
-          className="relative mx-auto w-full max-w-md rounded-2xl border border-hero-foreground/10 bg-hero-foreground/[0.04] p-6"
+          className="glass-panel glow-ring relative mx-auto w-full max-w-md rounded-2xl border border-accent/15 p-6"
         >
           <p className="mb-5 text-center text-xs font-medium uppercase tracking-wider text-hero-foreground/45">
             Powered by the platforms you love

@@ -95,7 +95,7 @@ function NewsletterForm() {
 
   if (submitted) {
     return (
-      <p className="flex items-center gap-2 text-sm font-medium text-primary">
+      <p className="flex items-center gap-2 text-sm font-medium text-accent">
         <Send className="size-4" />
         Thanks! You&apos;ll hear from us soon.
       </p>
@@ -142,7 +142,7 @@ export function SiteFooter() {
               delivered instantly, worldwide.
             </p>
             <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-              <ShieldCheck className="size-4 text-primary" />
+              <ShieldCheck className="size-4 text-accent" />
               Encrypted checkout on every order
             </div>
           </div>

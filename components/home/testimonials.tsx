@@ -59,9 +59,9 @@ export function Testimonials({ reviews, stats }: TestimonialsProps) {
               whileHover={{ y: -3 }}
               whileTap={{ scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 28 }}
-              className="group relative flex h-full flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40"
+              className="group relative flex h-full flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-accent/35 hover:shadow-lg hover:shadow-accent/10"
             >
-              <Quote className="absolute right-4 top-4 size-8 text-primary/8" aria-hidden />
+              <Quote className="absolute right-4 top-4 size-8 text-accent/10" aria-hidden />
               <div className="flex items-center gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star

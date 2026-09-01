@@ -19,7 +19,7 @@ export default async function BrandsPage() {
               <Link
                 key={brand.slug}
                 href={`/brands/${brand.slug}`}
-                className="flex flex-col items-center justify-center gap-3 rounded-xl border border-border bg-card px-4 py-6 text-center transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+                className="flex flex-col items-center justify-center gap-3 rounded-xl border border-border bg-card px-4 py-6 text-center transition-all hover:-translate-y-0.5 hover:border-accent/35 hover:shadow-md hover:shadow-accent/10"
               >
                 {brand.logoUrl ? (
                   <div className="flex size-12 items-center justify-center rounded-lg bg-white p-2">

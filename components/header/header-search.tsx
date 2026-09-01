@@ -25,7 +25,7 @@ export function HeaderSearch({ className }: { className?: string }) {
       )}>
         <Search className={cn(
           "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 transition-colors",
-          focused ? "text-primary" : "text-muted-foreground"
+          focused ? "text-accent" : "text-muted-foreground"
         )} />
         <Input
           value={query}
@@ -35,14 +35,14 @@ export function HeaderSearch({ className }: { className?: string }) {
           placeholder="Search gift cards, games, top-ups..."
           className={cn(
             "h-10 w-full rounded-full bg-secondary pl-9 pr-10 text-sm transition-all",
-            focused && "bg-secondary/80 ring-2 ring-primary/20"
+            focused && "bg-secondary/80 ring-2 ring-accent/25"
           )}
           aria-label="Search products"
         />
         {query.trim() && (
           <button
             type="submit"
-            className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform hover:scale-110"
+            className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full bg-accent text-accent-foreground transition-transform hover:scale-110"
             aria-label="Search"
           >
             <ArrowRight className="size-3" />

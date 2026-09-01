@@ -84,8 +84,8 @@ export function PurchasePanel({
               className={cn(
                 "relative flex flex-col items-start gap-0.5 rounded-lg border px-3 py-2.5 text-left transition-all",
                 selectedId === variant.id
-                  ? "border-primary bg-primary/5 ring-1 ring-primary"
-                  : "border-border hover:border-primary/40",
+                  ? "border-accent bg-accent/10 ring-1 ring-accent"
+                  : "border-border hover:border-accent/40",
               )}
             >
               <span className="text-sm font-semibold">{variant.denominationLabel}</span>
@@ -183,7 +183,7 @@ export function PurchasePanel({
       </div>
 
       <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-        <Zap className="size-3 text-amber-500" />
+        <Zap className="size-3 text-accent" />
         Instant delivery — code appears immediately after purchase
       </div>
     </div>

@@ -71,7 +71,7 @@ export function ProductCard({
       whileHover={{ y: -4 }}
       transition={{ type: "spring", stiffness: 400, damping: 28 }}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-colors duration-300 hover:border-primary/25 hover:shadow-xl hover:shadow-black/5",
+        "group relative flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:border-accent/35 hover:shadow-xl hover:shadow-accent/10",
         className,
       )}
     >
@@ -141,7 +141,7 @@ export function ProductCard({
           </button>
           <Link
             href={href}
-            className="flex h-8 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-border px-2 text-[11px] font-semibold text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+            className="flex h-8 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-border px-2 text-[11px] font-semibold text-foreground transition-colors hover:border-accent/40 hover:text-accent"
           >
             <Layers className="size-3.5 shrink-0" />
             {hasMultipleOffers ? `${item.variants.length} offers` : "View offer"}

@@ -83,7 +83,7 @@ export default async function ProductDetailPage({
                   />
                 )}
                 {product.isDeal && (
-                  <Badge className="absolute left-3 top-3 border-none bg-gradient-to-r from-amber-500 to-orange-500 font-semibold text-white">
+                  <Badge className="absolute left-3 top-3 border-none bg-accent font-semibold text-accent-foreground">
                     Deal
                   </Badge>
                 )}
@@ -111,15 +111,15 @@ export default async function ProductDetailPage({
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
-                  <Zap className="size-4 shrink-0 text-amber-500" />
+                  <Zap className="size-4 shrink-0 text-accent" />
                   <span className="text-xs font-medium text-muted-foreground">Instant delivery</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
-                  <ShieldCheck className="size-4 shrink-0 text-emerald-500" />
+                  <ShieldCheck className="size-4 shrink-0 text-accent" />
                   <span className="text-xs font-medium text-muted-foreground">Verified code</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
-                  <TruckIcon className="size-4 shrink-0 text-sky-500" />
+                  <TruckIcon className="size-4 shrink-0 text-accent" />
                   <span className="text-xs font-medium text-muted-foreground">Email delivery</span>
                 </div>
               </div>

@@ -36,8 +36,8 @@ export function DesktopNav({ categories, brands }: { categories: Category[]; bra
               type="button"
               onMouseEnter={() => setOpen(true)}
               className={cn(
-                "flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors hover:bg-secondary",
-                open && "bg-secondary",
+                "flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium text-foreground/85 transition-colors hover:bg-accent/10 hover:text-accent",
+                open && "bg-accent/10 text-accent",
               )}
             />
           }
@@ -55,13 +55,22 @@ export function DesktopNav({ categories, brands }: { categories: Category[]; bra
         </PopoverContent>
       </Popover>
 
-      <Link href="/deals" className="rounded-full px-3 py-1.5 text-sm font-medium transition-colors hover:bg-secondary">
+      <Link
+        href="/deals"
+        className="rounded-full px-3 py-1.5 text-sm font-medium text-foreground/85 transition-colors hover:bg-accent/10 hover:text-accent"
+      >
         Deals
       </Link>
-      <Link href="/countries" className="rounded-full px-3 py-1.5 text-sm font-medium transition-colors hover:bg-secondary">
+      <Link
+        href="/countries"
+        className="rounded-full px-3 py-1.5 text-sm font-medium text-foreground/85 transition-colors hover:bg-accent/10 hover:text-accent"
+      >
         Countries
       </Link>
-      <Link href="/bulk-gifting" className="rounded-full px-3 py-1.5 text-sm font-medium transition-colors hover:bg-secondary">
+      <Link
+        href="/bulk-gifting"
+        className="rounded-full px-3 py-1.5 text-sm font-medium text-foreground/85 transition-colors hover:bg-accent/10 hover:text-accent"
+      >
         Bulk Gifting
       </Link>
     </nav>
