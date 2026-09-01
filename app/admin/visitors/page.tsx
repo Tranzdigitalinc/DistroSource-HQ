@@ -3,8 +3,9 @@ import { headers } from "next/headers"
 import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { getVisitorLogsFiltered, getVisitorStats } from "@/lib/actions/visitor-logs"
-import { countryCodeToFlag, countryCodeToName } from "@/lib/user-agent"
+import { countryCodeToName } from "@/lib/user-agent"
 import { IpReputationBadge } from "@/components/admin/ip-reputation-badge"
+import { CountryFlag } from "@/components/admin/country-flag"
 import { isAdminEmail } from "@/lib/admin-emails"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -95,8 +96,8 @@ export default async function AdminVisitorsPage({
               <ul className="flex flex-col gap-1">
                 {stats.topCountries.map((c) => (
                   <li key={c.country} className="flex items-center justify-between text-sm">
-                    <span>
-                      {countryCodeToFlag(c.country)} {countryCodeToName(c.country)}
+                    <span className="flex items-center gap-1.5">
+                      <CountryFlag code={c.country} /> {countryCodeToName(c.country)}
                     </span>
                     <span className="text-muted-foreground">{c.count}</span>
                   </li>
@@ -130,9 +131,9 @@ export default async function AdminVisitorsPage({
             <Link
               key={c}
               href={buildHref("country", c)}
-              className={`rounded-full border px-3 py-1 text-xs ${params.country === c ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+              className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs ${params.country === c ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
             >
-              {countryCodeToFlag(c)} {c}
+              <CountryFlag code={c} /> {c}
             </Link>
           ))}
         </div>
@@ -200,9 +201,14 @@ export default async function AdminVisitorsPage({
                         {row.browser ?? "Unknown"} · {row.os ?? "Unknown"}
                       </td>
                       <td className="px-2 py-2 text-xs text-muted-foreground">
-                        {countryCodeToFlag(row.country)} {countryCodeToName(row.country)}
-                        {row.city ? ` · ${row.city}` : ""}
-                        {row.region && !row.city ? ` · ${row.region}` : ""}
+                        <span className="flex items-center gap-1.5">
+                          <CountryFlag code={row.country} />
+                          <span>
+                            {countryCodeToName(row.country)}
+                            {row.city ? ` · ${row.city}` : ""}
+                            {row.region && !row.city ? ` · ${row.region}` : ""}
+                          </span>
+                        </span>
                       </td>
                       <td className="px-2 py-2 font-mono text-xs text-muted-foreground">{row.ipAddress ?? "—"}</td>
                       <td className="px-2 py-2">
