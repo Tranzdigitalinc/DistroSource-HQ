@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation"
 import { ReloadlySyncPanel } from "@/components/admin/reloadly-sync-panel"
+import { OperationsPanel } from "@/components/admin/operations-panel"
+import { AnalyticsSummary } from "@/components/admin/analytics-summary"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 
@@ -23,7 +25,9 @@ export default async function AdminPage() {
         <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight text-foreground">Catalog control center</h1>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">Signed in as {session.user.email}</p>
       </header>
+      <AnalyticsSummary />
       <ReloadlySyncPanel />
+      <OperationsPanel />
     </main>
   )
 }

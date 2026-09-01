@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { and, eq } from "drizzle-orm"
 import { db } from "@/lib/db"
-import { brands, cartItems, categories, countries, orderItems, orders, productVariants, products, reviews, wishlistItems } from "@/lib/db/schema"
+import { brands, cartItems, categories, countries, operationEvents, orderItems, orders, productVariants, products, reviews, wishlistItems } from "@/lib/db/schema"
 import { getSession } from "@/lib/session"
 import { fetchAllReloadlyProducts, getDenominations, getProductImage } from "@/lib/reloadly"
 
@@ -91,9 +91,11 @@ export async function POST(request: Request) {
       return { productCount: catalog.length, variantCount, categoryCount: categoryMap.size, brandCount: brandMap.size }
     })
 
+    await db.insert(operationEvents).values({ eventType: "reloadly_sync_completed", entityType: "catalog", status: "resolved", payload: result, createdBy: session.user.id, resolvedAt: new Date() })
     return NextResponse.json({ ok: true, ...result })
   } catch (error) {
     console.error("[v0] Reloadly catalog sync failed:", error)
+    await db.insert(operationEvents).values({ eventType: "reloadly_sync_failed", entityType: "catalog", status: "open", payload: { detail: error instanceof Error ? error.message.slice(0, 240) : "Unknown sync error" }, createdBy: session.user.id })
     const detail = error instanceof Error ? error.message.slice(0, 240) : "Unknown sync error"
     return NextResponse.json(
       { error: "Reloadly sync failed; the database transaction was rolled back", detail },

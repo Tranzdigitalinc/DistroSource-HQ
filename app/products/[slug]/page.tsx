@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { Reveal } from "@/components/motion/reveal"
+import { ShareProductButton } from "@/components/product/share-product-button"
 
 export async function generateMetadata({
   params,
@@ -160,6 +161,7 @@ export default async function ProductDetailPage({
                 {product.shortDescription && (
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{product.shortDescription}</p>
                 )}
+                <div className="mt-4"><ShareProductButton name={product.name} /></div>
               </div>
               <PurchasePanel
                 productId={product.id}

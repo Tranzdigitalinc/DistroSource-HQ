@@ -181,6 +181,18 @@ export const productBundles = pgTable("product_bundles", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 
+export const operationEvents = pgTable("operation_events", {
+  id: serial("id").primaryKey(),
+  eventType: text("event_type").notNull(),
+  entityType: text("entity_type").notNull(),
+  entityId: text("entity_id"),
+  status: text("status").notNull().default("open"),
+  payload: jsonb("payload"),
+  createdBy: text("created_by"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  resolvedAt: timestamp("resolved_at"),
+})
+
 export const abandonedCarts = pgTable("abandoned_carts", {
   id: serial("id").primaryKey(),
   userId: text("user_id"),
