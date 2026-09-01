@@ -7,26 +7,33 @@ function getResend() {
 }
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "RedeemCove <support@redeemcove.com>"
-const LOGO_URL = "https://redeemcove.com/images/logos/redeemcove-main-logo.png"
+const LOGO_URL = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%20Aug%2031%2C%202026%2C%2008_01_39%20PM-qRhA04nZH0DW0ucjzMDiU2ILGL1e2U.png"
 
 export async function sendVerificationEmail(to: string, verificationUrl: string) {
   const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
     to,
-    subject: "Verify your RedeemCove email",
+    subject: "Welcome to RedeemCove — verify your email",
     html: `
-      <div style="background:#07111f;padding:40px 20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#f8fafc;">
-        <div style="max-width:520px;margin:0 auto;background:#0d1b2f;border:1px solid #1e3a5f;border-radius:18px;padding:32px 28px;">
-          <img src="${LOGO_URL}" alt="RedeemCove" style="display:block;width:260px;max-width:100%;height:auto;margin:0 auto 28px;" />
-          <h1 style="font-size:24px;line-height:1.25;text-align:center;margin:0 0 14px;">Confirm your email</h1>
-          <p style="font-size:15px;line-height:1.7;color:#b7c5d8;margin:0 0 26px;text-align:center;">Thanks for joining RedeemCove. Verify your email to secure your account and access your digital codes.</p>
-          <div style="text-align:center;"><a href="${verificationUrl}" style="display:inline-block;background:#16c7e8;color:#06101d;font-weight:700;font-size:15px;text-decoration:none;padding:13px 24px;border-radius:10px;">Verify my email</a></div>
-          <p style="font-size:12px;line-height:1.6;color:#8294aa;margin:26px 0 0;">If you didn&apos;t create a RedeemCove account, you can safely ignore this email.</p>
-          <p style="font-size:12px;color:#8294aa;margin:18px 0 0;text-align:center;">RedeemCove.com · support@RedeemCove.com</p>
-        </div>
+      <div style="margin:0;padding:32px 12px;background:#eef4f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#0b1b31;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:620px;margin:0 auto;border-collapse:separate;">
+          <tr><td style="padding:0 0 18px;text-align:center;font-size:12px;letter-spacing:1.5px;color:#60758c;text-transform:uppercase;">Secure digital gifting, made simple</td></tr>
+          <tr><td style="background:#081426;border-radius:20px 20px 0 0;padding:28px 28px 24px;text-align:center;">
+            <img src="${LOGO_URL}" alt="RedeemCove — gift cards, digital codes, instant value" width="360" style="display:block;width:360px;max-width:100%;height:auto;margin:0 auto;" />
+          </td></tr>
+          <tr><td style="background:#ffffff;border-radius:0 0 20px 20px;padding:38px 34px 32px;border:1px solid #dce6ee;border-top:0;">
+            <p style="margin:0 0 10px;text-align:center;color:#168ba5;font-size:12px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;">Welcome aboard</p>
+            <h1 style="margin:0;text-align:center;color:#0b1b31;font-size:28px;line-height:1.2;font-weight:750;letter-spacing:-.4px;">Confirm your email address</h1>
+            <p style="margin:18px 0 0;text-align:center;color:#52677c;font-size:16px;line-height:1.65;">Thanks for creating your RedeemCove account. Confirm your email to keep your account secure and unlock instant access to your digital codes.</p>
+            <div style="padding:28px 0 24px;text-align:center;"><a href="${verificationUrl}" style="display:inline-block;background:#13bfdc;color:#061426;font-size:15px;font-weight:750;line-height:1;text-decoration:none;padding:16px 28px;border-radius:9px;box-shadow:0 5px 14px rgba(19,191,220,.22);">Verify my email</a></div>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f3f8fb;border:1px solid #e1edf2;border-radius:12px;"><tr><td style="padding:15px 16px;color:#52677c;font-size:13px;line-height:1.55;"><strong style="color:#0b1b31;">What happens next?</strong><br />You&apos;ll be ready to shop trusted gift cards and receive your codes instantly.</td></tr></table>
+            <p style="margin:24px 0 0;color:#7a8da0;font-size:12px;line-height:1.6;">If you didn&apos;t create a RedeemCove account, you can safely ignore this message. This verification link is unique to your account.</p>
+          </td></tr>
+          <tr><td style="padding:22px 12px 0;text-align:center;color:#71859a;font-size:12px;line-height:1.7;">RedeemCove.com<br /><a href="mailto:support@RedeemCove.com" style="color:#168ba5;text-decoration:none;">support@RedeemCove.com</a><br /><span style="font-size:11px;color:#91a1b0;">Digital value, delivered better.</span></td></tr>
+        </table>
       </div>
     `,
-    text: `Confirm your RedeemCove email by visiting this link: ${verificationUrl}\n\nIf you did not create this account, you can safely ignore this email.\n\nRedeemCove.com`,
+    text: `Welcome to RedeemCove. Confirm your email address to secure your account and access your digital codes: ${verificationUrl}\n\nWhat happens next? You will be ready to shop trusted gift cards and receive your codes instantly.\n\nIf you did not create a RedeemCove account, you can safely ignore this message.\n\nRedeemCove.com · support@RedeemCove.com`,
   })
 
   if (error) {
