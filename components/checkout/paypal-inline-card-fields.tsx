@@ -19,20 +19,36 @@ import { createPaypalCheckoutOrder, capturePaypalCheckoutOrder } from "@/lib/act
 // mirror the app's design tokens (see globals.css) rather than var(--*).
 const cardFieldStyle = {
   input: {
-    "font-family": "inherit",
+    "font-family": "Inter, sans-serif",
     "font-size": "14px",
     color: "oklch(0.96 0.008 250)",
+    "background-color": "transparent",
+    border: "0",
+    outline: "none",
+    "box-shadow": "none",
+    padding: "0",
+    width: "100%",
+    height: "100%",
   },
   "input::placeholder": {
     color: "oklch(0.65 0.02 258)",
+    opacity: "1",
   },
   ".invalid": {
-    color: "oklch(0.65 0.22 25)",
+    color: "oklch(0.96 0.008 250)",
+    border: "0",
+    outline: "none",
+    "box-shadow": "none",
+  },
+  "input:focus": {
+    border: "0",
+    outline: "none",
+    "box-shadow": "none",
   },
 }
 
 const fieldWrapperClass =
-  "flex min-h-14 w-full items-center overflow-hidden rounded-md border border-border bg-input/30 px-3 shadow-xs transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40"
+  "flex h-12 w-full items-center overflow-hidden rounded-md border border-border bg-input/30 px-3 shadow-xs transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40"
 
 interface PaypalInlineCardFieldsProps {
   billingEmail: string
