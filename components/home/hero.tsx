@@ -52,8 +52,8 @@ const item = {
 }
 
 const card = {
-  hidden: { opacity: 0, scale: 0.85, y: 24 },
-  visible: { opacity: 1, scale: 1, y: 0 },
+  hidden: { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0 },
 }
 
 const trustChips = [
@@ -75,11 +75,11 @@ const brandCards = [
 function StatCounter({ label, value, suffix = "" }: { label: string; value: number; suffix?: string }) {
   const counter = useAnimatedCounter(value)
   return (
-    <div className="flex flex-col items-center gap-1">
-      <span ref={counter.ref} className="font-display text-2xl font-bold text-hero-foreground sm:text-3xl">
+    <div className="flex flex-col gap-1">
+      <span ref={counter.ref} className="font-display text-2xl font-semibold text-hero-foreground sm:text-3xl">
         {formatCount(counter.value)}{suffix}
       </span>
-      <span className="text-[11px] font-medium uppercase tracking-wider text-hero-foreground/50">{label}</span>
+      <span className="text-[11px] font-medium uppercase tracking-wider text-hero-foreground/45">{label}</span>
     </div>
   )
 }
@@ -120,25 +120,25 @@ export function Hero({ stats }: { stats: HeroStats }) {
           <motion.span
             variants={item}
             transition={{ duration: 0.5, ease: EASE }}
-            className="flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3.5 py-1.5 text-xs font-medium text-hero-foreground/90 ring-1 ring-inset ring-hero-foreground/20 backdrop-blur-sm"
+            className="flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3.5 py-1.5 text-xs font-medium text-hero-foreground/80 ring-1 ring-inset ring-hero-foreground/15"
           >
             <ShieldCheck className="size-3.5 text-hero-accent" />
-            TRUSTED DIGITAL MARKETPLACE
+            <span className="tracking-wide">Trusted digital marketplace</span>
           </motion.span>
 
           <motion.h1
             variants={item}
             transition={{ duration: 0.6, ease: EASE }}
-            className="font-display text-5xl font-medium leading-[1.05] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.25rem]"
+            className="font-display text-5xl font-medium leading-[1.05] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.1rem]"
           >
             Digital value,{" "}
-            <span className="relative bg-gradient-to-r from-hero-accent via-hero-accent to-hero-foreground bg-clip-text text-transparent">
+            <span className="relative text-hero-accent">
               delivered in seconds
               <motion.span
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
                 transition={{ duration: 0.6, ease: EASE, delay: 0.6 }}
-                className="absolute -bottom-1 left-0 h-[3px] w-full origin-left rounded-full bg-hero-accent/40"
+                className="absolute -bottom-1 left-0 h-[2px] w-full origin-left rounded-full bg-hero-accent/30"
               />
             </span>
           </motion.h1>
@@ -146,7 +146,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
           <motion.p
             variants={item}
             transition={{ duration: 0.6, ease: EASE }}
-            className="max-w-lg text-lg leading-relaxed text-hero-foreground/70 text-pretty"
+            className="max-w-lg text-lg leading-relaxed text-hero-foreground/65 text-pretty"
           >
             Top up games, stream more, and shop your favorite brands — all from one marketplace with instant
             delivery to your inbox and account.
@@ -160,7 +160,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
             <Button
               size="lg"
               nativeButton={false}
-              className="h-12 animate-pulse-glow bg-hero-foreground px-8 font-semibold text-hero transition-transform hover:bg-hero-foreground/90 active:scale-95"
+              className="h-12 bg-hero-foreground px-8 font-semibold text-hero shadow-lg shadow-black/20 transition-colors hover:bg-hero-foreground/90 active:scale-[0.98]"
               render={<Link href="/products" />}
             >
               Shop all gift cards
@@ -170,7 +170,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
               size="lg"
               variant="outline"
               nativeButton={false}
-              className="h-12 border-hero-foreground/25 bg-transparent px-8 font-semibold text-hero-foreground transition-all hover:border-hero-foreground/50 hover:bg-hero-foreground/10 active:scale-95"
+              className="h-12 border-hero-foreground/20 bg-transparent px-8 font-semibold text-hero-foreground transition-colors hover:border-hero-foreground/40 hover:bg-hero-foreground/5 active:scale-[0.98]"
               render={<Link href="/deals" />}
             >
               <Sparkles className="size-4" />
@@ -181,10 +181,10 @@ export function Hero({ stats }: { stats: HeroStats }) {
           <motion.div
             variants={item}
             transition={{ duration: 0.6, ease: EASE }}
-            className="grid w-full grid-cols-2 gap-3 sm:grid-cols-4"
+            className="grid w-full grid-cols-2 gap-y-3 border-t border-hero-foreground/10 pt-6 sm:grid-cols-4"
           >
             {trustChips.map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2 text-sm text-hero-foreground/70">
+              <div key={label} className="flex items-center gap-2 text-hero-foreground/65">
                 <Icon className="size-4 shrink-0 text-hero-accent" />
                 <span className="text-xs font-medium sm:text-sm">{label}</span>
               </div>
@@ -194,20 +194,17 @@ export function Hero({ stats }: { stats: HeroStats }) {
           <motion.div
             variants={item}
             transition={{ duration: 0.6, ease: EASE }}
-            className="flex w-full flex-wrap items-center gap-x-6 gap-y-3 rounded-2xl border border-hero-foreground/10 bg-hero-foreground/5 px-6 py-4 backdrop-blur-sm"
+            className="flex w-full flex-wrap items-center gap-x-8 gap-y-4"
           >
             <StatCounter label="Brands" value={stats.brandCount} suffix="+" />
-            <div className="h-8 w-px bg-hero-foreground/15" />
             <StatCounter label="Countries" value={stats.countryCount} />
-            <div className="h-8 w-px bg-hero-foreground/15" />
             <StatCounter label="Reviews" value={stats.reviewCount} />
-            <div className="h-8 w-px bg-hero-foreground/15" />
-            <div className="flex flex-col items-center gap-1">
-              <span className="flex items-center gap-1 font-display text-2xl font-bold text-hero-foreground sm:text-3xl">
+            <div className="flex flex-col gap-1">
+              <span className="flex items-center gap-1.5 font-display text-2xl font-semibold text-hero-foreground sm:text-3xl">
                 {stats.avgRating.toFixed(1)}
                 <Star className="size-4 fill-hero-accent text-hero-accent" />
               </span>
-              <span className="text-[11px] font-medium uppercase tracking-wider text-hero-foreground/50">
+              <span className="text-[11px] font-medium uppercase tracking-wider text-hero-foreground/45">
                 Avg rating
               </span>
             </div>
@@ -217,28 +214,27 @@ export function Hero({ stats }: { stats: HeroStats }) {
         <motion.div
           initial="hidden"
           animate="visible"
-          transition={{ staggerChildren: 0.08, delayChildren: 0.3 }}
-          className="relative mx-auto grid w-full max-w-md grid-cols-3 gap-3 sm:gap-4"
+          transition={{ staggerChildren: 0.06, delayChildren: 0.35 }}
+          className="relative mx-auto w-full max-w-md rounded-2xl border border-hero-foreground/10 bg-hero-foreground/[0.04] p-6"
         >
-          {brandCards.map(({ name, logo }, i) => (
-            <motion.div
-              key={name}
-              variants={card}
-              transition={{ duration: 0.55, ease: EASE }}
-              className={`animate-float ${i % 2 === 1 ? "sm:translate-y-6" : ""}`}
-              style={{ animationDelay: `${i * 0.35}s` }}
-            >
-              <div className="flex aspect-square items-center justify-center rounded-2xl border border-hero-foreground/10 bg-white p-4 shadow-[0_20px_45px_-15px_rgba(0,0,0,0.55)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_25px_55px_-15px_hsl(var(--hero-accent)/0.35)]">
-                <Image
-                  src={logo || "/placeholder.svg"}
-                  alt={name}
-                  width={64}
-                  height={64}
-                  className="h-8 w-auto object-contain sm:h-10"
-                />
-              </div>
-            </motion.div>
-          ))}
+          <p className="mb-5 text-center text-xs font-medium uppercase tracking-wider text-hero-foreground/45">
+            Powered by the platforms you love
+          </p>
+          <div className="grid grid-cols-3 gap-3">
+            {brandCards.map(({ name, logo }) => (
+              <motion.div key={name} variants={card} transition={{ duration: 0.5, ease: EASE }}>
+                <div className="flex aspect-square items-center justify-center rounded-xl border border-hero-foreground/10 bg-white p-4 transition-colors duration-300 hover:border-hero-accent/40">
+                  <Image
+                    src={logo || "/placeholder.svg"}
+                    alt={name}
+                    width={64}
+                    height={64}
+                    className="h-8 w-auto object-contain sm:h-9"
+                  />
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>
