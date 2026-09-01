@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { cartItems, coupons, orderItems, orders, productVariants, products } from "@/lib/db/schema"
+import { cartItems, coupons, orderItems, orders, productVariants, products, promotionCampaigns } from "@/lib/db/schema"
 import { generateOrderNumber, generateRedemptionCode } from "@/lib/format"
 import { sendOrderConfirmationEmail } from "@/lib/email"
 import { getOptionalOwnerId, getOwnerId } from "@/lib/session"
@@ -34,8 +34,19 @@ async function validateCoupon(code: string | undefined, subtotal: number): Promi
 
 export async function applyCouponPreview(code: string, subtotal: number) {
   const coupon = await validateCoupon(code, subtotal)
-  if (!coupon) return { valid: false as const, message: "This coupon is invalid or does not apply to your order." }
-  return { valid: true as const, discountPercent: coupon.discountPercent }
+  if (coupon) return { valid: true as const, discountPercent: coupon.discountPercent }
+
+  const campaigns = await db
+    .select()
+    .from(promotionCampaigns)
+    .where(and(eq(promotionCampaigns.code, code.toUpperCase()), eq(promotionCampaigns.isActive, true)))
+    .limit(1)
+  const campaign = campaigns[0]
+  if (!campaign || (campaign.startsAt && new Date(campaign.startsAt) > new Date()) || (campaign.expiresAt && new Date(campaign.expiresAt) < new Date()) || (campaign.maxUses !== null && campaign.usedCount >= campaign.maxUses) || subtotal < Number.parseFloat(campaign.minOrderUsd)) {
+    return { valid: false as const, message: "This coupon is invalid or does not apply to your order." }
+  }
+  const discountPercent = campaign.discountType === "percent" ? Number.parseFloat(campaign.discountValue) : Math.min(100, (Number.parseFloat(campaign.discountValue) / subtotal) * 100)
+  return { valid: true as const, discountPercent }
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

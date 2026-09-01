@@ -106,6 +106,14 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
 
   return (
     <div className="flex flex-col gap-8 pb-24 lg:pb-0">
+      <ol className="grid grid-cols-3 gap-2" aria-label="Checkout progress">
+        {["Review", "Details", "Complete"].map((step, index) => (
+          <li key={step} className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+            <span className={cn("flex size-7 items-center justify-center rounded-full border", index < 2 ? "border-accent bg-accent text-accent-foreground" : "border-border bg-card")}>{index + 1}</span>
+            <span className="hidden sm:inline">{step}</span>
+          </li>
+        ))}
+      </ol>
       <form id={FORM_ID} onSubmit={handleSubmit} className="flex flex-col gap-8">
         {isGuest && (
           <Reveal className="flex items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm">

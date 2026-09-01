@@ -44,10 +44,22 @@ export default async function ProductDetailPage({
   const wishlistIds = await getWishlistProductIds()
 
   const avgRating = Number.parseFloat(product.rating)
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://redeemcove.com"
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description ?? product.shortDescription ?? undefined,
+    image: product.imageUrl ? [product.imageUrl] : undefined,
+    brand: { "@type": "Brand", name: brand.name },
+    aggregateRating: product.reviewCount > 0 ? { "@type": "AggregateRating", ratingValue: avgRating, reviewCount: product.reviewCount } : undefined,
+    offers: variants.map((variant) => ({ "@type": "Offer", priceCurrency: "USD", price: variant.priceUsd, availability: variant.stockCount > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock", url: `${siteUrl}/products/${product.slug}` })),
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
           <nav className="mb-6 flex items-center gap-1.5 text-xs text-muted-foreground" aria-label="Breadcrumb">
