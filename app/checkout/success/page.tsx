@@ -42,12 +42,23 @@ export default async function CheckoutSuccessPage({
             </p>
           </Reveal>
 
-          <Reveal delay={0.05} className="mt-6 flex items-center gap-3 rounded-xl border border-success/20 bg-success/5 px-4 py-3">
-            <Mail className="size-5 shrink-0 text-success" />
-            <p className="text-sm text-foreground/80">
-              A copy of your codes was also sent to <span className="font-semibold">{order.billingEmail}</span>
-            </p>
-          </Reveal>
+          {order.confirmationEmailSent ? (
+            <Reveal delay={0.05} className="mt-6 flex items-center gap-3 rounded-xl border border-success/20 bg-success/5 px-4 py-3">
+              <Mail className="size-5 shrink-0 text-success" />
+              <p className="text-sm text-foreground/80">
+                A copy of your codes was also sent to <span className="font-semibold">{order.billingEmail}</span>
+              </p>
+            </Reveal>
+          ) : (
+            <Reveal delay={0.05} className="mt-6 flex items-center gap-3 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3">
+              <Mail className="size-5 shrink-0 text-destructive" />
+              <p className="text-sm text-foreground/80">
+                We couldn&apos;t email a copy of your codes to{" "}
+                <span className="font-semibold">{order.billingEmail}</span>. Save the codes below or view them
+                anytime from your order history.
+              </p>
+            </Reveal>
+          )}
 
           <Reveal delay={0.1} className="mt-6 overflow-hidden rounded-xl border border-border bg-card">
             <div className="flex items-center gap-2 border-b border-border bg-secondary/30 px-6 py-3">

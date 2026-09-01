@@ -201,6 +201,7 @@ export const orders = pgTable("orders", {
   billingEmail: text("billing_email").notNull(),
   billingName: text("billing_name").notNull(),
   paymentMethod: text("payment_method").notNull().default("card"),
+  confirmationEmailSent: boolean("confirmation_email_sent").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 

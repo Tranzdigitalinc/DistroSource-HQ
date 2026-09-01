@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { cartItems, coupons, orderItems, orders, productVariants, products } from "@/lib/db/schema"
 import { generateOrderNumber, generateRedemptionCode } from "@/lib/format"
+import { sendOrderConfirmationEmail } from "@/lib/email"
 import { getOptionalOwnerId, getOwnerId } from "@/lib/session"
 import { and, eq, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
@@ -91,7 +92,7 @@ export async function checkout(input: {
 
   const orderNumber = generateOrderNumber()
 
-  const orderResult = await db.transaction(async (tx) => {
+  const { order: orderResult, itemsForEmail } = await db.transaction(async (tx) => {
     const [order] = await tx
       .insert(orders)
       .values({
@@ -108,21 +109,24 @@ export async function checkout(input: {
       })
       .returning()
 
-    await tx.insert(orderItems).values(
-      validatedItems.map((item) => ({
-        orderId: order.id,
-        productId: item.productId,
-        variantId: item.variantId,
-        productName: item.productName,
-        denominationLabel: item.denominationLabel,
-        unitPriceUsd: item.unitPriceUsd.toFixed(2),
-        quantity: item.quantity,
-        redemptionCode: generateRedemptionCode(),
-        redemptionInstructions:
-          "Redeem this code at checkout or in the brand's app under Redeem Gift Card / Enter Code.",
-        isRevealed: false,
-      })),
-    )
+    const insertedItems = await tx
+      .insert(orderItems)
+      .values(
+        validatedItems.map((item) => ({
+          orderId: order.id,
+          productId: item.productId,
+          variantId: item.variantId,
+          productName: item.productName,
+          denominationLabel: item.denominationLabel,
+          unitPriceUsd: item.unitPriceUsd.toFixed(2),
+          quantity: item.quantity,
+          redemptionCode: generateRedemptionCode(),
+          redemptionInstructions:
+            "Redeem this code at checkout or in the brand's app under Redeem Gift Card / Enter Code.",
+          isRevealed: false,
+        })),
+      )
+      .returning()
 
     if (coupon) {
       await tx
@@ -133,8 +137,30 @@ export async function checkout(input: {
 
     await tx.delete(cartItems).where(eq(cartItems.userId, ownerId))
 
-    return order
+    return { order, itemsForEmail: insertedItems }
   })
+
+  // Send the confirmation email after the order is committed. A flaky email
+  // provider must never roll back a completed, paid order.
+  let confirmationEmailSent = false
+  try {
+    confirmationEmailSent = await sendOrderConfirmationEmail(
+      billingEmail,
+      orderResult.orderNumber,
+      itemsForEmail.map((item) => ({
+        productName: item.productName,
+        denominationLabel: item.denominationLabel,
+        quantity: item.quantity,
+        redemptionCode: item.redemptionCode,
+      })),
+    )
+  } catch (error) {
+    console.error("[v0] Order confirmation email threw:", error)
+  }
+
+  if (confirmationEmailSent) {
+    await db.update(orders).set({ confirmationEmailSent: true }).where(eq(orders.id, orderResult.id))
+  }
 
   revalidatePath("/cart")
   revalidatePath("/account/orders")

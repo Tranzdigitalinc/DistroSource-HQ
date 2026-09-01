@@ -8,6 +8,7 @@ import { Minus, Plus, X } from "lucide-react"
 import { PriceDisplay } from "@/components/price-display"
 import { BrandThumbnail } from "@/components/product/brand-thumbnail"
 import { updateCartItemQuantity, removeCartItem } from "@/lib/actions/cart"
+import { useCartCount } from "@/lib/use-cart"
 
 interface CartLineItemProps {
   cartItemId: number
@@ -36,18 +37,21 @@ export function CartLineItem({
 }: CartLineItemProps) {
   const [qty, setQty] = useState(quantity)
   const [isPending, startTransition] = useTransition()
+  const { refresh } = useCartCount()
 
   function updateQty(next: number) {
     const clamped = Math.max(1, Math.min(20, next))
     setQty(clamped)
     startTransition(async () => {
       await updateCartItemQuantity(cartItemId, clamped)
+      refresh()
     })
   }
 
   function handleRemove() {
     startTransition(async () => {
       await removeCartItem(cartItemId)
+      refresh()
     })
   }
 
