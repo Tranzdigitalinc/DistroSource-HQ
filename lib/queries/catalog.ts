@@ -56,6 +56,25 @@ export async function getBrandBySlug(slug: string) {
   return rows[0] ?? null
 }
 
+export const LOW_STOCK_THRESHOLD = 25
+
+export async function getLowStockVariants(threshold = LOW_STOCK_THRESHOLD) {
+  return db
+    .select({
+      id: productVariants.id,
+      denominationLabel: productVariants.denominationLabel,
+      stockCount: productVariants.stockCount,
+      productName: products.name,
+      productSlug: products.slug,
+      brandName: brands.name,
+    })
+    .from(productVariants)
+    .innerJoin(products, eq(products.id, productVariants.productId))
+    .innerJoin(brands, eq(brands.id, products.brandId))
+    .where(sql`${productVariants.stockCount} <= ${threshold}`)
+    .orderBy(asc(productVariants.stockCount))
+}
+
 export type ProductWithRelations = Awaited<ReturnType<typeof getProductBySlug>>
 
 export async function getProductBySlug(slug: string) {

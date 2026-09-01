@@ -156,3 +156,69 @@ export async function sendOrderConfirmationEmail(
   }
   return true
 }
+
+export async function sendRefundConfirmationEmail(to: string, orderNumber: string, totalUsd: number, reason?: string) {
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: `Your RedeemCove order ${orderNumber} has been refunded`,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
+        <h1 style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">Refund confirmed</h1>
+        <p style="font-size: 14px; line-height: 1.6; color: #4a4a4a; margin: 0 0 16px;">
+          Order <strong>${orderNumber}</strong> for <strong>$${totalUsd.toFixed(2)}</strong> has been refunded. Any codes issued on this order have been voided and can no longer be redeemed.
+        </p>
+        ${reason ? `<p style="font-size: 13px; line-height: 1.6; color: #6a6a6a; margin: 0 0 16px;">Reason: ${reason}</p>` : ""}
+        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 24px 0 0;">
+          If you have questions about this refund, reply to this email or contact support.
+        </p>
+        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 16px 0 0;">
+          RedeemCove &middot; Support@RedeemCove.com
+        </p>
+      </div>
+    `,
+    text: `Order ${orderNumber} for $${totalUsd.toFixed(2)} has been refunded. Any codes issued on this order have been voided.${reason ? `\n\nReason: ${reason}` : ""}\n\nRedeemCove · Support@RedeemCove.com`,
+  })
+
+  if (error) {
+    console.error("[v0] Failed to send refund confirmation email:", error)
+    return false
+  }
+  return true
+}
+
+export async function sendReplacementCodeEmail(
+  to: string,
+  orderNumber: string,
+  productName: string,
+  denominationLabel: string,
+  redemptionCode: string,
+) {
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: `Your replacement code for order ${orderNumber}`,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
+        <h1 style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">Replacement code issued</h1>
+        <p style="font-size: 14px; line-height: 1.6; color: #4a4a4a; margin: 0 0 16px;">
+          We&apos;ve issued a new code for <strong>${productName} — ${denominationLabel}</strong> on order <strong>${orderNumber}</strong>. Your previous code has been voided.
+        </p>
+        <p style="font-size: 15px; font-family: monospace; background: #f3f3f3; padding: 12px 16px; border-radius: 8px; margin: 0 0 16px;">${redemptionCode}</p>
+        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 24px 0 0;">
+          Redeem this code at checkout or in the brand's app under Redeem Gift Card / Enter Code.
+        </p>
+        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 16px 0 0;">
+          RedeemCove &middot; Support@RedeemCove.com
+        </p>
+      </div>
+    `,
+    text: `We've issued a new code for ${productName} — ${denominationLabel} on order ${orderNumber}. Your previous code has been voided.\n\nNew code: ${redemptionCode}\n\nRedeemCove · Support@RedeemCove.com`,
+  })
+
+  if (error) {
+    console.error("[v0] Failed to send replacement code email:", error)
+    return false
+  }
+  return true
+}

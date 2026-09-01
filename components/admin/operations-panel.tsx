@@ -1,8 +1,10 @@
 import Link from "next/link"
 import { getOperationEvents, resolveOperationEvent } from "@/lib/actions/operations"
+import { isRetryableEvent } from "@/lib/retryable-events"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { RetryEventButton } from "@/components/admin/retry-event-button"
 
 export async function OperationsPanel() {
   const events = await getOperationEvents()
@@ -32,6 +34,7 @@ export async function OperationsPanel() {
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <Badge variant={event.status === "open" ? "destructive" : "secondary"}>{event.status}</Badge>
+              {event.status === "open" && isRetryableEvent(event.eventType) ? <RetryEventButton eventId={event.id} /> : null}
               {event.status === "open" ? (
                 <form action={resolveOperationEvent.bind(null, event.id)}>
                   <Button type="submit" size="sm" variant="outline">Resolve</Button>

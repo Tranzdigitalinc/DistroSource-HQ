@@ -268,6 +268,7 @@ export const orderItems = pgTable("order_items", {
   redemptionCode: text("redemption_code").notNull(),
   redemptionInstructions: text("redemption_instructions"),
   isRevealed: boolean("is_revealed").notNull().default(false),
+  isVoided: boolean("is_voided").notNull().default(false),
 })
 
 export const supportTickets = pgTable("support_tickets", {

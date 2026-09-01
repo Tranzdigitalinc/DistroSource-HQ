@@ -2,10 +2,11 @@ import { redirect } from "next/navigation"
 import { headers } from "next/headers"
 import Link from "next/link"
 import { auth } from "@/lib/auth"
-import { getOperationEventsFiltered } from "@/lib/actions/operations"
+import { getOperationEventsFiltered, isRetryableEvent } from "@/lib/actions/operations"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { RetryEventButton } from "@/components/admin/retry-event-button"
 
 export const metadata = {
   title: "Audit log | RedeemCove Admin",
@@ -95,7 +96,10 @@ export default async function AuditLogPage({
                     {event.eventType} · {event.entityType}
                     {event.entityId ? ` #${event.entityId}` : ""}
                   </p>
-                  <Badge variant={event.status === "open" ? "destructive" : "secondary"}>{event.status}</Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={event.status === "open" ? "destructive" : "secondary"}>{event.status}</Badge>
+                    {event.status === "open" && isRetryableEvent(event.eventType) ? <RetryEventButton eventId={event.id} /> : null}
+                  </div>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Created {event.createdAt.toLocaleString()}
