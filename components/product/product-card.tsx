@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { AnimatePresence, motion } from "motion/react"
 import { toast } from "sonner"
 import { mutate } from "swr"
@@ -86,12 +87,22 @@ export function ProductCard({
       )}
     >
       <Link href={href} className="relative block aspect-[4/3] w-full overflow-hidden border-b border-border/60">
-        <BrandThumbnail
-          logoUrl={item.brand.logoUrl}
-          brandColor={item.brand.brandColor ?? null}
-          brandName={item.brand.name}
-          className="transition-transform duration-500 group-hover:scale-[1.05]"
-        />
+        {item.product.imageUrl ? (
+          <Image
+            src={item.product.imageUrl || "/placeholder.svg"}
+            alt={item.product.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+          />
+        ) : (
+          <BrandThumbnail
+            logoUrl={item.brand.logoUrl}
+            brandColor={item.brand.brandColor ?? null}
+            brandName={item.brand.name}
+            className="transition-transform duration-500 group-hover:scale-[1.05]"
+          />
+        )}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         {maxDiscount > 0 && (
           <Badge className="absolute left-2.5 top-2.5 border-none bg-accent font-semibold text-accent-foreground shadow-sm shadow-accent/30">
