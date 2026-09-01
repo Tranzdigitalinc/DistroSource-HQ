@@ -19,31 +19,31 @@ import { createPaypalCheckoutOrder, capturePaypalCheckoutOrder } from "@/lib/act
 // mirror the app's design tokens (see globals.css) rather than var(--*).
 const cardFieldStyle = {
   input: {
-    "font-family": "Inter, sans-serif",
-    "font-size": "14px",
-    color: "oklch(0.96 0.008 250)",
-    "background-color": "transparent",
+    fontFamily: "Inter, sans-serif",
+    fontSize: "14px",
+    color: "#f3f4f6",
+    backgroundColor: "transparent",
     border: "0",
     outline: "none",
-    "box-shadow": "none",
+    boxShadow: "none",
     padding: "0",
     width: "100%",
     height: "100%",
   },
   "input::placeholder": {
-    color: "oklch(0.65 0.02 258)",
+    color: "#9ca3af",
     opacity: "1",
   },
   ".invalid": {
-    color: "oklch(0.96 0.008 250)",
+    color: "#f3f4f6",
     border: "0",
     outline: "none",
-    "box-shadow": "none",
+    boxShadow: "none",
   },
   "input:focus": {
     border: "0",
     outline: "none",
-    "box-shadow": "none",
+    boxShadow: "none",
   },
 }
 
