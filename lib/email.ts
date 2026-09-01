@@ -1,11 +1,42 @@
 import { Resend } from "resend"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+function getResend() {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) throw new Error("RESEND_API_KEY is not configured")
+  return new Resend(apiKey)
+}
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "RedeemCove <support@redeemcove.com>"
+const LOGO_URL = "https://redeemcove.com/images/logos/redeemcove-main-logo.png"
+
+export async function sendVerificationEmail(to: string, verificationUrl: string) {
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: "Verify your RedeemCove email",
+    html: `
+      <div style="background:#07111f;padding:40px 20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#f8fafc;">
+        <div style="max-width:520px;margin:0 auto;background:#0d1b2f;border:1px solid #1e3a5f;border-radius:18px;padding:32px 28px;">
+          <img src="${LOGO_URL}" alt="RedeemCove" style="display:block;width:260px;max-width:100%;height:auto;margin:0 auto 28px;" />
+          <h1 style="font-size:24px;line-height:1.25;text-align:center;margin:0 0 14px;">Confirm your email</h1>
+          <p style="font-size:15px;line-height:1.7;color:#b7c5d8;margin:0 0 26px;text-align:center;">Thanks for joining RedeemCove. Verify your email to secure your account and access your digital codes.</p>
+          <div style="text-align:center;"><a href="${verificationUrl}" style="display:inline-block;background:#16c7e8;color:#06101d;font-weight:700;font-size:15px;text-decoration:none;padding:13px 24px;border-radius:10px;">Verify my email</a></div>
+          <p style="font-size:12px;line-height:1.6;color:#8294aa;margin:26px 0 0;">If you didn&apos;t create a RedeemCove account, you can safely ignore this email.</p>
+          <p style="font-size:12px;color:#8294aa;margin:18px 0 0;text-align:center;">RedeemCove.com · support@RedeemCove.com</p>
+        </div>
+      </div>
+    `,
+    text: `Confirm your RedeemCove email by visiting this link: ${verificationUrl}\n\nIf you did not create this account, you can safely ignore this email.\n\nRedeemCove.com`,
+  })
+
+  if (error) {
+    console.error("[v0] Failed to send verification email:", error)
+    throw new Error("Could not send the verification email. Please try again later.")
+  }
+}
 
 export async function sendPasswordResetEmail(to: string, resetUrl: string) {
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
     to,
     subject: "Reset your RedeemCove password",
@@ -66,7 +97,7 @@ export async function sendOrderConfirmationEmail(
     .map((item) => `${item.productName} — ${item.denominationLabel} x${item.quantity}: ${item.redemptionCode}`)
     .join("\n")
 
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
     to,
     subject: `Your RedeemCove order ${orderNumber} — codes inside`,

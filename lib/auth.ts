@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth"
 import { pool } from "@/lib/db"
-import { sendPasswordResetEmail } from "@/lib/email"
+import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/email"
 
 export const auth = betterAuth({
   database: pool,
@@ -14,8 +14,16 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+    requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
       await sendPasswordResetEmail(user.email, url)
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendVerificationEmail(user.email, url)
     },
   },
   trustedOrigins: [
