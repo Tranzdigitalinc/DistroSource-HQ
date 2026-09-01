@@ -1,7 +1,8 @@
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import { CatalogPage } from "@/components/catalog/catalog-page"
 import { FlagIcon } from "@/components/flag-icon"
-import { getCountryByCode, getProducts } from "@/lib/queries/catalog"
+import { getCategories, getCountryByCode, getProducts } from "@/lib/queries/catalog"
 
 export default async function CountryDetailPage({
   params,
@@ -15,13 +16,16 @@ export default async function CountryDetailPage({
   const country = await getCountryByCode(code.toUpperCase())
   if (!country) notFound()
 
-  const products = await getProducts({
-    countryCode: country.code,
-    categorySlug: sp.category,
-    brandSlug: sp.brand,
-    search: sp.q,
-    sort: (sp.sort as any) ?? "popular",
-  })
+  const [products, categories] = await Promise.all([
+    getProducts({
+      countryCode: country.code,
+      categorySlug: sp.category,
+      brandSlug: sp.brand,
+      search: sp.q,
+      sort: (sp.sort as any) ?? "popular",
+    }),
+    getCategories(),
+  ])
 
   return (
     <CatalogPage
@@ -33,6 +37,24 @@ export default async function CountryDetailPage({
       }
       subtitle={`Priced in ${country.currencyCode}, ready for instant delivery`}
       products={products}
+      banner={
+        categories.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-2 border-b border-primary/20 bg-muted/30 px-6 py-4 sm:px-10">
+            <span className="text-xs font-medium text-muted-foreground">
+              Browse categories for {country.name}:
+            </span>
+            {categories.slice(0, 8).map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/categories/${cat.slug}/${country.code.toLowerCase()}`}
+                className="rounded-full border border-border bg-card px-3 py-1 text-xs font-medium transition-colors hover:border-primary/40"
+              >
+                {cat.name}
+              </Link>
+            ))}
+          </div>
+        ) : undefined
+      }
     />
   )
 }

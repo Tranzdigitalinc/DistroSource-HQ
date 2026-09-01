@@ -249,10 +249,45 @@ export const orders = pgTable("orders", {
   discountUsd: numeric("discount_usd", { precision: 10, scale: 2 }).notNull().default("0"),
   totalUsd: numeric("total_usd", { precision: 10, scale: 2 }).notNull(),
   couponCode: text("coupon_code"),
+  affiliateCode: text("affiliate_code"),
+  referralCode: text("referral_code"),
   billingEmail: text("billing_email").notNull(),
   billingName: text("billing_name").notNull(),
   paymentMethod: text("payment_method").notNull().default("card"),
   confirmationEmailSent: boolean("confirmation_email_sent").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
+export const referralCodes = pgTable("referral_codes", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull().unique(),
+  code: text("code").notNull().unique(),
+  rewardDiscountPercent: integer("reward_discount_percent").notNull().default(10),
+  refereeDiscountPercent: integer("referee_discount_percent").notNull().default(10),
+  redemptionCount: integer("redemption_count").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
+export const referralRedemptions = pgTable("referral_redemptions", {
+  id: serial("id").primaryKey(),
+  referralCodeId: integer("referral_code_id").notNull(),
+  referrerUserId: text("referrer_user_id").notNull(),
+  refereeUserId: text("referee_user_id").notNull().unique(),
+  refereeOrderId: integer("referee_order_id"),
+  rewardCouponCode: text("reward_coupon_code"),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  rewardedAt: timestamp("rewarded_at"),
+})
+
+export const affiliateCodes = pgTable("affiliate_codes", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  partnerName: text("partner_name").notNull(),
+  contactEmail: text("contact_email"),
+  commissionPercent: numeric("commission_percent", { precision: 5, scale: 2 }).notNull().default("5"),
+  isActive: boolean("is_active").notNull().default(true),
+  notes: text("notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 

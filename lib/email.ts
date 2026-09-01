@@ -187,6 +187,37 @@ export async function sendRefundConfirmationEmail(to: string, orderNumber: strin
   return true
 }
 
+export async function sendReferralRewardEmail(to: string, couponCode: string, discountPercent: number) {
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: "You earned a referral reward on RedeemCove",
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
+        <h1 style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">Your referral paid off</h1>
+        <p style="font-size: 14px; line-height: 1.6; color: #4a4a4a; margin: 0 0 16px;">
+          A friend just completed their first order using your referral link. As a thank-you, here&apos;s a
+          <strong>${discountPercent}% off</strong> coupon for your next order.
+        </p>
+        <p style="font-size: 18px; font-weight: 700; font-family: monospace; background: #f3f3f3; padding: 12px 16px; border-radius: 8px; margin: 0 0 16px;">${couponCode}</p>
+        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 24px 0 0;">
+          Keep sharing your referral link from your RedeemCove account to earn more rewards.
+        </p>
+        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 16px 0 0;">
+          RedeemCove &middot; Support@RedeemCove.com
+        </p>
+      </div>
+    `,
+    text: `A friend just completed their first order using your referral link. As a thank-you, here's a ${discountPercent}% off coupon: ${couponCode}\n\nKeep sharing your referral link to earn more rewards.\n\nRedeemCove · Support@RedeemCove.com`,
+  })
+
+  if (error) {
+    console.error("[v0] Failed to send referral reward email:", error)
+    return false
+  }
+  return true
+}
+
 export async function sendReplacementCodeEmail(
   to: string,
   orderNumber: string,

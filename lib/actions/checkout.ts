@@ -1,12 +1,26 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { cartItems, coupons, operationEvents, orderItems, orders, productVariants, products, promotionCampaigns } from "@/lib/db/schema"
+import {
+  affiliateCodes,
+  cartItems,
+  coupons,
+  operationEvents,
+  orderItems,
+  orders,
+  productVariants,
+  products,
+  promotionCampaigns,
+  referralCodes,
+  referralRedemptions,
+  user,
+} from "@/lib/db/schema"
 import { generateOrderNumber, generateRedemptionCode } from "@/lib/format"
-import { sendOrderConfirmationEmail } from "@/lib/email"
-import { getOptionalOwnerId, getOwnerId } from "@/lib/session"
+import { sendOrderConfirmationEmail, sendReferralRewardEmail } from "@/lib/email"
+import { getOptionalOwnerId, getOwnerId, getSession } from "@/lib/session"
 import { and, eq, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
+import { cookies } from "next/headers"
 
 const MAX_QUANTITY_PER_ITEM = 20
 
@@ -51,6 +65,20 @@ export async function applyCouponPreview(code: string, subtotal: number) {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+function randomCode(length: number): string {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+  return Array.from({ length }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("")
+}
+
+async function generateUniqueRewardCouponCode(): Promise<string> {
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const code = `REF-${randomCode(6)}`
+    const existing = await db.select({ id: coupons.id }).from(coupons).where(eq(coupons.code, code)).limit(1)
+    if (existing.length === 0) return code
+  }
+  throw new Error("Could not generate a reward coupon code.")
+}
+
 export async function checkout(input: {
   billingEmail: string
   billingName: string
@@ -67,6 +95,8 @@ export async function checkout(input: {
   }
 
   const ownerId = await getOwnerId()
+  const session = await getSession()
+  const cookieStore = await cookies()
 
   const rows = await db
     .select({ cartItem: cartItems, variant: productVariants, product: products })
@@ -115,7 +145,49 @@ export async function checkout(input: {
   if (input.couponCode && !promotion) {
     throw new Error("This promotion is invalid, expired, or does not apply to your order.")
   }
-  const discount = promotion ? Math.round(subtotal * (promotion.discountPercent / 100) * 100) / 100 : 0
+
+  // Referral welcome discount: only for signed-in first-time buyers who
+  // arrived via a valid referral link and did not manually enter a coupon.
+  // Referral and coupon discounts never stack.
+  let referral: { id: number; code: string; refereeDiscountPercent: number; rewardDiscountPercent: number; referrerUserId: string } | null = null
+  if (session?.user && !promotion) {
+    const refCode = cookieStore.get("rc_ref")?.value
+    if (refCode) {
+      const [priorOrder] = await db.select({ id: orders.id }).from(orders).where(eq(orders.userId, session.user.id)).limit(1)
+      const [priorRedemption] = await db
+        .select({ id: referralRedemptions.id })
+        .from(referralRedemptions)
+        .where(eq(referralRedemptions.refereeUserId, session.user.id))
+        .limit(1)
+      if (!priorOrder && !priorRedemption) {
+        const [referralRow] = await db.select().from(referralCodes).where(eq(referralCodes.code, refCode)).limit(1)
+        if (referralRow && referralRow.userId !== session.user.id) {
+          referral = {
+            id: referralRow.id,
+            code: referralRow.code,
+            refereeDiscountPercent: referralRow.refereeDiscountPercent,
+            rewardDiscountPercent: referralRow.rewardDiscountPercent,
+            referrerUserId: referralRow.userId,
+          }
+        }
+      }
+    }
+  }
+
+  // Affiliate attribution: tracking only, does not affect price.
+  const affiliateCookie = cookieStore.get("rc_aff")?.value
+  let affiliateCode: string | null = null
+  if (affiliateCookie) {
+    const [affiliateRow] = await db
+      .select({ code: affiliateCodes.code })
+      .from(affiliateCodes)
+      .where(and(eq(affiliateCodes.code, affiliateCookie), eq(affiliateCodes.isActive, true)))
+      .limit(1)
+    if (affiliateRow) affiliateCode = affiliateRow.code
+  }
+
+  const effectiveDiscountPercent = promotion?.discountPercent ?? referral?.refereeDiscountPercent ?? 0
+  const discount = effectiveDiscountPercent ? Math.round(subtotal * (effectiveDiscountPercent / 100) * 100) / 100 : 0
   const total = Math.round((subtotal - discount) * 100) / 100
 
   const orderNumber = generateOrderNumber()
@@ -131,6 +203,8 @@ export async function checkout(input: {
         discountUsd: discount.toFixed(2),
         totalUsd: total.toFixed(2),
         couponCode: promotion?.code ?? null,
+        referralCode: referral?.code ?? null,
+        affiliateCode,
         billingEmail,
         billingName,
         paymentMethod: "card",
@@ -160,6 +234,16 @@ export async function checkout(input: {
       await tx.update(coupons).set({ usedCount: sql`${coupons.usedCount} + 1` }).where(eq(coupons.code, coupon.code))
     } else if (campaignValid && campaign) {
       await tx.update(promotionCampaigns).set({ usedCount: sql`${promotionCampaigns.usedCount} + 1` }).where(eq(promotionCampaigns.id, campaign.id))
+    }
+
+    if (referral && session?.user) {
+      await tx.insert(referralRedemptions).values({
+        referralCodeId: referral.id,
+        referrerUserId: referral.referrerUserId,
+        refereeUserId: session.user.id,
+        refereeOrderId: order.id,
+        status: "pending",
+      })
     }
 
     await tx.delete(cartItems).where(eq(cartItems.userId, ownerId))
@@ -210,8 +294,46 @@ export async function checkout(input: {
     })
   }
 
+  if (referral) {
+    try {
+      const rewardCode = await generateUniqueRewardCouponCode()
+      await db.insert(coupons).values({
+        code: rewardCode,
+        description: `Referral reward for inviting ${billingEmail}`,
+        discountPercent: referral.rewardDiscountPercent,
+        maxUses: 1,
+        isActive: true,
+      })
+      await db
+        .update(referralRedemptions)
+        .set({ status: "rewarded", rewardCouponCode: rewardCode, rewardedAt: new Date() })
+        .where(eq(referralRedemptions.refereeOrderId, orderResult.id))
+      await db
+        .update(referralCodes)
+        .set({ redemptionCount: sql`${referralCodes.redemptionCount} + 1` })
+        .where(eq(referralCodes.id, referral.id))
+
+      const [referrer] = await db.select({ email: user.email }).from(user).where(eq(user.id, referral.referrerUserId)).limit(1)
+      if (referrer) {
+        await sendReferralRewardEmail(referrer.email, rewardCode, referral.rewardDiscountPercent)
+      }
+    } catch (error) {
+      console.error("[v0] Failed to issue referral reward:", error)
+      await db.insert(operationEvents).values({
+        eventType: "referral_reward_failed",
+        entityType: "order",
+        entityId: String(orderResult.id),
+        status: "open",
+        payload: { referralCode: referral.code, referrerUserId: referral.referrerUserId },
+        createdBy: ownerId,
+      })
+    }
+    cookieStore.delete("rc_ref")
+  }
+
   revalidatePath("/cart")
   revalidatePath("/account/orders")
+  revalidatePath("/account/referrals")
 
   return { orderNumber: orderResult.orderNumber }
 }
