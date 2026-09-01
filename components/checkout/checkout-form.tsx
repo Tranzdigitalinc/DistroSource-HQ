@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label"
 import { PriceDisplay } from "@/components/price-display"
 import { Reveal } from "@/components/motion/reveal"
 import { checkout } from "@/lib/actions/checkout"
+import { mergeGuestCartIntoAccount } from "@/lib/actions/cart"
+import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
 
 interface OrderItem {
@@ -63,6 +65,9 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const couponCode = searchParams.get("coupon") ?? undefined
   const [email, setEmail] = useState(defaultEmail)
   const [name, setName] = useState(defaultName)
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [accountError, setAccountError] = useState<string | null>(null)
   const [cardNumber, setCardNumber] = useState("")
   const [expiry, setExpiry] = useState("")
   const [cvc, setCvc] = useState("")
@@ -76,10 +81,21 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    toast.info("Payments are temporarily unavailable. Please check back soon.")
-    return
+    if (isGuest) {
+      if (password.length < 8) { setAccountError("Create a password with at least 8 characters."); return }
+      if (password !== confirmPassword) { setAccountError("Your passwords do not match."); return }
+      setAccountError(null)
+    }
     startTransition(async () => {
       try {
+        if (isGuest) {
+          const account = await authClient.signUp.email({ email, password, name })
+          if (account.error) throw new Error(account.error.message ?? "Could not create your account.")
+          await mergeGuestCartIntoAccount()
+          toast.success("Account created", { description: "Your cart is now saved to your RedeemCove account." })
+        }
+        toast.info("Payments are temporarily unavailable. Please check back soon.")
+        return
         const result = await checkout({ billingEmail: email, billingName: name, couponCode })
         router.push(`/checkout/success?order=${result.orderNumber}`)
       } catch (error) {
@@ -123,6 +139,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               </div>
             ))}
           </div>
+          <Link href="/products" className="inline-flex items-center justify-center rounded-lg border border-border px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-secondary">Add more items</Link>
         </Reveal>
 
         <Reveal delay={0.1} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
@@ -145,6 +162,21 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             </div>
           </div>
         </Reveal>
+
+        {isGuest && (
+          <Reveal delay={0.12} className="flex flex-col gap-4 rounded-xl border border-primary/25 bg-primary/5 p-6">
+            <div>
+              <h2 className="font-display text-lg font-bold">Create your RedeemCove account</h2>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">Required to save your order, manage your codes, and keep your cart ready across devices.</p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-1.5"><Label htmlFor="checkout-password">Create password</Label><Input id="checkout-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} autoComplete="new-password" placeholder="At least 8 characters" required /></div>
+              <div className="flex flex-col gap-1.5"><Label htmlFor="checkout-confirm-password">Confirm password</Label><Input id="checkout-confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} minLength={8} autoComplete="new-password" placeholder="Repeat your password" required /></div>
+            </div>
+            {accountError && <p role="alert" className="text-sm font-medium text-destructive">{accountError}</p>}
+            <p className="text-xs leading-relaxed text-muted-foreground">We&apos;ll send a verification link to your checkout email before your account is activated.</p>
+          </Reveal>
+        )}
 
         <Reveal delay={0.15} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
           <div className="flex items-center gap-2">
@@ -208,7 +240,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               />
               {cardBrand && (
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-border bg-secondary px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  {CARD_BRAND_LABEL[cardBrand]}
+                  {cardBrand ? CARD_BRAND_LABEL[cardBrand] : null}
                 </span>
               )}
             </div>
@@ -263,7 +295,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
           <Button
             type="submit"
             size="lg"
-            disabled
+            disabled={isPending}
             className="mt-2 hidden h-12 font-semibold lg:flex"
           >
             {isPending ? (
@@ -290,7 +322,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               <PriceDisplay usdAmount={total} />
             </span>
           </div>
-          <Button type="submit" form={FORM_ID} size="lg" disabled className="h-11 flex-1 font-semibold">
+          <Button type="submit" form={FORM_ID} size="lg" disabled={isPending} className="h-11 flex-1 font-semibold">
             {isPending ? (
               <span className="flex items-center gap-2">
                 <Loader2 className="size-4 animate-spin" />
