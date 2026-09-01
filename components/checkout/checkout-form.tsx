@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
-import { Loader2, Lock, Mail, ShieldCheck, Package } from "lucide-react"
+import { Bitcoin, CreditCard, Loader2, Lock, Mail, ShieldCheck, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -66,6 +66,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const [cardNumber, setCardNumber] = useState("")
   const [expiry, setExpiry] = useState("")
   const [cvc, setCvc] = useState("")
+  const [paymentMethod, setPaymentMethod] = useState<"crypto" | "card">("crypto")
   const [isPending, startTransition] = useTransition()
 
   const discount = Math.round(subtotal * (discountPercent / 100) * 100) / 100
@@ -75,6 +76,11 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (paymentMethod === "crypto") {
+      toast.info("Crypto payments are being connected. Please choose card payment for now.")
+      setPaymentMethod("card")
+      return
+    }
     startTransition(async () => {
       try {
         const result = await checkout({ billingEmail: email, billingName: name, couponCode })
@@ -149,8 +155,46 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             <h2 className="font-display text-lg font-bold">Payment</h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            This is a simulated checkout for demo purposes. No real payment is processed.
+            Choose how you&apos;d like to pay. Crypto is the preferred method; cards remain available as an alternative.
           </p>
+          <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Payment method">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={paymentMethod === "crypto"}
+              onClick={() => setPaymentMethod("crypto")}
+              className={cn(
+                "flex min-h-20 flex-col items-start justify-between rounded-xl border p-3 text-left transition-colors",
+                paymentMethod === "crypto"
+                  ? "border-accent bg-accent/10 text-foreground ring-1 ring-accent"
+                  : "border-border bg-background hover:border-accent/50",
+              )}
+            >
+              <span className="flex items-center gap-2 text-sm font-semibold"><Bitcoin className="size-4 text-accent" /> Crypto</span>
+              <span className="text-[11px] text-muted-foreground">Recommended</span>
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={paymentMethod === "card"}
+              onClick={() => setPaymentMethod("card")}
+              className={cn(
+                "flex min-h-20 flex-col items-start justify-between rounded-xl border p-3 text-left transition-colors",
+                paymentMethod === "card"
+                  ? "border-accent bg-accent/10 text-foreground ring-1 ring-accent"
+                  : "border-border bg-background hover:border-accent/50",
+              )}
+            >
+              <span className="flex items-center gap-2 text-sm font-semibold"><CreditCard className="size-4" /> Card</span>
+              <span className="text-[11px] text-muted-foreground">Alternative</span>
+            </button>
+          </div>
+          {paymentMethod === "crypto" ? (
+            <div className="rounded-lg border border-accent/20 bg-accent/5 p-3 text-xs leading-relaxed text-muted-foreground">
+              Coinbase Commerce setup is pending. Select card payment to complete this order today.
+            </div>
+          ) : (
+            <>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="card">Card number</Label>
             <div className="relative">
@@ -197,6 +241,8 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               />
             </div>
           </div>
+            </>
+          )}
         </Reveal>
 
         <Reveal delay={0.2} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-6">
@@ -228,7 +274,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 Placing order...
               </span>
             ) : (
-              `Pay ${formattedTotal}`
+              paymentMethod === "crypto" ? "Continue to crypto payment" : `Pay ${formattedTotal}`
             )}
           </Button>
           <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
@@ -253,7 +299,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 Placing order...
               </span>
             ) : (
-              `Pay ${formattedTotal}`
+              paymentMethod === "crypto" ? "Continue to crypto payment" : `Pay ${formattedTotal}`
             )}
           </Button>
         </div>
