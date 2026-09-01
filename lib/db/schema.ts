@@ -155,6 +155,57 @@ export const reviews = pgTable("reviews", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 
+export const promotionCampaigns = pgTable("promotion_campaigns", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  code: text("code").unique(),
+  description: text("description"),
+  discountType: text("discount_type").notNull().default("percent"),
+  discountValue: numeric("discount_value", { precision: 10, scale: 2 }).notNull().default("0"),
+  minOrderUsd: numeric("min_order_usd", { precision: 10, scale: 2 }).notNull().default("0"),
+  maxUses: integer("max_uses"),
+  usedCount: integer("used_count").notNull().default(0),
+  startsAt: timestamp("starts_at").notNull().defaultNow(),
+  expiresAt: timestamp("expires_at"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
+export const productBundles = pgTable("product_bundles", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description"),
+  discountPercent: integer("discount_percent").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
+export const operationEvents = pgTable("operation_events", {
+  id: serial("id").primaryKey(),
+  eventType: text("event_type").notNull(),
+  entityType: text("entity_type").notNull(),
+  entityId: text("entity_id"),
+  status: text("status").notNull().default("open"),
+  payload: jsonb("payload"),
+  createdBy: text("created_by"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  resolvedAt: timestamp("resolved_at"),
+})
+
+export const abandonedCarts = pgTable("abandoned_carts", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id"),
+  email: text("email").notNull(),
+  cartSnapshot: jsonb("cart_snapshot").notNull(),
+  subtotalUsd: numeric("subtotal_usd", { precision: 10, scale: 2 }).notNull().default("0"),
+  recoveryToken: text("recovery_token").notNull().unique(),
+  status: text("status").notNull().default("open"),
+  lastRemindedAt: timestamp("last_reminded_at"),
+  recoveredAt: timestamp("recovered_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
 export const coupons = pgTable("coupons", {
   id: serial("id").primaryKey(),
   code: text("code").notNull().unique(),
@@ -198,10 +249,45 @@ export const orders = pgTable("orders", {
   discountUsd: numeric("discount_usd", { precision: 10, scale: 2 }).notNull().default("0"),
   totalUsd: numeric("total_usd", { precision: 10, scale: 2 }).notNull(),
   couponCode: text("coupon_code"),
+  affiliateCode: text("affiliate_code"),
+  referralCode: text("referral_code"),
   billingEmail: text("billing_email").notNull(),
   billingName: text("billing_name").notNull(),
   paymentMethod: text("payment_method").notNull().default("card"),
   confirmationEmailSent: boolean("confirmation_email_sent").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
+export const referralCodes = pgTable("referral_codes", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull().unique(),
+  code: text("code").notNull().unique(),
+  rewardDiscountPercent: integer("reward_discount_percent").notNull().default(10),
+  refereeDiscountPercent: integer("referee_discount_percent").notNull().default(10),
+  redemptionCount: integer("redemption_count").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
+export const referralRedemptions = pgTable("referral_redemptions", {
+  id: serial("id").primaryKey(),
+  referralCodeId: integer("referral_code_id").notNull(),
+  referrerUserId: text("referrer_user_id").notNull(),
+  refereeUserId: text("referee_user_id").notNull().unique(),
+  refereeOrderId: integer("referee_order_id"),
+  rewardCouponCode: text("reward_coupon_code"),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  rewardedAt: timestamp("rewarded_at"),
+})
+
+export const affiliateCodes = pgTable("affiliate_codes", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  partnerName: text("partner_name").notNull(),
+  contactEmail: text("contact_email"),
+  commissionPercent: numeric("commission_percent", { precision: 5, scale: 2 }).notNull().default("5"),
+  isActive: boolean("is_active").notNull().default(true),
+  notes: text("notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 
@@ -217,6 +303,7 @@ export const orderItems = pgTable("order_items", {
   redemptionCode: text("redemption_code").notNull(),
   redemptionInstructions: text("redemption_instructions"),
   isRevealed: boolean("is_revealed").notNull().default(false),
+  isVoided: boolean("is_voided").notNull().default(false),
 })
 
 export const supportTickets = pgTable("support_tickets", {
@@ -244,6 +331,37 @@ export const newsletterSubscribers = pgTable("newsletter_subscribers", {
   id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
+export const visitorLogs = pgTable("visitor_logs", {
+  id: serial("id").primaryKey(),
+  visitorId: text("visitor_id").notNull(),
+  userId: text("user_id"),
+  path: text("path").notNull(),
+  action: text("action").notNull().default("page_view"),
+  referrer: text("referrer"),
+  ipAddress: text("ip_address"),
+  country: text("country"),
+  region: text("region"),
+  city: text("city"),
+  deviceType: text("device_type"),
+  browser: text("browser"),
+  os: text("os"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
+export const ipReputation = pgTable("ip_reputation", {
+  ipAddress: text("ip_address").primaryKey(),
+  abuseConfidenceScore: integer("abuse_confidence_score"),
+  totalReports: integer("total_reports"),
+  isWhitelisted: boolean("is_whitelisted"),
+  isPrivate: boolean("is_private").notNull().default(false),
+  isp: text("isp"),
+  usageType: text("usage_type"),
+  domain: text("domain"),
+  countryCode: text("country_code"),
+  lastCheckedAt: timestamp("last_checked_at").notNull().defaultNow(),
 })
 
 export const bulkGiftRequests = pgTable("bulk_gift_requests", {

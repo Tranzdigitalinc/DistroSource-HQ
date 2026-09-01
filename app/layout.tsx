@@ -1,5 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { Suspense } from 'react'
 import { Inter, Geist } from 'next/font/google'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from 'sonner'
@@ -10,6 +11,7 @@ import { getCountries } from '@/lib/queries/catalog'
 import { ScrollToTop } from '@/components/scroll-to-top'
 import { ResizeObserverErrorGuard } from '@/components/resize-observer-error-guard'
 import { BrowserVerificationGate } from '@/components/security/browser-verification-gate'
+import { VisitorTracker } from '@/components/analytics/visitor-tracker'
 import './globals.css'
 
 const _inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
@@ -77,6 +79,9 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased">
+        <Suspense fallback={null}>
+          <VisitorTracker />
+        </Suspense>
         <ResizeObserverErrorGuard />
         <MotionProvider>
           <ThemeProvider>

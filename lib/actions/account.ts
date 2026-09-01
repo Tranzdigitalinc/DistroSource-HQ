@@ -1,10 +1,11 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { bulkGiftRequests, notificationPreferences, orderItems, orders, supportTickets } from "@/lib/db/schema"
+import { bulkGiftRequests, notificationPreferences, operationEvents, orderItems, orders, supportTickets } from "@/lib/db/schema"
 import { getUserId, getOptionalUserId, getOptionalOwnerId } from "@/lib/session"
-import { desc, eq } from "drizzle-orm"
+import { and, desc, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
+import { sendOrderConfirmationEmail } from "@/lib/email"
 
 const NOTIFICATION_DEFAULTS = {
   orderUpdates: true,
@@ -64,6 +65,70 @@ export async function getOrderByNumber(orderNumber: string) {
 
   const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id))
   return { order, items }
+}
+
+export async function resendOrderConfirmationEmail(orderNumber: string) {
+  const ownerId = await getOptionalOwnerId()
+  if (!ownerId) throw new Error("Sign in to resend your confirmation email.")
+
+  const [order] = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber)).limit(1)
+  if (!order || order.userId !== ownerId) throw new Error("Order not found.")
+
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id))
+  const sent = await sendOrderConfirmationEmail(
+    order.billingEmail,
+    order.orderNumber,
+    items.map((item) => ({
+      productName: item.productName,
+      denominationLabel: item.denominationLabel,
+      quantity: item.quantity,
+      redemptionCode: item.redemptionCode,
+    })),
+  )
+
+  if (!sent) throw new Error("Could not resend the confirmation email. Please try again shortly.")
+
+  await db.update(orders).set({ confirmationEmailSent: true }).where(eq(orders.id, order.id))
+  await db
+    .update(operationEvents)
+    .set({ status: "resolved", resolvedAt: new Date() })
+    .where(and(eq(operationEvents.entityType, "order"), eq(operationEvents.entityId, String(order.id)), eq(operationEvents.eventType, "confirmation_email_failed"), eq(operationEvents.status, "open")))
+
+  revalidatePath(`/account/orders/${orderNumber}`)
+  return { success: true }
+}
+
+// Admin-only variant of the above: looks the order up by number without an
+// ownership check, since admins retry confirmation emails on behalf of any
+// customer. Callers MUST gate this behind their own admin check — it is not
+// exported to any customer-facing surface.
+export async function resendOrderConfirmationEmailForAdmin(orderNumber: string) {
+  const [order] = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber)).limit(1)
+  if (!order) throw new Error("Order not found.")
+
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id))
+  const sent = await sendOrderConfirmationEmail(
+    order.billingEmail,
+    order.orderNumber,
+    items.map((item) => ({
+      productName: item.productName,
+      denominationLabel: item.denominationLabel,
+      quantity: item.quantity,
+      redemptionCode: item.redemptionCode,
+    })),
+  )
+
+  if (!sent) throw new Error("Could not resend the confirmation email. Please try again shortly.")
+
+  await db.update(orders).set({ confirmationEmailSent: true }).where(eq(orders.id, order.id))
+  await db
+    .update(operationEvents)
+    .set({ status: "resolved", resolvedAt: new Date() })
+    .where(and(eq(operationEvents.entityType, "order"), eq(operationEvents.entityId, String(order.id)), eq(operationEvents.eventType, "confirmation_email_failed"), eq(operationEvents.status, "open")))
+
+  revalidatePath(`/account/orders/${orderNumber}`)
+  revalidatePath("/admin")
+  return { success: true }
 }
 
 export async function getUserOrderItems() {

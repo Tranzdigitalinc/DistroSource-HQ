@@ -81,6 +81,30 @@ interface OrderConfirmationItem {
   redemptionCode: string
 }
 
+export async function sendAbandonedCartEmail(to: string, recoveryUrl: string, subtotalUsd: number) {
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: "Your RedeemCove cart is waiting",
+    html: `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#1a1a1a"><h1 style="font-size:22px;margin:0 0 12px">Your cart is waiting</h1><p style="font-size:14px;line-height:1.6;color:#4a4a4a">You left digital value behind. Your saved cart is ready whenever you are.</p><p style="font-weight:700">Cart total: $${subtotalUsd.toFixed(2)}</p><a href="${recoveryUrl}" style="display:inline-block;background:#13bfdc;color:#061426;font-weight:700;text-decoration:none;padding:13px 22px;border-radius:8px">Return to cart</a><p style="font-size:12px;color:#8a8a8a;margin-top:24px">RedeemCove · Instant digital delivery</p></div>`,
+    text: `Your RedeemCove cart is waiting. Cart total: $${subtotalUsd.toFixed(2)}. Return to your cart: ${recoveryUrl}`,
+  })
+  if (error) { console.error("[v0] Failed to send abandoned cart email:", error); return false }
+  return true
+}
+
+export async function sendAbandonedCartReminderEmail(to: string, recoveryUrl: string, subtotalUsd: number) {
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: "Still thinking it over? Your cart is still here",
+    html: `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#1a1a1a"><h1 style="font-size:22px;margin:0 0 12px">A quick reminder</h1><p style="font-size:14px;line-height:1.6;color:#4a4a4a">The items in your RedeemCove cart haven&apos;t been claimed yet. Complete your order before availability changes.</p><p style="font-weight:700">Cart total: $${subtotalUsd.toFixed(2)}</p><a href="${recoveryUrl}" style="display:inline-block;background:#13bfdc;color:#061426;font-weight:700;text-decoration:none;padding:13px 22px;border-radius:8px">Complete my order</a><p style="font-size:12px;color:#8a8a8a;margin-top:24px">RedeemCove · Instant digital delivery</p></div>`,
+    text: `A quick reminder: the items in your RedeemCove cart haven't been claimed yet. Cart total: $${subtotalUsd.toFixed(2)}. Complete your order: ${recoveryUrl}`,
+  })
+  if (error) { console.error("[v0] Failed to send abandoned cart reminder email:", error); return false }
+  return true
+}
+
 export async function sendOrderConfirmationEmail(
   to: string,
   orderNumber: string,
@@ -128,6 +152,103 @@ export async function sendOrderConfirmationEmail(
 
   if (error) {
     console.error("[v0] Failed to send order confirmation email:", error)
+    return false
+  }
+  return true
+}
+
+export async function sendRefundConfirmationEmail(to: string, orderNumber: string, totalUsd: number, reason?: string) {
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: `Your RedeemCove order ${orderNumber} has been refunded`,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
+        <h1 style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">Refund confirmed</h1>
+        <p style="font-size: 14px; line-height: 1.6; color: #4a4a4a; margin: 0 0 16px;">
+          Order <strong>${orderNumber}</strong> for <strong>$${totalUsd.toFixed(2)}</strong> has been refunded. Any codes issued on this order have been voided and can no longer be redeemed.
+        </p>
+        ${reason ? `<p style="font-size: 13px; line-height: 1.6; color: #6a6a6a; margin: 0 0 16px;">Reason: ${reason}</p>` : ""}
+        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 24px 0 0;">
+          If you have questions about this refund, reply to this email or contact support.
+        </p>
+        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 16px 0 0;">
+          RedeemCove &middot; Support@RedeemCove.com
+        </p>
+      </div>
+    `,
+    text: `Order ${orderNumber} for $${totalUsd.toFixed(2)} has been refunded. Any codes issued on this order have been voided.${reason ? `\n\nReason: ${reason}` : ""}\n\nRedeemCove · Support@RedeemCove.com`,
+  })
+
+  if (error) {
+    console.error("[v0] Failed to send refund confirmation email:", error)
+    return false
+  }
+  return true
+}
+
+export async function sendReferralRewardEmail(to: string, couponCode: string, discountPercent: number) {
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: "You earned a referral reward on RedeemCove",
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
+        <h1 style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">Your referral paid off</h1>
+        <p style="font-size: 14px; line-height: 1.6; color: #4a4a4a; margin: 0 0 16px;">
+          A friend just completed their first order using your referral link. As a thank-you, here&apos;s a
+          <strong>${discountPercent}% off</strong> coupon for your next order.
+        </p>
+        <p style="font-size: 18px; font-weight: 700; font-family: monospace; background: #f3f3f3; padding: 12px 16px; border-radius: 8px; margin: 0 0 16px;">${couponCode}</p>
+        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 24px 0 0;">
+          Keep sharing your referral link from your RedeemCove account to earn more rewards.
+        </p>
+        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 16px 0 0;">
+          RedeemCove &middot; Support@RedeemCove.com
+        </p>
+      </div>
+    `,
+    text: `A friend just completed their first order using your referral link. As a thank-you, here's a ${discountPercent}% off coupon: ${couponCode}\n\nKeep sharing your referral link to earn more rewards.\n\nRedeemCove · Support@RedeemCove.com`,
+  })
+
+  if (error) {
+    console.error("[v0] Failed to send referral reward email:", error)
+    return false
+  }
+  return true
+}
+
+export async function sendReplacementCodeEmail(
+  to: string,
+  orderNumber: string,
+  productName: string,
+  denominationLabel: string,
+  redemptionCode: string,
+) {
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: `Your replacement code for order ${orderNumber}`,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
+        <h1 style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">Replacement code issued</h1>
+        <p style="font-size: 14px; line-height: 1.6; color: #4a4a4a; margin: 0 0 16px;">
+          We&apos;ve issued a new code for <strong>${productName} — ${denominationLabel}</strong> on order <strong>${orderNumber}</strong>. Your previous code has been voided.
+        </p>
+        <p style="font-size: 15px; font-family: monospace; background: #f3f3f3; padding: 12px 16px; border-radius: 8px; margin: 0 0 16px;">${redemptionCode}</p>
+        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 24px 0 0;">
+          Redeem this code at checkout or in the brand's app under Redeem Gift Card / Enter Code.
+        </p>
+        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 16px 0 0;">
+          RedeemCove &middot; Support@RedeemCove.com
+        </p>
+      </div>
+    `,
+    text: `We've issued a new code for ${productName} — ${denominationLabel} on order ${orderNumber}. Your previous code has been voided.\n\nNew code: ${redemptionCode}\n\nRedeemCove · Support@RedeemCove.com`,
+  })
+
+  if (error) {
+    console.error("[v0] Failed to send replacement code email:", error)
     return false
   }
   return true

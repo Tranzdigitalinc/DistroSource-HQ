@@ -3,7 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { Star, ChevronRight, Zap, ShieldCheck, Truck as TruckIcon } from "lucide-react"
-import { getProductBySlug, getRelatedProducts } from "@/lib/queries/catalog"
+import { getProductBySlug, getRecommendedProducts } from "@/lib/queries/catalog"
 import { getWishlistProductIds } from "@/lib/actions/wishlist"
 import { PurchasePanel } from "@/components/product/purchase-panel"
 import { ReviewList } from "@/components/product/review-list"
@@ -15,6 +15,10 @@ import { Badge } from "@/components/ui/badge"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { Reveal } from "@/components/motion/reveal"
+import { ShareProductButton } from "@/components/product/share-product-button"
+import { CompareButton } from "@/components/product/compare-button"
+import { RecentlyViewedTracker } from "@/components/product/recently-viewed-tracker"
+import { getRecentBrowsingSignal } from "@/lib/actions/recently-viewed"
 
 export async function generateMetadata({
   params,
@@ -24,9 +28,20 @@ export async function generateMetadata({
   const { slug } = await params
   const data = await getProductBySlug(slug)
   if (!data) return {}
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://redeemcove.com"
+  const canonical = `${siteUrl}/products/${data.product.slug}`
   return {
     title: `${data.product.name} — RedeemCove`,
     description: data.product.shortDescription ?? undefined,
+    alternates: { canonical },
+    openGraph: {
+      title: `${data.product.name} — RedeemCove`,
+      description: data.product.shortDescription ?? undefined,
+      url: canonical,
+      type: "website",
+      images: data.product.imageUrl ? [{ url: data.product.imageUrl, alt: data.product.name }] : undefined,
+    },
+    twitter: { card: "summary_large_image", title: data.product.name, description: data.product.shortDescription ?? undefined, images: data.product.imageUrl ? [data.product.imageUrl] : undefined },
   }
 }
 
@@ -40,14 +55,28 @@ export default async function ProductDetailPage({
   if (!data) notFound()
 
   const { product, brand, category, country, variants, reviews } = data
-  const related = await getRelatedProducts(category.id, product.id, 8)
+  const browsingSignal = await getRecentBrowsingSignal()
+  const related = await getRecommendedProducts(category.id, brand.id, product.id, 8, browsingSignal)
   const wishlistIds = await getWishlistProductIds()
 
   const avgRating = Number.parseFloat(product.rating)
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://redeemcove.com"
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description ?? product.shortDescription ?? undefined,
+    image: product.imageUrl ? [product.imageUrl] : undefined,
+    brand: { "@type": "Brand", name: brand.name },
+    aggregateRating: product.reviewCount > 0 ? { "@type": "AggregateRating", ratingValue: avgRating, reviewCount: product.reviewCount } : undefined,
+    offers: variants.map((variant) => ({ "@type": "Offer", priceCurrency: "USD", price: variant.priceUsd, availability: variant.stockCount > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock", url: `${siteUrl}/products/${product.slug}` })),
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
+      <RecentlyViewedTracker productId={product.id} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
           <nav className="mb-6 flex items-center gap-1.5 text-xs text-muted-foreground" aria-label="Breadcrumb">
@@ -148,6 +177,7 @@ export default async function ProductDetailPage({
                 {product.shortDescription && (
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{product.shortDescription}</p>
                 )}
+                <div className="mt-4 flex flex-wrap gap-2"><ShareProductButton name={product.name} /><CompareButton productId={product.id} /></div>
               </div>
               <PurchasePanel
                 productId={product.id}
@@ -191,7 +221,7 @@ export default async function ProductDetailPage({
 
           {related.length > 0 && (
             <Reveal className="mt-16 border-t border-border pt-10">
-              <h2 className="mb-6 font-display text-xl font-bold">You might also like</h2>
+              <h2 className="mb-6 font-display text-xl font-bold">Recommended for you</h2>
               <ProductGrid items={related} />
             </Reveal>
           )}

@@ -56,6 +56,25 @@ export async function getBrandBySlug(slug: string) {
   return rows[0] ?? null
 }
 
+export const LOW_STOCK_THRESHOLD = 25
+
+export async function getLowStockVariants(threshold = LOW_STOCK_THRESHOLD) {
+  return db
+    .select({
+      id: productVariants.id,
+      denominationLabel: productVariants.denominationLabel,
+      stockCount: productVariants.stockCount,
+      productName: products.name,
+      productSlug: products.slug,
+      brandName: brands.name,
+    })
+    .from(productVariants)
+    .innerJoin(products, eq(products.id, productVariants.productId))
+    .innerJoin(brands, eq(brands.id, products.brandId))
+    .where(sql`${productVariants.stockCount} <= ${threshold}`)
+    .orderBy(asc(productVariants.stockCount))
+}
+
 export type ProductWithRelations = Awaited<ReturnType<typeof getProductBySlug>>
 
 export async function getProductBySlug(slug: string) {
@@ -98,7 +117,10 @@ interface ProductQueryOptions {
   search?: string
   featured?: boolean
   deal?: boolean
-  sort?: "popular" | "price-asc" | "price-desc" | "rating" | "newest"
+  deliveryType?: string
+  minDiscount?: number
+  maxPrice?: number
+  sort?: "popular" | "price-asc" | "price-desc" | "rating" | "newest" | "best-value"
   limit?: number
 }
 
@@ -124,6 +146,7 @@ export async function getProducts(options: ProductQueryOptions = {}) {
   }
   if (options.featured) conditions.push(eq(products.isFeatured, true))
   if (options.deal) conditions.push(eq(products.isDeal, true))
+  if (options.deliveryType) conditions.push(eq(products.deliveryType, options.deliveryType))
 
   const orderBy =
     options.sort === "rating"
@@ -167,15 +190,64 @@ export async function getProducts(options: ProductQueryOptions = {}) {
     ...r,
     variants: variantsByProduct.get(r.product.id) ?? [],
     minPrice: Math.min(...(variantsByProduct.get(r.product.id) ?? []).map((v) => Number.parseFloat(v.priceUsd))),
-  }))
+  })).filter((item) => {
+    const maxDiscount = Math.max(0, ...item.variants.map((v) => Number(v.discountPercent)))
+    return (options.maxPrice === undefined || item.minPrice <= options.maxPrice) && (options.minDiscount === undefined || maxDiscount >= options.minDiscount)
+  })
 
   if (options.sort === "price-asc") {
     result = result.sort((a, b) => a.minPrice - b.minPrice)
   } else if (options.sort === "price-desc") {
     result = result.sort((a, b) => b.minPrice - a.minPrice)
+  } else if (options.sort === "best-value") {
+    result = result.sort((a, b) => {
+      const aVariant = a.variants[0]
+      const bVariant = b.variants[0]
+      const aValue = aVariant ? Number(aVariant.discountPercent) + Number(a.product.rating) : 0
+      const bValue = bVariant ? Number(bVariant.discountPercent) + Number(b.product.rating) : 0
+      return bValue - aValue
+    })
   }
 
   return result
+}
+
+export async function getProductsByIds(ids: number[]) {
+  if (!ids.length) return []
+  const rows = await db
+    .select({ product: products, brand: brands, category: categories, country: countries })
+    .from(products)
+    .innerJoin(brands, eq(products.brandId, brands.id))
+    .innerJoin(categories, eq(products.categoryId, categories.id))
+    .leftJoin(countries, eq(products.countryId, countries.id))
+    .where(inArray(products.id, ids))
+  const variants = await db.select().from(productVariants).where(inArray(productVariants.productId, ids)).orderBy(asc(productVariants.sortOrder))
+  return rows.map((row) => ({ ...row, variants: variants.filter((variant) => variant.productId === row.product.id) }))
+}
+
+export async function getRecommendedProducts(
+  categoryId: number,
+  brandId: number,
+  excludeProductId: number,
+  limit = 8,
+  personalization?: { categoryIds: number[]; brandIds: number[] },
+) {
+  const categoryIds = Array.from(new Set([categoryId, ...(personalization?.categoryIds ?? [])]))
+  const brandIds = Array.from(new Set([brandId, ...(personalization?.brandIds ?? [])]))
+
+  const rows = await db
+    .select({ product: products, brand: brands, category: categories, country: countries })
+    .from(products)
+    .innerJoin(brands, eq(products.brandId, brands.id))
+    .innerJoin(categories, eq(products.categoryId, categories.id))
+    .leftJoin(countries, eq(products.countryId, countries.id))
+    .where(and(or(inArray(products.brandId, brandIds), inArray(products.categoryId, categoryIds)), sql`${products.id} != ${excludeProductId}`))
+    .orderBy(desc(products.isFeatured), desc(products.salesCount), desc(products.rating))
+    .limit(limit)
+
+  const ids = rows.map((row) => row.product.id)
+  const variantRows = ids.length ? await db.select().from(productVariants).where(inArray(productVariants.productId, ids)) : []
+  return rows.map((row) => ({ ...row, variants: variantRows.filter((variant) => variant.productId === row.product.id) }))
 }
 
 export async function getFeaturedProducts(limit = 12) {

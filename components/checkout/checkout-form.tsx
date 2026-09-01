@@ -11,11 +11,15 @@ import { Label } from "@/components/ui/label"
 import { PriceDisplay } from "@/components/price-display"
 import { Reveal } from "@/components/motion/reveal"
 import { checkout } from "@/lib/actions/checkout"
+import { saveAbandonedCart } from "@/lib/actions/recovery"
 import { mergeGuestCartIntoAccount } from "@/lib/actions/cart"
+import { mergeGuestActivityIntoAccount } from "@/lib/actions/recently-viewed"
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
 
 interface OrderItem {
+  productId: number
+  variantId: number
   name: string
   brand: string
   denomination: string
@@ -91,9 +95,12 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
         if (isGuest) {
           const account = await authClient.signUp.email({ email, password, name })
           if (account.error) throw new Error(account.error.message ?? "Could not create your account.")
-          await mergeGuestCartIntoAccount()
-          toast.success("Account created", { description: "Your cart is now saved to your RedeemCove account." })
+        await mergeGuestCartIntoAccount()
+        await mergeGuestActivityIntoAccount()
+        toast.success("Account created", { description: "Your cart is now saved to your RedeemCove account." })
         }
+        await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
+        toast.success("Your cart has been saved", { description: "We sent you a secure link to return to it anytime." })
         toast.info("Payments are temporarily unavailable. Please check back soon.")
         return
         const result = await checkout({ billingEmail: email, billingName: name, couponCode })
@@ -106,6 +113,14 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
 
   return (
     <div className="flex flex-col gap-8 pb-24 lg:pb-0">
+      <ol className="grid grid-cols-3 gap-2" aria-label="Checkout progress">
+        {["Review", "Details", "Complete"].map((step, index) => (
+          <li key={step} className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+            <span className={cn("flex size-7 items-center justify-center rounded-full border", index < 2 ? "border-accent bg-accent text-accent-foreground" : "border-border bg-card")}>{index + 1}</span>
+            <span className="hidden sm:inline">{step}</span>
+          </li>
+        ))}
+      </ol>
       <form id={FORM_ID} onSubmit={handleSubmit} className="flex flex-col gap-8">
         {isGuest && (
           <Reveal className="flex items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm">

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { ChevronLeft } from "lucide-react"
 import { getOrderByNumber } from "@/lib/actions/account"
 import { OrderItemsList } from "@/components/order/order-items-list"
+import { ResendConfirmationButton } from "@/components/order/resend-confirmation-button"
 import { PriceDisplay } from "@/components/price-display"
 import { Badge } from "@/components/ui/badge"
 
@@ -44,6 +45,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ or
             })}
           </p>
         </div>
+        <ResendConfirmationButton orderNumber={order.orderNumber} />
       </div>
 
       <div className="rounded-xl border border-border bg-card p-6">

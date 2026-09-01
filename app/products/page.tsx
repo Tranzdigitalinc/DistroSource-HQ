@@ -20,6 +20,9 @@ export default async function ProductsPage({
       brandSlug: params.brand,
       countryCode: params.country,
       search: params.q,
+      deliveryType: params.delivery,
+      minDiscount: params.discount ? Number(params.discount) : undefined,
+      maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
       sort: (params.sort as any) ?? "popular",
     }),
   ])

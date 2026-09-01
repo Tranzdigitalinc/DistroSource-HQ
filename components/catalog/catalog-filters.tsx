@@ -28,7 +28,10 @@ export function CatalogFilters({ categories, brands, countries }: Props) {
   const activeCategory = searchParams.get("category")
   const activeBrand = searchParams.get("brand")
   const activeCountry = searchParams.get("country")
-  const hasActiveFilters = Boolean(activeCategory || activeBrand || activeCountry)
+  const activeDelivery = searchParams.get("delivery")
+  const activeDiscount = searchParams.get("discount")
+  const activeMaxPrice = searchParams.get("maxPrice")
+  const hasActiveFilters = Boolean(activeCategory || activeBrand || activeCountry || activeDelivery || activeDiscount || activeMaxPrice)
 
   return (
     <aside className="flex w-full flex-col gap-5 lg:w-64">
@@ -74,6 +77,20 @@ export function CatalogFilters({ categories, brands, countries }: Props) {
                 countryCode={c.code}
               />
             ))}
+          </FilterGroup>
+
+          <FilterGroup title="Delivery">
+            <FilterLink href={buildHref("delivery", null)} active={!activeDelivery} label="All delivery types" />
+            <FilterLink href={buildHref("delivery", "instant_code")} active={activeDelivery === "instant_code"} label="Instant code" />
+            <FilterLink href={buildHref("delivery", "top_up")} active={activeDelivery === "top_up"} label="Top-up" />
+          </FilterGroup>
+
+          <FilterGroup title="Value">
+            <FilterLink href={buildHref("discount", null)} active={!activeDiscount} label="Any discount" />
+            <FilterLink href={buildHref("discount", "10")} active={activeDiscount === "10"} label="10% or more" />
+            <FilterLink href={buildHref("discount", "20")} active={activeDiscount === "20"} label="20% or more" />
+            <FilterLink href={buildHref("maxPrice", null)} active={!activeMaxPrice} label="Any price" />
+            <FilterLink href={buildHref("maxPrice", "50")} active={activeMaxPrice === "50"} label="Under $50" />
           </FilterGroup>
 
           <FilterGroup title="Brand">
