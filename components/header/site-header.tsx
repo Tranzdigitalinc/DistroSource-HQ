@@ -20,20 +20,20 @@ export async function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/95 backdrop-blur-md supports-backdrop-filter:bg-background/80">
+    <header className="glass-panel sticky top-0 z-40 border-b border-accent/15 supports-backdrop-filter:bg-background/60">
       <TrustStrip />
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
+      <div className="mx-auto flex h-[68px] max-w-7xl items-center gap-3 px-4 sm:px-6">
         <MobileNav categories={categories} />
 
-        <Link href="/" className="flex shrink-0 items-center">
-          <BrandLogo href={null} height={44} />
+        <Link href="/" className="flex min-w-0 shrink items-center gap-2 transition-opacity hover:opacity-90">
+          <BrandLogo href={null} heightClassName="h-14 sm:h-16" />
         </Link>
 
         <DesktopNav categories={categories} brands={brands} />
 
         <HeaderSearch className="mx-auto hidden max-w-md flex-1 md:block" />
 
-        <div className="ml-auto flex items-center gap-1">
+        <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
           <ThemeToggle />
           <CountrySelector />
           <CartTrigger />

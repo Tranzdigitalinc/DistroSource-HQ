@@ -1,10 +1,47 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { bulkGiftRequests, orderItems, orders, supportTickets } from "@/lib/db/schema"
+import { bulkGiftRequests, notificationPreferences, orderItems, orders, supportTickets } from "@/lib/db/schema"
 import { getUserId, getOptionalUserId, getOptionalOwnerId } from "@/lib/session"
 import { desc, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
+
+const NOTIFICATION_DEFAULTS = {
+  orderUpdates: true,
+  deals: true,
+  productNews: false,
+  accountAlerts: true,
+}
+
+export async function getNotificationPreferences() {
+  const userId = await getUserId()
+  const rows = await db
+    .select()
+    .from(notificationPreferences)
+    .where(eq(notificationPreferences.userId, userId))
+    .limit(1)
+
+  if (rows.length === 0) return NOTIFICATION_DEFAULTS
+  const { orderUpdates, deals, productNews, accountAlerts } = rows[0]
+  return { orderUpdates, deals, productNews, accountAlerts }
+}
+
+export async function updateNotificationPreference(
+  key: "orderUpdates" | "deals" | "productNews" | "accountAlerts",
+  value: boolean,
+) {
+  const userId = await getUserId()
+
+  await db
+    .insert(notificationPreferences)
+    .values({ userId, ...NOTIFICATION_DEFAULTS, [key]: value })
+    .onConflictDoUpdate({
+      target: notificationPreferences.userId,
+      set: { [key]: value, updatedAt: new Date() },
+    })
+
+  return { success: true }
+}
 
 export async function getUserOrders() {
   const userId = await getOptionalUserId()
@@ -51,11 +88,17 @@ export async function submitSupportTicket(input: {
   orderNumber?: string
 }) {
   const userId = await getUserId()
+
+  const subject = input.subject.trim()
+  const message = input.message.trim()
+  if (!subject) throw new Error("Enter a subject for your ticket.")
+  if (!message || message.length < 10) throw new Error("Enter a message with at least 10 characters.")
+
   await db.insert(supportTickets).values({
     userId,
-    subject: input.subject,
+    subject,
     category: input.category,
-    message: input.message,
+    message,
     orderNumber: input.orderNumber || null,
   })
   revalidatePath("/account/support")

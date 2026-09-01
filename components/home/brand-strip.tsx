@@ -20,7 +20,7 @@ export function BrandStrip({ brands }: { brands: Awaited<ReturnType<typeof getBr
             <Link
               key={`${brand.slug}-${i}`}
               href={`/brands/${brand.slug}`}
-              className="flex shrink-0 items-center gap-2.5 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground/80 transition-all duration-200 hover:border-primary/40 hover:text-foreground hover:shadow-md hover:shadow-primary/5"
+              className="flex shrink-0 items-center gap-2.5 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground/80 transition-all duration-200 hover:border-accent/40 hover:text-foreground hover:shadow-md hover:shadow-accent/10"
             >
               <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-black/5">
                 <Image

@@ -3,11 +3,19 @@
 import { db } from "@/lib/db"
 import { cartItems, productVariants, products, brands } from "@/lib/db/schema"
 import { getOptionalOwnerId, getOwnerId } from "@/lib/session"
+import { getGuestId } from "@/lib/guest"
 import { and, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
+const MAX_QUANTITY_PER_ITEM = 20
+
+function clampQuantity(quantity: number) {
+  return Math.min(Math.max(1, Math.trunc(quantity) || 1), MAX_QUANTITY_PER_ITEM)
+}
+
 export async function addToCart(productId: number, variantId: number, quantity = 1) {
   const ownerId = await getOwnerId()
+  const safeQuantity = clampQuantity(quantity)
 
   const existing = await db
     .select()
@@ -18,10 +26,10 @@ export async function addToCart(productId: number, variantId: number, quantity =
   if (existing[0]) {
     await db
       .update(cartItems)
-      .set({ quantity: existing[0].quantity + quantity })
+      .set({ quantity: clampQuantity(existing[0].quantity + safeQuantity) })
       .where(eq(cartItems.id, existing[0].id))
   } else {
-    await db.insert(cartItems).values({ userId: ownerId, productId, variantId, quantity })
+    await db.insert(cartItems).values({ userId: ownerId, productId, variantId, quantity: safeQuantity })
   }
 
   revalidatePath("/cart")
@@ -35,7 +43,7 @@ export async function updateCartItemQuantity(cartItemId: number, quantity: numbe
   } else {
     await db
       .update(cartItems)
-      .set({ quantity })
+      .set({ quantity: clampQuantity(quantity) })
       .where(and(eq(cartItems.id, cartItemId), eq(cartItems.userId, ownerId)))
   }
   revalidatePath("/cart")
@@ -53,6 +61,30 @@ export async function clearCart() {
   const ownerId = await getOwnerId()
   await db.delete(cartItems).where(eq(cartItems.userId, ownerId))
   revalidatePath("/cart")
+}
+
+export async function mergeGuestCartIntoAccount() {
+  const session = await getOptionalOwnerId()
+  const guestId = await getGuestId()
+  if (!session || !guestId || session === guestId) return { success: true }
+
+  const guestItems = await db.select().from(cartItems).where(eq(cartItems.userId, guestId))
+  for (const item of guestItems) {
+    const existing = await db
+      .select()
+      .from(cartItems)
+      .where(and(eq(cartItems.userId, session), eq(cartItems.variantId, item.variantId)))
+      .limit(1)
+    if (existing[0]) {
+      await db.update(cartItems).set({ quantity: clampQuantity(existing[0].quantity + item.quantity) }).where(eq(cartItems.id, existing[0].id))
+    } else {
+      await db.update(cartItems).set({ userId: session }).where(eq(cartItems.id, item.id))
+    }
+  }
+  await db.delete(cartItems).where(eq(cartItems.userId, guestId))
+  revalidatePath("/cart")
+  revalidatePath("/checkout")
+  return { success: true }
 }
 
 export async function getCartItems() {

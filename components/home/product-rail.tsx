@@ -26,8 +26,8 @@ export function ProductRail({
       <div className="mb-6 flex items-end justify-between">
         <div className="flex items-start gap-3">
           {variant === "deals" && (
-            <span className="mt-1 flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500/15 to-orange-500/15">
-              <Icon className="size-4 text-amber-500" />
+            <span className="mt-1 flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-accent/20 to-primary/20">
+              <Icon className="size-4 text-accent" />
             </span>
           )}
           <div>
@@ -37,7 +37,7 @@ export function ProductRail({
         </div>
         <Link
           href={href}
-          className="flex shrink-0 items-center gap-1 rounded-full border border-border px-3.5 py-1.5 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+          className="flex shrink-0 items-center gap-1 rounded-full border border-border px-3.5 py-1.5 text-sm font-medium text-foreground transition-colors hover:border-accent/40 hover:text-accent"
         >
           View all
           <ArrowRight className="size-3.5" />
@@ -45,7 +45,7 @@ export function ProductRail({
       </div>
       <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6" stagger={0.05}>
         {items.slice(0, 12).map((item) => (
-          <RevealItem key={item.product.id}>
+          <RevealItem key={item.product.id} className="h-full">
             <ProductCard item={item} />
           </RevealItem>
         ))}

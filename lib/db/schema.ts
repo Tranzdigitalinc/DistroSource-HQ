@@ -201,6 +201,7 @@ export const orders = pgTable("orders", {
   billingEmail: text("billing_email").notNull(),
   billingName: text("billing_name").notNull(),
   paymentMethod: text("payment_method").notNull().default("card"),
+  confirmationEmailSent: boolean("confirmation_email_sent").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 
@@ -226,6 +227,22 @@ export const supportTickets = pgTable("support_tickets", {
   message: text("message").notNull(),
   orderNumber: text("order_number"),
   status: text("status").notNull().default("open"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
+export const notificationPreferences = pgTable("notification_preferences", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull().unique(),
+  orderUpdates: boolean("order_updates").notNull().default(true),
+  deals: boolean("deals").notNull().default(true),
+  productNews: boolean("product_news").notNull().default(false),
+  accountAlerts: boolean("account_alerts").notNull().default(true),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+})
+
+export const newsletterSubscribers = pgTable("newsletter_subscribers", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 

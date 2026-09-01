@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion/motion-provider'
 import { getCountries } from '@/lib/queries/catalog'
 import { ScrollToTop } from '@/components/scroll-to-top'
+import { ResizeObserverErrorGuard } from '@/components/resize-observer-error-guard'
 import './globals.css'
 
 const _inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
@@ -40,8 +41,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   colorScheme: 'light dark',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
+    { media: '(prefers-color-scheme: light)', color: '#080b18' },
+    { media: '(prefers-color-scheme: dark)', color: '#080b18' },
   ],
 }
 
@@ -66,6 +67,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased">
+        <ResizeObserverErrorGuard />
         <MotionProvider>
           <ThemeProvider>
             <CurrencyProvider countries={countries}>

@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation"
-import Image from "next/image"
 import { CatalogPage } from "@/components/catalog/catalog-page"
 import { getCategoryBySlug, getProducts } from "@/lib/queries/catalog"
-import { getCategoryImage } from "@/lib/category-icons"
+import { getCategoryIcon } from "@/lib/category-icons"
 
 export default async function CategoryDetailPage({
   params,
@@ -27,12 +26,19 @@ export default async function CategoryDetailPage({
   return (
     <CatalogPage
       title={category.name}
-      subtitle={category.description}
+      subtitle={category.description ?? undefined}
       products={products}
       banner={
-        <div className="relative h-40 w-full overflow-hidden sm:h-52">
-          <Image src={getCategoryImage(category.slug)} alt="" fill className="object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+        <div className="relative flex h-40 w-full items-center gap-5 overflow-hidden border-b border-primary/20 bg-[radial-gradient(circle_at_85%_-20%,hsl(var(--primary)/0.35),transparent_60%),radial-gradient(circle_at_10%_120%,hsl(var(--accent)/0.2),transparent_55%)] px-6 sm:h-52 sm:px-10">
+          <div className="flex size-16 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary shadow-[0_0_30px_hsl(var(--primary)/0.3)]">
+            {(() => { const Icon = getCategoryIcon(category.name); return <Icon aria-hidden="true" /> })()}
+          </div>
+          <div className="flex flex-col gap-1">
+            <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{category.name}</h1>
+            {category.description ? (
+              <p className="max-w-xl text-sm text-muted-foreground">{category.description}</p>
+            ) : null}
+          </div>
         </div>
       }
     />

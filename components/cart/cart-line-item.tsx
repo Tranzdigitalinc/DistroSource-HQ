@@ -4,10 +4,12 @@ import { useState, useTransition } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { motion } from "motion/react"
-import { Minus, Plus, X } from "lucide-react"
+import { Loader2, Minus, Plus, X } from "lucide-react"
 import { PriceDisplay } from "@/components/price-display"
 import { BrandThumbnail } from "@/components/product/brand-thumbnail"
 import { updateCartItemQuantity, removeCartItem } from "@/lib/actions/cart"
+import { useCartCount } from "@/lib/use-cart"
+import { cn } from "@/lib/utils"
 
 interface CartLineItemProps {
   cartItemId: number
@@ -20,6 +22,7 @@ interface CartLineItemProps {
   imageUrl: string | null
   unitPriceUsd: string
   quantity: number
+  onRemoved?: (cartItemId: number) => void
 }
 
 export function CartLineItem({
@@ -33,34 +36,46 @@ export function CartLineItem({
   imageUrl,
   unitPriceUsd,
   quantity,
+  onRemoved,
 }: CartLineItemProps) {
   const [qty, setQty] = useState(quantity)
-  const [isPending, startTransition] = useTransition()
+  const [isUpdating, startUpdate] = useTransition()
+  const [isRemoving, startRemove] = useTransition()
+  const { refresh } = useCartCount()
 
   function updateQty(next: number) {
     const clamped = Math.max(1, Math.min(20, next))
+    if (clamped === qty) return
     setQty(clamped)
-    startTransition(async () => {
+    startUpdate(async () => {
       await updateCartItemQuantity(cartItemId, clamped)
+      refresh()
     })
   }
 
   function handleRemove() {
-    startTransition(async () => {
+    startRemove(async () => {
       await removeCartItem(cartItemId)
+      refresh()
+      onRemoved?.(cartItemId)
     })
   }
 
   return (
     <motion.div
+      layout
       initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-      className="flex gap-4 border-b border-border py-5 last:border-0"
+      animate={{ opacity: isRemoving ? 0.4 : 1, y: 0 }}
+      exit={{ opacity: 0, x: -24, height: 0, marginTop: 0, marginBottom: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex gap-3 border-b border-border py-5 last:border-0 sm:gap-4"
     >
-      <Link href={`/products/${productSlug}`} className="relative size-20 shrink-0 overflow-hidden rounded-lg">
+      <Link
+        href={`/products/${productSlug}`}
+        className="relative size-20 shrink-0 overflow-hidden rounded-lg border border-border/60 sm:size-24"
+      >
         {imageUrl ? (
-          <Image src={imageUrl || "/placeholder.svg"} alt={productName} fill className="object-cover" sizes="80px" />
+          <Image src={imageUrl || "/placeholder.svg"} alt={productName} fill className="object-cover" sizes="96px" />
         ) : (
           <BrandThumbnail
             logoUrl={brandLogoUrl ?? null}
@@ -70,11 +85,11 @@ export function CartLineItem({
           />
         )}
       </Link>
-      <div className="flex flex-1 flex-col gap-1">
-        <div className="flex items-start justify-between gap-3">
-          <div>
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
             <p className="text-xs font-medium text-muted-foreground">{brandName}</p>
-            <Link href={`/products/${productSlug}`} className="text-sm font-semibold hover:underline">
+            <Link href={`/products/${productSlug}`} className="text-sm font-semibold leading-snug hover:text-accent">
               {productName}
             </Link>
             <p className="text-xs text-muted-foreground">{denominationLabel}</p>
@@ -83,38 +98,40 @@ export function CartLineItem({
             type="button"
             whileTap={{ scale: 0.85 }}
             onClick={handleRemove}
-            disabled={isPending}
-            className="shrink-0 text-muted-foreground hover:text-destructive"
+            disabled={isRemoving}
+            className="-mr-1.5 -mt-1.5 flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
             aria-label="Remove item"
           >
-            <X className="size-4" />
+            {isRemoving ? <Loader2 className="size-4 animate-spin" /> : <X className="size-4" />}
           </motion.button>
         </div>
-        <div className="mt-2 flex items-center justify-between">
+        <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center rounded-lg border border-border">
             <motion.button
               type="button"
               whileTap={{ scale: 0.85 }}
               onClick={() => updateQty(qty - 1)}
-              disabled={isPending}
-              className="flex size-8 items-center justify-center text-muted-foreground hover:text-foreground"
+              disabled={isUpdating || isRemoving || qty <= 1}
+              className="flex size-9 items-center justify-center text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
               aria-label="Decrease quantity"
             >
               <Minus className="size-3.5" />
             </motion.button>
-            <span className="w-7 text-center text-sm font-medium">{qty}</span>
+            <span className="w-7 text-center text-sm font-medium tabular-nums">
+              {isUpdating ? <Loader2 className="mx-auto size-3.5 animate-spin text-muted-foreground" /> : qty}
+            </span>
             <motion.button
               type="button"
               whileTap={{ scale: 0.85 }}
               onClick={() => updateQty(qty + 1)}
-              disabled={isPending}
-              className="flex size-8 items-center justify-center text-muted-foreground hover:text-foreground"
+              disabled={isUpdating || isRemoving || qty >= 20}
+              className="flex size-9 items-center justify-center text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
               aria-label="Increase quantity"
             >
               <Plus className="size-3.5" />
             </motion.button>
           </div>
-          <span className="font-display text-base font-bold">
+          <span className={cn("font-display text-base font-bold", isRemoving && "opacity-40")}>
             <PriceDisplay usdAmount={Number.parseFloat(unitPriceUsd) * qty} />
           </span>
         </div>

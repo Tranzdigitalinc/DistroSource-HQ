@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2 } from "lucide-react"
+import { Loader2, MailCheck } from "lucide-react"
 
 export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign-in" | "sign-up"; redirectTo?: string }) {
   const router = useRouter()
@@ -18,7 +18,9 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [verificationSent, setVerificationSent] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [resending, setResending] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -33,16 +35,58 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
     setLoading(false)
 
     if (result.error) {
+      const isUnverified = result.error.code === "EMAIL_NOT_VERIFIED"
       setError(
         mode === "sign-up"
           ? "Could not create your account. Please check your details and try again."
-          : "Invalid email or password.",
+          : isUnverified
+            ? "Please verify your email before signing in."
+            : "Invalid email or password.",
       )
+      if (isUnverified) setVerificationSent(false)
+      return
+    }
+
+    if (mode === "sign-up") {
+      setVerificationSent(true)
       return
     }
 
     router.push(redirectTo)
     router.refresh()
+  }
+
+  async function resendVerification() {
+    setResending(true)
+    const result = await authClient.sendVerificationEmail({
+      email,
+      callbackURL: redirectTo,
+    })
+    setResending(false)
+    if (result.error) {
+      setError("We could not resend the verification email. Please try again shortly.")
+      return
+    }
+    setVerificationSent(true)
+  }
+
+  if (verificationSent && mode === "sign-up") {
+    return (
+      <div className="flex flex-col gap-5 text-center">
+        <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
+          <MailCheck className="size-7" aria-hidden="true" />
+        </div>
+        <div className="flex flex-col gap-2">
+          <h2 className="text-lg font-semibold">Check your inbox</h2>
+          <p className="text-sm leading-relaxed text-muted-foreground">We sent a branded verification link to <strong className="text-foreground">{email}</strong>. Verify it to activate your RedeemCove account.</p>
+        </div>
+        <Button type="button" variant="outline" onClick={resendVerification} disabled={resending} className="h-11 font-semibold">
+          {resending && <Loader2 className="size-4 animate-spin" />}
+          {resending ? "Sending..." : "Resend verification email"}
+        </Button>
+        <Link href="/sign-in" className="text-sm font-medium text-primary hover:underline">Back to sign in</Link>
+      </div>
+    )
   }
 
   return (

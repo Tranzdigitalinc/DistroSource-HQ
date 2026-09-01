@@ -20,14 +20,19 @@ export function AccountMenu() {
   const router = useRouter()
 
   if (isPending) {
-    return <div className="size-8 animate-pulse rounded-full bg-secondary" />
+    return <div className="size-10 animate-pulse rounded-full bg-secondary" />
   }
 
   if (!session?.user) {
     return (
-      <Button size="sm" nativeButton={false} render={<Link href="/sign-in" />}>
-        <LogIn data-icon="inline-start" />
-        Sign in
+      <Button
+        variant="ghost"
+        size="icon"
+        className="group size-10 rounded-full border border-transparent transition-all hover:border-accent/30 hover:bg-accent/10 hover:text-accent"
+        nativeButton={false}
+        render={<Link href="/sign-in" aria-label="Sign in" />}
+      >
+        <LogIn className="transition-transform duration-200 group-hover:scale-110" />
       </Button>
     )
   }
@@ -53,17 +58,20 @@ export function AccountMenu() {
         render={
           <button
             type="button"
-            className="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            aria-label="Open account menu"
+            className="flex size-10 items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-bold text-primary-foreground shadow-md shadow-primary/25 ring-1 ring-primary/35 transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/30"
           />
         }
       >
         {initials}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="px-2 py-1.5">
-          <p className="text-sm font-medium text-foreground">{session.user.name}</p>
-          <p className="truncate text-xs text-muted-foreground">{session.user.email}</p>
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="px-2 py-1.5">
+            <p className="text-sm font-medium text-foreground">{session.user.name}</p>
+            <p className="truncate text-xs text-muted-foreground">{session.user.email}</p>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem render={<Link href="/account" />}>

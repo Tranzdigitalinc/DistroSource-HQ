@@ -7,9 +7,15 @@ import {
   Users,
   Clapperboard,
   ShoppingBag,
+  Plane,
+  Bitcoin,
+  CreditCard,
+  Music,
+  Tv,
   type LucideIcon,
 } from "lucide-react"
 
+// Explicit icon-name mapping (used when a category has a known icon_name).
 export const categoryIconMap: Record<string, LucideIcon> = {
   "gamepad-2": Gamepad2,
   gift: Gift,
@@ -19,23 +25,35 @@ export const categoryIconMap: Record<string, LucideIcon> = {
   users: Users,
   clapperboard: Clapperboard,
   "shopping-bag": ShoppingBag,
+  plane: Plane,
+  bitcoin: Bitcoin,
+  "credit-card": CreditCard,
+  music: Music,
+  tv: Tv,
 }
 
-export function getCategoryIcon(iconName: string): LucideIcon {
-  return categoryIconMap[iconName] ?? Gift
-}
+// Keyword-based fallback that resolves an icon from a category name or slug.
+// Reloadly categories don't carry usable icon names, so we infer from the label.
+const keywordIcons: Array<{ match: string[]; icon: LucideIcon }> = [
+  { match: ["game", "gaming", "playstation", "xbox", "steam", "roblox"], icon: Gamepad2 },
+  { match: ["entertain", "stream", "movie", "video", "netflix", "tv"], icon: Clapperboard },
+  { match: ["music", "spotify", "audio"], icon: Music },
+  { match: ["shop", "retail", "ecommerce", "store", "amazon"], icon: ShoppingBag },
+  { match: ["travel", "flight", "hotel", "airline"], icon: Plane },
+  { match: ["crypto", "bitcoin", "token", "wallet"], icon: Bitcoin },
+  { match: ["payment", "card", "visa", "mastercard", "prepaid"], icon: CreditCard },
+  { match: ["software", "app", "productivity", "cloud"], icon: Laptop2 },
+  { match: ["mobile", "topup", "top-up", "airtime", "phone"], icon: Smartphone },
+  { match: ["food", "dining", "restaurant", "delivery"], icon: UtensilsCrossed },
+  { match: ["social", "community"], icon: Users },
+]
 
-export const categoryImageMap: Record<string, string> = {
-  gaming: "/categories/gaming.png",
-  streaming: "/categories/streaming.png",
-  "mobile-topup": "/categories/mobile-topup.png",
-  shopping: "/categories/shopping.png",
-  software: "/categories/software.png",
-  "food-delivery": "/categories/food-delivery.png",
-  social: "/categories/social.png",
-  "gift-cards": "/categories/gift-cards.png",
-}
-
-export function getCategoryImage(categorySlug: string): string {
-  return categoryImageMap[categorySlug] ?? "/categories/gift-cards.png"
+export function getCategoryIcon(value: string | null | undefined): LucideIcon {
+  if (!value) return Gift
+  const key = value.toLowerCase()
+  if (categoryIconMap[key]) return categoryIconMap[key]
+  for (const entry of keywordIcons) {
+    if (entry.match.some((m) => key.includes(m))) return entry.icon
+  }
+  return Gift
 }

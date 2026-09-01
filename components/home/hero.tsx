@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion, useInView } from "motion/react"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, ShieldCheck, Star, Sparkles } from "lucide-react"
+import { ArrowRight, Star, Sparkles, ShieldCheck, Zap, Globe2, Headphones } from "lucide-react"
 
 interface HeroStats {
   productCount: number
@@ -15,7 +15,7 @@ interface HeroStats {
   avgRating: number
 }
 
-function useAnimatedCounter(target: number, duration = 1800, startDelay = 400) {
+function useAnimatedCounter(target: number, duration = 500, startDelay = 0) {
   const [value, setValue] = useState(0)
   const ref = useRef<HTMLSpanElement>(null)
   const inView = useInView(ref, { once: true })
@@ -51,14 +51,35 @@ const item = {
   visible: { opacity: 1, y: 0 },
 }
 
+const card = {
+  hidden: { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0 },
+}
+
+const trustChips = [
+  { icon: Zap, label: "Instant delivery" },
+  { icon: ShieldCheck, label: "Secure payments" },
+  { icon: Globe2, label: "Global access" },
+  { icon: Headphones, label: "24/7 support" },
+]
+
+const brandCards = [
+  { name: "PlayStation", logo: "/logos/playstation-store.svg" },
+  { name: "Xbox", logo: "/logos/xbox.svg" },
+  { name: "Steam", logo: "/logos/steam.svg" },
+  { name: "Amazon", logo: "/logos/amazon.svg" },
+  { name: "Netflix", logo: "/logos/netflix.svg" },
+  { name: "Spotify", logo: "/logos/spotify.svg" },
+]
+
 function StatCounter({ label, value, suffix = "" }: { label: string; value: number; suffix?: string }) {
   const counter = useAnimatedCounter(value)
   return (
-    <div className="flex flex-col items-center gap-1">
-      <span ref={counter.ref} className="font-display text-2xl font-bold text-hero-foreground sm:text-3xl">
+    <div className="flex flex-col gap-1">
+      <span ref={counter.ref} className="font-display text-2xl font-semibold text-hero-foreground sm:text-3xl">
         {formatCount(counter.value)}{suffix}
       </span>
-      <span className="text-[11px] font-medium uppercase tracking-wider text-hero-foreground/50">{label}</span>
+      <span className="text-[11px] font-medium uppercase tracking-wider text-hero-foreground/45">{label}</span>
     </div>
   )
 }
@@ -66,78 +87,94 @@ function StatCounter({ label, value, suffix = "" }: { label: string; value: numb
 export function Hero({ stats }: { stats: HeroStats }) {
   return (
     <section className="relative overflow-hidden bg-hero">
+      <div className="absolute inset-0">
+        <Image
+          src="/images/hero/redeemcove-hero.png"
+          alt=""
+          fill
+          priority
+          loading="eager"
+          className="object-cover opacity-60 mix-blend-screen"
+        />
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-t from-hero via-hero/40 to-hero/80" />
       <div
-        className="absolute inset-0 opacity-70"
+        className="absolute inset-0 opacity-80"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 12% 20%, oklch(0.68 0.19 262 / 0.22), transparent 45%), radial-gradient(circle at 88% 85%, oklch(0.68 0.19 262 / 0.14), transparent 45%)",
+            "radial-gradient(circle at 10% 15%, oklch(0.8 0.17 195 / 0.2), transparent 45%), radial-gradient(circle at 90% 90%, oklch(0.7 0.2 258 / 0.18), transparent 45%)",
         }}
       />
       <div
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-[0.06]"
         style={{
           backgroundImage:
-            "radial-gradient(ellipse at 50% 0%, oklch(0.64 0.21 262 / 0.18), transparent 60%)",
+            "linear-gradient(oklch(0.98 0.003 260) 1px, transparent 1px), linear-gradient(90deg, oklch(0.98 0.003 260) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
         }}
       />
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        transition={{ staggerChildren: 0.09, delayChildren: 0.05 }}
-        className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 py-20 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:py-28"
-      >
-        <div className="flex flex-col gap-7">
+
+      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 px-4 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:py-24">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          transition={{ staggerChildren: 0.03, delayChildren: 0 }}
+          className="flex flex-col items-start gap-7"
+        >
           <motion.span
             variants={item}
-            transition={{ duration: 0.5, ease: EASE }}
-            className="flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3.5 py-1.5 text-xs font-medium text-hero-foreground/90 ring-1 ring-inset ring-hero-foreground/20 backdrop-blur-sm"
+              transition={{ duration: 0.2, ease: EASE }}
+            className="glow-ring flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3.5 py-1.5 text-xs font-medium text-hero-foreground/80 ring-1 ring-inset ring-accent/25"
           >
             <ShieldCheck className="size-3.5 text-hero-accent" />
-            Verified codes, sourced from authorized distributors
+            <span className="tracking-wide">Trusted digital marketplace</span>
           </motion.span>
+
           <motion.h1
             variants={item}
-            transition={{ duration: 0.6, ease: EASE }}
-            className="font-display text-5xl font-medium leading-[1.05] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.25rem]"
+            transition={{ duration: 0.2, ease: EASE }}
+            className="font-display text-5xl font-medium leading-[1.05] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.1rem]"
           >
-            Gift cards & digital codes,{" "}
-            <span className="relative text-hero-accent">
-              delivered instantly
+            Digital value,{" "}
+            <span className="text-gradient-cyan relative">
+              delivered in seconds
               <motion.span
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
                 transition={{ duration: 0.6, ease: EASE, delay: 0.6 }}
-                className="absolute -bottom-1 left-0 h-[3px] w-full origin-left rounded-full bg-hero-accent/40"
+                className="absolute -bottom-1 left-0 h-[2px] w-full origin-left rounded-full bg-hero-accent/40"
               />
             </span>
           </motion.h1>
+
           <motion.p
             variants={item}
-            transition={{ duration: 0.6, ease: EASE }}
-            className="max-w-lg text-lg leading-relaxed text-hero-foreground/70 text-pretty"
+            transition={{ duration: 0.2, ease: EASE }}
+            className="max-w-lg text-lg leading-relaxed text-hero-foreground/65 text-pretty"
           >
             Top up games, stream more, and shop your favorite brands — all from one marketplace with instant
             delivery to your inbox and account.
           </motion.p>
+
           <motion.div
             variants={item}
-            transition={{ duration: 0.6, ease: EASE }}
-            className="flex flex-wrap items-center gap-4"
+            transition={{ duration: 0.2, ease: EASE }}
+            className="flex w-full flex-wrap items-center gap-4"
           >
             <Button
               size="lg"
               nativeButton={false}
-              className="h-12 animate-pulse-glow bg-hero-foreground px-6 font-semibold text-hero transition-transform hover:bg-hero-foreground/90 active:scale-95"
+              className="h-12 bg-accent px-8 font-semibold text-accent-foreground shadow-lg shadow-accent/20 transition-colors hover:bg-accent/90 active:scale-[0.98]"
               render={<Link href="/products" />}
             >
-              Browse all products
+              Shop all gift cards
               <ArrowRight className="size-4" />
             </Button>
             <Button
               size="lg"
               variant="outline"
               nativeButton={false}
-              className="h-12 border-hero-foreground/25 bg-transparent px-6 font-semibold text-hero-foreground transition-all hover:border-hero-foreground/50 hover:bg-hero-foreground/10 active:scale-95"
+              className="h-12 border-hero-foreground/20 bg-transparent px-8 font-semibold text-hero-foreground transition-colors hover:border-accent/50 hover:bg-hero-foreground/5 active:scale-[0.98]"
               render={<Link href="/deals" />}
             >
               <Sparkles className="size-4" />
@@ -147,50 +184,63 @@ export function Hero({ stats }: { stats: HeroStats }) {
 
           <motion.div
             variants={item}
-            transition={{ duration: 0.6, ease: EASE }}
-            className="mt-2 flex items-center gap-2 text-sm text-hero-foreground/65"
+            transition={{ duration: 0.2, ease: EASE }}
+            className="grid w-full grid-cols-2 gap-y-3 border-t border-hero-foreground/10 pt-6 sm:grid-cols-4"
           >
-            <span className="flex items-center gap-1 font-display font-semibold text-hero-foreground">
-              {stats.avgRating.toFixed(1)}
-              <Star className="size-3.5 fill-hero-accent text-hero-accent" />
-            </span>
-            <span>from {formatCount(stats.reviewCount)} reviews across</span>
-            <span className="font-semibold text-hero-foreground">{stats.brandCount}+ brands</span>
-            <span aria-hidden="true">·</span>
-            <span>{stats.countryCount} countries</span>
+            {trustChips.map(({ icon: Icon, label }) => (
+              <div key={label} className="flex items-center gap-2 text-hero-foreground/65">
+                <Icon className="size-4 shrink-0 text-hero-accent" />
+                <span className="text-xs font-medium sm:text-sm">{label}</span>
+              </div>
+            ))}
           </motion.div>
-        </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.94, x: 16 }}
-          animate={{ opacity: 1, scale: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: EASE, delay: 0.15 }}
-          className="relative mx-auto w-full max-w-md lg:max-w-lg"
-        >
-          <div className="animate-float relative aspect-square overflow-hidden rounded-2xl shadow-2xl shadow-black/40 ring-1 ring-white/10">
-            <Image
-              src="/hero-cards.png"
-              alt="A collection of premium gift cards fanned across a warm walnut surface"
-              fill
-              priority
-              className="object-cover"
-              sizes="(max-width: 1024px) 90vw, 40vw"
-            />
-          </div>
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: EASE, delay: 0.7 }}
-            className="absolute -bottom-4 -left-4 flex items-center gap-3 rounded-xl border border-hero-foreground/10 bg-hero/90 px-4 py-3 shadow-lg backdrop-blur-md sm:-bottom-5 sm:-left-6"
+            variants={item}
+            transition={{ duration: 0.2, ease: EASE }}
+            className="flex w-full flex-wrap items-center gap-x-8 gap-y-4"
           >
             <StatCounter label="Brands" value={stats.brandCount} suffix="+" />
-            <div className="h-8 w-px bg-hero-foreground/15" />
             <StatCounter label="Countries" value={stats.countryCount} />
-            <div className="h-8 w-px bg-hero-foreground/15" />
             <StatCounter label="Reviews" value={stats.reviewCount} />
+            <div className="flex flex-col gap-1">
+              <span className="flex items-center gap-1.5 font-display text-2xl font-semibold text-hero-foreground sm:text-3xl">
+                {stats.avgRating.toFixed(1)}
+                <Star className="size-4 fill-hero-accent text-hero-accent" />
+              </span>
+              <span className="text-[11px] font-medium uppercase tracking-wider text-hero-foreground/45">
+                Avg rating
+              </span>
+            </div>
           </motion.div>
         </motion.div>
-      </motion.div>
+
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          transition={{ staggerChildren: 0.02, delayChildren: 0 }}
+          className="glass-panel glow-ring relative mx-auto w-full max-w-md rounded-2xl border border-accent/15 p-6"
+        >
+          <p className="mb-5 text-center text-xs font-medium uppercase tracking-wider text-hero-foreground/45">
+            Powered by the platforms you love
+          </p>
+          <div className="grid grid-cols-3 gap-3">
+            {brandCards.map(({ name, logo }) => (
+              <motion.div key={name} variants={card} transition={{ duration: 0.5, ease: EASE }}>
+                <div className="flex aspect-square items-center justify-center rounded-xl border border-hero-foreground/10 bg-white p-4 transition-colors duration-300 hover:border-hero-accent/40">
+                  <Image
+                    src={logo || "/placeholder.svg"}
+                    alt={name}
+                    width={64}
+                    height={64}
+                    className="h-8 w-auto object-contain sm:h-9"
+                  />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
     </section>
   )
 }

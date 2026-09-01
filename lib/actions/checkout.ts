@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { cartItems, coupons, orderItems, orders, productVariants, products } from "@/lib/db/schema"
 import { generateOrderNumber, generateRedemptionCode } from "@/lib/format"
+import { sendOrderConfirmationEmail } from "@/lib/email"
 import { getOptionalOwnerId, getOwnerId } from "@/lib/session"
 import { and, eq, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
@@ -91,50 +92,80 @@ export async function checkout(input: {
 
   const orderNumber = generateOrderNumber()
 
-  const [order] = await db
-    .insert(orders)
-    .values({
-      orderNumber,
-      userId: ownerId,
-      status: "completed",
-      subtotalUsd: subtotal.toFixed(2),
-      discountUsd: discount.toFixed(2),
-      totalUsd: total.toFixed(2),
-      couponCode: coupon?.code ?? null,
+  const { order: orderResult, itemsForEmail } = await db.transaction(async (tx) => {
+    const [order] = await tx
+      .insert(orders)
+      .values({
+        orderNumber,
+        userId: ownerId,
+        status: "completed",
+        subtotalUsd: subtotal.toFixed(2),
+        discountUsd: discount.toFixed(2),
+        totalUsd: total.toFixed(2),
+        couponCode: coupon?.code ?? null,
+        billingEmail,
+        billingName,
+        paymentMethod: "card",
+      })
+      .returning()
+
+    const insertedItems = await tx
+      .insert(orderItems)
+      .values(
+        validatedItems.map((item) => ({
+          orderId: order.id,
+          productId: item.productId,
+          variantId: item.variantId,
+          productName: item.productName,
+          denominationLabel: item.denominationLabel,
+          unitPriceUsd: item.unitPriceUsd.toFixed(2),
+          quantity: item.quantity,
+          redemptionCode: generateRedemptionCode(),
+          redemptionInstructions:
+            "Redeem this code at checkout or in the brand's app under Redeem Gift Card / Enter Code.",
+          isRevealed: false,
+        })),
+      )
+      .returning()
+
+    if (coupon) {
+      await tx
+        .update(coupons)
+        .set({ usedCount: sql`${coupons.usedCount} + 1` })
+        .where(eq(coupons.code, coupon.code))
+    }
+
+    await tx.delete(cartItems).where(eq(cartItems.userId, ownerId))
+
+    return { order, itemsForEmail: insertedItems }
+  })
+
+  // Send the confirmation email after the order is committed. A flaky email
+  // provider must never roll back a completed, paid order.
+  let confirmationEmailSent = false
+  try {
+    confirmationEmailSent = await sendOrderConfirmationEmail(
       billingEmail,
-      billingName,
-      paymentMethod: "card",
-    })
-    .returning()
-
-  await db.insert(orderItems).values(
-    validatedItems.map((item) => ({
-      orderId: order.id,
-      productId: item.productId,
-      variantId: item.variantId,
-      productName: item.productName,
-      denominationLabel: item.denominationLabel,
-      unitPriceUsd: item.unitPriceUsd.toFixed(2),
-      quantity: item.quantity,
-      redemptionCode: generateRedemptionCode(),
-      redemptionInstructions: "Redeem this code at checkout or in the brand's app under Redeem Gift Card / Enter Code.",
-      isRevealed: false,
-    })),
-  )
-
-  if (coupon) {
-    await db
-      .update(coupons)
-      .set({ usedCount: sql`${coupons.usedCount} + 1` })
-      .where(eq(coupons.code, coupon.code))
+      orderResult.orderNumber,
+      itemsForEmail.map((item) => ({
+        productName: item.productName,
+        denominationLabel: item.denominationLabel,
+        quantity: item.quantity,
+        redemptionCode: item.redemptionCode,
+      })),
+    )
+  } catch (error) {
+    console.error("[v0] Order confirmation email threw:", error)
   }
 
-  await db.delete(cartItems).where(eq(cartItems.userId, ownerId))
+  if (confirmationEmailSent) {
+    await db.update(orders).set({ confirmationEmailSent: true }).where(eq(orders.id, orderResult.id))
+  }
 
   revalidatePath("/cart")
   revalidatePath("/account/orders")
 
-  return { orderNumber: order.orderNumber }
+  return { orderNumber: orderResult.orderNumber }
 }
 
 export async function revealOrderItemCode(orderItemId: number) {

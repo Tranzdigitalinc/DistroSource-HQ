@@ -1,11 +1,11 @@
 "use client"
 
-import Link from "next/link"
 import Image from "next/image"
+import Link from "next/link"
 import { motion } from "motion/react"
 import { ArrowUpRight } from "lucide-react"
+import { getCategoryVisual } from "@/lib/category-visuals"
 import { RevealGroup, RevealItem } from "@/components/motion/reveal"
-import { getCategoryImage } from "@/lib/category-icons"
 import type { getCategories } from "@/lib/queries/catalog"
 
 const MotionLink = motion.create(Link)
@@ -27,38 +27,66 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
         </Link>
       </div>
       <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" stagger={0.06}>
-        {categories.map((category) => (
-          <RevealItem key={category.slug}>
-            <MotionLink
-              href={`/categories/${category.slug}`}
-              whileHover={{ y: -4 }}
-              whileTap={{ scale: 0.97 }}
-              transition={{ type: "spring", stiffness: 400, damping: 28 }}
-              className="group relative block aspect-[4/3] overflow-hidden rounded-xl"
-            >
-              <Image
-                src={getCategoryImage(category.slug)}
-                alt=""
-                fill
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/5 transition-colors duration-300 group-hover:from-black/90" />
-              <span className="absolute inset-x-0 bottom-0 flex items-center justify-between p-4">
-                <span className="flex flex-col gap-0.5">
-                  <span className="font-display text-base font-semibold text-white text-balance sm:text-lg">
-                    {category.name}
+        {categories.map((category) => {
+          const visual = getCategoryVisual(category.name)
+          const Icon = visual.icon
+          return (
+            <RevealItem key={category.slug}>
+              <MotionLink
+                href={`/categories/${category.slug}`}
+                whileHover={{ y: -4 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 420, damping: 32 }}
+                className={`group relative flex aspect-[4/3] flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition-[border-color,box-shadow] ${visual.ring} hover:shadow-lg`}
+              >
+                <div
+                  className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${visual.glow} via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100`}
+                />
+
+                <div className="relative flex items-start justify-between">
+                  <div className={`flex size-12 items-center justify-center rounded-xl text-white shadow-lg ${visual.chip}`}>
+                    <Icon aria-hidden="true" className="size-6" />
+                  </div>
+                  {visual.logos.length > 0 && (
+                    <div className="flex -space-x-2.5">
+                      {visual.logos.map((logo, i) => (
+                        <div
+                          key={logo}
+                          style={{ zIndex: visual.logos.length - i }}
+                          className="flex size-8 items-center justify-center rounded-full border-2 border-card bg-white p-1.5 shadow-sm"
+                        >
+                          <Image
+                            src={logo || "/placeholder.svg"}
+                            alt=""
+                            width={20}
+                            height={20}
+                            className="h-full w-full object-contain"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <span className="relative flex items-end justify-between gap-3">
+                  <span className="flex flex-col gap-1">
+                    <span className="font-display text-base font-semibold text-foreground text-balance sm:text-lg">
+                      {category.name}
+                    </span>
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {category.productCount} {category.productCount === 1 ? "product" : "products"}
+                    </span>
                   </span>
-                  <span className="text-[11px] font-medium text-white/60">
-                    {category.productCount} {category.productCount === 1 ? "product" : "products"}
+                  <span
+                    className={`flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground/60 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${visual.accentText}`}
+                  >
+                    <ArrowUpRight aria-hidden="true" className="size-4" />
                   </span>
                 </span>
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/30 transition-all duration-300 group-hover:bg-white/25 group-hover:ring-white/50">
-                  <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                </span>
-              </span>
-            </MotionLink>
-          </RevealItem>
-        ))}
+              </MotionLink>
+            </RevealItem>
+          )
+        })}
       </RevealGroup>
     </section>
   )
