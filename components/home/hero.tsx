@@ -15,7 +15,7 @@ interface HeroStats {
   avgRating: number
 }
 
-function useAnimatedCounter(target: number, duration = 1800, startDelay = 400) {
+function useAnimatedCounter(target: number, duration = 500, startDelay = 0) {
   const [value, setValue] = useState(0)
   const ref = useRef<HTMLSpanElement>(null)
   const inView = useInView(ref, { once: true })
@@ -93,6 +93,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
           alt=""
           fill
           priority
+          loading="eager"
           className="object-cover opacity-60 mix-blend-screen"
         />
       </div>
@@ -117,12 +118,12 @@ export function Hero({ stats }: { stats: HeroStats }) {
         <motion.div
           initial="hidden"
           animate="visible"
-          transition={{ staggerChildren: 0.09, delayChildren: 0.05 }}
+          transition={{ staggerChildren: 0.03, delayChildren: 0 }}
           className="flex flex-col items-start gap-7"
         >
           <motion.span
             variants={item}
-            transition={{ duration: 0.5, ease: EASE }}
+              transition={{ duration: 0.2, ease: EASE }}
             className="glow-ring flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3.5 py-1.5 text-xs font-medium text-hero-foreground/80 ring-1 ring-inset ring-accent/25"
           >
             <ShieldCheck className="size-3.5 text-hero-accent" />
@@ -131,7 +132,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
 
           <motion.h1
             variants={item}
-            transition={{ duration: 0.6, ease: EASE }}
+            transition={{ duration: 0.2, ease: EASE }}
             className="font-display text-5xl font-medium leading-[1.05] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.1rem]"
           >
             Digital value,{" "}
@@ -148,7 +149,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
 
           <motion.p
             variants={item}
-            transition={{ duration: 0.6, ease: EASE }}
+            transition={{ duration: 0.2, ease: EASE }}
             className="max-w-lg text-lg leading-relaxed text-hero-foreground/65 text-pretty"
           >
             Top up games, stream more, and shop your favorite brands — all from one marketplace with instant
@@ -157,7 +158,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
 
           <motion.div
             variants={item}
-            transition={{ duration: 0.6, ease: EASE }}
+            transition={{ duration: 0.2, ease: EASE }}
             className="flex w-full flex-wrap items-center gap-4"
           >
             <Button
@@ -183,7 +184,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
 
           <motion.div
             variants={item}
-            transition={{ duration: 0.6, ease: EASE }}
+            transition={{ duration: 0.2, ease: EASE }}
             className="grid w-full grid-cols-2 gap-y-3 border-t border-hero-foreground/10 pt-6 sm:grid-cols-4"
           >
             {trustChips.map(({ icon: Icon, label }) => (
@@ -196,7 +197,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
 
           <motion.div
             variants={item}
-            transition={{ duration: 0.6, ease: EASE }}
+            transition={{ duration: 0.2, ease: EASE }}
             className="flex w-full flex-wrap items-center gap-x-8 gap-y-4"
           >
             <StatCounter label="Brands" value={stats.brandCount} suffix="+" />
@@ -217,7 +218,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
         <motion.div
           initial="hidden"
           animate="visible"
-          transition={{ staggerChildren: 0.06, delayChildren: 0.35 }}
+          transition={{ staggerChildren: 0.02, delayChildren: 0 }}
           className="glass-panel glow-ring relative mx-auto w-full max-w-md rounded-2xl border border-accent/15 p-6"
         >
           <p className="mb-5 text-center text-xs font-medium uppercase tracking-wider text-hero-foreground/45">
