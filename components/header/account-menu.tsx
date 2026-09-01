@@ -60,10 +60,12 @@ export function AccountMenu() {
         {initials}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="px-2 py-1.5">
-          <p className="text-sm font-medium text-foreground">{session.user.name}</p>
-          <p className="truncate text-xs text-muted-foreground">{session.user.email}</p>
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="px-2 py-1.5">
+            <p className="text-sm font-medium text-foreground">{session.user.name}</p>
+            <p className="truncate text-xs text-muted-foreground">{session.user.email}</p>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem render={<Link href="/account" />}>
