@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { CreateAffiliateDialog } from "@/components/admin/create-affiliate-dialog"
 import { ToggleAffiliateButton } from "@/components/admin/toggle-affiliate-button"
 import { formatUsd } from "@/lib/format"
+import { isAdminEmail } from "@/lib/admin-emails"
 
 export const metadata = {
   title: "Affiliates | RedeemCove Admin",
@@ -17,9 +18,8 @@ export const metadata = {
 
 export default async function AdminAffiliatesPage() {
   const session = await auth.api.getSession({ headers: await headers() })
-  const userEmail = session?.user?.email?.trim().toLowerCase()
   if (!session?.user) redirect("/sign-in?next=/admin/affiliates")
-  if (userEmail !== "info@corevalleyjo.com") redirect("/")
+  if (!isAdminEmail(session.user.email)) redirect("/")
 
   const [codes, report] = await Promise.all([getAffiliateCodes(), getAffiliateReport()])
   const reportByCode = new Map(report.map((r) => [r.code, r]))

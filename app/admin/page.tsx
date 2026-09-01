@@ -9,6 +9,7 @@ import { FraudQueuePanel } from "@/components/admin/fraud-queue-panel"
 import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
+import { isAdminEmail } from "@/lib/admin-emails"
 
 export const metadata = {
   title: "Admin | RedeemCove",
@@ -17,8 +18,7 @@ export const metadata = {
 
 export default async function AdminPage() {
   const session = await auth.api.getSession({ headers: await headers() })
-  const userEmail = session?.user?.email?.trim().toLowerCase()
-  const isAdmin = userEmail === "info@corevalleyjo.com"
+  const isAdmin = isAdminEmail(session?.user?.email)
 
   if (!session?.user) redirect("/sign-in?next=/admin")
   if (!isAdmin) redirect("/")

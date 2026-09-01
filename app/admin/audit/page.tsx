@@ -4,6 +4,7 @@ import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { getOperationEventsFiltered } from "@/lib/actions/operations"
 import { isRetryableEvent } from "@/lib/retryable-events"
+import { isAdminEmail } from "@/lib/admin-emails"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -20,9 +21,8 @@ export default async function AuditLogPage({
   searchParams: Promise<{ status?: string; eventType?: string; page?: string }>
 }) {
   const session = await auth.api.getSession({ headers: await headers() })
-  const userEmail = session?.user?.email?.trim().toLowerCase()
   if (!session?.user) redirect("/sign-in?next=/admin/audit")
-  if (userEmail !== "info@corevalleyjo.com") redirect("/")
+  if (!isAdminEmail(session.user.email)) redirect("/")
 
   const params = await searchParams
   const page = params.page ? Number.parseInt(params.page, 10) : 1

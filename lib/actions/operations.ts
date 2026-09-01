@@ -7,12 +7,11 @@ import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { operationEvents } from "@/lib/db/schema"
 import { isRetryableEvent } from "@/lib/retryable-events"
-
-const ADMIN_EMAIL = "info@corevalleyjo.com"
+import { isAdminEmail } from "@/lib/admin-emails"
 
 export async function requireAdmin() {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user || session.user.email.trim().toLowerCase() !== ADMIN_EMAIL) throw new Error("Unauthorized")
+  if (!session?.user || !isAdminEmail(session.user.email)) throw new Error("Unauthorized")
   return session.user.id
 }
 

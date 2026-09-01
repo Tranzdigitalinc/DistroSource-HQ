@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { isAdminEmail } from "@/lib/admin-emails"
 
 export const metadata = {
   title: "Orders | RedeemCove Admin",
@@ -19,9 +20,8 @@ export default async function AdminOrdersPage({
   searchParams: Promise<{ q?: string }>
 }) {
   const session = await auth.api.getSession({ headers: await headers() })
-  const userEmail = session?.user?.email?.trim().toLowerCase()
   if (!session?.user) redirect("/sign-in?next=/admin/orders")
-  if (userEmail !== "info@corevalleyjo.com") redirect("/")
+  if (!isAdminEmail(session.user.email)) redirect("/")
 
   const params = await searchParams
   const query = params.q ?? ""

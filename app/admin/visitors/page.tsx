@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth"
 import { getVisitorLogsFiltered, getVisitorStats } from "@/lib/actions/visitor-logs"
 import { countryCodeToFlag, countryCodeToName } from "@/lib/user-agent"
 import { IpReputationBadge } from "@/components/admin/ip-reputation-badge"
+import { isAdminEmail } from "@/lib/admin-emails"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -20,9 +21,8 @@ export default async function AdminVisitorsPage({
   searchParams: Promise<{ country?: string; deviceType?: string; page?: string }>
 }) {
   const session = await auth.api.getSession({ headers: await headers() })
-  const userEmail = session?.user?.email?.trim().toLowerCase()
   if (!session?.user) redirect("/sign-in?next=/admin/visitors")
-  if (userEmail !== "info@corevalleyjo.com") redirect("/")
+  if (!isAdminEmail(session.user.email)) redirect("/")
 
   const params = await searchParams
   const page = params.page ? Number.parseInt(params.page, 10) : 1

@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { brands, cartItems, categories, countries, operationEvents, orderItems, orders, productVariants, products, reviews, wishlistItems } from "@/lib/db/schema"
 import { getSession } from "@/lib/session"
 import { fetchAllReloadlyProducts, getDenominations, getProductImage } from "@/lib/reloadly"
+import { isAdminEmail } from "@/lib/admin-emails"
 
 export const runtime = "nodejs"
 
@@ -29,8 +30,7 @@ function uniqueSlug(base: string, used: Set<string>) {
 
 export async function POST(request: Request) {
   const session = await getSession()
-  const userEmail = session?.user?.email?.trim().toLowerCase()
-  if (userEmail !== "info@corevalleyjo.com") {
+  if (!isAdminEmail(session?.user?.email)) {
     return NextResponse.json({ error: "Admin access required" }, { status: 403 })
   }
 

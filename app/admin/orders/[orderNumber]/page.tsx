@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RefundOrderButton } from "@/components/admin/refund-order-button"
 import { ReplaceItemButton } from "@/components/admin/replace-item-button"
 import { FraudFlagControl } from "@/components/admin/fraud-flag-control"
+import { isAdminEmail } from "@/lib/admin-emails"
 
 export const metadata = {
   title: "Order detail | RedeemCove Admin",
@@ -21,9 +22,8 @@ export default async function AdminOrderDetailPage({
   params: Promise<{ orderNumber: string }>
 }) {
   const session = await auth.api.getSession({ headers: await headers() })
-  const userEmail = session?.user?.email?.trim().toLowerCase()
   if (!session?.user) redirect("/sign-in?next=/admin/orders")
-  if (userEmail !== "info@corevalleyjo.com") redirect("/")
+  if (!isAdminEmail(session.user.email)) redirect("/")
 
   const { orderNumber } = await params
   const data = await getOrderForAdmin(orderNumber)
