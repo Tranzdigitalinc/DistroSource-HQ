@@ -43,7 +43,8 @@ export function PurchasePanel({
     startTransition(async () => {
       try {
         await addToCart(productId, selected.id, quantity)
-        mutate("/api/cart/summary")
+        await mutate("/api/cart/summary")
+        router.refresh()
         setJustAdded(true)
         toast.success("Added to cart", {
           description: `${selected.denominationLabel} x${quantity}`,

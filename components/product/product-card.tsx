@@ -66,7 +66,7 @@ export function ProductCard({
     startTransition(async () => {
       try {
         await addToCart(item.product.id, cheapest.id!, 1)
-        mutate("/api/cart/summary")
+        await mutate("/api/cart/summary")
         setJustAdded(true)
         toast.success("Added to cart", { description: item.product.name })
       } catch {
