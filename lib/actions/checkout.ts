@@ -404,6 +404,7 @@ function referralCookieShouldClear(pricing: OrderPricing) {
 }
 
 const PAYPAL_MIN_USD = 0.5
+const PAYMENTS_UNDER_MAINTENANCE = true
 
 /**
  * Step 1 of PayPal checkout: prices the cart from the server, creates a
@@ -417,6 +418,10 @@ export async function createPaypalCheckoutOrder(input: {
   billingName: string
   couponCode?: string
 }) {
+  if (PAYMENTS_UNDER_MAINTENANCE) {
+    throw new Error("Payments are temporarily under maintenance. Please check back soon.")
+  }
+
   const billingEmail = input.billingEmail.trim()
   const billingName = input.billingName.trim()
 
@@ -472,6 +477,10 @@ export async function capturePaypalCheckoutOrder(input: {
   billingName: string
   couponCode?: string
 }) {
+  if (PAYMENTS_UNDER_MAINTENANCE) {
+    throw new Error("Payments are temporarily under maintenance. Please check back soon.")
+  }
+
   const billingEmail = input.billingEmail.trim()
   const billingName = input.billingName.trim()
 

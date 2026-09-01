@@ -230,6 +230,17 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             <Lock className="size-4 text-muted-foreground" aria-hidden="true" />
             <h2 className="font-display text-lg font-bold">Payment</h2>
           </div>
+          <div className="rounded-lg border border-accent/40 bg-accent/10 p-4" role="status">
+            <p className="text-sm font-semibold text-foreground">Payments are temporarily under maintenance</p>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Checkout payments are paused while we make updates. Please check back soon.</p>
+          </div>
+        </Reveal>
+
+        {/*
+          <div className="flex items-center gap-2">
+            <Lock className="size-4 text-muted-foreground" aria-hidden="true" />
+            <h2 className="font-display text-lg font-bold">Payment</h2>
+          </div>
           <p className="text-xs text-muted-foreground">Choose how you&apos;d like to pay.</p>
           <div className="grid grid-cols-3 gap-3" role="radiogroup" aria-label="Payment method">
             <button
@@ -358,8 +369,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             </div>
           </div>
             </>
-          )}
-        </Reveal>
+        */}
 
         <Reveal delay={0.2} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-6">
           <div className="flex justify-between text-sm">
