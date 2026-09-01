@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { cartItems, coupons, orderItems, orders, productVariants, products, promotionCampaigns } from "@/lib/db/schema"
+import { cartItems, coupons, operationEvents, orderItems, orders, productVariants, products, promotionCampaigns } from "@/lib/db/schema"
 import { generateOrderNumber, generateRedemptionCode } from "@/lib/format"
 import { sendOrderConfirmationEmail } from "@/lib/email"
 import { getOptionalOwnerId, getOwnerId } from "@/lib/session"
@@ -79,6 +79,15 @@ export async function checkout(input: {
     throw new Error("Your cart is empty")
   }
 
+  await db.insert(operationEvents).values({
+    eventType: "checkout_started",
+    entityType: "cart",
+    entityId: ownerId,
+    status: "open",
+    payload: { itemCount: rows.length, couponApplied: Boolean(input.couponCode) },
+    createdBy: ownerId,
+  })
+
   // Server-side validation: recompute prices from DB, enforce quantity caps
   let subtotal = 0
   const validatedItems = rows.map((r) => {
@@ -98,7 +107,15 @@ export async function checkout(input: {
   subtotal = Math.round(subtotal * 100) / 100
 
   const coupon = await validateCoupon(input.couponCode, subtotal)
-  const discount = coupon ? Math.round(subtotal * (coupon.discountPercent / 100) * 100) / 100 : 0
+  const campaign = !coupon && input.couponCode
+    ? (await db.select().from(promotionCampaigns).where(and(eq(promotionCampaigns.code, input.couponCode.toUpperCase()), eq(promotionCampaigns.isActive, true))).limit(1))[0]
+    : null
+  const campaignValid = campaign && (!campaign.startsAt || new Date(campaign.startsAt) <= new Date()) && (!campaign.expiresAt || new Date(campaign.expiresAt) >= new Date()) && (campaign.maxUses === null || campaign.usedCount < campaign.maxUses) && subtotal >= Number.parseFloat(campaign.minOrderUsd)
+  const promotion = coupon ?? (campaignValid && campaign ? { code: campaign.code ?? input.couponCode, discountPercent: campaign.discountType === "percent" ? Number.parseFloat(campaign.discountValue) : Math.min(100, (Number.parseFloat(campaign.discountValue) / subtotal) * 100) } : null)
+  if (input.couponCode && !promotion) {
+    throw new Error("This promotion is invalid, expired, or does not apply to your order.")
+  }
+  const discount = promotion ? Math.round(subtotal * (promotion.discountPercent / 100) * 100) / 100 : 0
   const total = Math.round((subtotal - discount) * 100) / 100
 
   const orderNumber = generateOrderNumber()
@@ -113,7 +130,7 @@ export async function checkout(input: {
         subtotalUsd: subtotal.toFixed(2),
         discountUsd: discount.toFixed(2),
         totalUsd: total.toFixed(2),
-        couponCode: coupon?.code ?? null,
+        couponCode: promotion?.code ?? null,
         billingEmail,
         billingName,
         paymentMethod: "card",
@@ -140,10 +157,9 @@ export async function checkout(input: {
       .returning()
 
     if (coupon) {
-      await tx
-        .update(coupons)
-        .set({ usedCount: sql`${coupons.usedCount} + 1` })
-        .where(eq(coupons.code, coupon.code))
+      await tx.update(coupons).set({ usedCount: sql`${coupons.usedCount} + 1` }).where(eq(coupons.code, coupon.code))
+    } else if (campaignValid && campaign) {
+      await tx.update(promotionCampaigns).set({ usedCount: sql`${promotionCampaigns.usedCount} + 1` }).where(eq(promotionCampaigns.id, campaign.id))
     }
 
     await tx.delete(cartItems).where(eq(cartItems.userId, ownerId))
@@ -172,6 +188,16 @@ export async function checkout(input: {
   if (confirmationEmailSent) {
     await db.update(orders).set({ confirmationEmailSent: true }).where(eq(orders.id, orderResult.id))
   }
+
+  await db.insert(operationEvents).values({
+    eventType: "checkout_completed",
+    entityType: "order",
+    entityId: String(orderResult.id),
+    status: "resolved",
+    payload: { itemCount: itemsForEmail.length, totalUsd: total, confirmationEmailSent },
+    createdBy: ownerId,
+    resolvedAt: new Date(),
+  })
 
   revalidatePath("/cart")
   revalidatePath("/account/orders")

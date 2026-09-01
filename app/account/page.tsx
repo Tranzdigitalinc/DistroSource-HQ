@@ -2,6 +2,8 @@ import Link from "next/link"
 import { Package, KeyRound, Heart, LifeBuoy, ArrowRight } from "lucide-react"
 import { getUserOrderItems } from "@/lib/actions/account"
 import { getWishlistItems } from "@/lib/actions/wishlist"
+import { getRecentlyViewed } from "@/lib/actions/recently-viewed"
+import { ProductGrid } from "@/components/catalog/product-grid"
 import { PriceDisplay } from "@/components/price-display"
 import { Button } from "@/components/ui/button"
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
@@ -11,7 +13,7 @@ export const metadata = {
 }
 
 export default async function AccountOverviewPage() {
-  const [orderGroups, wishlistItems] = await Promise.all([getUserOrderItems(), getWishlistItems()])
+  const [orderGroups, wishlistItems, recentlyViewed] = await Promise.all([getUserOrderItems(), getWishlistItems(), getRecentlyViewed()])
 
   const totalOrders = orderGroups.length
   const totalCodes = orderGroups.reduce((sum, g) => sum + g.items.length, 0)
@@ -98,6 +100,13 @@ export default async function AccountOverviewPage() {
           </RevealGroup>
         )}
       </div>
+
+      {recentlyViewed.length > 0 && (
+        <Reveal className="border-t border-border pt-8">
+          <div className="mb-4 flex items-center justify-between"><h2 className="font-display text-lg font-semibold">Recently viewed</h2><Button variant="ghost" size="sm" render={<Link href="/products" />} nativeButton={false}>Keep browsing</Button></div>
+          <ProductGrid items={recentlyViewed as any} />
+        </Reveal>
+      )}
 
       <Reveal className="rounded-xl border border-border bg-secondary/40 p-5">
         <div className="flex items-center gap-3">

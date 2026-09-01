@@ -98,6 +98,9 @@ interface ProductQueryOptions {
   search?: string
   featured?: boolean
   deal?: boolean
+  deliveryType?: string
+  minDiscount?: number
+  maxPrice?: number
   sort?: "popular" | "price-asc" | "price-desc" | "rating" | "newest" | "best-value"
   limit?: number
 }
@@ -124,6 +127,7 @@ export async function getProducts(options: ProductQueryOptions = {}) {
   }
   if (options.featured) conditions.push(eq(products.isFeatured, true))
   if (options.deal) conditions.push(eq(products.isDeal, true))
+  if (options.deliveryType) conditions.push(eq(products.deliveryType, options.deliveryType))
 
   const orderBy =
     options.sort === "rating"
@@ -167,7 +171,10 @@ export async function getProducts(options: ProductQueryOptions = {}) {
     ...r,
     variants: variantsByProduct.get(r.product.id) ?? [],
     minPrice: Math.min(...(variantsByProduct.get(r.product.id) ?? []).map((v) => Number.parseFloat(v.priceUsd))),
-  }))
+  })).filter((item) => {
+    const maxDiscount = Math.max(0, ...item.variants.map((v) => Number(v.discountPercent)))
+    return (options.maxPrice === undefined || item.minPrice <= options.maxPrice) && (options.minDiscount === undefined || maxDiscount >= options.minDiscount)
+  })
 
   if (options.sort === "price-asc") {
     result = result.sort((a, b) => a.minPrice - b.minPrice)
@@ -184,6 +191,19 @@ export async function getProducts(options: ProductQueryOptions = {}) {
   }
 
   return result
+}
+
+export async function getProductsByIds(ids: number[]) {
+  if (!ids.length) return []
+  const rows = await db
+    .select({ product: products, brand: brands, category: categories, country: countries })
+    .from(products)
+    .innerJoin(brands, eq(products.brandId, brands.id))
+    .innerJoin(categories, eq(products.categoryId, categories.id))
+    .leftJoin(countries, eq(products.countryId, countries.id))
+    .where(inArray(products.id, ids))
+  const variants = await db.select().from(productVariants).where(inArray(productVariants.productId, ids)).orderBy(asc(productVariants.sortOrder))
+  return rows.map((row) => ({ ...row, variants: variants.filter((variant) => variant.productId === row.product.id) }))
 }
 
 export async function getFeaturedProducts(limit = 12) {

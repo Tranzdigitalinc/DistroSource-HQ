@@ -9,6 +9,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: `${brand.name} Gift Cards & Digital Codes | RedeemCove`,
     description: `Shop ${brand.name} gift cards and digital codes with instant delivery from RedeemCove.`,
+    alternates: { canonical: `/brands/${brand.slug}` },
+    openGraph: { title: `${brand.name} Gift Cards | RedeemCove`, description: `Shop ${brand.name} gift cards with instant delivery.`, type: "website", images: brand.logoUrl ? [{ url: brand.logoUrl, alt: `${brand.name} logo` }] : undefined },
   }
 }
 

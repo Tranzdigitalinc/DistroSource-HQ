@@ -16,6 +16,8 @@ import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { Reveal } from "@/components/motion/reveal"
 import { ShareProductButton } from "@/components/product/share-product-button"
+import { CompareButton } from "@/components/product/compare-button"
+import { RecentlyViewedTracker } from "@/components/product/recently-viewed-tracker"
 
 export async function generateMetadata({
   params,
@@ -25,9 +27,20 @@ export async function generateMetadata({
   const { slug } = await params
   const data = await getProductBySlug(slug)
   if (!data) return {}
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://redeemcove.com"
+  const canonical = `${siteUrl}/products/${data.product.slug}`
   return {
     title: `${data.product.name} — RedeemCove`,
     description: data.product.shortDescription ?? undefined,
+    alternates: { canonical },
+    openGraph: {
+      title: `${data.product.name} — RedeemCove`,
+      description: data.product.shortDescription ?? undefined,
+      url: canonical,
+      type: "website",
+      images: data.product.imageUrl ? [{ url: data.product.imageUrl, alt: data.product.name }] : undefined,
+    },
+    twitter: { card: "summary_large_image", title: data.product.name, description: data.product.shortDescription ?? undefined, images: data.product.imageUrl ? [data.product.imageUrl] : undefined },
   }
 }
 
@@ -60,6 +73,7 @@ export default async function ProductDetailPage({
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
+      <RecentlyViewedTracker productId={product.id} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
@@ -161,7 +175,7 @@ export default async function ProductDetailPage({
                 {product.shortDescription && (
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{product.shortDescription}</p>
                 )}
-                <div className="mt-4"><ShareProductButton name={product.name} /></div>
+                <div className="mt-4 flex flex-wrap gap-2"><ShareProductButton name={product.name} /><CompareButton productId={product.id} /></div>
               </div>
               <PurchasePanel
                 productId={product.id}
