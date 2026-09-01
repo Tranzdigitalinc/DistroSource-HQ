@@ -6,10 +6,33 @@ import { Check, Copy } from "lucide-react"
 export function CopyOrderNumber({ orderNumber }: { orderNumber: string }) {
   const [copied, setCopied] = useState(false)
 
-  function handleCopy() {
-    navigator.clipboard.writeText(orderNumber)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
+  async function handleCopy() {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(orderNumber)
+      } else {
+        throw new Error("Clipboard API unavailable")
+      }
+      setCopied(true)
+    } catch {
+      // Fallback for browsers/contexts that deny Clipboard API access
+      const textarea = document.createElement("textarea")
+      textarea.value = orderNumber
+      textarea.style.position = "fixed"
+      textarea.style.opacity = "0"
+      document.body.appendChild(textarea)
+      textarea.select()
+      try {
+        document.execCommand("copy")
+        setCopied(true)
+      } catch {
+        setCopied(false)
+      } finally {
+        document.body.removeChild(textarea)
+      }
+    } finally {
+      setTimeout(() => setCopied(false), 1500)
+    }
   }
 
   return (
