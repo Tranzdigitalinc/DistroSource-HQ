@@ -26,21 +26,21 @@ export const metadata: Metadata = {
     url: 'https://redeemcove.com',
     siteName: 'RedeemCove',
     title: 'RedeemCove — Gift Cards, Game Top-Ups & Digital Codes',
-    description: 'Shop trusted gift cards, digital codes, and top-ups worldwide with instant delivery.',
+    description: 'Shop trusted gift cards, digital codes, and top-ups worldwide with instant delivery. Browse 500+ brands and get your code in seconds.',
     images: [
       {
-        url: '/og-redeemcove.png',
-        width: 2048,
-        height: 819,
-        alt: 'RedeemCove gift cards and digital codes',
+        url: '/og-redeemcove.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Shop RedeemCove gift cards, digital codes, and instant top-ups',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'RedeemCove — Gift Cards, Game Top-Ups & Digital Codes',
-    description: 'Shop trusted gift cards, digital codes, and top-ups worldwide with instant delivery.',
-    images: ['/og-redeemcove.png'],
+    description: 'Shop trusted gift cards, digital codes, and top-ups worldwide with instant delivery. Browse 500+ brands and get your code in seconds.',
+    images: ['/og-redeemcove.jpg'],
   },
   icons: {
     icon: '/icon.png',
