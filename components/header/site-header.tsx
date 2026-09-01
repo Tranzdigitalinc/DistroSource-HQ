@@ -6,7 +6,7 @@ import { HeaderSearch } from "@/components/header/header-search"
 import { CountrySelector } from "@/components/header/country-selector"
 import { CartTrigger } from "@/components/header/cart-trigger"
 import { AccountMenu } from "@/components/header/account-menu"
-
+import { ThemeToggle } from "@/components/header/theme-toggle"
 import { TrustStrip } from "@/components/header/trust-strip"
 import { BrandLogo } from "@/components/brand-logo"
 
@@ -34,6 +34,7 @@ export async function SiteHeader() {
         <HeaderSearch className="mx-auto hidden max-w-md flex-1 md:block" />
 
         <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
+          <ThemeToggle />
           <CountrySelector />
           <CartTrigger />
           <AccountMenu />
