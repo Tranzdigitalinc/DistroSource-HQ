@@ -2,23 +2,36 @@ import { redirect } from "next/navigation"
 import { headers } from "next/headers"
 import Link from "next/link"
 import { auth } from "@/lib/auth"
-import { getVisitorLogsFiltered, getVisitorStats } from "@/lib/actions/visitor-logs"
-import { countryCodeToFlag, countryCodeToName } from "@/lib/user-agent"
+import { getVisitorLogsFiltered, getVisitorStats, getVisitorTrafficSeries } from "@/lib/actions/visitor-logs"
+import { countryCodeToName } from "@/lib/user-agent"
 import { IpReputationBadge } from "@/components/admin/ip-reputation-badge"
+import { CountryFlag } from "@/components/admin/country-flag"
+import { VisitorTrafficChart } from "@/components/admin/visitor-traffic-chart"
+import { ReferrerBreakdownCard } from "@/components/admin/referrer-breakdown-card"
 import { isAdminEmail } from "@/lib/admin-emails"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 export const metadata = {
   title: "Visitors | RedeemCove Admin",
   description: "Live log of website visitor activity, devices, and locations.",
 }
 
+type VisitorsSearchParams = {
+  country?: string
+  deviceType?: string
+  page?: string
+  search?: string
+  from?: string
+  to?: string
+}
+
 export default async function AdminVisitorsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ country?: string; deviceType?: string; page?: string }>
+  searchParams: Promise<VisitorsSearchParams>
 }) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) redirect("/sign-in?next=/admin/visitors")
@@ -26,19 +39,32 @@ export default async function AdminVisitorsPage({
 
   const params = await searchParams
   const page = params.page ? Number.parseInt(params.page, 10) : 1
-  const [{ rows, countries, deviceTypes, pageSize }, stats] = await Promise.all([
-    getVisitorLogsFiltered({ country: params.country, deviceType: params.deviceType, page }),
+  const [{ rows, countries, deviceTypes, pageSize }, stats, traffic] = await Promise.all([
+    getVisitorLogsFiltered({
+      country: params.country,
+      deviceType: params.deviceType,
+      page,
+      search: params.search,
+      from: params.from,
+      to: params.to,
+    }),
     getVisitorStats(),
+    getVisitorTrafficSeries(14),
   ])
 
   function buildHref(key: string, value: string | null) {
     const next = new URLSearchParams()
     if (params.country && key !== "country") next.set("country", params.country)
     if (params.deviceType && key !== "deviceType") next.set("deviceType", params.deviceType)
+    if (params.search && key !== "search") next.set("search", params.search)
+    if (params.from && key !== "from") next.set("from", params.from)
+    if (params.to && key !== "to") next.set("to", params.to)
     if (value) next.set(key, value)
     const qs = next.toString()
     return `/admin/visitors${qs ? `?${qs}` : ""}`
   }
+
+  const hasActiveFilters = Boolean(params.country || params.deviceType || params.search || params.from || params.to)
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
@@ -95,8 +121,8 @@ export default async function AdminVisitorsPage({
               <ul className="flex flex-col gap-1">
                 {stats.topCountries.map((c) => (
                   <li key={c.country} className="flex items-center justify-between text-sm">
-                    <span>
-                      {countryCodeToFlag(c.country)} {countryCodeToName(c.country)}
+                    <span className="flex items-center gap-1.5">
+                      <CountryFlag code={c.country} /> {countryCodeToName(c.country)}
                     </span>
                     <span className="text-muted-foreground">{c.count}</span>
                   </li>
@@ -105,6 +131,16 @@ export default async function AdminVisitorsPage({
             )}
           </CardContent>
         </Card>
+      </section>
+
+      <section aria-labelledby="visitor-trends-title" className="grid gap-4 lg:grid-cols-3">
+        <h2 id="visitor-trends-title" className="sr-only">
+          Traffic trends
+        </h2>
+        <div className="lg:col-span-2">
+          <VisitorTrafficChart series={traffic.series} />
+        </div>
+        <ReferrerBreakdownCard referrers={traffic.referrers} />
       </section>
 
       {stats.deviceBreakdown.length > 0 ? (
@@ -116,6 +152,43 @@ export default async function AdminVisitorsPage({
           ))}
         </section>
       ) : null}
+
+      <form action="/admin/visitors" method="get" className="flex flex-wrap items-end gap-3">
+        <div className="flex flex-col gap-1">
+          <label htmlFor="search" className="text-xs font-medium text-muted-foreground">
+            Search
+          </label>
+          <Input
+            id="search"
+            name="search"
+            defaultValue={params.search ?? ""}
+            placeholder="IP, path, or visitor ID"
+            className="w-56"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="from" className="text-xs font-medium text-muted-foreground">
+            From
+          </label>
+          <Input id="from" name="from" type="date" defaultValue={params.from ?? ""} className="w-36" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="to" className="text-xs font-medium text-muted-foreground">
+            To
+          </label>
+          <Input id="to" name="to" type="date" defaultValue={params.to ?? ""} className="w-36" />
+        </div>
+        {params.country ? <input type="hidden" name="country" value={params.country} /> : null}
+        {params.deviceType ? <input type="hidden" name="deviceType" value={params.deviceType} /> : null}
+        <Button type="submit" size="sm">
+          Apply
+        </Button>
+        {hasActiveFilters ? (
+          <Button variant="outline" size="sm" render={<Link href="/admin/visitors" />} nativeButton={false}>
+            Clear all filters
+          </Button>
+        ) : null}
+      </form>
 
       <div className="flex flex-wrap gap-4">
         <div className="flex flex-wrap items-center gap-2">
@@ -130,9 +203,9 @@ export default async function AdminVisitorsPage({
             <Link
               key={c}
               href={buildHref("country", c)}
-              className={`rounded-full border px-3 py-1 text-xs ${params.country === c ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+              className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs ${params.country === c ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
             >
-              {countryCodeToFlag(c)} {c}
+              <CountryFlag code={c} /> {c}
             </Link>
           ))}
         </div>
@@ -165,7 +238,7 @@ export default async function AdminVisitorsPage({
             <p className="text-sm text-muted-foreground">No visitor activity matches these filters yet.</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1050px] border-collapse text-sm">
+              <table className="w-full min-w-[1180px] border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-xs text-muted-foreground">
                     <th className="px-2 py-2 font-medium">Time</th>
@@ -177,6 +250,7 @@ export default async function AdminVisitorsPage({
                     <th className="px-2 py-2 font-medium">IP reputation</th>
                     <th className="px-2 py-2 font-medium">Referrer</th>
                     <th className="px-2 py-2 font-medium">User</th>
+                    <th className="px-2 py-2 font-medium">Session</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -200,9 +274,14 @@ export default async function AdminVisitorsPage({
                         {row.browser ?? "Unknown"} · {row.os ?? "Unknown"}
                       </td>
                       <td className="px-2 py-2 text-xs text-muted-foreground">
-                        {countryCodeToFlag(row.country)} {countryCodeToName(row.country)}
-                        {row.city ? ` · ${row.city}` : ""}
-                        {row.region && !row.city ? ` · ${row.region}` : ""}
+                        <span className="flex items-center gap-1.5">
+                          <CountryFlag code={row.country} />
+                          <span>
+                            {countryCodeToName(row.country)}
+                            {row.city ? ` · ${row.city}` : ""}
+                            {row.region && !row.city ? ` · ${row.region}` : ""}
+                          </span>
+                        </span>
                       </td>
                       <td className="px-2 py-2 font-mono text-xs text-muted-foreground">{row.ipAddress ?? "—"}</td>
                       <td className="px-2 py-2">
@@ -212,6 +291,14 @@ export default async function AdminVisitorsPage({
                         {row.referrer ?? "Direct"}
                       </td>
                       <td className="px-2 py-2 text-xs text-muted-foreground">{row.userId ? "Signed in" : "Guest"}</td>
+                      <td className="px-2 py-2">
+                        <Link
+                          href={`/admin/visitors/${row.visitorId}`}
+                          className="text-xs font-medium text-primary underline-offset-2 hover:underline"
+                        >
+                          View session
+                        </Link>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
