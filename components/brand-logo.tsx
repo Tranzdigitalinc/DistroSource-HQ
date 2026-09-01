@@ -11,11 +11,14 @@ export function BrandLogo({
   className,
   imgClassName,
   height = 28,
+  heightClassName,
 }: {
   href?: string | null
   className?: string
   imgClassName?: string
   height?: number
+  /** Responsive Tailwind height classes (e.g. "h-8 sm:h-10"). When provided, these override the fixed `height` prop so the logo can shrink on small screens. */
+  heightClassName?: string
 }) {
   const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -36,8 +39,8 @@ export function BrandLogo({
       width={intrinsicWidth}
       height={intrinsicHeight}
       priority
-      className={cn("w-auto", imgClassName)}
-      style={{ height }}
+      className={cn("w-auto", heightClassName, imgClassName)}
+      style={heightClassName ? undefined : { height }}
     />
   )
 

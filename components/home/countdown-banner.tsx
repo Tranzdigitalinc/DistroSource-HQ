@@ -45,9 +45,9 @@ export function CountdownBanner() {
   return (
     <Link
       href="/deals"
-      className="group flex items-center justify-center gap-3 bg-foreground px-4 py-2 text-background transition-colors hover:bg-foreground/90"
+      className="group flex items-center justify-center gap-3 bg-gradient-to-r from-primary to-accent px-4 py-2 text-primary-foreground transition-opacity hover:opacity-90"
     >
-      <Timer className="size-3.5 shrink-0 text-accent" />
+      <Timer className="size-3.5 shrink-0 text-primary-foreground" />
       <span className="text-xs font-medium sm:text-sm">
         This week&apos;s deals end in{" "}
         <span className="font-display font-semibold tabular-nums">

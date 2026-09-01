@@ -25,15 +25,15 @@ export async function SiteHeader() {
       <div className="mx-auto flex h-[68px] max-w-7xl items-center gap-3 px-4 sm:px-6">
         <MobileNav categories={categories} />
 
-        <Link href="/" className="flex shrink-0 items-center gap-2 transition-opacity hover:opacity-90">
-          <BrandLogo href={null} height={40} />
+        <Link href="/" className="flex min-w-0 shrink items-center gap-2 transition-opacity hover:opacity-90">
+          <BrandLogo href={null} heightClassName="h-6 sm:h-9" />
         </Link>
 
         <DesktopNav categories={categories} brands={brands} />
 
         <HeaderSearch className="mx-auto hidden max-w-md flex-1 md:block" />
 
-        <div className="ml-auto flex items-center gap-1">
+        <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
           <ThemeToggle />
           <CountrySelector />
           <CartTrigger />
