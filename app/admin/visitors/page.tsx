@@ -4,6 +4,7 @@ import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { getVisitorLogsFiltered, getVisitorStats } from "@/lib/actions/visitor-logs"
 import { countryCodeToFlag, countryCodeToName } from "@/lib/user-agent"
+import { IpReputationBadge } from "@/components/admin/ip-reputation-badge"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -164,7 +165,7 @@ export default async function AdminVisitorsPage({
             <p className="text-sm text-muted-foreground">No visitor activity matches these filters yet.</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] border-collapse text-sm">
+              <table className="w-full min-w-[1050px] border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-xs text-muted-foreground">
                     <th className="px-2 py-2 font-medium">Time</th>
@@ -173,6 +174,7 @@ export default async function AdminVisitorsPage({
                     <th className="px-2 py-2 font-medium">Browser / OS</th>
                     <th className="px-2 py-2 font-medium">Location</th>
                     <th className="px-2 py-2 font-medium">IP address</th>
+                    <th className="px-2 py-2 font-medium">IP reputation</th>
                     <th className="px-2 py-2 font-medium">Referrer</th>
                     <th className="px-2 py-2 font-medium">User</th>
                   </tr>
@@ -203,6 +205,9 @@ export default async function AdminVisitorsPage({
                         {row.region && !row.city ? ` · ${row.region}` : ""}
                       </td>
                       <td className="px-2 py-2 font-mono text-xs text-muted-foreground">{row.ipAddress ?? "—"}</td>
+                      <td className="px-2 py-2">
+                        {row.ipAddress ? <IpReputationBadge reputation={row.reputation} /> : "—"}
+                      </td>
                       <td className="max-w-[160px] truncate px-2 py-2 text-xs text-muted-foreground" title={row.referrer ?? undefined}>
                         {row.referrer ?? "Direct"}
                       </td>

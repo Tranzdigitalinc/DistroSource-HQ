@@ -4,6 +4,7 @@ import { and, countDistinct, count, desc, eq, gte, sql } from "drizzle-orm"
 import { requireAdmin } from "@/lib/actions/operations"
 import { db } from "@/lib/db"
 import { visitorLogs } from "@/lib/db/schema"
+import { getCachedReputations, type IpReputationResult } from "@/lib/abuseipdb"
 
 const PAGE_SIZE = 30
 
@@ -35,14 +36,25 @@ export async function getVisitorLogsFiltered(filters: { country?: string; device
       .orderBy(visitorLogs.deviceType),
   ])
 
+  const reputationByIp = await getCachedReputations(
+    rows.map((r) => r.ipAddress).filter((ip): ip is string => Boolean(ip)),
+  )
+  const rowsWithReputation = rows.map((row) => ({
+    ...row,
+    reputation: row.ipAddress ? (reputationByIp.get(row.ipAddress) ?? null) : null,
+  }))
+
   return {
-    rows,
+    rows: rowsWithReputation,
     countries: countries.map((r) => r.country).filter((c): c is string => Boolean(c)),
     deviceTypes: deviceTypes.map((r) => r.deviceType).filter((d): d is string => Boolean(d)),
     page,
     pageSize: PAGE_SIZE,
   }
 }
+
+export type VisitorLogRow = Awaited<ReturnType<typeof getVisitorLogsFiltered>>["rows"][number]
+export type { IpReputationResult }
 
 export async function getVisitorStats() {
   await requireAdmin()

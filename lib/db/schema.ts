@@ -351,6 +351,19 @@ export const visitorLogs = pgTable("visitor_logs", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 
+export const ipReputation = pgTable("ip_reputation", {
+  ipAddress: text("ip_address").primaryKey(),
+  abuseConfidenceScore: integer("abuse_confidence_score"),
+  totalReports: integer("total_reports"),
+  isWhitelisted: boolean("is_whitelisted"),
+  isPrivate: boolean("is_private").notNull().default(false),
+  isp: text("isp"),
+  usageType: text("usage_type"),
+  domain: text("domain"),
+  countryCode: text("country_code"),
+  lastCheckedAt: timestamp("last_checked_at").notNull().defaultNow(),
+})
+
 export const bulkGiftRequests = pgTable("bulk_gift_requests", {
   id: serial("id").primaryKey(),
   userId: text("userId"),

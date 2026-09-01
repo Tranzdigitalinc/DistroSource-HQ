@@ -1,9 +1,10 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { type NextRequest, NextResponse, after } from "next/server"
 import { headers as nextHeaders } from "next/headers"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { visitorLogs } from "@/lib/db/schema"
 import { parseBrowser, parseDeviceType, parseOs } from "@/lib/user-agent"
+import { ensureReputationFresh } from "@/lib/abuseipdb"
 
 function truncate(value: string | null | undefined, max: number) {
   if (!value) return null
@@ -43,6 +44,11 @@ export async function POST(request: NextRequest) {
       os: parseOs(userAgent),
       userAgent: truncate(userAgent, 500),
     })
+
+    const cleanIp = truncate(ipAddress, 64)
+    if (cleanIp) {
+      after(() => ensureReputationFresh(cleanIp).catch(() => {}))
+    }
 
     return NextResponse.json({ ok: true })
   } catch {
