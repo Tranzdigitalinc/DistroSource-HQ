@@ -9,6 +9,7 @@ import { Reveal } from "@/components/motion/reveal"
 import { BrandLogo } from "@/components/brand-logo"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { subscribeToNewsletter } from "@/lib/actions/newsletter"
 
 const footerColumns = [
   {
@@ -45,9 +46,8 @@ const footerColumns = [
     title: "Company",
     links: [
       { label: "About Us", href: "/about" },
-      { label: "Contact", href: "/contact" },
-      { label: "Help Center", href: "/help" },
-      { label: "Regional Restrictions", href: "/countries" },
+      { label: "Bulk Gifting for Business", href: "/bulk-gifting" },
+      { label: "Countries We Serve", href: "/countries" },
     ],
   },
   {
@@ -82,11 +82,14 @@ function NewsletterForm() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!email.trim()) return
-    startTransition(() => {
-      setTimeout(() => {
+    startTransition(async () => {
+      try {
+        await subscribeToNewsletter(email)
         setSubmitted(true)
         toast.success("You're on the list! Watch your inbox for exclusive deals.")
-      }, 500)
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Could not subscribe. Please try again.")
+      }
     })
   }
 

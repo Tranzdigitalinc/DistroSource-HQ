@@ -6,8 +6,15 @@ import { getOptionalOwnerId, getOwnerId } from "@/lib/session"
 import { and, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
+const MAX_QUANTITY_PER_ITEM = 20
+
+function clampQuantity(quantity: number) {
+  return Math.min(Math.max(1, Math.trunc(quantity) || 1), MAX_QUANTITY_PER_ITEM)
+}
+
 export async function addToCart(productId: number, variantId: number, quantity = 1) {
   const ownerId = await getOwnerId()
+  const safeQuantity = clampQuantity(quantity)
 
   const existing = await db
     .select()
@@ -18,10 +25,10 @@ export async function addToCart(productId: number, variantId: number, quantity =
   if (existing[0]) {
     await db
       .update(cartItems)
-      .set({ quantity: existing[0].quantity + quantity })
+      .set({ quantity: clampQuantity(existing[0].quantity + safeQuantity) })
       .where(eq(cartItems.id, existing[0].id))
   } else {
-    await db.insert(cartItems).values({ userId: ownerId, productId, variantId, quantity })
+    await db.insert(cartItems).values({ userId: ownerId, productId, variantId, quantity: safeQuantity })
   }
 
   revalidatePath("/cart")
@@ -35,7 +42,7 @@ export async function updateCartItemQuantity(cartItemId: number, quantity: numbe
   } else {
     await db
       .update(cartItems)
-      .set({ quantity })
+      .set({ quantity: clampQuantity(quantity) })
       .where(and(eq(cartItems.id, cartItemId), eq(cartItems.userId, ownerId)))
   }
   revalidatePath("/cart")

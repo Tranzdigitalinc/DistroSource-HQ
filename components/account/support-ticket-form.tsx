@@ -28,12 +28,16 @@ export function SupportTicketForm() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     startTransition(async () => {
-      await submitSupportTicket({ subject, category, message, orderNumber: orderNumber || undefined })
-      setSubject("")
-      setMessage("")
-      setOrderNumber("")
-      setCategory("general")
-      toast.success("Ticket submitted — our team will follow up by email.")
+      try {
+        await submitSupportTicket({ subject, category, message, orderNumber: orderNumber || undefined })
+        setSubject("")
+        setMessage("")
+        setOrderNumber("")
+        setCategory("general")
+        toast.success("Ticket submitted — our team will follow up by email.")
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Could not submit your ticket. Please try again.")
+      }
     })
   }
 

@@ -32,13 +32,18 @@ export async function submitContactMessage(input: {
   if (!EMAIL_PATTERN.test(email)) throw new Error("Enter a valid email address.")
   if (!message || message.length < 10) throw new Error("Enter a message with at least 10 characters.")
 
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: SUPPORT_INBOX,
     replyTo: email,
     subject: `[Contact form] ${topicLabel} — ${name}`,
     text: `From: ${name} <${email}>\nTopic: ${topicLabel}\n\n${message}`,
   })
+
+  if (error) {
+    console.error("[v0] Failed to send contact message:", error)
+    throw new Error("Could not send your message. Please try again later.")
+  }
 
   return { success: true }
 }
