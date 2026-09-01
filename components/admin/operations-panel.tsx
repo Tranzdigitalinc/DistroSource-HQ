@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export async function OperationsPanel() {
   const events = await getOperationEvents()
+  const openCount = events.filter((event) => event.status === "open").length
+  const resolvedCount = events.filter((event) => event.status === "resolved").length
   return (
     <Card>
       <CardHeader>
@@ -12,6 +14,10 @@ export async function OperationsPanel() {
         <CardDescription>Recent order, fulfillment, fraud, and sync events.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
+        <div className="grid grid-cols-2 gap-3" aria-label="Operations summary">
+          <div className="rounded-lg border border-border bg-secondary/30 p-3"><p className="text-xs text-muted-foreground">Open</p><p className="mt-1 font-display text-2xl font-semibold text-destructive">{openCount}</p></div>
+          <div className="rounded-lg border border-border bg-secondary/30 p-3"><p className="text-xs text-muted-foreground">Resolved</p><p className="mt-1 font-display text-2xl font-semibold text-primary">{resolvedCount}</p></div>
+        </div>
         {events.length === 0 ? <p className="text-sm text-muted-foreground">No operation events yet.</p> : events.map((event) => (
           <div key={event.id} className="flex items-center justify-between gap-4 rounded-lg border border-border p-3">
             <div className="min-w-0">

@@ -3,7 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { Star, ChevronRight, Zap, ShieldCheck, Truck as TruckIcon } from "lucide-react"
-import { getProductBySlug, getRelatedProducts } from "@/lib/queries/catalog"
+import { getProductBySlug, getRecommendedProducts } from "@/lib/queries/catalog"
 import { getWishlistProductIds } from "@/lib/actions/wishlist"
 import { PurchasePanel } from "@/components/product/purchase-panel"
 import { ReviewList } from "@/components/product/review-list"
@@ -54,7 +54,7 @@ export default async function ProductDetailPage({
   if (!data) notFound()
 
   const { product, brand, category, country, variants, reviews } = data
-  const related = await getRelatedProducts(category.id, product.id, 8)
+  const related = await getRecommendedProducts(category.id, brand.id, product.id, 8)
   const wishlistIds = await getWishlistProductIds()
 
   const avgRating = Number.parseFloat(product.rating)
@@ -219,7 +219,7 @@ export default async function ProductDetailPage({
 
           {related.length > 0 && (
             <Reveal className="mt-16 border-t border-border pt-10">
-              <h2 className="mb-6 font-display text-xl font-bold">You might also like</h2>
+              <h2 className="mb-6 font-display text-xl font-bold">Recommended for you</h2>
               <ProductGrid items={related} />
             </Reveal>
           )}

@@ -206,6 +206,22 @@ export async function getProductsByIds(ids: number[]) {
   return rows.map((row) => ({ ...row, variants: variants.filter((variant) => variant.productId === row.product.id) }))
 }
 
+export async function getRecommendedProducts(categoryId: number, brandId: number, excludeProductId: number, limit = 8) {
+  const rows = await db
+    .select({ product: products, brand: brands, category: categories, country: countries })
+    .from(products)
+    .innerJoin(brands, eq(products.brandId, brands.id))
+    .innerJoin(categories, eq(products.categoryId, categories.id))
+    .leftJoin(countries, eq(products.countryId, countries.id))
+    .where(and(or(eq(products.brandId, brandId), eq(products.categoryId, categoryId)), sql`${products.id} != ${excludeProductId}`))
+    .orderBy(desc(products.isFeatured), desc(products.salesCount), desc(products.rating))
+    .limit(limit)
+
+  const ids = rows.map((row) => row.product.id)
+  const variantRows = ids.length ? await db.select().from(productVariants).where(inArray(productVariants.productId, ids)) : []
+  return rows.map((row) => ({ ...row, variants: variantRows.filter((variant) => variant.productId === row.product.id) }))
+}
+
 export async function getFeaturedProducts(limit = 12) {
   return getProducts({ featured: true, limit })
 }
