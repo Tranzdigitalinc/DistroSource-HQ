@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { Hero } from "@/components/home/hero"
@@ -24,23 +25,22 @@ import { Testimonials } from "@/components/home/testimonials"
 
 const SPOTLIGHT_BRAND_SLUG = "steam-72"
 
-export default async function HomePage() {
-  const [categories, brands, featured, deals, newArrivals, topRated, stats, topReviews, spotlightBrand] =
-    await Promise.all([
-      getCategories(),
-      getBrands(),
-      getFeaturedProducts(12),
-      getDealProducts(12),
-      getProducts({ sort: "newest", limit: 12 }),
-      getProducts({ sort: "rating", limit: 12 }),
-      getMarketplaceStats(),
-      getTopReviews(9),
-      getBrandBySlug(SPOTLIGHT_BRAND_SLUG),
-    ])
+const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["homepage", key], { revalidate: 300 })
 
-  const spotlightProducts = spotlightBrand
-    ? await getProducts({ brandSlug: SPOTLIGHT_BRAND_SLUG, sort: "rating", limit: 4 })
-    : []
+export default async function HomePage() {
+  const [categories, brands, featured, deals, newArrivals, topRated, stats, topReviews, spotlightBrand, spotlightProducts] =
+    await Promise.all([
+      cache(getCategories, "categories")(),
+      cache(getBrands, "brands")(),
+      cache(() => getFeaturedProducts(12), "featured")(),
+      cache(() => getDealProducts(12), "deals")(),
+      cache(() => getProducts({ sort: "newest", limit: 12 }), "new-arrivals")(),
+      cache(() => getProducts({ sort: "rating", limit: 12 }), "top-rated")(),
+      cache(getMarketplaceStats, "stats")(),
+      cache(() => getTopReviews(9), "reviews")(),
+      cache(() => getBrandBySlug(SPOTLIGHT_BRAND_SLUG), "spotlight-brand")(),
+      cache(() => getProducts({ brandSlug: SPOTLIGHT_BRAND_SLUG, sort: "rating", limit: 4 }), "spotlight-products")(),
+    ])
 
   return (
     <div className="flex min-h-screen flex-col">
