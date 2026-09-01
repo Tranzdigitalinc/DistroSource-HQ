@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { CircleCheck as CheckCircle2, ArrowRight, Gift, Mail } from "lucide-react"
 import { getOrderByNumber } from "@/lib/actions/account"
 import { OrderItemsList } from "@/components/order/order-items-list"
+import { CopyOrderNumber } from "@/components/order/copy-order-number"
 import { PriceDisplay } from "@/components/price-display"
 import { Button } from "@/components/ui/button"
 import { SiteHeader } from "@/components/header/site-header"
@@ -32,13 +33,12 @@ export default async function CheckoutSuccessPage({
       <main className="flex-1">
         <div className="mx-auto max-w-2xl px-4 py-12 md:px-6">
           <Reveal className="flex flex-col items-center gap-4 text-center">
-            <div className="relative flex size-16 items-center justify-center rounded-full bg-success/15">
+            <div className="relative flex size-16 items-center justify-center rounded-full bg-success/15 shadow-[0_0_40px_-4px_var(--success)]">
               <CheckCircle2 className="size-9 text-success" aria-hidden="true" />
             </div>
             <h1 className="font-display text-2xl font-bold md:text-3xl">Order confirmed!</h1>
             <p className="max-w-sm text-sm text-muted-foreground">
-              Order <span className="font-mono font-semibold text-foreground">{order.orderNumber}</span> — your
-              codes are ready to reveal below.
+              Order <CopyOrderNumber orderNumber={order.orderNumber} /> — your codes are ready to reveal below.
             </p>
           </Reveal>
 

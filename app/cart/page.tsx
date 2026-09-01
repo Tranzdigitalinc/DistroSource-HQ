@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { ShoppingBag, ArrowRight, Tag } from "lucide-react"
 import { getCartItems } from "@/lib/actions/cart"
-import { CartLineItem } from "@/components/cart/cart-line-item"
+import { CartItemsList } from "@/components/cart/cart-items-list"
 import { CartSummary } from "@/components/cart/cart-summary"
 import { Button } from "@/components/ui/button"
 import { SiteHeader } from "@/components/header/site-header"
@@ -54,23 +54,22 @@ export default async function CartPage() {
               </div>
             </Reveal>
           ) : (
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
+            <div className="grid grid-cols-1 gap-6 lg:gap-8 lg:grid-cols-[1fr_360px]">
               <div className="rounded-xl border border-border bg-card px-5">
-                {items.map((item) => (
-                  <CartLineItem
-                    key={item.cartItem.id}
-                    cartItemId={item.cartItem.id}
-                    productSlug={item.product.slug}
-                    productName={item.product.name}
-                    brandName={item.brand.name}
-                    brandLogoUrl={item.brand.logoUrl}
-                    brandColor={item.brand.brandColor}
-                    denominationLabel={item.variant.denominationLabel}
-                    imageUrl={item.product.imageUrl}
-                    unitPriceUsd={item.variant.priceUsd}
-                    quantity={item.cartItem.quantity}
-                  />
-                ))}
+                <CartItemsList
+                  items={items.map((item) => ({
+                    cartItemId: item.cartItem.id,
+                    productSlug: item.product.slug,
+                    productName: item.product.name,
+                    brandName: item.brand.name,
+                    brandLogoUrl: item.brand.logoUrl,
+                    brandColor: item.brand.brandColor,
+                    denominationLabel: item.variant.denominationLabel,
+                    imageUrl: item.product.imageUrl,
+                    unitPriceUsd: item.variant.priceUsd,
+                    quantity: item.cartItem.quantity,
+                  }))}
+                />
               </div>
               <div className="lg:sticky lg:top-36 lg:self-start">
                 <CartSummary subtotal={Math.round(subtotal * 100) / 100} itemCount={totalItems} />
