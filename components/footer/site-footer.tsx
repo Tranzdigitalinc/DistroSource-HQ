@@ -14,29 +14,53 @@ const footerColumns = [
   {
     title: "Shop",
     links: [
+      { label: "All Gift Cards", href: "/categories/gift-cards" },
+      { label: "Today's Deals", href: "/deals" },
       { label: "Gaming", href: "/categories/gaming" },
-      { label: "Gift Cards", href: "/categories/gift-cards" },
+      { label: "Streaming & Entertainment", href: "/categories/streaming" },
       { label: "Mobile Top-Up", href: "/categories/mobile-topup" },
       { label: "Software & Productivity", href: "/categories/software" },
-      { label: "Food & Delivery", href: "/categories/food-delivery" },
-      { label: "Streaming & Entertainment", href: "/categories/streaming" },
-      { label: "Today's Deals", href: "/deals" },
     ],
   },
   {
-    title: "Company",
+    title: "Account",
     links: [
-      { label: "Bulk Gifting for Business", href: "/bulk-gifting" },
-      { label: "Countries We Serve", href: "/countries" },
-      { label: "All Brands", href: "/brands" },
+      { label: "Sign In", href: "/sign-in" },
+      { label: "Sign Up", href: "/sign-up" },
+      { label: "My Orders", href: "/account/orders" },
+      { label: "My Gift Cards", href: "/account/codes" },
+      { label: "Profile", href: "/account/settings" },
     ],
   },
   {
     title: "Support",
     links: [
-      { label: "Help Center", href: "/account/support" },
-      { label: "Track an Order", href: "/account/orders" },
-      { label: "Contact Us", href: "/account/support" },
+      { label: "Help Center", href: "/help" },
+      { label: "Contact Us", href: "/contact" },
+      { label: "Order Help", href: "/help/orders" },
+      { label: "FAQs", href: "/faq" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { label: "About Us", href: "/about" },
+      { label: "Contact", href: "/contact" },
+      { label: "Help Center", href: "/help" },
+      { label: "Regional Restrictions", href: "/countries" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { label: "Terms of Service", href: "/legal/terms" },
+      { label: "Privacy Policy", href: "/legal/privacy" },
+      { label: "Refund Policy", href: "/legal/refund-policy" },
+      { label: "Delivery Policy", href: "/legal/delivery-policy" },
+      { label: "Gift Card Terms", href: "/legal/gift-card-terms" },
+      { label: "Cookie Policy", href: "/legal/cookie-policy" },
+      { label: "Acceptable Use", href: "/legal/acceptable-use" },
+      { label: "Payment Terms", href: "/legal/payment-terms" },
     ],
   },
 ]
@@ -107,10 +131,10 @@ export function SiteFooter() {
           <NewsletterForm />
         </Reveal>
 
-        <Reveal className="grid grid-cols-2 gap-8 pb-10 sm:grid-cols-4">
-          <div className="col-span-2 sm:col-span-1">
+        <Reveal className="pb-10">
+          <div className="max-w-sm">
             <BrandLogo height={48} />
-            <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               Your one-stop marketplace for gift cards, game top-ups, mobile recharges, and software licenses —
               delivered instantly, worldwide.
             </p>
@@ -120,23 +144,25 @@ export function SiteFooter() {
             </div>
           </div>
 
-          {footerColumns.map((column) => (
-            <div key={column.title}>
-              <h3 className="font-display text-sm font-semibold text-foreground">{column.title}</h3>
-              <ul className="mt-3 flex flex-col gap-2">
-                {column.links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <div className="mt-10 grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
+            {footerColumns.map((column) => (
+              <div key={column.title}>
+                <h3 className="font-display text-sm font-semibold text-foreground">{column.title}</h3>
+                <ul className="mt-3 flex flex-col gap-2">
+                  {column.links.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
+                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </Reveal>
 
         <div className="flex flex-col gap-4 border-t border-border/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
