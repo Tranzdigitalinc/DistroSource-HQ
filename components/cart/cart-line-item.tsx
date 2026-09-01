@@ -3,8 +3,10 @@
 import { useState, useTransition } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { motion } from "motion/react"
-import { Loader2, Minus, Plus, X } from "lucide-react"
+import { Check, Loader2, Minus, Plus, X } from "lucide-react"
 import { PriceDisplay } from "@/components/price-display"
 import { BrandThumbnail } from "@/components/product/brand-thumbnail"
 import { updateCartItemQuantity, removeCartItem } from "@/lib/actions/cart"
@@ -38,6 +40,7 @@ export function CartLineItem({
   quantity,
   onRemoved,
 }: CartLineItemProps) {
+  const router = useRouter()
   const [qty, setQty] = useState(quantity)
   const [isUpdating, startUpdate] = useTransition()
   const [isRemoving, startRemove] = useTransition()
@@ -48,16 +51,28 @@ export function CartLineItem({
     if (clamped === qty) return
     setQty(clamped)
     startUpdate(async () => {
-      await updateCartItemQuantity(cartItemId, clamped)
-      refresh()
+      try {
+        await updateCartItemQuantity(cartItemId, clamped)
+        refresh()
+        router.refresh()
+      } catch {
+        setQty(qty)
+        toast.error("We couldn't update this item. Please try again.")
+      }
     })
   }
 
   function handleRemove() {
     startRemove(async () => {
-      await removeCartItem(cartItemId)
-      refresh()
-      onRemoved?.(cartItemId)
+      try {
+        await removeCartItem(cartItemId)
+        refresh()
+        router.refresh()
+        onRemoved?.(cartItemId)
+        toast.success("Item removed from your cart")
+      } catch {
+        toast.error("We couldn't remove this item. Please try again.")
+      }
     })
   }
 
@@ -93,6 +108,10 @@ export function CartLineItem({
               {productName}
             </Link>
             <p className="text-xs text-muted-foreground">{denominationLabel}</p>
+            <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
+              <Check className="size-3 text-success" aria-hidden="true" />
+              Instant digital delivery
+            </p>
           </div>
           <motion.button
             type="button"

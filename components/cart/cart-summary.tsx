@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { AnimatePresence, motion } from "motion/react"
-import { Check, Loader2, ShieldCheck, Tag, X } from "lucide-react"
+import { Check, ChevronRight, Loader2, ShieldCheck, Tag, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PriceDisplay } from "@/components/price-display"
@@ -59,7 +59,13 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
 
   return (
     <div className="flex flex-col gap-5 rounded-xl border border-border bg-card p-5 sm:p-6">
-      <h2 className="font-display text-lg font-bold">Order summary</h2>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="font-display text-lg font-bold">Order summary</h2>
+          <p className="mt-1 text-xs text-muted-foreground">Digital delivery, no hidden fees</p>
+        </div>
+        <ShieldCheck className="size-5 text-success" aria-hidden="true" />
+      </div>
 
       <div className="flex flex-col gap-2">
         <label
@@ -156,7 +162,7 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
         onClick={handleCheckout}
         disabled={subtotal <= 0 || isNavigating}
       >
-        {isNavigating ? <Loader2 className="size-4 animate-spin" /> : "Proceed to checkout"}
+        {isNavigating ? <Loader2 className="size-4 animate-spin" /> : <>Proceed to checkout <ChevronRight className="size-4" /></>}
       </Button>
 
       <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
