@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PriceDisplay } from "@/components/price-display"
 import { Reveal } from "@/components/motion/reveal"
-import { checkout } from "@/lib/actions/checkout"
+import { PaypalCheckoutButtons } from "@/components/checkout/paypal-checkout-buttons"
 import { saveAbandonedCart } from "@/lib/actions/recovery"
 import { mergeGuestCartIntoAccount } from "@/lib/actions/cart"
 import { mergeGuestActivityIntoAccount } from "@/lib/actions/recently-viewed"
@@ -34,6 +34,7 @@ interface CheckoutFormProps {
   discountPercent: number
   isGuest: boolean
   orderItems: OrderItem[]
+  paypalClientId: string | null
 }
 
 const FORM_ID = "checkout-form"
@@ -63,7 +64,7 @@ const CARD_BRAND_LABEL: Record<string, string> = {
   amex: "Amex",
 }
 
-export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPercent, isGuest, orderItems }: CheckoutFormProps) {
+export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPercent, isGuest, orderItems, paypalClientId }: CheckoutFormProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const couponCode = searchParams.get("coupon") ?? undefined
@@ -75,39 +76,70 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const [cardNumber, setCardNumber] = useState("")
   const [expiry, setExpiry] = useState("")
   const [cvc, setCvc] = useState("")
-  const [paymentMethod, setPaymentMethod] = useState<"crypto" | "card">("crypto")
+  const [paymentMethod, setPaymentMethod] = useState<"paypal" | "crypto" | "card">("paypal")
   const [isPending, startTransition] = useTransition()
+  const [isPreparingAccount, setIsPreparingAccount] = useState(false)
 
   const discount = Math.round(subtotal * (discountPercent / 100) * 100) / 100
   const total = Math.max(0, subtotal - discount)
   const cardBrand = detectCardBrand(cardNumber.replace(/\D/g, ""))
   const formattedTotal = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(total)
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (isGuest) {
-      if (password.length < 8) { setAccountError("Create a password with at least 8 characters."); return }
-      if (password !== confirmPassword) { setAccountError("Your passwords do not match."); return }
-      setAccountError(null)
+  /**
+   * Shared by every payment method: creates the guest's account (if needed)
+   * before any money moves, and validates the contact fields. Returns false
+   * (and surfaces the error) instead of throwing so callers can decide what
+   * to do next, e.g. keep a PayPal popup from opening.
+   */
+  async function prepareAccountForPayment(): Promise<boolean> {
+    if (!name.trim()) {
+      toast.error("Enter the name on this order.")
+      return false
     }
-    startTransition(async () => {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Enter a valid email address so we know where to deliver your codes.")
+      return false
+    }
+    if (isGuest) {
+      if (password.length < 8) {
+        setAccountError("Create a password with at least 8 characters.")
+        return false
+      }
+      if (password !== confirmPassword) {
+        setAccountError("Your passwords do not match.")
+        return false
+      }
+      setAccountError(null)
+      setIsPreparingAccount(true)
       try {
-        if (isGuest) {
-          const account = await authClient.signUp.email({ email, password, name })
-          if (account.error) throw new Error(account.error.message ?? "Could not create your account.")
+        const account = await authClient.signUp.email({ email, password, name })
+        if (account.error) throw new Error(account.error.message ?? "Could not create your account.")
         await mergeGuestCartIntoAccount()
         await mergeGuestActivityIntoAccount()
         toast.success("Account created", { description: "Your cart is now saved to your RedeemCove account." })
-        }
-        await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
-        toast.success("Your cart has been saved", { description: "We sent you a secure link to return to it anytime." })
-        toast.info("Payments are temporarily unavailable. Please check back soon.")
-        return
-        const result = await checkout({ billingEmail: email, billingName: name, couponCode })
-        router.push(`/checkout/success?order=${result.orderNumber}`)
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Checkout failed. Please try again.")
+        toast.error(error instanceof Error ? error.message : "Could not create your account.")
+        return false
+      } finally {
+        setIsPreparingAccount(false)
       }
+    }
+    return true
+  }
+
+  function handleOrderPlaced(orderNumber: string) {
+    router.push(`/checkout/success?order=${orderNumber}`)
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (paymentMethod === "paypal") return
+    startTransition(async () => {
+      const ready = await prepareAccountForPayment()
+      if (!ready) return
+      await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
+      toast.success("Your cart has been saved", { description: "We sent you a secure link to return to it anytime." })
+      toast.info("This payment method is temporarily unavailable. Please check back soon, or pay with PayPal above.")
     })
   }
 
@@ -198,10 +230,28 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             <Lock className="size-4 text-muted-foreground" aria-hidden="true" />
             <h2 className="font-display text-lg font-bold">Payment</h2>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Payment methods are temporarily unavailable while we finish connecting secure checkout.
-          </p>
-          <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Payment method">
+          <p className="text-xs text-muted-foreground">Choose how you&apos;d like to pay.</p>
+          <div className="grid grid-cols-3 gap-3" role="radiogroup" aria-label="Payment method">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={paymentMethod === "paypal"}
+              onClick={() => setPaymentMethod("paypal")}
+              className={cn(
+                "flex min-h-20 flex-col items-start justify-between rounded-xl border p-3 text-left transition-colors",
+                paymentMethod === "paypal"
+                  ? "border-accent bg-accent/10 text-foreground ring-1 ring-accent"
+                  : "border-border bg-background hover:border-accent/50",
+              )}
+            >
+              <span className="flex items-center gap-2 text-sm font-semibold">
+                <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true" fill="currentColor">
+                  <path d="M7.5 19.5 9 5.3c.1-.7.7-1.3 1.5-1.3h4.9c2.6 0 4.3 1.6 4 4-.4 3.4-2.9 5.2-6.2 5.2h-2l-.9 6.3H7.5Zm3.7-8.3h1.7c1.6 0 2.7-.8 3-2.5.2-1.4-.5-2.1-1.9-2.1h-1.8l-1 4.6Z" />
+                </svg>
+                PayPal
+              </span>
+              <span className="text-[11px] text-muted-foreground">Recommended</span>
+            </button>
             <button
               type="button"
               role="radio"
@@ -216,7 +266,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               )}
             >
               <span className="flex items-center gap-2 text-sm font-semibold"><Bitcoin className="size-4 text-accent" /> Crypto</span>
-              <span className="text-[11px] text-muted-foreground">Recommended</span>
+              <span className="text-[11px] text-muted-foreground">Coming soon</span>
             </button>
             <button
               type="button"
@@ -232,12 +282,33 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               )}
             >
               <span className="flex items-center gap-2 text-sm font-semibold"><CreditCard className="size-4" /> Card</span>
-              <span className="text-[11px] text-muted-foreground">Alternative</span>
+              <span className="text-[11px] text-muted-foreground">Coming soon</span>
             </button>
           </div>
-          <div className="rounded-lg border border-border bg-secondary/50 p-3 text-xs leading-relaxed text-muted-foreground">
-            Crypto and card payments are temporarily disabled. Your cart is saved, and you can return when checkout is available.
-          </div>
+          {paymentMethod === "paypal" && (
+            paypalClientId ? (
+              <PaypalCheckoutButtons
+                clientId={paypalClientId}
+                billingEmail={email}
+                billingName={name}
+                couponCode={couponCode}
+                disabled={isPreparingAccount || isPending}
+                disabledReason={isPreparingAccount ? "Setting up your account..." : undefined}
+                onBeforeCreateOrder={prepareAccountForPayment}
+                onSuccess={handleOrderPlaced}
+                onFailure={(message) => toast.error(message)}
+              />
+            ) : (
+              <div className="rounded-lg border border-border bg-secondary/50 p-3 text-xs leading-relaxed text-muted-foreground">
+                PayPal checkout is not configured yet.
+              </div>
+            )
+          )}
+          {(paymentMethod === "crypto" || paymentMethod === "card") && (
+            <div className="rounded-lg border border-border bg-secondary/50 p-3 text-xs leading-relaxed text-muted-foreground">
+              Crypto and card payments are coming soon. Your cart is saved, and you can pay with PayPal above right now.
+            </div>
+          )}
           {false && (
             <>
           <div className="flex flex-col gap-1.5">
@@ -255,7 +326,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               />
               {cardBrand && (
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-border bg-secondary px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  {cardBrand ? CARD_BRAND_LABEL[cardBrand] : null}
+                  {CARD_BRAND_LABEL[cardBrand ?? ""]}
                 </span>
               )}
             </div>
@@ -307,21 +378,26 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             <span>Total</span>
             <PriceDisplay usdAmount={total} />
           </div>
-          <Button
-            type="submit"
-            size="lg"
-            disabled={isPending}
-            className="mt-2 hidden h-12 font-semibold lg:flex"
-          >
-            {isPending ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="size-4 animate-spin" />
-                Placing order...
-              </span>
-            ) : (
-              paymentMethod === "crypto" ? "Continue to crypto payment" : `Pay ${formattedTotal}`
-            )}
-          </Button>
+          {paymentMethod !== "paypal" && (
+            <Button
+              type="submit"
+              size="lg"
+              disabled={isPending}
+              className="mt-2 hidden h-12 font-semibold lg:flex"
+            >
+              {isPending ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="size-4 animate-spin" />
+                  Placing order...
+                </span>
+              ) : (
+                paymentMethod === "crypto" ? "Continue to crypto payment" : `Pay ${formattedTotal}`
+              )}
+            </Button>
+          )}
+          {paymentMethod === "paypal" && (
+            <p className="hidden text-center text-sm text-muted-foreground lg:block">Use the PayPal button above to complete your order.</p>
+          )}
           <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
             <ShieldCheck className="size-3.5" aria-hidden="true" />
             Secured checkout — your details are protected
@@ -329,26 +405,28 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
         </Reveal>
       </form>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-4 py-3 backdrop-blur-md lg:hidden">
-        <div className="mx-auto flex max-w-2xl items-center justify-between gap-4">
-          <div className="flex flex-col leading-tight">
-            <span className="text-[11px] text-muted-foreground">Total</span>
-            <span className="font-display text-base font-bold">
-              <PriceDisplay usdAmount={total} />
-            </span>
-          </div>
-          <Button type="submit" form={FORM_ID} size="lg" disabled={isPending} className="h-11 flex-1 font-semibold">
-            {isPending ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="size-4 animate-spin" />
-                Placing order...
+      {paymentMethod !== "paypal" && (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-4 py-3 backdrop-blur-md lg:hidden">
+          <div className="mx-auto flex max-w-2xl items-center justify-between gap-4">
+            <div className="flex flex-col leading-tight">
+              <span className="text-[11px] text-muted-foreground">Total</span>
+              <span className="font-display text-base font-bold">
+                <PriceDisplay usdAmount={total} />
               </span>
-            ) : (
-              paymentMethod === "crypto" ? "Continue to crypto payment" : `Pay ${formattedTotal}`
-            )}
-          </Button>
+            </div>
+            <Button type="submit" form={FORM_ID} size="lg" disabled={isPending} className="h-11 flex-1 font-semibold">
+              {isPending ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="size-4 animate-spin" />
+                  Placing order...
+                </span>
+              ) : (
+                paymentMethod === "crypto" ? "Continue to crypto payment" : `Pay ${formattedTotal}`
+              )}
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
