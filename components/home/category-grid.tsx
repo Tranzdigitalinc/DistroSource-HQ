@@ -30,22 +30,28 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
           <RevealItem key={category.slug}>
             <MotionLink
               href={`/categories/${category.slug}`}
-              whileHover={{ y: -4 }}
-              whileTap={{ scale: 0.97 }}
-              transition={{ type: "spring", stiffness: 400, damping: 28 }}
-              className="group relative flex aspect-[4/3] flex-col justify-between overflow-hidden rounded-2xl border border-primary/20 bg-card p-5 shadow-[0_12px_35px_-18px_hsl(var(--primary)/0.7)] transition-colors hover:border-primary/60"
+              whileHover={{ y: -3 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 420, damping: 32 }}
+              className="group relative flex aspect-[4/3] flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-sm transition-[border-color,box-shadow] hover:border-primary/40 hover:shadow-md"
             >
-              <div className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-primary/10 blur-2xl transition-colors group-hover:bg-accent/20" />
-              <div className="relative flex size-12 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary shadow-[0_0_22px_hsl(var(--primary)/0.2)]">
-                {(() => { const Icon = getCategoryIcon(category.name); return <Icon aria-hidden="true" /> })()}
+              <div className="flex size-11 items-center justify-center rounded-lg bg-primary/8 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                {(() => {
+                  const Icon = getCategoryIcon(category.name)
+                  return <Icon aria-hidden="true" className="size-5" />
+                })()}
               </div>
-              <span className="relative flex items-end justify-between gap-3">
+              <span className="flex items-end justify-between gap-3">
                 <span className="flex flex-col gap-1">
-                  <span className="font-display text-base font-semibold text-foreground text-balance sm:text-lg">{category.name}</span>
-                  <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{category.productCount} {category.productCount === 1 ? "product" : "products"}</span>
+                  <span className="font-display text-base font-semibold text-foreground text-balance sm:text-lg">
+                    {category.name}
+                  </span>
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {category.productCount} {category.productCount === 1 ? "product" : "products"}
+                  </span>
                 </span>
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-primary/30 text-primary transition-all group-hover:bg-primary group-hover:text-primary-foreground">
-                  <ArrowUpRight aria-hidden="true" />
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground/60 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary">
+                  <ArrowUpRight aria-hidden="true" className="size-4" />
                 </span>
               </span>
             </MotionLink>
