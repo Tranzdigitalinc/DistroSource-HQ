@@ -1,7 +1,8 @@
-// PayPal Orders v2 REST API helper. Uses live credentials — this moves real money.
+// PayPal Orders v2 REST API helper. Environment is selected via project vars.
 // Docs: https://developer.paypal.com/docs/api/orders/v2/
 
-const PAYPAL_API_BASE = "https://api-m.paypal.com"
+const isSandbox = process.env.PAYPAL_ENVIRONMENT?.toLowerCase() === "sandbox"
+const PAYPAL_API_BASE = isSandbox ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com"
 
 interface PaypalTokenResponse {
   access_token: string
@@ -15,10 +16,11 @@ async function getAccessToken(): Promise<string> {
     return cachedToken.value
   }
 
-  const clientId = process.env.PAYPAL_CLIENT_ID
-  const clientSecret = process.env.PAYPAL_CLIENT_SECRET
+  const clientId = isSandbox ? process.env.PAYPAL_SANDBOX_CLIENT_ID : process.env.PAYPAL_CLIENT_ID
+  const clientSecret = isSandbox ? process.env.PAYPAL_SANDBOX_CLIENT_SECRET : process.env.PAYPAL_CLIENT_SECRET
   if (!clientId || !clientSecret) {
-    throw new Error("PayPal is not configured. Missing PAYPAL_CLIENT_ID or PAYPAL_CLIENT_SECRET.")
+    const environment = isSandbox ? "sandbox" : "live"
+    throw new Error(`PayPal ${environment} credentials are not configured.`)
   }
 
   const res = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
