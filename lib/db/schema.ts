@@ -181,6 +181,19 @@ export const productBundles = pgTable("product_bundles", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 
+export const abandonedCarts = pgTable("abandoned_carts", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id"),
+  email: text("email").notNull(),
+  cartSnapshot: jsonb("cart_snapshot").notNull(),
+  subtotalUsd: numeric("subtotal_usd", { precision: 10, scale: 2 }).notNull().default("0"),
+  recoveryToken: text("recovery_token").notNull().unique(),
+  status: text("status").notNull().default("open"),
+  lastRemindedAt: timestamp("last_reminded_at"),
+  recoveredAt: timestamp("recovered_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
 export const coupons = pgTable("coupons", {
   id: serial("id").primaryKey(),
   code: text("code").notNull().unique(),

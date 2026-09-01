@@ -81,6 +81,18 @@ interface OrderConfirmationItem {
   redemptionCode: string
 }
 
+export async function sendAbandonedCartEmail(to: string, recoveryUrl: string, subtotalUsd: number) {
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: "Your RedeemCove cart is waiting",
+    html: `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#1a1a1a"><h1 style="font-size:22px;margin:0 0 12px">Your cart is waiting</h1><p style="font-size:14px;line-height:1.6;color:#4a4a4a">You left digital value behind. Your saved cart is ready whenever you are.</p><p style="font-weight:700">Cart total: $${subtotalUsd.toFixed(2)}</p><a href="${recoveryUrl}" style="display:inline-block;background:#13bfdc;color:#061426;font-weight:700;text-decoration:none;padding:13px 22px;border-radius:8px">Return to cart</a><p style="font-size:12px;color:#8a8a8a;margin-top:24px">RedeemCove · Instant digital delivery</p></div>`,
+    text: `Your RedeemCove cart is waiting. Cart total: $${subtotalUsd.toFixed(2)}. Return to your cart: ${recoveryUrl}`,
+  })
+  if (error) { console.error("[v0] Failed to send abandoned cart email:", error); return false }
+  return true
+}
+
 export async function sendOrderConfirmationEmail(
   to: string,
   orderNumber: string,

@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { PriceDisplay } from "@/components/price-display"
 import { Reveal } from "@/components/motion/reveal"
 import { checkout } from "@/lib/actions/checkout"
+import { saveAbandonedCart } from "@/lib/actions/recovery"
 import { mergeGuestCartIntoAccount } from "@/lib/actions/cart"
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
@@ -94,6 +95,8 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
           await mergeGuestCartIntoAccount()
           toast.success("Account created", { description: "Your cart is now saved to your RedeemCove account." })
         }
+        await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
+        toast.success("Your cart has been saved", { description: "We sent you a secure link to return to it anytime." })
         toast.info("Payments are temporarily unavailable. Please check back soon.")
         return
         const result = await checkout({ billingEmail: email, billingName: name, couponCode })

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { Reveal } from "@/components/motion/reveal"
+import { ResendConfirmationButton } from "@/components/orders/resend-confirmation-button"
 
 export const metadata = {
   title: "Order confirmed — RedeemCove",
@@ -57,6 +58,7 @@ export default async function CheckoutSuccessPage({
                 <span className="font-semibold">{order.billingEmail}</span>. Save the codes below or view them
                 anytime from your order history.
               </p>
+              <ResendConfirmationButton orderNumber={order.orderNumber} />
             </Reveal>
           )}
 
