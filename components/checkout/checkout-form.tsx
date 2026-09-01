@@ -139,7 +139,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
       if (!ready) return
       await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
       toast.success("Your cart has been saved", { description: "We sent you a secure link to return to it anytime." })
-      toast.info("This payment method is temporarily unavailable. Please check back soon, or pay with PayPal above.")
+      toast.info("Payments are temporarily unavailable. Please check back soon.")
     })
   }
 
@@ -185,6 +185,14 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 </span>
               </div>
             ))}
+          </div>
+          <div className="flex items-center justify-between border-t border-border pt-4 text-sm">
+            <span className="text-muted-foreground">Order total</span>
+            <span className="font-display text-lg font-bold"><PriceDisplay usdAmount={total} /></span>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5"><Package className="size-3.5 text-success" aria-hidden="true" />Instant digital delivery</span>
+            <span className="flex items-center gap-1.5"><ShieldCheck className="size-3.5 text-success" aria-hidden="true" />Secure checkout</span>
           </div>
           <Link href="/products" className="inline-flex items-center justify-center rounded-lg border border-border px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-secondary">Add more items</Link>
         </Reveal>
