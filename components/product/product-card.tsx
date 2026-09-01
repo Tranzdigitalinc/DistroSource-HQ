@@ -1,16 +1,20 @@
 "use client"
 
+import { useTransition } from "react"
 import Link from "next/link"
 import { motion } from "motion/react"
-import { Star } from "lucide-react"
+import { toast } from "sonner"
+import { mutate } from "swr"
+import { Star, ShoppingCart, Layers } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { PriceDisplay } from "@/components/price-display"
 import { BrandThumbnail } from "@/components/product/brand-thumbnail"
 import { WishlistButton } from "@/components/product/wishlist-button"
 import { FlagIcon } from "@/components/flag-icon"
+import { addToCart } from "@/lib/actions/cart"
 import { cn } from "@/lib/utils"
 
-const MotionLink = motion.create(Link)
+const MotionDiv = motion.create("div")
 
 export interface ProductCardData {
   product: {
@@ -25,7 +29,7 @@ export interface ProductCardData {
   brand: { name: string; logoUrl: string | null; brandColor?: string | null }
   category: { slug: string }
   country?: { code: string; flagEmoji: string | null } | null
-  variants: { priceUsd: string; faceValueUsd: string; discountPercent: number }[]
+  variants: { id?: number; priceUsd: string; faceValueUsd: string; discountPercent: number }[]
   minPrice?: number
 }
 
@@ -38,25 +42,40 @@ export function ProductCard({
   className?: string
   style?: React.CSSProperties
 }) {
+  const [isPending, startTransition] = useTransition()
   const cheapest = item.variants.reduce(
     (min, v) => (Number.parseFloat(v.priceUsd) < Number.parseFloat(min.priceUsd) ? v : min),
     item.variants[0],
   )
   const maxDiscount = Math.max(...item.variants.map((v) => v.discountPercent), 0)
+  const hasMultipleOffers = item.variants.length > 1
+  const href = `/products/${item.product.slug}`
+
+  function handleQuickAdd(e: React.MouseEvent) {
+    e.preventDefault()
+    if (!cheapest.id || isPending) return
+    startTransition(async () => {
+      try {
+        await addToCart(item.product.id, cheapest.id!, 1)
+        mutate("/api/cart/summary")
+        toast.success("Added to cart", { description: item.product.name })
+      } catch {
+        toast.error("Couldn't add this to your cart. Please try again.")
+      }
+    })
+  }
 
   return (
-    <MotionLink
-      href={`/products/${item.product.slug}`}
+    <MotionDiv
       style={style}
       whileHover={{ y: -4 }}
-      whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 400, damping: 28 }}
       className={cn(
-        "group flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-colors duration-300 hover:border-primary/25 hover:shadow-xl hover:shadow-black/5",
+        "group relative flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-colors duration-300 hover:border-primary/25 hover:shadow-xl hover:shadow-black/5",
         className,
       )}
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden border-b border-border/60">
+      <Link href={href} className="relative block aspect-[4/3] w-full overflow-hidden border-b border-border/60">
         <BrandThumbnail
           logoUrl={item.brand.logoUrl}
           brandColor={item.brand.brandColor ?? null}
@@ -78,9 +97,10 @@ export function ProductCard({
             <FlagIcon code={item.country.code} className="h-3 w-4" />
           </span>
         )}
-        <WishlistButton productId={item.product.id} className="absolute right-2.5 top-2.5" />
-      </div>
-      <div className="flex flex-1 flex-col gap-2 p-4">
+      </Link>
+      <WishlistButton productId={item.product.id} className="absolute right-2.5 top-2.5 z-10" />
+
+      <Link href={href} className="flex flex-1 flex-col gap-2 p-4 pb-3">
         <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           {item.brand.name}
         </span>
@@ -92,7 +112,13 @@ export function ProductCard({
           <span className="font-medium text-foreground">{item.product.rating}</span>
           <span>({item.product.reviewCount.toLocaleString()})</span>
         </div>
-        <div className="mt-1 flex items-baseline gap-2 border-t border-border/60 pt-2.5">
+      </Link>
+
+      <div className="flex flex-col gap-2.5 border-t border-border/60 px-4 pb-4 pt-2.5">
+        <div className="flex items-baseline gap-2">
+          {hasMultipleOffers && (
+            <span className="text-[11px] font-medium text-muted-foreground">From</span>
+          )}
           <span className="font-display text-lg font-semibold">
             <PriceDisplay usdAmount={Number.parseFloat(cheapest.priceUsd)} />
           </span>
@@ -102,7 +128,26 @@ export function ProductCard({
             </span>
           )}
         </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleQuickAdd}
+            disabled={isPending}
+            aria-label="Add cheapest offer to cart"
+            className="flex h-8 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-md bg-foreground px-2 text-[11px] font-semibold text-background transition-colors hover:bg-foreground/85 disabled:opacity-50"
+          >
+            <ShoppingCart className="size-3.5 shrink-0" />
+            Add
+          </button>
+          <Link
+            href={href}
+            className="flex h-8 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-border px-2 text-[11px] font-semibold text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+          >
+            <Layers className="size-3.5 shrink-0" />
+            {hasMultipleOffers ? `${item.variants.length} offers` : "View offer"}
+          </Link>
+        </div>
       </div>
-    </MotionLink>
+    </MotionDiv>
   )
 }
