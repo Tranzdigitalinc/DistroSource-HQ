@@ -9,6 +9,7 @@ import { MotionProvider } from '@/components/motion/motion-provider'
 import { getCountries } from '@/lib/queries/catalog'
 import { ScrollToTop } from '@/components/scroll-to-top'
 import { ResizeObserverErrorGuard } from '@/components/resize-observer-error-guard'
+import { BrowserVerificationGate } from '@/components/security/browser-verification-gate'
 import './globals.css'
 
 const _inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
@@ -80,7 +81,9 @@ export default async function RootLayout({
         <MotionProvider>
           <ThemeProvider>
             <CurrencyProvider countries={countries}>
-              <TooltipProvider>{children}</TooltipProvider>
+              <BrowserVerificationGate>
+                <TooltipProvider>{children}</TooltipProvider>
+              </BrowserVerificationGate>
             </CurrencyProvider>
             <Toaster position="bottom-right" richColors />
             <ScrollToTop />
