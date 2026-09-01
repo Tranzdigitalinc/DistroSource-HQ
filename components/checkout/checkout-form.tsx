@@ -326,7 +326,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               />
               {cardBrand && (
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-border bg-secondary px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  {cardBrand ? CARD_BRAND_LABEL[cardBrand] : null}
+                  {CARD_BRAND_LABEL[cardBrand ?? ""]}
                 </span>
               )}
             </div>
