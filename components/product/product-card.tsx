@@ -81,7 +81,7 @@ export function ProductCard({
       whileHover={{ y: -5 }}
       transition={{ type: "spring", stiffness: 400, damping: 28 }}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-300",
+        "group relative flex h-full min-h-[25rem] flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-300",
         "hover:border-accent/40 hover:shadow-[0_0_0_1px_var(--accent),0_16px_40px_-12px_var(--glow)]",
         className,
       )}
@@ -126,10 +126,10 @@ export function ProductCard({
         <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           {item.brand.name}
         </span>
-        <h3 className="-mt-1 line-clamp-2 text-sm font-medium leading-snug text-balance text-foreground transition-colors group-hover:text-accent">
+        <h3 className="-mt-1 line-clamp-2 min-h-10 text-sm font-medium leading-snug text-balance text-foreground transition-colors group-hover:text-accent">
           {item.product.name}
         </h3>
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="flex min-h-4 items-center gap-1 text-xs text-muted-foreground">
           <Star className="size-3 fill-accent text-accent" />
           <span className="font-medium text-foreground">{item.product.rating}</span>
           <span>({item.product.reviewCount.toLocaleString()})</span>

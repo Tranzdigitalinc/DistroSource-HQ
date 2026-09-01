@@ -45,7 +45,7 @@ export function ProductRail({
       </div>
       <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6" stagger={0.05}>
         {items.slice(0, 12).map((item) => (
-          <RevealItem key={item.product.id}>
+          <RevealItem key={item.product.id} className="h-full">
             <ProductCard item={item} />
           </RevealItem>
         ))}

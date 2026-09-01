@@ -20,7 +20,7 @@ export function ProductGrid({ items }: { items: ProductCardData[] }) {
   return (
     <RevealGroup className="grid grid-cols-2 gap-4 pt-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5" stagger={0.04}>
       {items.map((item) => (
-        <RevealItem key={item.product.id}>
+        <RevealItem key={item.product.id} className="h-full">
           <ProductCard item={item} />
         </RevealItem>
       ))}
