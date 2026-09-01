@@ -93,6 +93,18 @@ export async function sendAbandonedCartEmail(to: string, recoveryUrl: string, su
   return true
 }
 
+export async function sendAbandonedCartReminderEmail(to: string, recoveryUrl: string, subtotalUsd: number) {
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: "Still thinking it over? Your cart is still here",
+    html: `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#1a1a1a"><h1 style="font-size:22px;margin:0 0 12px">A quick reminder</h1><p style="font-size:14px;line-height:1.6;color:#4a4a4a">The items in your RedeemCove cart haven&apos;t been claimed yet. Complete your order before availability changes.</p><p style="font-weight:700">Cart total: $${subtotalUsd.toFixed(2)}</p><a href="${recoveryUrl}" style="display:inline-block;background:#13bfdc;color:#061426;font-weight:700;text-decoration:none;padding:13px 22px;border-radius:8px">Complete my order</a><p style="font-size:12px;color:#8a8a8a;margin-top:24px">RedeemCove · Instant digital delivery</p></div>`,
+    text: `A quick reminder: the items in your RedeemCove cart haven't been claimed yet. Cart total: $${subtotalUsd.toFixed(2)}. Complete your order: ${recoveryUrl}`,
+  })
+  if (error) { console.error("[v0] Failed to send abandoned cart reminder email:", error); return false }
+  return true
+}
+
 export async function sendOrderConfirmationEmail(
   to: string,
   orderNumber: string,

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { getCartItems } from "@/lib/actions/cart"
 import { applyCouponPreview } from "@/lib/actions/checkout"
 import { getSession } from "@/lib/session"
+import { restoreAbandonedCart } from "@/lib/actions/recovery"
 import { CheckoutForm } from "@/components/checkout/checkout-form"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
@@ -13,9 +14,15 @@ export const metadata = {
 export default async function CheckoutPage({
   searchParams,
 }: {
-  searchParams: Promise<{ coupon?: string }>
+  searchParams: Promise<{ coupon?: string; recovery?: string }>
 }) {
-  const { coupon } = await searchParams
+  const { coupon, recovery } = await searchParams
+
+  if (recovery) {
+    const restored = await restoreAbandonedCart(recovery)
+    if (restored.success) redirect("/checkout")
+  }
+
   const items = await getCartItems()
   if (items.length === 0) redirect("/cart")
 
@@ -32,6 +39,8 @@ export default async function CheckoutPage({
   const session = await getSession()
 
   const orderItems = items.map((item) => ({
+    productId: item.product.id,
+    variantId: item.variant.id,
     name: item.product.name,
     brand: item.brand.name,
     denomination: item.variant.denominationLabel,

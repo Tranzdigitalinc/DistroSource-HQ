@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { getOperationEvents, resolveOperationEvent } from "@/lib/actions/operations"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -9,9 +10,14 @@ export async function OperationsPanel() {
   const resolvedCount = events.filter((event) => event.status === "resolved").length
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Operations queue</CardTitle>
-        <CardDescription>Recent order, fulfillment, fraud, and sync events.</CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between gap-4">
+        <div>
+          <CardTitle>Operations queue</CardTitle>
+          <CardDescription>Recent order, fulfillment, fraud, and sync events.</CardDescription>
+        </div>
+        <Button variant="ghost" size="sm" render={<Link href="/admin/audit" />}>
+          View full audit log
+        </Button>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         <div className="grid grid-cols-2 gap-3" aria-label="Operations summary">

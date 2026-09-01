@@ -13,10 +13,13 @@ import { Reveal } from "@/components/motion/reveal"
 import { checkout } from "@/lib/actions/checkout"
 import { saveAbandonedCart } from "@/lib/actions/recovery"
 import { mergeGuestCartIntoAccount } from "@/lib/actions/cart"
+import { mergeGuestActivityIntoAccount } from "@/lib/actions/recently-viewed"
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
 
 interface OrderItem {
+  productId: number
+  variantId: number
   name: string
   brand: string
   denomination: string
@@ -92,8 +95,9 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
         if (isGuest) {
           const account = await authClient.signUp.email({ email, password, name })
           if (account.error) throw new Error(account.error.message ?? "Could not create your account.")
-          await mergeGuestCartIntoAccount()
-          toast.success("Account created", { description: "Your cart is now saved to your RedeemCove account." })
+        await mergeGuestCartIntoAccount()
+        await mergeGuestActivityIntoAccount()
+        toast.success("Account created", { description: "Your cart is now saved to your RedeemCove account." })
         }
         await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
         toast.success("Your cart has been saved", { description: "We sent you a secure link to return to it anytime." })

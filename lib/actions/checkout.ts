@@ -199,6 +199,17 @@ export async function checkout(input: {
     resolvedAt: new Date(),
   })
 
+  if (!confirmationEmailSent) {
+    await db.insert(operationEvents).values({
+      eventType: "confirmation_email_failed",
+      entityType: "order",
+      entityId: String(orderResult.id),
+      status: "open",
+      payload: { orderNumber: orderResult.orderNumber, billingEmail },
+      createdBy: ownerId,
+    })
+  }
+
   revalidatePath("/cart")
   revalidatePath("/account/orders")
 
