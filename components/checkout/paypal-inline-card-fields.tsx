@@ -22,7 +22,7 @@ const cardFieldStyle = {
     fontFamily: "Inter, sans-serif",
     fontSize: "14px",
     color: "#f3f4f6",
-    backgroundColor: "transparent",
+    background: "transparent",
     border: "0",
     outline: "none",
     boxShadow: "none",
