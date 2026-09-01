@@ -171,6 +171,16 @@ export const promotionCampaigns = pgTable("promotion_campaigns", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 
+export const productBundles = pgTable("product_bundles", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description"),
+  discountPercent: integer("discount_percent").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
 export const coupons = pgTable("coupons", {
   id: serial("id").primaryKey(),
   code: text("code").notNull().unique(),
