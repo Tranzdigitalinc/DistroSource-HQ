@@ -144,9 +144,11 @@ export function ProductForm({ categories, product }: { categories: Category[]; p
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="category">Category</Label>
-            <Select value={categoryId} onValueChange={setCategoryId}>
+            <Select value={categoryId} onValueChange={(value) => setCategoryId(value ?? "")}>
               <SelectTrigger id="category" className="w-full">
-                <SelectValue placeholder="Choose a category" />
+                <SelectValue placeholder="Choose a category">
+                  {(value: string | null) => categories.find((c) => String(c.id) === value)?.name ?? "Choose a category"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {categories.map((c) => (
