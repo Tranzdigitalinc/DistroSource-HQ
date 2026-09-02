@@ -1,5 +1,7 @@
 import Link from "next/link"
 import { ArrowRight, Gift, Coins, Wallet, Layers } from "lucide-react"
+import { TextShimmer } from "@/components/velora/text-shimmer"
+import { BlurFade } from "@/components/velora/blur-fade"
 
 const tiers = [
   {
@@ -44,19 +46,21 @@ export function ShopByPrice() {
           </div>
         </div>
         <div className="grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
-          {tiers.map(({ label, detail, href, icon: Icon }) => (
-            <Link key={label} href={href} className="group flex items-center gap-4 bg-card p-4 transition-colors hover:bg-background">
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-[4px] bg-primary/10 text-primary">
-                <Icon className="size-5" aria-hidden="true" />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-1.5 font-display font-bold tracking-tight">
-                  {label}
-                  <ArrowRight className="size-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+          {tiers.map(({ label, detail, href, icon: Icon }, i) => (
+            <BlurFade key={label} delay={i * 0.06}>
+              <Link href={href} className="group flex items-center gap-4 bg-card p-4 transition-colors hover:bg-background">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-[4px] bg-primary/10 text-primary">
+                  <Icon className="size-5" aria-hidden="true" />
                 </span>
-                <span className="mt-0.5 block font-mono text-[11px] leading-relaxed text-muted-foreground">{detail}</span>
-              </span>
-            </Link>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-1.5 font-display font-bold tracking-tight">
+                    {i === 0 ? <TextShimmer>{label}</TextShimmer> : label}
+                    <ArrowRight className="size-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                  <span className="mt-0.5 block font-mono text-[11px] leading-relaxed text-muted-foreground">{detail}</span>
+                </span>
+              </Link>
+            </BlurFade>
           ))}
         </div>
       </div>

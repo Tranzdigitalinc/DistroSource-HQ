@@ -10,6 +10,7 @@ import { ScrollToTop } from '@/components/scroll-to-top'
 import { ResizeObserverErrorGuard } from '@/components/resize-observer-error-guard'
 import { BrowserVerificationGate } from '@/components/security/browser-verification-gate'
 import { VisitorTracker } from '@/components/analytics/visitor-tracker'
+import { ScrollProgress } from '@/components/velora/scroll-progress'
 import './globals.css'
 
 const _archivo = Archivo({ subsets: ['latin'], variable: '--font-archivo', weight: ['400', '500', '600', '700', '800', '900'] })
@@ -74,6 +75,7 @@ export default async function RootLayout({
           <VisitorTracker />
         </Suspense>
         <ResizeObserverErrorGuard />
+        <ScrollProgress />
         <MotionProvider>
           <ThemeProvider>
             <BrowserVerificationGate>

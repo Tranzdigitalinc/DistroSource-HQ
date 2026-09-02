@@ -11,6 +11,7 @@ import { AnimatedGradientText } from "@/components/velora/animated-gradient-text
 import { Typewriter } from "@/components/velora/typewriter"
 import { NumberTicker } from "@/components/velora/number-ticker"
 import { BorderBeam } from "@/components/velora/border-beam"
+import { Marquee } from "@/components/velora/marquee"
 import { ArrowRight, Sparkles, Star, ImageOff } from "lucide-react"
 import type { ProductCardData } from "@/components/product/product-card"
 
@@ -74,7 +75,7 @@ function MarqueeCard({ data, index }: { data: ProductCardData; index: number }) 
 }
 
 export function Hero({ stats, products }: { stats: HeroStats; products: ProductCardData[] }) {
-  const marqueeItems = products.length > 0 ? [...products, ...products] : []
+  const marqueeItems = products
 
   return (
     <section className="relative overflow-hidden border-b border-border bg-hero">
@@ -202,20 +203,12 @@ export function Hero({ stats, products }: { stats: HeroStats; products: ProductC
               <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
-          <div className="relative overflow-hidden border-y border-border">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-hero to-transparent sm:w-20"
-            />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-hero to-transparent sm:w-20"
-            />
-            <div className="flex w-max animate-marquee">
+          <div className="relative border-y border-border">
+            <Marquee pauseOnHover repeat={2} className="[--duration:36s] [--gap:0px]">
               {marqueeItems.map((data, i) => (
                 <MarqueeCard key={`${data.product.id}-${i}`} data={data} index={i} />
               ))}
-            </div>
+            </Marquee>
           </div>
         </div>
       )}

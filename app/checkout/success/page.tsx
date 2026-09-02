@@ -10,6 +10,7 @@ import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { Reveal } from "@/components/motion/reveal"
 import { ResendConfirmationButton } from "@/components/order/resend-confirmation-button"
+import { OrderConfetti } from "@/components/order/order-confetti"
 
 export const metadata = {
   title: "Order confirmed — DistroSource",
@@ -30,6 +31,7 @@ export default async function CheckoutSuccessPage({
 
   return (
     <div className="flex min-h-screen flex-col">
+      <OrderConfetti />
       <SiteHeader />
       <main className="flex-1">
         <div className="mx-auto max-w-2xl px-4 py-12 md:px-6">
