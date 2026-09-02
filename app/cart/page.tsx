@@ -9,12 +9,12 @@ import { SiteFooter } from "@/components/footer/site-footer"
 import { Reveal } from "@/components/motion/reveal"
 
 export const metadata = {
-  title: "Your Cart — RedeemCove",
+  title: "Your Cart — DistroSource",
 }
 
 export default async function CartPage() {
   const items = await getCartItems()
-  const subtotal = items.reduce((sum, i) => sum + Number.parseFloat(i.variant.priceUsd) * i.cartItem.quantity, 0)
+  const subtotal = items.reduce((sum, i) => sum + Number.parseFloat(i.license.price) * i.cartItem.quantity, 0)
   const totalItems = items.reduce((sum, i) => sum + i.cartItem.quantity, 0)
 
   return (
@@ -39,7 +39,7 @@ export default async function CartPage() {
               <div>
                 <p className="font-display text-lg font-semibold">Your cart is empty</p>
                 <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                  Browse our marketplace to find gift cards, game top-ups, and digital codes at great prices.
+                  Browse our catalog to find templates, fonts, presentations, and other digital products.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
@@ -47,9 +47,9 @@ export default async function CartPage() {
                   Browse products
                   <ArrowRight className="size-4" />
                 </Button>
-                <Button variant="outline" render={<Link href="/deals" />} nativeButton={false}>
+                <Button variant="outline" render={<Link href="/products?free=true" />} nativeButton={false}>
                   <Tag className="size-4" />
-                  View deals
+                  Free resources
                 </Button>
               </div>
             </Reveal>
@@ -61,12 +61,9 @@ export default async function CartPage() {
                     cartItemId: item.cartItem.id,
                     productSlug: item.product.slug,
                     productName: item.product.name,
-                    brandName: item.brand.name,
-                    brandLogoUrl: item.brand.logoUrl,
-                    brandColor: item.brand.brandColor,
-                    denominationLabel: item.variant.denominationLabel,
-                    imageUrl: item.product.imageUrl,
-                    unitPriceUsd: item.variant.priceUsd,
+                    licenseType: item.license.licenseType,
+                    imageUrl: item.imageUrl,
+                    unitPriceUsd: item.license.price,
                     quantity: item.cartItem.quantity,
                   }))}
                 />

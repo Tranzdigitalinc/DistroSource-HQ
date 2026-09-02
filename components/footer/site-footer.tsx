@@ -29,7 +29,7 @@ const footerColumns = [
       { label: "Sign In", href: "/sign-in" },
       { label: "Sign Up", href: "/sign-up" },
       { label: "My Orders", href: "/account/orders" },
-      { label: "My Gift Cards", href: "/account/codes" },
+      { label: "My Library", href: "/account/library" },
       { label: "Profile", href: "/account/settings" },
     ],
   },
