@@ -2,6 +2,7 @@
 
 import { Zap, ShieldCheck, Headphones, RefreshCcw } from "lucide-react"
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
+import { cn } from "@/lib/utils"
 
 const badges = [
   {
@@ -41,22 +42,47 @@ export function TrustBadges() {
           </p>
         </Reveal>
         <RevealGroup className="grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-4" stagger={0.08}>
-          {badges.map((badge, i) => (
-            <RevealItem key={badge.title}>
-              <div className="flex h-full flex-col gap-4 bg-card p-6">
-                <div className="flex items-center justify-between">
-                  <span className="flex size-10 items-center justify-center rounded-[4px] bg-primary/10 text-primary">
-                    <badge.icon className="size-5" />
-                  </span>
-                  <span className="font-mono text-[10px] font-semibold text-muted-foreground/60">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
+          {badges.map((badge, i) => {
+            const highlighted = i === 0
+            return (
+              <RevealItem key={badge.title}>
+                <div
+                  className={cn(
+                    "flex h-full flex-col gap-4 p-6",
+                    highlighted ? "bg-primary text-primary-foreground" : "bg-card",
+                  )}
+                >
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={cn(
+                        "flex size-10 items-center justify-center rounded-[4px]",
+                        highlighted ? "bg-primary-foreground/15 text-primary-foreground" : "bg-primary/10 text-primary",
+                      )}
+                    >
+                      <badge.icon className="size-5" />
+                    </span>
+                    <span
+                      className={cn(
+                        "font-mono text-[10px] font-semibold",
+                        highlighted ? "text-primary-foreground/60" : "text-muted-foreground/60",
+                      )}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <h3 className="font-display text-base font-bold">{badge.title}</h3>
+                  <p
+                    className={cn(
+                      "text-sm leading-relaxed",
+                      highlighted ? "text-primary-foreground/85" : "text-muted-foreground",
+                    )}
+                  >
+                    {badge.body}
+                  </p>
                 </div>
-                <h3 className="font-display text-base font-bold text-foreground">{badge.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{badge.body}</p>
-              </div>
-            </RevealItem>
-          ))}
+              </RevealItem>
+            )
+          })}
         </RevealGroup>
       </div>
     </section>

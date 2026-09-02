@@ -3,13 +3,7 @@
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { X } from "lucide-react"
-import { getCategoryIcon } from "@/lib/category-icons"
 import { cn } from "@/lib/utils"
-import type { getCategories } from "@/lib/queries/catalog"
-
-interface Props {
-  categories: Awaited<ReturnType<typeof getCategories>>
-}
 
 const priceOptions = [
   { label: "Under $10", value: "10" },
@@ -18,7 +12,7 @@ const priceOptions = [
   { label: "Under $100", value: "100" },
 ]
 
-export function CatalogFilters({ categories }: Props) {
+export function CatalogFilters() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -29,17 +23,16 @@ export function CatalogFilters({ categories }: Props) {
     return `${pathname}?${params.toString()}`
   }
 
-  const activeCategory = searchParams.get("category")
   const activeMaxPrice = searchParams.get("maxPrice")
   const activeFree = searchParams.get("free")
   const activeBundle = searchParams.get("bundle")
-  const hasActiveFilters = Boolean(activeCategory || activeMaxPrice || activeFree || activeBundle)
+  const hasActiveFilters = Boolean(activeMaxPrice || activeFree || activeBundle)
 
   return (
     <aside className="flex w-full flex-col gap-5 lg:w-64">
-      <div className="rounded-xl border border-border bg-card lg:sticky lg:top-20">
+      <div className="border border-border bg-card lg:sticky lg:top-20">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h2 className="text-sm font-semibold">Filters</h2>
+          <h2 className="font-mono text-xs font-semibold uppercase tracking-[0.04em]">Filters</h2>
           {hasActiveFilters && (
             <Link
               href={pathname}
@@ -52,22 +45,6 @@ export function CatalogFilters({ categories }: Props) {
         </div>
 
         <div className="flex flex-col gap-6 p-4">
-          <FilterGroup title="Category">
-            <FilterLink href={buildHref("category", null)} active={!activeCategory} label="All categories" />
-            {categories.map((c) => {
-              const Icon = getCategoryIcon(c.slug)
-              return (
-                <FilterLink
-                  key={c.slug}
-                  href={buildHref("category", c.slug)}
-                  active={activeCategory === c.slug}
-                  label={c.name}
-                  icon={<Icon className="size-3.5" />}
-                />
-              )
-            })}
-          </FilterGroup>
-
           <FilterGroup title="Price">
             <FilterLink href={buildHref("maxPrice", null)} active={!activeMaxPrice} label="Any price" />
             {priceOptions.map((opt) => (
