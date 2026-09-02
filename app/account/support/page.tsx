@@ -3,7 +3,7 @@ import { SupportTicketForm } from "@/components/account/support-ticket-form"
 import { Badge } from "@/components/ui/badge"
 
 export const metadata = {
-  title: "Support — RedeemCove",
+  title: "Support — DistroSource",
 }
 
 const statusVariant: Record<string, "default" | "secondary" | "outline"> = {

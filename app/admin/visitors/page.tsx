@@ -3,7 +3,7 @@ import { headers } from "next/headers"
 import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { getVisitorLogsFiltered, getVisitorStats, getVisitorTrafficSeries } from "@/lib/actions/visitor-logs"
-import { countryCodeToName } from "@/lib/user-agent"
+import { countryCodeToName, parseBrowser, parseOs } from "@/lib/user-agent"
 import { IpReputationBadge } from "@/components/admin/ip-reputation-badge"
 import { CountryFlag } from "@/components/admin/country-flag"
 import { VisitorTrafficChart } from "@/components/admin/visitor-traffic-chart"
@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 export const metadata = {
-  title: "Visitors | RedeemCove Admin",
+  title: "Visitors | DistroSource Admin",
   description: "Live log of website visitor activity, devices, and locations.",
 }
 
@@ -242,14 +242,13 @@ export default async function AdminVisitorsPage({
                 <thead>
                   <tr className="border-b border-border text-left text-xs text-muted-foreground">
                     <th className="px-2 py-2 font-medium">Time</th>
-                    <th className="px-2 py-2 font-medium">Activity</th>
+                    <th className="px-2 py-2 font-medium">Page</th>
                     <th className="px-2 py-2 font-medium">Device</th>
                     <th className="px-2 py-2 font-medium">Browser / OS</th>
                     <th className="px-2 py-2 font-medium">Location</th>
                     <th className="px-2 py-2 font-medium">IP address</th>
                     <th className="px-2 py-2 font-medium">IP reputation</th>
                     <th className="px-2 py-2 font-medium">Referrer</th>
-                    <th className="px-2 py-2 font-medium">User</th>
                     <th className="px-2 py-2 font-medium">Session</th>
                   </tr>
                 </thead>
@@ -259,11 +258,8 @@ export default async function AdminVisitorsPage({
                       <td className="whitespace-nowrap px-2 py-2 text-xs text-muted-foreground">
                         {row.createdAt.toLocaleString()}
                       </td>
-                      <td className="px-2 py-2">
-                        <p className="font-medium text-foreground">{row.action}</p>
-                        <p className="max-w-[220px] truncate text-xs text-muted-foreground" title={row.path}>
-                          {row.path}
-                        </p>
+                      <td className="max-w-[220px] truncate px-2 py-2 font-medium text-foreground" title={row.path}>
+                        {row.path}
                       </td>
                       <td className="px-2 py-2">
                         <Badge variant="outline" className="capitalize">
@@ -271,16 +267,13 @@ export default async function AdminVisitorsPage({
                         </Badge>
                       </td>
                       <td className="px-2 py-2 text-xs text-muted-foreground">
-                        {row.browser ?? "Unknown"} · {row.os ?? "Unknown"}
+                        {row.userAgent ? parseBrowser(row.userAgent) : "Unknown"} ·{" "}
+                        {row.userAgent ? parseOs(row.userAgent) : "Unknown"}
                       </td>
                       <td className="px-2 py-2 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1.5">
                           <CountryFlag code={row.country} />
-                          <span>
-                            {countryCodeToName(row.country)}
-                            {row.city ? ` · ${row.city}` : ""}
-                            {row.region && !row.city ? ` · ${row.region}` : ""}
-                          </span>
+                          <span>{countryCodeToName(row.country)}</span>
                         </span>
                       </td>
                       <td className="px-2 py-2 font-mono text-xs text-muted-foreground">{row.ipAddress ?? "—"}</td>
@@ -290,7 +283,6 @@ export default async function AdminVisitorsPage({
                       <td className="max-w-[160px] truncate px-2 py-2 text-xs text-muted-foreground" title={row.referrer ?? undefined}>
                         {row.referrer ?? "Direct"}
                       </td>
-                      <td className="px-2 py-2 text-xs text-muted-foreground">{row.userId ? "Signed in" : "Guest"}</td>
                       <td className="px-2 py-2">
                         <Link
                           href={`/admin/visitors/${row.visitorId}`}

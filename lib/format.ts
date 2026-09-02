@@ -26,14 +26,14 @@ export function formatCompactNumber(value: number): string {
 export function generateOrderNumber(): string {
   const rand = Math.random().toString(36).slice(2, 8).toUpperCase()
   const ts = Date.now().toString(36).toUpperCase().slice(-4)
-  return `RC-${ts}${rand}`
+  return `DS-${ts}${rand}`
 }
 
-export function generateRedemptionCode(): string {
-  const segments = Array.from({ length: 4 }, () =>
-    Math.random().toString(36).slice(2, 6).toUpperCase(),
-  )
-  return segments.join("-")
+export function formatLicenseType(licenseType: string): string {
+  return licenseType
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
 }
 
 export function formatDate(date: Date | string): string {

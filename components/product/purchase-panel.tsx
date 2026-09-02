@@ -4,40 +4,39 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "motion/react"
-import { Heart, Minus, Plus, ShoppingCart, Check, Zap } from "lucide-react"
+import { Heart, Minus, Plus, ShoppingCart, Check, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PriceDisplay } from "@/components/price-display"
 import { addToCart } from "@/lib/actions/cart"
 import { toggleWishlist } from "@/lib/actions/wishlist"
+import { formatLicenseType } from "@/lib/format"
 import { mutate } from "swr"
 import { cn } from "@/lib/utils"
 
-interface Variant {
+interface License {
   id: number
-  denominationLabel: string
-  priceUsd: string
-  faceValueUsd: string
-  discountPercent: number
-  stockCount: number
+  licenseType: string
+  price: string
+  description: string | null
 }
 
 export function PurchasePanel({
   productId,
-  variants,
+  licenses,
   initialWishlisted,
 }: {
   productId: number
-  variants: Variant[]
+  licenses: License[]
   initialWishlisted: boolean
 }) {
   const router = useRouter()
-  const [selectedId, setSelectedId] = useState(variants[0]?.id)
+  const [selectedId, setSelectedId] = useState(licenses[0]?.id)
   const [quantity, setQuantity] = useState(1)
   const [wishlisted, setWishlisted] = useState(initialWishlisted)
   const [isPending, startTransition] = useTransition()
   const [justAdded, setJustAdded] = useState(false)
 
-  const selected = variants.find((v) => v.id === selectedId) ?? variants[0]
+  const selected = licenses.find((l) => l.id === selectedId) ?? licenses[0]
 
   function handleAddToCart() {
     startTransition(async () => {
@@ -47,7 +46,7 @@ export function PurchasePanel({
         router.refresh()
         setJustAdded(true)
         toast.success("Added to cart", {
-          description: `${selected.denominationLabel} x${quantity}`,
+          description: `${formatLicenseType(selected.licenseType)} license x${quantity}`,
         })
         setTimeout(() => setJustAdded(false), 2000)
       } catch {
@@ -69,37 +68,34 @@ export function PurchasePanel({
     })
   }
 
+  if (!selected) return null
+
   return (
     <div className="flex flex-col gap-6 rounded-xl border border-border bg-card p-6">
       <div>
         <p className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Choose a denomination
+          Choose a license
         </p>
-        <div className="grid grid-cols-2 gap-2">
-          {variants.map((variant) => (
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {licenses.map((license) => (
             <motion.button
-              key={variant.id}
+              key={license.id}
               type="button"
-              onClick={() => { setSelectedId(variant.id); setQuantity(1) }}
+              onClick={() => { setSelectedId(license.id); setQuantity(1) }}
               whileTap={{ scale: 0.96 }}
               className={cn(
                 "relative flex flex-col items-start gap-0.5 rounded-lg border px-3 py-2.5 text-left transition-all",
-                selectedId === variant.id
+                selectedId === license.id
                   ? "border-accent bg-accent/10 ring-1 ring-accent"
                   : "border-border hover:border-accent/40",
               )}
             >
-              <span className="text-sm font-semibold">{variant.denominationLabel}</span>
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <PriceDisplay usdAmount={Number.parseFloat(variant.priceUsd)} />
-                {variant.discountPercent > 0 && (
-                  <span className="font-semibold text-success">-{variant.discountPercent}%</span>
-                )}
+              <span className="text-sm font-semibold">{formatLicenseType(license.licenseType)}</span>
+              <span className="text-xs text-muted-foreground">
+                <PriceDisplay usdAmount={Number.parseFloat(license.price)} />
               </span>
-              {variant.stockCount <= 5 && variant.stockCount > 0 && (
-                <span className="mt-0.5 text-[10px] font-medium text-amber-500">
-                  Only {variant.stockCount} left
-                </span>
+              {license.description && (
+                <span className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{license.description}</span>
               )}
             </motion.button>
           ))}
@@ -116,14 +112,9 @@ export function PurchasePanel({
             transition={{ duration: 0.18 }}
             className="font-display text-2xl font-bold"
           >
-            <PriceDisplay usdAmount={Number.parseFloat(selected.priceUsd) * quantity} />
+            <PriceDisplay usdAmount={Number.parseFloat(selected.price) * quantity} />
           </motion.span>
         </AnimatePresence>
-        {selected.discountPercent > 0 && (
-          <span className="rounded-full bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
-            Save {selected.discountPercent}%
-          </span>
-        )}
       </div>
 
       <div className="flex items-center gap-3">
@@ -184,8 +175,8 @@ export function PurchasePanel({
       </div>
 
       <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-        <Zap className="size-3 text-accent" />
-        Instant delivery — code appears immediately after purchase
+        <Download className="size-3 text-accent" />
+        Instant access — download from My Library right after purchase
       </div>
     </div>
   )

@@ -1,7 +1,7 @@
 import { ChangePasswordForm } from "@/components/account/change-password-form"
 
 export const metadata = {
-  title: "Security — RedeemCove",
+  title: "Security — DistroSource",
 }
 
 export default function AccountSecurityPage() {

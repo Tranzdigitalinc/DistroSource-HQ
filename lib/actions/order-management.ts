@@ -3,10 +3,9 @@
 import { and, desc, eq, ilike, or } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
-import { operationEvents, orderItems, orders } from "@/lib/db/schema"
+import { entitlements, operationEvents, orderItems, orders } from "@/lib/db/schema"
 import { requireAdmin } from "@/lib/actions/operations"
-import { generateRedemptionCode } from "@/lib/format"
-import { sendRefundConfirmationEmail, sendReplacementCodeEmail } from "@/lib/email"
+import { sendRefundConfirmationEmail } from "@/lib/email"
 
 export async function searchOrders(query: string) {
   await requireAdmin()
@@ -34,6 +33,11 @@ export async function getOrderForAdmin(orderNumber: string) {
   return { order, items, isFlagged, fraudEvents }
 }
 
+/**
+ * Refunds an order: marks it refunded, voids each order item, and revokes
+ * the entitlements it granted so the buyer immediately loses download
+ * access and the products drop out of their library.
+ */
 export async function refundOrder(orderId: number, reason: string) {
   const userId = await requireAdmin()
   const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1)
@@ -42,6 +46,7 @@ export async function refundOrder(orderId: number, reason: string) {
 
   await db.update(orders).set({ status: "refunded" }).where(eq(orders.id, orderId))
   await db.update(orderItems).set({ isVoided: true }).where(eq(orderItems.orderId, orderId))
+  await db.update(entitlements).set({ isRevoked: true }).where(eq(entitlements.orderId, orderId))
 
   await db.insert(operationEvents).values({
     eventType: "order_refunded",
@@ -58,34 +63,6 @@ export async function refundOrder(orderId: number, reason: string) {
   revalidatePath(`/admin/orders/${order.orderNumber}`)
   revalidatePath("/admin/orders")
   revalidatePath("/admin")
-  return { success: true }
-}
-
-export async function replaceOrderItem(orderItemId: number) {
-  const userId = await requireAdmin()
-  const [item] = await db.select().from(orderItems).where(eq(orderItems.id, orderItemId)).limit(1)
-  if (!item) throw new Error("Order item not found.")
-  if (item.isVoided) throw new Error("This item has already been voided or replaced.")
-
-  const [order] = await db.select().from(orders).where(eq(orders.id, item.orderId)).limit(1)
-  if (!order) throw new Error("Order not found.")
-
-  const newCode = generateRedemptionCode()
-  await db.update(orderItems).set({ redemptionCode: newCode, isRevealed: false }).where(eq(orderItems.id, orderItemId))
-
-  await db.insert(operationEvents).values({
-    eventType: "replacement_issued",
-    entityType: "order_item",
-    entityId: String(orderItemId),
-    status: "resolved",
-    payload: { orderNumber: order.orderNumber, productName: item.productName },
-    createdBy: userId,
-    resolvedAt: new Date(),
-  })
-
-  await sendReplacementCodeEmail(order.billingEmail, order.orderNumber, item.productName, item.denominationLabel, newCode)
-
-  revalidatePath(`/admin/orders/${order.orderNumber}`)
   return { success: true }
 }
 

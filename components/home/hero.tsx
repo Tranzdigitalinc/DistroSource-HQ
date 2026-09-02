@@ -5,12 +5,11 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion, useInView } from "motion/react"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Star, Sparkles, ShieldCheck, Zap, Globe2, Headphones } from "lucide-react"
+import { ArrowRight, Star, Sparkles, ShieldCheck, Zap, Download, Headphones } from "lucide-react"
 
 interface HeroStats {
   productCount: number
-  brandCount: number
-  countryCount: number
+  categoryCount: number
   reviewCount: number
   avgRating: number
 }
@@ -57,19 +56,19 @@ const card = {
 }
 
 const trustChips = [
-  { icon: Zap, label: "Instant delivery" },
+  { icon: Download, label: "Instant access" },
   { icon: ShieldCheck, label: "Secure payments" },
-  { icon: Globe2, label: "Global access" },
+  { icon: Zap, label: "New drops weekly" },
   { icon: Headphones, label: "24/7 support" },
 ]
 
-const brandCards = [
-  { name: "PlayStation", logo: "/logos/playstation-store.svg" },
-  { name: "Xbox", logo: "/logos/xbox.svg" },
-  { name: "Steam", logo: "/logos/steam.svg" },
-  { name: "Amazon", logo: "/logos/amazon.svg" },
-  { name: "Netflix", logo: "/logos/netflix.svg" },
-  { name: "Spotify", logo: "/logos/spotify.svg" },
+const categoryPreviewCards = [
+  { name: "Website templates", image: "/images/categories/website-templates.png" },
+  { name: "Fonts", image: "/images/categories/fonts.png" },
+  { name: "Presentation kits", image: "/images/categories/presentation-kits.png" },
+  { name: "Notion systems", image: "/images/categories/notion-systems.png" },
+  { name: "3D & mockups", image: "/images/categories/3d-mockups.png" },
+  { name: "UI kits", image: "/images/categories/ui-kits.png" },
 ]
 
 function StatCounter({ label, value, suffix = "" }: { label: string; value: number; suffix?: string }) {
@@ -89,7 +88,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
     <section className="relative overflow-hidden bg-hero">
       <div className="absolute inset-0">
         <Image
-          src="/images/hero/redeemcove-hero.png"
+          src="/images/hero/distrosource-hero.png"
           alt=""
           fill
           priority
@@ -127,7 +126,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
             className="glow-ring flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3.5 py-1.5 text-xs font-medium text-hero-foreground/80 ring-1 ring-inset ring-accent/25"
           >
             <ShieldCheck className="size-3.5 text-hero-accent" />
-            <span className="tracking-wide">Trusted digital marketplace</span>
+            <span className="tracking-wide">Everything digital. One source.</span>
           </motion.span>
 
           <motion.h1
@@ -135,9 +134,9 @@ export function Hero({ stats }: { stats: HeroStats }) {
             transition={{ duration: 0.2, ease: EASE }}
             className="font-display text-5xl font-medium leading-[1.05] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.1rem]"
           >
-            Digital value,{" "}
+            Digital assets,{" "}
             <span className="text-gradient-cyan relative">
-              delivered in seconds
+              unlocked in seconds
               <motion.span
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
@@ -152,8 +151,8 @@ export function Hero({ stats }: { stats: HeroStats }) {
             transition={{ duration: 0.2, ease: EASE }}
             className="max-w-lg text-lg leading-relaxed text-hero-foreground/65 text-pretty"
           >
-            Top up games, stream more, and shop your favorite brands — all from one marketplace with instant
-            delivery to your inbox and account.
+            Templates, fonts, presentations, Notion systems, 3D assets, and more — one department store for digital
+            products, with instant access to every download in your library.
           </motion.p>
 
           <motion.div
@@ -167,7 +166,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
               className="h-12 bg-accent px-8 font-semibold text-accent-foreground shadow-lg shadow-accent/20 transition-colors hover:bg-accent/90 active:scale-[0.98]"
               render={<Link href="/products" />}
             >
-              Shop all gift cards
+              Shop all products
               <ArrowRight className="size-4" />
             </Button>
             <Button
@@ -200,8 +199,8 @@ export function Hero({ stats }: { stats: HeroStats }) {
             transition={{ duration: 0.2, ease: EASE }}
             className="flex w-full flex-wrap items-center gap-x-8 gap-y-4"
           >
-            <StatCounter label="Brands" value={stats.brandCount} suffix="+" />
-            <StatCounter label="Countries" value={stats.countryCount} />
+            <StatCounter label="Products" value={stats.productCount} suffix="+" />
+            <StatCounter label="Categories" value={stats.categoryCount} />
             <StatCounter label="Reviews" value={stats.reviewCount} />
             <div className="flex flex-col gap-1">
               <span className="flex items-center gap-1.5 font-display text-2xl font-semibold text-hero-foreground sm:text-3xl">
@@ -222,19 +221,23 @@ export function Hero({ stats }: { stats: HeroStats }) {
           className="glass-panel glow-ring relative mx-auto w-full max-w-md rounded-2xl border border-accent/15 p-6"
         >
           <p className="mb-5 text-center text-xs font-medium uppercase tracking-wider text-hero-foreground/45">
-            Powered by the platforms you love
+            A category for every project
           </p>
           <div className="grid grid-cols-3 gap-3">
-            {brandCards.map(({ name, logo }) => (
+            {categoryPreviewCards.map(({ name, image }) => (
               <motion.div key={name} variants={card} transition={{ duration: 0.5, ease: EASE }}>
-                <div className="flex aspect-square items-center justify-center rounded-xl border border-hero-foreground/10 bg-white p-4 transition-colors duration-300 hover:border-hero-accent/40">
+                <div className="relative flex aspect-square items-end overflow-hidden rounded-xl border border-hero-foreground/10 bg-white/5 transition-colors duration-300 hover:border-hero-accent/40">
                   <Image
-                    src={logo || "/placeholder.svg"}
+                    src={image || "/placeholder.svg"}
                     alt={name}
-                    width={64}
-                    height={64}
-                    className="h-8 w-auto object-contain sm:h-9"
+                    fill
+                    className="object-cover"
+                    sizes="120px"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                  <span className="relative z-10 line-clamp-2 p-2 text-[10px] font-medium leading-tight text-white">
+                    {name}
+                  </span>
                 </div>
               </motion.div>
             ))}

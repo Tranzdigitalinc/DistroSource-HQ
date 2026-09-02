@@ -8,8 +8,8 @@ import { toast } from "sonner"
 import { motion } from "motion/react"
 import { Check, Loader2, Minus, Plus, X } from "lucide-react"
 import { PriceDisplay } from "@/components/price-display"
-import { BrandThumbnail } from "@/components/product/brand-thumbnail"
 import { updateCartItemQuantity, removeCartItem } from "@/lib/actions/cart"
+import { formatLicenseType } from "@/lib/format"
 import { useCartCount } from "@/lib/use-cart"
 import { cn } from "@/lib/utils"
 
@@ -17,10 +17,7 @@ interface CartLineItemProps {
   cartItemId: number
   productSlug: string
   productName: string
-  brandName: string
-  brandLogoUrl?: string | null
-  brandColor?: string | null
-  denominationLabel: string
+  licenseType: string
   imageUrl: string | null
   unitPriceUsd: string
   quantity: number
@@ -31,10 +28,7 @@ export function CartLineItem({
   cartItemId,
   productSlug,
   productName,
-  brandName,
-  brandLogoUrl,
-  brandColor,
-  denominationLabel,
+  licenseType,
   imageUrl,
   unitPriceUsd,
   quantity,
@@ -87,30 +81,24 @@ export function CartLineItem({
     >
       <Link
         href={`/products/${productSlug}`}
-        className="relative size-20 shrink-0 overflow-hidden rounded-lg border border-border/60 sm:size-24"
+        className="relative size-20 shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted sm:size-24"
       >
         {imageUrl ? (
           <Image src={imageUrl || "/placeholder.svg"} alt={productName} fill className="object-cover" sizes="96px" />
         ) : (
-          <BrandThumbnail
-            logoUrl={brandLogoUrl ?? null}
-            brandColor={brandColor ?? null}
-            brandName={brandName}
-            logoClassName="rounded-lg shadow-none"
-          />
+          <div className="flex size-full items-center justify-center text-xs text-muted-foreground">No preview</div>
         )}
       </Link>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-xs font-medium text-muted-foreground">{brandName}</p>
             <Link href={`/products/${productSlug}`} className="text-sm font-semibold leading-snug hover:text-accent">
               {productName}
             </Link>
-            <p className="text-xs text-muted-foreground">{denominationLabel}</p>
+            <p className="text-xs text-muted-foreground">{formatLicenseType(licenseType)} license</p>
             <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
               <Check className="size-3 text-success" aria-hidden="true" />
-              Instant digital delivery
+              Instant digital download
             </p>
           </div>
           <motion.button

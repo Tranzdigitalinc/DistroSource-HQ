@@ -1,5 +1,5 @@
 // Centralized allow-list of admin accounts. Add new admin emails here (lowercase).
-const ADMIN_EMAILS = new Set(["info@corevalleyjo.com", "admin@redeemcove.com"])
+const ADMIN_EMAILS = new Set(["info@corevalleyjo.com", "admin@distrosource.com"])
 
 export function isAdminEmail(email: string | null | undefined): boolean {
   if (!email) return false

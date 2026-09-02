@@ -1,7 +1,7 @@
 import { LegalPageLayout } from "@/components/legal/legal-page-layout"
 
 export const metadata = {
-  title: "Refund Policy — RedeemCove",
+  title: "Refund Policy — DistroSource",
 }
 
 export default function RefundPolicyPage() {
@@ -10,47 +10,47 @@ export default function RefundPolicyPage() {
       title="Refund Policy"
       updatedAt="January 15, 2025"
       currentHref="/legal/refund-policy"
-      intro="Because RedeemCove sells digital codes that can be revealed instantly, refund eligibility depends on whether the code has been viewed, sent, or redeemed. This policy explains exactly when a refund is available."
+      intro="Because DistroSource sells digital files that can be downloaded instantly, refund eligibility depends on whether the files have been downloaded and which license tier was purchased. This policy explains exactly when a refund is available."
       sections={[
         {
-          heading: "1. Unused gift cards and license keys",
+          heading: "1. Undownloaded purchases",
           body: (
             <p>
-              Digital gift cards and software license keys that have <span className="font-medium text-foreground">not</span> been
-              revealed, copied, or redeemed on the issuing brand's platform are eligible for a full refund within 14
-              days of purchase. Once you click "Reveal code" or the code has been redeemed, the order becomes
-              final and non-refundable, because the code can no longer be resold or reissued.
+              Products that have <span className="font-medium text-foreground">not</span> been downloaded from your
+              account are eligible for a full refund within 14 days of purchase. Once you download a file from{" "}
+              <span className="font-medium text-foreground">My Library</span>, the order becomes final and
+              non-refundable, because the digital files cannot be "returned."
             </p>
           ),
         },
         {
-          heading: "2. Game top-ups and mobile recharges",
+          heading: "2. Defective or incorrect files",
           body: (
             <p>
-              Game currency top-ups and mobile airtime/data recharges are delivered directly to the account or
-              phone number you provide and are non-refundable once submitted for delivery, since these products are
-              fulfilled immediately with our distribution partners and cannot be reversed. Please double-check the
-              player ID, account, or phone number before confirming your order.
+              If a file is corrupted, incomplete, or does not match the product description on its listing, contact
+              support within 30 days with your order number. We will verify the issue and issue a corrected file or
+              a full refund to your original payment method.
             </p>
           ),
         },
         {
-          heading: "3. Defective or incorrect codes",
+          heading: "3. Wrong license tier",
           body: (
             <p>
-              If a code fails to redeem, was already used, or does not match the product you purchased, contact
-              support within 30 days with your order number. We will verify the issue with the issuing brand or
-              fulfillment partner and issue a replacement code or a full refund to your original payment method.
+              If you purchased the wrong license tier for a product (for example, Personal instead of Commercial)
+              and have not yet downloaded the files, contact support within 14 days to switch tiers or request a
+              refund. Once files tied to a given license have been downloaded, that license cannot be refunded, but
+              you may upgrade to a higher tier by paying the price difference.
             </p>
           ),
         },
         {
-          heading: "4. Wrong region or platform purchases",
+          heading: "4. Team and agency licenses",
           body: (
             <p>
-              Gift cards are region-locked by the issuing brand. If you purchase a code for the wrong country or
-              platform and have not yet revealed it, contact support within 14 days for a refund. Revealed codes for
-              the wrong region cannot be refunded, since region eligibility cannot be verified after reveal.
+              Team License purchases requested through our{" "}
+              <span className="font-medium text-foreground">Team Licensing</span> program follow the refund terms
+              agreed in the quote at time of purchase, since these orders are custom-priced for multi-seat use.
             </p>
           ),
         },
@@ -59,8 +59,8 @@ export default function RefundPolicyPage() {
           body: (
             <p>
               Approved refunds are issued to your original payment method within 5–10 business days, depending on
-              your bank or payment provider. You will receive an email confirmation once the refund has been
-              submitted.
+              your bank or payment provider, and revoke access to the associated files in your library. You will
+              receive an email confirmation once the refund has been submitted.
             </p>
           ),
         },
@@ -69,8 +69,8 @@ export default function RefundPolicyPage() {
           body: (
             <p>
               Please contact our support team before filing a chargeback with your bank — most issues can be
-              resolved faster directly with us. Accounts that file chargebacks for revealed or redeemed codes without
-              first contacting support may be suspended pending investigation.
+              resolved faster directly with us. Accounts that file chargebacks for downloaded files without first
+              contacting support may be suspended pending investigation.
             </p>
           ),
         },

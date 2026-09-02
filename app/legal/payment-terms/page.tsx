@@ -1,7 +1,7 @@
 import { LegalPageLayout } from "@/components/legal/legal-page-layout"
 
 export const metadata = {
-  title: "Payment Terms — RedeemCove",
+  title: "Payment Terms — DistroSource",
 }
 
 export default function PaymentTermsPage() {
@@ -10,14 +10,14 @@ export default function PaymentTermsPage() {
       title="Payment Terms"
       updatedAt="January 15, 2025"
       currentHref="/legal/payment-terms"
-      intro="This page explains how payments, pricing, and billing work on RedeemCove."
+      intro="This page explains how payments, pricing, and billing work on DistroSource."
       sections={[
         {
           heading: "1. Accepted payment methods",
           body: (
             <p>
-              We accept major debit and credit cards (Visa, Mastercard, American Express), PayPal, Apple Pay, and
-              Google Pay. Available methods may vary slightly by region and are shown at checkout.
+              We accept PayPal and major debit and credit cards through PayPal Checkout. Available methods are
+              shown at checkout.
             </p>
           ),
         },
@@ -25,8 +25,8 @@ export default function PaymentTermsPage() {
           heading: "2. When you're charged",
           body: (
             <p>
-              Your payment method is charged at the time you place an order, immediately before your digital code
-              or top-up is issued. Orders are only fulfilled once payment has been successfully authorized.
+              Your payment method is charged at the time you place an order, immediately before your files are
+              added to your library. Orders are only fulfilled once payment has been successfully authorized.
             </p>
           ),
         },
@@ -34,9 +34,9 @@ export default function PaymentTermsPage() {
           heading: "3. Currency and pricing",
           body: (
             <p>
-              Prices are displayed in the currency associated with your selected country/region. If your payment
-              method uses a different currency, your bank or card network may apply its own conversion rate and, in
-              some cases, a foreign transaction fee — these fees are set by your bank, not RedeemCove.
+              All prices on DistroSource are displayed and charged in U.S. dollars. If your payment method uses a
+              different currency, your bank or card network may apply its own conversion rate and, in some cases, a
+              foreign transaction fee — these fees are set by your bank, not DistroSource.
             </p>
           ),
         },
@@ -44,8 +44,9 @@ export default function PaymentTermsPage() {
           heading: "4. Order confirmation and receipts",
           body: (
             <p>
-              You&apos;ll receive an email receipt for every completed order, and a full billing history is available
-              under Account Settings. Receipts include the product, price paid, and applicable taxes.
+              You&apos;ll receive an email receipt for every completed order, and a full billing history with
+              downloadable invoices is available under Account → Invoices. Receipts include the product, license
+              tier, price paid, and applicable taxes.
             </p>
           ),
         },
@@ -53,7 +54,7 @@ export default function PaymentTermsPage() {
           heading: "5. Failed and declined payments",
           body: (
             <p>
-              If a payment is declined, your order will not be fulfilled and no code will be issued. Common causes
+              If a payment is declined, your order will not be fulfilled and no files will be issued. Common causes
               include insufficient funds, bank fraud holds on digital goods purchases, or incorrect billing details.
               Contact your bank first, or try an alternate payment method.
             </p>
@@ -63,8 +64,8 @@ export default function PaymentTermsPage() {
           heading: "6. Security",
           body: (
             <p>
-              Checkout is processed through PCI-compliant, encrypted payment providers. RedeemCove never stores your
-              full card number or CVV on its own servers.
+              Checkout is processed through PCI-compliant, encrypted payment providers. DistroSource never stores
+              your full card number or CVV on its own servers.
             </p>
           ),
         },

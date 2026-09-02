@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { formatDate } from "@/lib/format"
 
 export const metadata = {
-  title: "Referrals — RedeemCove",
+  title: "Referrals — DistroSource",
 }
 
 function maskName(name: string | null) {
@@ -29,7 +29,7 @@ export default async function AccountReferralsPage() {
   }
 
   const requestHeaders = await headers()
-  const host = requestHeaders.get("host") ?? "redeemcove.com"
+  const host = requestHeaders.get("host") ?? "distrosource.com"
   const protocol = host.startsWith("localhost") ? "http" : "https"
   const referralUrl = `${protocol}://${host}/?ref=${referral.code}`
 

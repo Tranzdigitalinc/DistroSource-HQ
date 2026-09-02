@@ -1,9 +1,9 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { wishlistItems, products, brands, categories, productVariants } from "@/lib/db/schema"
+import { wishlistItems, products, categories, productImages, productLicenses } from "@/lib/db/schema"
 import { getOptionalUserId, getUserId } from "@/lib/session"
-import { and, eq, inArray } from "drizzle-orm"
+import { and, asc, eq, inArray } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
 export async function toggleWishlist(productId: number) {
@@ -42,19 +42,40 @@ export async function getWishlistItems() {
 
   const productIds = wishRows.map((w) => w.productId)
   const rows = await db
-    .select({ product: products, brand: brands, category: categories })
+    .select({ product: products, category: categories })
     .from(products)
-    .innerJoin(brands, eq(products.brandId, brands.id))
     .innerJoin(categories, eq(products.categoryId, categories.id))
     .where(inArray(products.id, productIds))
 
-  const variantRows = await db.select().from(productVariants).where(inArray(productVariants.productId, productIds))
-  const variantsByProduct = new Map<number, typeof variantRows>()
-  for (const v of variantRows) {
-    const list = variantsByProduct.get(v.productId) ?? []
-    list.push(v)
-    variantsByProduct.set(v.productId, list)
+  const [imageRows, licenseRows] = await Promise.all([
+    db.select().from(productImages).where(inArray(productImages.productId, productIds)).orderBy(asc(productImages.sortOrder)),
+    db.select().from(productLicenses).where(inArray(productLicenses.productId, productIds)).orderBy(asc(productLicenses.sortOrder)),
+  ])
+
+  const imagesByProduct = new Map<number, typeof imageRows>()
+  for (const image of imageRows) {
+    const list = imagesByProduct.get(image.productId) ?? []
+    list.push(image)
+    imagesByProduct.set(image.productId, list)
+  }
+  const licensesByProduct = new Map<number, typeof licenseRows>()
+  for (const license of licenseRows) {
+    const list = licensesByProduct.get(license.productId) ?? []
+    list.push(license)
+    licensesByProduct.set(license.productId, list)
   }
 
-  return rows.map((r) => ({ ...r, variants: variantsByProduct.get(r.product.id) ?? [] }))
+  return rows.map((r) => {
+    const productLicensesList = licensesByProduct.get(r.product.id) ?? []
+    const startingPrice = productLicensesList.length
+      ? Math.min(...productLicensesList.map((l) => Number.parseFloat(l.price)))
+      : Number.parseFloat(r.product.basePrice)
+
+    return {
+      ...r,
+      images: imagesByProduct.get(r.product.id) ?? [],
+      licenses: productLicensesList,
+      startingPrice,
+    }
+  })
 }

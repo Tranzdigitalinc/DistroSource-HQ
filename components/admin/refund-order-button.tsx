@@ -27,7 +27,7 @@ export function RefundOrderButton({ orderId, orderNumber, totalUsd }: { orderId:
     startTransition(async () => {
       try {
         await refundOrder(orderId, reason)
-        toast.success("Order refunded", { description: `Order ${orderNumber} marked as refunded and codes voided.` })
+        toast.success("Order refunded", { description: `Order ${orderNumber} marked as refunded and download access revoked.` })
         setOpen(false)
         setReason("")
       } catch (error) {
@@ -45,7 +45,7 @@ export function RefundOrderButton({ orderId, orderNumber, totalUsd }: { orderId:
         <DialogHeader>
           <DialogTitle>Refund order {orderNumber}</DialogTitle>
           <DialogDescription>
-            This marks the ${totalUsd} order as refunded, voids all issued codes, and emails the customer a refund confirmation. No payment is actually processed — this app has no live payment gateway.
+            This marks the ${totalUsd} order as refunded, revokes the customer&apos;s download access to every item in the order, and emails a refund confirmation. No payment is actually processed — this app has no live payment gateway.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-2">

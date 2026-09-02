@@ -8,7 +8,7 @@ import { PriceDisplay } from "@/components/price-display"
 import { Badge } from "@/components/ui/badge"
 
 export const metadata = {
-  title: "Order detail — RedeemCove",
+  title: "Order detail — DistroSource",
 }
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ orderNumber: string }> }) {
@@ -50,7 +50,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ or
 
       <div className="rounded-xl border border-border bg-card p-6">
         <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          Items &amp; codes
+          Items
         </h3>
         <OrderItemsList items={items} />
         <div className="mt-4 flex flex-col gap-1.5 border-t border-border pt-4 text-sm">

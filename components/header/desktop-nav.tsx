@@ -12,19 +12,9 @@ interface Category {
   slug: string
   name: string
   description: string | null
-  iconName: string
 }
 
-interface Brand {
-  id: number
-  slug: string
-  name: string
-  categoryId: number
-  isFeatured: boolean
-  logoUrl?: string | null
-}
-
-export function DesktopNav({ categories, brands }: { categories: Category[]; brands: Brand[] }) {
+export function DesktopNav({ categories }: { categories: Category[] }) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -49,29 +39,29 @@ export function DesktopNav({ categories, brands }: { categories: Category[]; bra
           align="start"
           sideOffset={12}
           onMouseLeave={() => setOpen(false)}
-          className="w-[640px] max-w-[90vw] p-0"
+          className="w-[760px] max-w-[92vw] p-0"
         >
-          <MegaMenu categories={categories} brands={brands} />
+          <MegaMenu categories={categories} />
         </PopoverContent>
       </Popover>
 
       <Link
-        href="/deals"
+        href="/products?free=true"
         className="rounded-full px-3 py-1.5 text-sm font-medium text-foreground/85 transition-colors hover:bg-accent/10 hover:text-accent"
       >
-        Deals
+        Free Resources
       </Link>
       <Link
-        href="/countries"
+        href="/products?bundle=true"
         className="rounded-full px-3 py-1.5 text-sm font-medium text-foreground/85 transition-colors hover:bg-accent/10 hover:text-accent"
       >
-        Countries
+        Bundles
       </Link>
       <Link
-        href="/bulk-gifting"
+        href="/team-licensing"
         className="rounded-full px-3 py-1.5 text-sm font-medium text-foreground/85 transition-colors hover:bg-accent/10 hover:text-accent"
       >
-        Bulk Gifting
+        Team Licensing
       </Link>
     </nav>
   )

@@ -8,7 +8,6 @@ const legalLinks = [
   { label: "Privacy Policy", href: "/legal/privacy" },
   { label: "Refund Policy", href: "/legal/refund-policy" },
   { label: "Delivery Policy", href: "/legal/delivery-policy" },
-  { label: "Gift Card Terms", href: "/legal/gift-card-terms" },
   { label: "Cookie Policy", href: "/legal/cookie-policy" },
   { label: "Acceptable Use", href: "/legal/acceptable-use" },
   { label: "Payment Terms", href: "/legal/payment-terms" },

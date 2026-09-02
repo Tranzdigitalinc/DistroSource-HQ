@@ -3,17 +3,17 @@
 import { Resend } from "resend"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "RedeemCove <support@redeemcove.com>"
-const SUPPORT_INBOX = "support@redeemcove.com"
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "DistroSource <support@distrosource.com>"
+const SUPPORT_INBOX = "support@distrosource.com"
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const TOPIC_LABELS: Record<string, string> = {
-  order: "Order or delivery issue",
+  order: "Order or download issue",
   billing: "Billing or payment",
   account: "Account access",
-  business: "Business & bulk gifting",
-  partnership: "Brand partnership",
+  business: "Business & team licensing",
+  partnership: "Partnership",
   other: "Something else",
 }
 
