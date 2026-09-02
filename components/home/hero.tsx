@@ -78,42 +78,15 @@ function StatCounter({ label, value, suffix = "" }: { label: string; value: numb
       <span ref={counter.ref} className="font-display text-2xl font-semibold text-hero-foreground sm:text-3xl">
         {formatCount(counter.value)}{suffix}
       </span>
-      <span className="text-[11px] font-medium uppercase tracking-wider text-hero-foreground/45">{label}</span>
+      <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
     </div>
   )
 }
 
 export function Hero({ stats }: { stats: HeroStats }) {
   return (
-    <section className="relative overflow-hidden bg-hero">
-      <div className="absolute inset-0">
-        <Image
-          src="/images/hero/distrosource-hero.png"
-          alt=""
-          fill
-          priority
-          loading="eager"
-          className="object-cover opacity-60 mix-blend-screen"
-        />
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-hero via-hero/40 to-hero/80" />
-      <div
-        className="absolute inset-0 opacity-80"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 10% 15%, oklch(0.8 0.17 195 / 0.2), transparent 45%), radial-gradient(circle at 90% 90%, oklch(0.7 0.2 258 / 0.18), transparent 45%)",
-        }}
-      />
-      <div
-        className="absolute inset-0 opacity-[0.06]"
-        style={{
-          backgroundImage:
-            "linear-gradient(oklch(0.98 0.003 260) 1px, transparent 1px), linear-gradient(90deg, oklch(0.98 0.003 260) 1px, transparent 1px)",
-          backgroundSize: "56px 56px",
-        }}
-      />
-
-      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 px-4 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:py-24">
+    <section className="relative overflow-hidden border-b border-border bg-hero">
+      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 px-4 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:py-20">
         <motion.div
           initial="hidden"
           animate="visible"
@@ -122,10 +95,10 @@ export function Hero({ stats }: { stats: HeroStats }) {
         >
           <motion.span
             variants={item}
-              transition={{ duration: 0.2, ease: EASE }}
-            className="glow-ring flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3.5 py-1.5 text-xs font-medium text-hero-foreground/80 ring-1 ring-inset ring-accent/25"
+            transition={{ duration: 0.2, ease: EASE }}
+            className="flex w-fit items-center gap-1.5 rounded-full border border-accent/25 bg-accent/10 px-3.5 py-1.5 text-xs font-medium text-accent"
           >
-            <ShieldCheck className="size-3.5 text-hero-accent" />
+            <ShieldCheck className="size-3.5" />
             <span className="tracking-wide">Everything digital. One source.</span>
           </motion.span>
 
@@ -135,13 +108,13 @@ export function Hero({ stats }: { stats: HeroStats }) {
             className="font-display text-5xl font-medium leading-[1.05] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.1rem]"
           >
             Digital assets,{" "}
-            <span className="text-gradient-cyan relative">
+            <span className="relative text-primary">
               unlocked in seconds
               <motion.span
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
                 transition={{ duration: 0.6, ease: EASE, delay: 0.6 }}
-                className="absolute -bottom-1 left-0 h-[2px] w-full origin-left rounded-full bg-hero-accent/40"
+                className="absolute -bottom-1 left-0 h-[3px] w-full origin-left rounded-full bg-accent/50"
               />
             </span>
           </motion.h1>
@@ -149,7 +122,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
           <motion.p
             variants={item}
             transition={{ duration: 0.2, ease: EASE }}
-            className="max-w-lg text-lg leading-relaxed text-hero-foreground/65 text-pretty"
+            className="max-w-lg text-lg leading-relaxed text-muted-foreground text-pretty"
           >
             Templates, fonts, presentations, Notion systems, 3D assets, and more — one department store for digital
             products, with instant access to every download in your library.
@@ -163,7 +136,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
             <Button
               size="lg"
               nativeButton={false}
-              className="h-12 bg-accent px-8 font-semibold text-accent-foreground shadow-lg shadow-accent/20 transition-colors hover:bg-accent/90 active:scale-[0.98]"
+              className="h-12 bg-primary px-8 font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.98]"
               render={<Link href="/products" />}
             >
               Shop all products
@@ -173,7 +146,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
               size="lg"
               variant="outline"
               nativeButton={false}
-              className="h-12 border-hero-foreground/20 bg-transparent px-8 font-semibold text-hero-foreground transition-colors hover:border-accent/50 hover:bg-hero-foreground/5 active:scale-[0.98]"
+              className="h-12 border-border bg-transparent px-8 font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-secondary active:scale-[0.98]"
               render={<Link href="/deals" />}
             >
               <Sparkles className="size-4" />
@@ -184,11 +157,11 @@ export function Hero({ stats }: { stats: HeroStats }) {
           <motion.div
             variants={item}
             transition={{ duration: 0.2, ease: EASE }}
-            className="grid w-full grid-cols-2 gap-y-3 border-t border-hero-foreground/10 pt-6 sm:grid-cols-4"
+            className="grid w-full grid-cols-2 gap-y-3 border-t border-border pt-6 sm:grid-cols-4"
           >
             {trustChips.map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2 text-hero-foreground/65">
-                <Icon className="size-4 shrink-0 text-hero-accent" />
+              <div key={label} className="flex items-center gap-2 text-muted-foreground">
+                <Icon className="size-4 shrink-0 text-accent" />
                 <span className="text-xs font-medium sm:text-sm">{label}</span>
               </div>
             ))}
@@ -205,9 +178,9 @@ export function Hero({ stats }: { stats: HeroStats }) {
             <div className="flex flex-col gap-1">
               <span className="flex items-center gap-1.5 font-display text-2xl font-semibold text-hero-foreground sm:text-3xl">
                 {stats.avgRating.toFixed(1)}
-                <Star className="size-4 fill-hero-accent text-hero-accent" />
+                <Star className="size-4 fill-accent text-accent" />
               </span>
-              <span className="text-[11px] font-medium uppercase tracking-wider text-hero-foreground/45">
+              <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Avg rating
               </span>
             </div>
@@ -218,15 +191,15 @@ export function Hero({ stats }: { stats: HeroStats }) {
           initial="hidden"
           animate="visible"
           transition={{ staggerChildren: 0.02, delayChildren: 0 }}
-          className="glass-panel glow-ring relative mx-auto w-full max-w-md rounded-2xl border border-accent/15 p-6"
+          className="relative mx-auto w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-sm"
         >
-          <p className="mb-5 text-center text-xs font-medium uppercase tracking-wider text-hero-foreground/45">
+          <p className="mb-5 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
             A category for every project
           </p>
           <div className="grid grid-cols-3 gap-3">
             {categoryPreviewCards.map(({ name, image }) => (
               <motion.div key={name} variants={card} transition={{ duration: 0.5, ease: EASE }}>
-                <div className="relative flex aspect-square items-end overflow-hidden rounded-xl border border-hero-foreground/10 bg-white/5 transition-colors duration-300 hover:border-hero-accent/40">
+                <div className="relative flex aspect-square items-end overflow-hidden rounded-xl border border-border bg-secondary transition-colors duration-300 hover:border-accent/40">
                   <Image
                     src={image || "/placeholder.svg"}
                     alt={name}
@@ -234,7 +207,7 @@ export function Hero({ stats }: { stats: HeroStats }) {
                     className="object-cover"
                     sizes="120px"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/5 to-transparent" />
                   <span className="relative z-10 line-clamp-2 p-2 text-[10px] font-medium leading-tight text-white">
                     {name}
                   </span>

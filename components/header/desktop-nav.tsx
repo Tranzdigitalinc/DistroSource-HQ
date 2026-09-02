@@ -39,7 +39,7 @@ export function DesktopNav({ categories }: { categories: Category[] }) {
           align="start"
           sideOffset={12}
           onMouseLeave={() => setOpen(false)}
-          className="w-[760px] max-w-[92vw] p-0"
+          className="w-[520px] max-w-[92vw] p-0"
         >
           <MegaMenu categories={categories} />
         </PopoverContent>

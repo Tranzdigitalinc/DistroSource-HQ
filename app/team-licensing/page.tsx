@@ -31,23 +31,16 @@ export default function TeamLicensingPage() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <section className="relative overflow-hidden bg-hero">
-          <div
-            className="absolute inset-0 opacity-50"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 15% 30%, oklch(0.72 0.14 220 / 0.45), transparent 45%), radial-gradient(circle at 85% 80%, oklch(0.6 0.15 240 / 0.35), transparent 45%)",
-            }}
-          />
+        <section className="relative overflow-hidden border-b border-border bg-hero">
           <div className="relative mx-auto max-w-3xl px-6 py-16 text-center sm:px-8">
-            <span className="mx-auto flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3 py-1 text-xs font-medium text-hero-foreground/90 ring-1 ring-inset ring-hero-foreground/20">
-              <Building2 className="size-3.5 text-hero-accent" />
+            <span className="mx-auto flex w-fit items-center gap-1.5 rounded-full border border-accent/25 bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
+              <Building2 className="size-3.5" />
               For agencies & studios
             </span>
             <h1 className="mt-5 font-display text-4xl font-bold leading-[1.1] tracking-tight text-hero-foreground text-balance sm:text-5xl">
               Team licensing for growing studios
             </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-hero-foreground/75 text-pretty">
+            <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground text-pretty">
               Purchasing across a whole team or client roster? Tell us what you need and we&apos;ll put together a
               licensing plan that fits.
             </p>

@@ -66,7 +66,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark bg-background ${_inter.variable} ${_geist.variable}`}
+      className={`bg-background ${_inter.variable} ${_geist.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased">
