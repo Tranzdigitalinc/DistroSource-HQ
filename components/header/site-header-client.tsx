@@ -14,7 +14,7 @@ type Category = { id: number; slug: string; name: string; description: string | 
 
 export function SiteHeaderClient({ categories = [] }: { categories?: Category[] }) {
   return (
-    <header className="glass-panel sticky top-0 z-40 border-b border-accent/15 supports-backdrop-filter:bg-background/60">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/80">
       <TrustStrip />
       <div className="mx-auto flex h-[68px] max-w-7xl items-center gap-3 px-4 sm:px-6">
         <MobileNav categories={categories} />

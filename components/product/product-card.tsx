@@ -66,7 +66,7 @@ export function ProductCard({
       transition={{ type: "spring", stiffness: 400, damping: 28 }}
       className={cn(
         "group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-300",
-        "hover:border-accent/40 hover:shadow-[0_0_0_1px_var(--accent),0_16px_40px_-12px_var(--glow)]",
+        "hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg",
         className,
       )}
     >
@@ -102,7 +102,7 @@ export function ProductCard({
         <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           {item.category.name}
         </span>
-        <h3 className="-mt-1 line-clamp-2 min-h-10 text-sm font-medium leading-snug text-balance text-foreground transition-colors group-hover:text-accent">
+        <h3 className="-mt-1 line-clamp-2 min-h-10 text-sm font-medium leading-snug text-balance text-foreground transition-colors group-hover:text-primary">
           {item.product.name}
         </h3>
       </Link>

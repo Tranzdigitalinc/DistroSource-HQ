@@ -53,12 +53,12 @@ export default async function CategoryDetailPage({
         subtitle={category.description ?? undefined}
         products={products}
         banner={
-          <div className="relative flex w-full flex-col gap-4 overflow-hidden border-b border-primary/20 bg-[radial-gradient(circle_at_85%_-20%,hsl(var(--primary)/0.35),transparent_60%),radial-gradient(circle_at_10%_120%,hsl(var(--accent)/0.2),transparent_55%)] px-6 py-6 sm:px-10 sm:py-8">
-            <div className="flex items-center gap-5">
-              <div className="flex size-16 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary shadow-[0_0_30px_hsl(var(--primary)/0.3)]">
+          <div className="relative flex w-full flex-col gap-4 border-b border-border bg-secondary/40 px-6 py-6 sm:px-10 sm:py-8">
+            <div className="mx-auto flex w-full max-w-7xl items-center gap-5">
+              <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl border border-border bg-card text-primary">
                 {(() => {
                   const Icon = getCategoryIcon(category.slug)
-                  return <Icon aria-hidden="true" />
+                  return <Icon aria-hidden="true" className="size-7" />
                 })()}
               </div>
               <div className="flex flex-col gap-1">

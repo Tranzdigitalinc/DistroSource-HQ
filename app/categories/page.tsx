@@ -18,10 +18,10 @@ export default async function CategoriesPage() {
               <Link
                 key={category.slug}
                 href={`/categories/${category.slug}`}
-                className="group flex min-h-44 flex-col justify-between rounded-2xl border border-primary/20 bg-card p-6 transition-colors hover:border-primary/60"
+                className="group flex min-h-44 flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
               >
-                <div className="flex size-12 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
-                  {(() => { const Icon = getCategoryIcon(category.slug); return <Icon aria-hidden="true" /> })()}
+                <div className="flex size-12 items-center justify-center rounded-xl bg-secondary text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                  {(() => { const Icon = getCategoryIcon(category.slug); return <Icon aria-hidden="true" className="size-5" /> })()}
                 </div>
                 <span className="flex flex-col gap-1">
                   <h2 className="font-display text-lg font-bold text-foreground">{category.name}</h2>

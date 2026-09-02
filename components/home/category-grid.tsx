@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { motion } from "motion/react"
 import { ArrowUpRight } from "lucide-react"
-import { getCategoryVisual } from "@/lib/category-visuals"
+import { getCategoryIcon } from "@/lib/category-icons"
 import { RevealGroup, RevealItem } from "@/components/motion/reveal"
 import type { getCategories } from "@/lib/queries/catalog"
 
@@ -27,8 +27,7 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
       </div>
       <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" stagger={0.06}>
         {categories.map((category) => {
-          const visual = getCategoryVisual(category.slug)
-          const Icon = visual.icon
+          const Icon = getCategoryIcon(category.slug)
           return (
             <RevealItem key={category.slug}>
               <MotionLink
@@ -36,14 +35,10 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
                 whileHover={{ y: -4 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 420, damping: 32 }}
-                className={`group relative flex aspect-[4/3] flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition-[border-color,box-shadow] ${visual.ring} hover:shadow-lg`}
+                className="group relative flex aspect-[4/3] flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition-[border-color,box-shadow] hover:border-primary/30 hover:shadow-md"
               >
-                <div
-                  className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${visual.glow} via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100`}
-                />
-
                 <div className="relative flex items-start justify-between">
-                  <div className={`flex size-12 items-center justify-center rounded-xl text-white shadow-lg ${visual.chip}`}>
+                  <div className="flex size-12 items-center justify-center rounded-xl bg-secondary text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                     <Icon aria-hidden="true" className="size-6" />
                   </div>
                 </div>
@@ -57,9 +52,7 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
                       {category.productCount} {category.productCount === 1 ? "product" : "products"}
                     </span>
                   </span>
-                  <span
-                    className={`flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground/60 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${visual.accentText}`}
-                  >
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground/60 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary">
                     <ArrowUpRight aria-hidden="true" className="size-4" />
                   </span>
                 </span>

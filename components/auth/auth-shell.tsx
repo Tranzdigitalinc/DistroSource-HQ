@@ -34,14 +34,7 @@ export async function AuthShell({
             </div>
           </div>
         </div>
-        <div className="relative hidden overflow-hidden bg-hero lg:block">
-          <div
-            className="absolute inset-0 opacity-40"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 20% 20%, oklch(0.68 0.19 262 / 0.35), transparent 40%), radial-gradient(circle at 80% 70%, oklch(0.64 0.21 262 / 0.28), transparent 45%)",
-            }}
-          />
+        <div className="relative hidden overflow-hidden border-l border-border bg-hero lg:block">
           <div className="relative flex h-full flex-col justify-center p-12 xl:p-16">
             <div className="mx-auto flex w-full max-w-lg flex-col gap-8">
               <div className="flex items-center gap-3 text-sm font-semibold tracking-wide text-hero-foreground/70">
