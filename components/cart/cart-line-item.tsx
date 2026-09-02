@@ -3,13 +3,11 @@
 import { useState, useTransition } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
 import { motion } from "motion/react"
-import { Check, Loader2, Minus, Plus, X } from "lucide-react"
+import { Loader2, Minus, Plus, X } from "lucide-react"
 import { PriceDisplay } from "@/components/price-display"
+import { BrandThumbnail } from "@/components/product/brand-thumbnail"
 import { updateCartItemQuantity, removeCartItem } from "@/lib/actions/cart"
-import { formatLicenseType } from "@/lib/format"
 import { useCartCount } from "@/lib/use-cart"
 import { cn } from "@/lib/utils"
 
@@ -17,7 +15,10 @@ interface CartLineItemProps {
   cartItemId: number
   productSlug: string
   productName: string
-  licenseType: string
+  brandName: string
+  brandLogoUrl?: string | null
+  brandColor?: string | null
+  denominationLabel: string
   imageUrl: string | null
   unitPriceUsd: string
   quantity: number
@@ -28,13 +29,15 @@ export function CartLineItem({
   cartItemId,
   productSlug,
   productName,
-  licenseType,
+  brandName,
+  brandLogoUrl,
+  brandColor,
+  denominationLabel,
   imageUrl,
   unitPriceUsd,
   quantity,
   onRemoved,
 }: CartLineItemProps) {
-  const router = useRouter()
   const [qty, setQty] = useState(quantity)
   const [isUpdating, startUpdate] = useTransition()
   const [isRemoving, startRemove] = useTransition()
@@ -45,28 +48,16 @@ export function CartLineItem({
     if (clamped === qty) return
     setQty(clamped)
     startUpdate(async () => {
-      try {
-        await updateCartItemQuantity(cartItemId, clamped)
-        refresh()
-        router.refresh()
-      } catch {
-        setQty(qty)
-        toast.error("We couldn't update this item. Please try again.")
-      }
+      await updateCartItemQuantity(cartItemId, clamped)
+      refresh()
     })
   }
 
   function handleRemove() {
     startRemove(async () => {
-      try {
-        await removeCartItem(cartItemId)
-        refresh()
-        router.refresh()
-        onRemoved?.(cartItemId)
-        toast.success("Item removed from your cart")
-      } catch {
-        toast.error("We couldn't remove this item. Please try again.")
-      }
+      await removeCartItem(cartItemId)
+      refresh()
+      onRemoved?.(cartItemId)
     })
   }
 
@@ -81,25 +72,27 @@ export function CartLineItem({
     >
       <Link
         href={`/products/${productSlug}`}
-        className="relative size-20 shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted sm:size-24"
+        className="relative size-20 shrink-0 overflow-hidden rounded-lg border border-border/60 sm:size-24"
       >
         {imageUrl ? (
           <Image src={imageUrl || "/placeholder.svg"} alt={productName} fill className="object-cover" sizes="96px" />
         ) : (
-          <div className="flex size-full items-center justify-center text-xs text-muted-foreground">No preview</div>
+          <BrandThumbnail
+            logoUrl={brandLogoUrl ?? null}
+            brandColor={brandColor ?? null}
+            brandName={brandName}
+            logoClassName="rounded-lg shadow-none"
+          />
         )}
       </Link>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
+            <p className="text-xs font-medium text-muted-foreground">{brandName}</p>
             <Link href={`/products/${productSlug}`} className="text-sm font-semibold leading-snug hover:text-accent">
               {productName}
             </Link>
-            <p className="text-xs text-muted-foreground">{formatLicenseType(licenseType)} license</p>
-            <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
-              <Check className="size-3 text-success" aria-hidden="true" />
-              Instant digital download
-            </p>
+            <p className="text-xs text-muted-foreground">{denominationLabel}</p>
           </div>
           <motion.button
             type="button"

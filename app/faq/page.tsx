@@ -5,18 +5,18 @@ import { Reveal } from "@/components/motion/reveal"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 
 export const metadata = {
-  title: "Frequently Asked Questions — DistroSource",
-  description: "Answers to common questions about orders, licensing, downloads, and your DistroSource account.",
+  title: "Frequently Asked Questions — RedeemCove",
+  description: "Answers to common questions about orders, payments, gift cards, and your RedeemCove account.",
 }
 
 const faqGroups = [
   {
-    category: "Orders & downloads",
+    category: "Orders & delivery",
     faqs: [
       {
-        question: "How fast can I download my files?",
+        question: "How fast will I receive my code?",
         answer:
-          "Instantly. As soon as your payment is confirmed, your files are added to My Library and available to download right away, and a confirmation email is sent to you — no waiting, no shipping.",
+          "Instantly. As soon as your payment is confirmed, your code is issued to your account under Orders and My Gift Cards, and a copy is emailed to you — no waiting, no shipping.",
       },
       {
         question: "What if my order is delayed?",
@@ -24,9 +24,9 @@ const faqGroups = [
           "A small number of orders are held briefly for automated fraud review. If your order still shows \"Processing\" after 30 minutes, visit Order Help or contact support with your order number.",
       },
       {
-        question: "Do you ship anything physically?",
+        question: "Do you ship internationally?",
         answer:
-          "No — every product on DistroSource is a digital file delivered straight to your account. There's nothing to ship and no customs or shipping fees, anywhere in the world.",
+          "There's nothing to ship — everything is delivered digitally. We support customers in 60+ countries with local currency pricing at checkout.",
       },
     ],
   },
@@ -36,7 +36,7 @@ const faqGroups = [
       {
         question: "What payment methods do you accept?",
         answer:
-          "We accept PayPal and major debit and credit cards through PayPal Checkout, all processed through an encrypted, PCI-compliant checkout.",
+          "We accept all major cards, PayPal, Apple Pay, and Google Pay. All transactions are processed through an encrypted, PCI-compliant checkout.",
       },
       {
         question: "Why was my payment declined?",
@@ -46,27 +46,27 @@ const faqGroups = [
       {
         question: "Will I be charged extra fees for currency conversion?",
         answer:
-          "All prices on DistroSource are in U.S. dollars. If your card uses a different currency, your bank may apply its own exchange rate and foreign transaction fee — DistroSource does not add any conversion fee.",
+          "RedeemCove doesn't add conversion fees, but if your card uses a different currency than the one displayed, your bank may apply its own exchange rate and foreign transaction fee.",
       },
     ],
   },
   {
-    category: "Licensing & usage",
+    category: "Gift cards & redemption",
     faqs: [
       {
-        question: "What's the difference between the license tiers?",
+        question: "Are these codes genuine and safe to use?",
         answer:
-          "Personal licenses cover non-commercial, personal projects. Commercial licenses cover use in a single business or client project. Extended Commercial and Agency tiers extend that to resale-adjacent or multi-client use. Each product page lists exactly what its tiers include.",
+          "Yes. We source directly from authorized distributors and verify every code before it's listed, so every purchase is guaranteed to work.",
       },
       {
-        question: "Can I use a product across my whole team?",
+        question: "Do gift cards expire?",
         answer:
-          "Standard license tiers cover a single user. For multi-seat access across a team or agency, use our Team Licensing program to request a custom quote.",
+          "Most gift cards sold on RedeemCove do not expire, but expiration terms are ultimately set by the issuing brand and disclosed on the product page before purchase.",
       },
       {
-        question: "Do I own the files after I buy them?",
+        question: "Can I use a gift card in any country?",
         answer:
-          "You own a license to use the files under the terms you purchased — copyright and resale rights to the underlying design or code remain with DistroSource and its creators unless a listing says otherwise.",
+          "No — gift cards are region-locked by the issuing brand. Always check the region shown on the product page matches your account before purchasing.",
       },
     ],
   },
@@ -76,7 +76,7 @@ const faqGroups = [
       {
         question: "Can I get a refund if I change my mind?",
         answer:
-          "Undownloaded orders can be refunded within 14 days of purchase. Once a file has been downloaded, it's no longer eligible for a refund. See our Refund Policy for full details.",
+          "Unused codes can be refunded within 14 days of purchase. Once a code has been revealed or redeemed, it's no longer eligible for a refund. See our Refund Policy for full details.",
       },
       {
         question: "How do I reset my password?",

@@ -13,7 +13,7 @@ export function ResendConfirmationButton({ orderNumber }: { orderNumber: string 
     startTransition(async () => {
       try {
         await resendOrderConfirmationEmail(orderNumber)
-        toast.success("Confirmation email sent", { description: "Check your inbox for your order details." })
+        toast.success("Confirmation email sent", { description: "Check your inbox for your order details and codes." })
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Could not resend the confirmation email.")
       }

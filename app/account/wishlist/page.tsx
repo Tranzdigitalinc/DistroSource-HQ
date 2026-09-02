@@ -5,7 +5,7 @@ import { ProductGrid } from "@/components/catalog/product-grid"
 import { Button } from "@/components/ui/button"
 
 export const metadata = {
-  title: "Wishlist — DistroSource",
+  title: "Wishlist — RedeemCove",
 }
 
 export default async function AccountWishlistPage() {

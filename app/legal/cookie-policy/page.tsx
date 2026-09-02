@@ -1,7 +1,7 @@
 import { LegalPageLayout } from "@/components/legal/legal-page-layout"
 
 export const metadata = {
-  title: "Cookie Policy — DistroSource",
+  title: "Cookie Policy — RedeemCove",
 }
 
 export default function CookiePolicyPage() {
@@ -10,7 +10,7 @@ export default function CookiePolicyPage() {
       title="Cookie Policy"
       updatedAt="January 15, 2025"
       currentHref="/legal/cookie-policy"
-      intro="DistroSource uses cookies and similar technologies to keep you signed in, remember your cart, and understand how the marketplace is used. This page explains the categories of cookies we use."
+      intro="RedeemCove uses cookies and similar technologies to keep you signed in, remember your cart, and understand how the marketplace is used. This page explains the categories of cookies we use."
       sections={[
         {
           heading: "1. Essential cookies",
@@ -26,8 +26,8 @@ export default function CookiePolicyPage() {
           heading: "2. Preference cookies",
           body: (
             <p>
-              These remember choices you&apos;ve made, such as your display theme and recently viewed categories, so
-              you don&apos;t have to reset them on every visit.
+              These remember choices you&apos;ve made, such as your selected country/region, currency, and display
+              theme, so you don&apos;t have to reset them on every visit.
             </p>
           ),
         },
@@ -36,8 +36,8 @@ export default function CookiePolicyPage() {
           body: (
             <p>
               We use analytics cookies to understand which pages, categories, and products are most useful to
-              customers, so we can improve navigation and catalog selection. Analytics data is aggregated and is
-              not used to identify you individually.
+              customers, so we can improve navigation and catalog selection. Analytics data is aggregated and is not
+              used to identify you individually.
             </p>
           ),
         },

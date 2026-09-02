@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { motion } from "motion/react"
 import { ArrowUpRight } from "lucide-react"
@@ -15,7 +16,7 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
       <div className="mb-8 flex items-end justify-between">
         <div>
           <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">Shop by category</h2>
-          <p className="mt-1.5 text-sm text-muted-foreground">Find the right digital product for every project</p>
+          <p className="mt-1.5 text-sm text-muted-foreground">Find the right code for gaming, streaming, and more</p>
         </div>
         <Link
           href="/categories"
@@ -27,7 +28,7 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
       </div>
       <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" stagger={0.06}>
         {categories.map((category) => {
-          const visual = getCategoryVisual(category.slug)
+          const visual = getCategoryVisual(category.name)
           const Icon = visual.icon
           return (
             <RevealItem key={category.slug}>
@@ -46,6 +47,25 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
                   <div className={`flex size-12 items-center justify-center rounded-xl text-white shadow-lg ${visual.chip}`}>
                     <Icon aria-hidden="true" className="size-6" />
                   </div>
+                  {visual.logos.length > 0 && (
+                    <div className="flex -space-x-2.5">
+                      {visual.logos.map((logo, i) => (
+                        <div
+                          key={logo}
+                          style={{ zIndex: visual.logos.length - i }}
+                          className="flex size-8 items-center justify-center rounded-full border-2 border-card bg-white p-1.5 shadow-sm"
+                        >
+                          <Image
+                            src={logo || "/placeholder.svg"}
+                            alt=""
+                            width={20}
+                            height={20}
+                            className="h-full w-full object-contain"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <span className="relative flex items-end justify-between gap-3">

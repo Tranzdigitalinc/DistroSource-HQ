@@ -1,7 +1,7 @@
 import { LegalPageLayout } from "@/components/legal/legal-page-layout"
 
 export const metadata = {
-  title: "Terms of Service — DistroSource",
+  title: "Terms of Service — RedeemCove",
 }
 
 export default function TermsOfServicePage() {
@@ -10,16 +10,16 @@ export default function TermsOfServicePage() {
       title="Terms of Service"
       updatedAt="January 15, 2025"
       currentHref="/legal/terms"
-      intro="These Terms of Service govern your access to and use of DistroSource, a digital marketplace for website templates, business systems, creative assets, developer resources, and other downloadable digital products. By creating an account or placing an order, you agree to these terms."
+      intro="These Terms of Service govern your access to and use of RedeemCove, the marketplace for digital gift cards, game top-ups, mobile recharges, and software licenses. By creating an account or placing an order, you agree to these terms."
       sections={[
         {
           heading: "1. Who we are",
           body: (
             <p>
-              DistroSource operates an online marketplace that lets customers purchase and download digital
-              products — including templates, design assets, fonts, presentations, Notion systems, spreadsheets,
-              3D/STL models, and software boilerplates — created and sold directly by DistroSource. Products are
-              fulfilled instantly through your DistroSource account.
+              RedeemCove operates an online marketplace that lets customers purchase digital gift cards, game
+              currency top-ups, mobile airtime, and software license keys. Products are fulfilled instantly to your
+              RedeemCove account and, where applicable, sourced through authorized distribution partners including
+              our mobile top-up and gift card fulfillment provider.
             </p>
           ),
         },
@@ -43,10 +43,9 @@ export default function TermsOfServicePage() {
           heading: "3. Orders and digital delivery",
           body: (
             <p>
-              All products sold on DistroSource are delivered digitally. Once payment is confirmed, the files you
-              purchased are added to <span className="font-medium text-foreground">My Library</span> in your account
-              for immediate download, and a confirmation email is sent to your registered address. There is no
-              physical shipment. Delivery details are described in our{" "}
+              All products sold on RedeemCove are delivered digitally. Once payment is confirmed, your code, PIN, or
+              license key is issued to your account&apos;s Orders and Gift Cards pages, and where selected, emailed to
+              your registered address. There is no physical shipment. Delivery times are described in our{" "}
               <span className="font-medium text-foreground">Delivery Policy</span>.
             </p>
           ),
@@ -55,22 +54,20 @@ export default function TermsOfServicePage() {
           heading: "4. Pricing and taxes",
           body: (
             <p>
-              All prices are displayed and charged in U.S. dollars. Any applicable sales tax or VAT is calculated at
-              checkout based on your billing information. We reserve the right to correct pricing errors before an
-              order is fulfilled.
+              Prices are displayed in your selected currency and may vary by region due to distributor pricing,
+              exchange rates, and local taxes. Any applicable taxes are calculated at checkout. We reserve the right
+              to correct pricing errors before an order is fulfilled.
             </p>
           ),
         },
         {
-          heading: "5. Licensing",
+          heading: "5. Regional restrictions",
           body: (
             <p>
-              Every product is sold under a specific license tier (Personal, Commercial, Extended Commercial, or
-              Agency) selected at checkout. Your license grants you the right to use the files for the purposes
-              described on the product page and in your account&apos;s{" "}
-              <span className="font-medium text-foreground">Licenses</span> tab. Purchasing a product does not
-              transfer copyright or ownership of the underlying design, code, or content — DistroSource and its
-              contributing creators retain all intellectual property rights not expressly granted by your license.
+              Certain gift cards and top-up products are restricted to specific countries or regions by the issuing
+              brand. You are responsible for selecting the correct country/region for your product and for ensuring
+              the product is valid for use in your location. See{" "}
+              <span className="font-medium text-foreground">Regional Restrictions</span> for details.
             </p>
           ),
         },
@@ -78,8 +75,8 @@ export default function TermsOfServicePage() {
           heading: "6. Refunds and cancellations",
           body: (
             <p>
-              Refund eligibility depends on whether a product&apos;s files have been downloaded and on the license
-              tier purchased. Full details, including timeframes and exceptions, are set out in our{" "}
+              Refund eligibility depends on whether a code has been revealed or redeemed. Full details, including
+              timeframes and exceptions for game top-ups and mobile recharges, are set out in our{" "}
               <span className="font-medium text-foreground">Refund Policy</span>.
             </p>
           ),
@@ -88,10 +85,9 @@ export default function TermsOfServicePage() {
           heading: "7. Acceptable use",
           body: (
             <p>
-              You may not resell, redistribute, sublicense, or repackage DistroSource products as your own
-              downloadable product, and you may not use purchased files beyond the scope of your license tier or
+              You may not resell, redistribute, or use RedeemCove products for fraudulent purposes, and you may not
               attempt to abuse promotional codes, chargebacks, or referral programs. Violations may result in
-              account suspension and revocation of access, as described in our{" "}
+              account suspension and forfeiture of unused balances, as described in our{" "}
               <span className="font-medium text-foreground">Acceptable Use Policy</span>.
             </p>
           ),
@@ -100,10 +96,10 @@ export default function TermsOfServicePage() {
           heading: "8. Limitation of liability",
           body: (
             <p>
-              DistroSource is not liable for indirect, incidental, or consequential damages arising from your use
-              of purchased files, including compatibility issues with your own software, hosting, or design tools.
-              Our total liability for any claim is limited to the amount you paid for the product giving rise to the
-              claim.
+              RedeemCove is not liable for indirect, incidental, or consequential damages arising from your use of
+              purchased codes, including issues caused by the issuing brand&apos;s own terms, expiration policies, or
+              regional platform restrictions. Our total liability for any claim is limited to the amount you paid for
+              the product giving rise to the claim.
             </p>
           ),
         },
@@ -112,7 +108,7 @@ export default function TermsOfServicePage() {
           body: (
             <p>
               We may update these terms from time to time. Material changes will be reflected by updating the "Last
-              updated" date above. Continued use of DistroSource after changes take effect constitutes acceptance of
+              updated" date above. Continued use of RedeemCove after changes take effect constitutes acceptance of
               the revised terms.
             </p>
           ),

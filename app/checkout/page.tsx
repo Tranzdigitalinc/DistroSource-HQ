@@ -8,7 +8,7 @@ import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 
 export const metadata = {
-  title: "Checkout — DistroSource",
+  title: "Checkout — RedeemCove",
 }
 
 export default async function CheckoutPage({
@@ -27,7 +27,7 @@ export default async function CheckoutPage({
   if (items.length === 0) redirect("/cart")
 
   const subtotal =
-    Math.round(items.reduce((sum, i) => sum + Number.parseFloat(i.license.price) * i.cartItem.quantity, 0) * 100) /
+    Math.round(items.reduce((sum, i) => sum + Number.parseFloat(i.variant.priceUsd) * i.cartItem.quantity, 0) * 100) /
     100
 
   let discountPercent = 0
@@ -40,11 +40,12 @@ export default async function CheckoutPage({
 
   const orderItems = items.map((item) => ({
     productId: item.product.id,
-    licenseId: item.license.id,
+    variantId: item.variant.id,
     name: item.product.name,
-    licenseType: item.license.licenseType,
+    brand: item.brand.name,
+    denomination: item.variant.denominationLabel,
     quantity: item.cartItem.quantity,
-    unitPriceUsd: item.license.price,
+    unitPriceUsd: item.variant.priceUsd,
   }))
 
   return (

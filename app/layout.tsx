@@ -4,8 +4,10 @@ import { Suspense } from 'react'
 import { Inter, Geist } from 'next/font/google'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from 'sonner'
+import { CurrencyProvider } from '@/lib/currency-context'
 import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion/motion-provider'
+import { getCountries } from '@/lib/queries/catalog'
 import { ScrollToTop } from '@/components/scroll-to-top'
 import { ResizeObserverErrorGuard } from '@/components/resize-observer-error-guard'
 import { BrowserVerificationGate } from '@/components/security/browser-verification-gate'
@@ -16,31 +18,31 @@ const _inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const _geist = Geist({ subsets: ['latin'], variable: '--font-geist' })
 
 export const metadata: Metadata = {
-  title: 'DistroSource — Everything Digital. One Source.',
+  title: 'RedeemCove — Gift Cards, Game Top-Ups & Digital Codes',
   description:
-    'Shop website templates, fonts, presentations, Notion systems, 3D models, and more — one department store for digital products, with instant access to every download after purchase.',
+    'Shop gift cards, game top-ups, mobile recharges, and software licenses from trusted brands worldwide. Instant digital delivery, every time.',
   generator: 'v0.app',
-  metadataBase: new URL('https://distrosource.com'),
+  metadataBase: new URL('https://redeemcove.com'),
   openGraph: {
     type: 'website',
-    url: 'https://distrosource.com',
-    siteName: 'DistroSource',
-    title: 'DistroSource — Everything Digital. One Source.',
-    description: 'Shop templates, fonts, presentations, and digital products across every category — instant access after checkout.',
+    url: 'https://redeemcove.com',
+    siteName: 'RedeemCove',
+    title: 'RedeemCove — Gift Cards, Game Top-Ups & Digital Codes',
+    description: 'Shop 500+ gift cards and digital codes worldwide with instant delivery.',
     images: [
       {
-        url: '/og-distrosource.jpg',
+        url: '/og-redeemcove.jpg',
         width: 1200,
         height: 630,
-        alt: 'DistroSource — a digital products department store',
+        alt: 'Shop RedeemCove gift cards, digital codes, and instant top-ups',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'DistroSource — Everything Digital. One Source.',
-    description: 'Shop templates, fonts, presentations, and digital products across every category — instant access after checkout.',
-    images: ['/og-distrosource.jpg'],
+    title: 'RedeemCove — Gift Cards, Game Top-Ups & Digital Codes',
+    description: 'Shop 500+ gift cards and digital codes worldwide with instant delivery.',
+    images: ['/og-redeemcove.jpg'],
   },
   icons: {
     icon: '/icon.png',
@@ -63,6 +65,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  let countries: Awaited<ReturnType<typeof getCountries>> = []
+  try {
+    countries = await getCountries()
+  } catch {
+    // DB unavailable at build time — CurrencyProvider falls back to USD
+  }
+
   return (
     <html
       lang="en"
@@ -76,9 +85,11 @@ export default async function RootLayout({
         <ResizeObserverErrorGuard />
         <MotionProvider>
           <ThemeProvider>
-            <BrowserVerificationGate>
-              <TooltipProvider>{children}</TooltipProvider>
-            </BrowserVerificationGate>
+            <CurrencyProvider countries={countries}>
+              <BrowserVerificationGate>
+                <TooltipProvider>{children}</TooltipProvider>
+              </BrowserVerificationGate>
+            </CurrencyProvider>
             <Toaster position="bottom-right" richColors />
             <ScrollToTop />
           </ThemeProvider>

@@ -1,14 +1,13 @@
-import Link from "next/link"
-import { Download } from "lucide-react"
+import { RevealCode } from "@/components/order/reveal-code"
 import { PriceDisplay } from "@/components/price-display"
-import { formatLicenseType } from "@/lib/format"
 
 interface OrderItem {
   id: number
   productName: string
-  licenseType: string
+  denominationLabel: string
   unitPriceUsd: string
   quantity: number
+  isRevealed: boolean
 }
 
 export function OrderItemsList({ items }: { items: OrderItem[] }) {
@@ -19,17 +18,11 @@ export function OrderItemsList({ items }: { items: OrderItem[] }) {
           <div>
             <p className="text-sm font-semibold">{item.productName}</p>
             <p className="text-xs text-muted-foreground">
-              {formatLicenseType(item.licenseType)} license · Qty {item.quantity} ·{" "}
+              {item.denominationLabel} · Qty {item.quantity} ·{" "}
               <PriceDisplay usdAmount={Number.parseFloat(item.unitPriceUsd) * item.quantity} />
             </p>
           </div>
-          <Link
-            href="/account/library"
-            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-transparent px-2.5 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-secondary"
-          >
-            <Download className="size-3.5" />
-            Download
-          </Link>
+          <RevealCode orderItemId={item.id} isRevealed={item.isRevealed} />
         </div>
       ))}
     </div>

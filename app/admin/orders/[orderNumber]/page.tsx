@@ -7,12 +7,13 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RefundOrderButton } from "@/components/admin/refund-order-button"
+import { ReplaceItemButton } from "@/components/admin/replace-item-button"
 import { FraudFlagControl } from "@/components/admin/fraud-flag-control"
 import { isAdminEmail } from "@/lib/admin-emails"
 
 export const metadata = {
-  title: "Order detail | DistroSource Admin",
-  description: "Manage refunds and fraud flags for a single order.",
+  title: "Order detail | RedeemCove Admin",
+  description: "Manage refunds, replacements, and fraud flags for a single order.",
 }
 
 export default async function AdminOrderDetailPage({
@@ -69,14 +70,12 @@ export default async function AdminOrderDetailPage({
           {items.map((item) => (
             <div key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3">
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium">
-                  {item.productName} — <span className="capitalize">{item.licenseType.replace(/_/g, " ")}</span>{" "}
-                  {item.quantity > 1 ? `x${item.quantity}` : ""}
-                </p>
-                <p className="text-xs text-muted-foreground">${item.unitPriceUsd} each</p>
+                <p className="truncate text-sm font-medium">{item.productName} — {item.denominationLabel} {item.quantity > 1 ? `x${item.quantity}` : ""}</p>
+                <p className="truncate font-mono text-xs text-muted-foreground">{item.redemptionCode}</p>
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 {item.isVoided ? <Badge variant="destructive">Voided</Badge> : null}
+                {!item.isVoided && order.status !== "refunded" ? <ReplaceItemButton orderItemId={item.id} /> : null}
               </div>
             </div>
           ))}

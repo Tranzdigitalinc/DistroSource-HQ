@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { PackageSearch, Download, KeyRound, RefreshCcw, ArrowRight } from "lucide-react"
+import { PackageSearch, Clock, KeyRound, RefreshCcw, ArrowRight } from "lucide-react"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { Reveal } from "@/components/motion/reveal"
@@ -7,8 +7,8 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { Button } from "@/components/ui/button"
 
 export const metadata = {
-  title: "Order Help — DistroSource",
-  description: "Track your order, re-download a purchase, or get help with a license key.",
+  title: "Order Help — RedeemCove",
+  description: "Track your order, resolve a delayed delivery, or get help with a gift card code.",
 }
 
 const steps = [
@@ -19,18 +19,18 @@ const steps = [
   },
   {
     icon: KeyRound,
-    title: "2. Get your license key",
-    description: "Open the order and click \"View license\" to see your key, seat count, and activation instructions.",
+    title: "2. Reveal your code",
+    description: "Open the order and click \"Reveal code\" to view your gift card, license key, or top-up receipt.",
   },
   {
-    icon: Download,
-    title: "3. Download your files",
-    description: "Head to Account → My Library to download the current version, or any previous release, at any time.",
+    icon: Clock,
+    title: "3. Check delivery status",
+    description: "Most orders deliver within seconds. \"Processing\" for longer than 30 minutes means a manual review is underway.",
   },
   {
     icon: RefreshCcw,
     title: "4. Request help if needed",
-    description: "If a download fails, a key won't activate, or a file arrived corrupted, open a support ticket with your order number.",
+    description: "If a code fails, is missing, or was sent to the wrong account, open a support ticket with your order number.",
   },
 ]
 
@@ -38,27 +38,27 @@ const faqs = [
   {
     question: "My order says \"Processing\" — is that normal?",
     answer:
-      "Yes, briefly. Most orders complete within seconds, but a small number are held for a minute or two of automated fraud review. If it's still processing after 30 minutes, contact support with your order number.",
+      "Yes, briefly. Most orders complete within seconds, but a small number are held for a few minutes of automated fraud review. If it's still processing after 30 minutes, contact support with your order number.",
   },
   {
-    question: "I can't find my license key — where is it?",
+    question: "I can't find my code — where is it?",
     answer:
-      "Your key is always available in Account → My Orders and Account → My Licenses, even after it's been activated. A copy is also emailed to your account address at checkout.",
+      "Your code is always available in Account → My Orders and Account → My Gift Cards, even after it's been redeemed. A copy is also emailed to your account address at checkout.",
   },
   {
-    question: "I downloaded a file but it won't open or looks corrupted.",
+    question: "I redeemed a top-up but the game/account balance hasn't updated.",
     answer:
-      "Try re-downloading from Account → My Library first — most issues are caused by an interrupted download. If the file still won't open, contact support with your order number and the exact error message.",
+      "Game and mobile top-ups are fulfilled by the publisher or carrier's own systems, which can occasionally take a few minutes to reflect the new balance. If it hasn't appeared after 30 minutes, contact support with your order number and player ID.",
   },
   {
-    question: "Can I move my purchase to a different account?",
+    question: "Can I change the recipient after placing an order?",
     answer:
-      "License keys are tied to the account that made the purchase and generally can't be transferred. If you bought the wrong account by mistake, contact support as soon as possible and we'll see what we can do.",
+      "Once a top-up or recharge has been submitted for delivery it cannot be redirected. For gift cards that haven't been revealed yet, contact support as soon as possible.",
   },
   {
     question: "How do I get a refund on an order?",
     answer:
-      "Refund eligibility depends on whether the files have been downloaded or the license activated. See our Refund Policy for full details, or open a ticket from your order page to start a request.",
+      "Refund eligibility depends on whether the code has been revealed or redeemed. See our Refund Policy for full details, or open a ticket from your order page to start a request.",
   },
 ]
 
@@ -74,8 +74,8 @@ export default function OrderHelpPage() {
               Order and delivery help
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Everything you need to track a purchase, find a license key, or resolve a download issue — most
-              orders sort themselves out in under a minute.
+              Everything you need to track a purchase, find a code, or resolve a delivery issue — most orders sort
+              themselves out in under a minute.
             </p>
           </Reveal>
 

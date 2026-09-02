@@ -1,9 +1,9 @@
 import { Zap, ShieldCheck, Globe2, HeadphonesIcon } from "lucide-react"
 
 const items = [
-  { icon: Zap, label: "Instant download access" },
+  { icon: Zap, label: "Instant digital delivery" },
   { icon: ShieldCheck, label: "Encrypted, secure checkout" },
-  { icon: Globe2, label: "Available worldwide" },
+  { icon: Globe2, label: "190+ countries served" },
   { icon: HeadphonesIcon, label: "24/7 human support" },
 ]
 

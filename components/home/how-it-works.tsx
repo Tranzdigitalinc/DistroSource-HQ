@@ -1,32 +1,32 @@
 "use client"
 
-import { Search, SlidersHorizontal, CreditCard, FolderDown } from "lucide-react"
+import { Search, CreditCard, Mail, Gift } from "lucide-react"
 import { RevealGroup, RevealItem } from "@/components/motion/reveal"
 
 const steps = [
   {
     icon: Search,
     label: "01",
-    title: "Search & browse",
-    description: "Explore templates, fonts, presentations, and dozens of other categories in one catalog.",
-  },
-  {
-    icon: SlidersHorizontal,
-    label: "02",
-    title: "Preview & choose a license",
-    description: "Check real previews, file formats, and compatibility, then pick the license that fits your use.",
+    title: "Pick your product",
+    description: "Browse gift cards, top-ups, and software licenses from 500+ trusted brands worldwide.",
   },
   {
     icon: CreditCard,
-    label: "03",
-    title: "Check out securely",
-    description: "Pay with card or PayPal through an encrypted checkout — no accounts required until purchase.",
+    label: "02",
+    title: "Pay securely",
+    description: "Check out with card, PayPal, or your favorite wallet through our encrypted checkout.",
   },
   {
-    icon: FolderDown,
+    icon: Mail,
+    label: "03",
+    title: "Get it instantly",
+    description: "Your code is emailed and saved to your account the moment your payment clears.",
+  },
+  {
+    icon: Gift,
     label: "04",
-    title: "Download from My Library",
-    description: "Your files unlock instantly in My Library, ready to download whenever you need them again.",
+    title: "Redeem and enjoy",
+    description: "Follow the redemption steps for your brand and enjoy your purchase right away.",
   },
 ]
 
@@ -36,7 +36,7 @@ export function HowItWorks() {
       <div className="mb-10 text-center">
         <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">How it works</h2>
         <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-          From browsing to downloading in minutes — no shipping, no waiting.
+          From checkout to redemption in under a minute — no waiting, no shipping.
         </p>
       </div>
       <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" stagger={0.08}>

@@ -8,16 +8,13 @@ import { cn } from "@/lib/utils"
 
 type SearchItem = { slug: string; name: string }
 
-export function HeaderSearch({ className, categories = [] }: { className?: string; categories?: SearchItem[] }) {
+export function HeaderSearch({ className, brands = [], categories = [] }: { className?: string; brands?: SearchItem[]; categories?: SearchItem[] }) {
   const router = useRouter()
   const [query, setQuery] = useState("")
   const [focused, setFocused] = useState(false)
-  const suggestions =
-    query.trim().length < 2
-      ? []
-      : categories
-          .filter((item) => item.name.toLowerCase().includes(query.trim().toLowerCase()))
-          .slice(0, 6)
+  const suggestions = query.trim().length < 2 ? [] : [...brands.map((item) => ({ ...item, type: "Brand" })), ...categories.map((item) => ({ ...item, type: "Category" }))]
+    .filter((item) => item.name.toLowerCase().includes(query.trim().toLowerCase()))
+    .slice(0, 6)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -40,7 +37,7 @@ export function HeaderSearch({ className, categories = [] }: { className?: strin
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder="Search templates, fonts, presentations..."
+          placeholder="Search gift cards, games, top-ups..."
           className={cn(
             "h-10 w-full rounded-full bg-secondary pl-9 pr-10 text-sm transition-all",
             focused && "bg-secondary/80 ring-2 ring-accent/25"
@@ -60,15 +57,15 @@ export function HeaderSearch({ className, categories = [] }: { className?: strin
           <div className="absolute inset-x-0 top-12 z-50 overflow-hidden rounded-2xl border border-border bg-card p-1.5 shadow-xl" role="listbox" aria-label="Search suggestions">
             {suggestions.map((item) => (
               <button
-                key={item.slug}
+                key={`${item.type}-${item.slug}`}
                 type="button"
                 role="option"
                 className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-secondary"
                 onMouseDown={(event) => event.preventDefault()}
-                onClick={() => router.push(`/categories/${item.slug}`)}
+                onClick={() => router.push(`/products?${item.type === "Brand" ? "brand" : "category"}=${encodeURIComponent(item.slug)}`)}
               >
                 <span className="truncate font-medium">{item.name}</span>
-                <span className="ml-3 shrink-0 text-[11px] text-muted-foreground">Category</span>
+                <span className="ml-3 shrink-0 text-[11px] text-muted-foreground">{item.type}</span>
               </button>
             ))}
           </div>

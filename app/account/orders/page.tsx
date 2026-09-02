@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 
 export const metadata = {
-  title: "Your orders — DistroSource",
+  title: "Your orders — RedeemCove",
 }
 
 const statusVariant: Record<string, "default" | "secondary" | "outline"> = {

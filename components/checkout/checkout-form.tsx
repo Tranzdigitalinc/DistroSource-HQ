@@ -15,14 +15,14 @@ import { saveAbandonedCart } from "@/lib/actions/recovery"
 import { mergeGuestCartIntoAccount } from "@/lib/actions/cart"
 import { mergeGuestActivityIntoAccount } from "@/lib/actions/recently-viewed"
 import { authClient } from "@/lib/auth-client"
-import { formatLicenseType } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 interface OrderItem {
   productId: number
-  licenseId: number
+  variantId: number
   name: string
-  licenseType: string
+  brand: string
+  denomination: string
   quantity: number
   unitPriceUsd: string
 }
@@ -97,7 +97,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
       return false
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Enter a valid email address for your order confirmation.")
+      toast.error("Enter a valid email address so we know where to deliver your codes.")
       return false
     }
     if (isGuest) {
@@ -116,7 +116,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
         if (account.error) throw new Error(account.error.message ?? "Could not create your account.")
         await mergeGuestCartIntoAccount()
         await mergeGuestActivityIntoAccount()
-        toast.success("Account created", { description: "Your cart is now saved to your DistroSource account." })
+        toast.success("Account created", { description: "Your cart is now saved to your RedeemCove account." })
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Could not create your account.")
         return false
@@ -139,7 +139,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
       if (!ready) return
       await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
       toast.success("Your cart has been saved", { description: "We sent you a secure link to return to it anytime." })
-      toast.info("Payments are temporarily unavailable. Please check back soon.")
+      toast.info("This payment method is temporarily unavailable. Please check back soon, or pay with PayPal above.")
     })
   }
 
@@ -158,7 +158,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
           <Reveal className="flex items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
             <span className="flex items-center gap-2 text-foreground/80">
               <Mail className="size-4 shrink-0 text-primary" aria-hidden="true" />
-              Checking out as a guest — your order confirmation goes to the email below.
+              Checking out as a guest — codes go to your email below.
             </span>
             <Link href="/sign-in?redirect=/checkout" className="shrink-0 font-semibold text-primary hover:underline">
               Sign in
@@ -177,7 +177,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-foreground">{item.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {formatLicenseType(item.licenseType)} license &times; {item.quantity}
+                    {item.brand} &middot; {item.denomination} &times; {item.quantity}
                   </p>
                 </div>
                 <span className="shrink-0 text-sm font-semibold">
@@ -185,14 +185,6 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 </span>
               </div>
             ))}
-          </div>
-          <div className="flex items-center justify-between border-t border-border pt-4 text-sm">
-            <span className="text-muted-foreground">Order total</span>
-            <span className="font-display text-lg font-bold"><PriceDisplay usdAmount={total} /></span>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5"><Package className="size-3.5 text-success" aria-hidden="true" />Instant digital delivery</span>
-            <span className="flex items-center gap-1.5"><ShieldCheck className="size-3.5 text-success" aria-hidden="true" />Secure checkout</span>
           </div>
           <Link href="/products" className="inline-flex items-center justify-center rounded-lg border border-border px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-secondary">Add more items</Link>
         </Reveal>
@@ -205,7 +197,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="email">Email — your order confirmation is sent here</Label>
+              <Label htmlFor="email">Email — codes are delivered here</Label>
               <Input
                 id="email"
                 type="email"
@@ -221,8 +213,8 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
         {isGuest && (
           <Reveal delay={0.12} className="flex flex-col gap-4 rounded-xl border border-primary/25 bg-primary/5 p-6">
             <div>
-              <h2 className="font-display text-lg font-bold">Create your DistroSource account</h2>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">Required to save your order, access your library, and keep your cart ready across devices.</p>
+              <h2 className="font-display text-lg font-bold">Create your RedeemCove account</h2>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">Required to save your order, manage your codes, and keep your cart ready across devices.</p>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5"><Label htmlFor="checkout-password">Create password</Label><Input id="checkout-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} autoComplete="new-password" placeholder="At least 8 characters" required /></div>

@@ -8,7 +8,10 @@ export interface CartLineItemData {
   cartItemId: number
   productSlug: string
   productName: string
-  licenseType: string
+  brandName: string
+  brandLogoUrl: string | null
+  brandColor: string | null
+  denominationLabel: string
   imageUrl: string | null
   unitPriceUsd: string
   quantity: number

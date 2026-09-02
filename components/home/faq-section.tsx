@@ -7,29 +7,29 @@ import { Reveal } from "@/components/motion/reveal"
 
 const faqs = [
   {
-    question: "How do I get my files after I buy?",
+    question: "How fast will I receive my code?",
     answer:
-      "As soon as your payment is confirmed, every item on your order unlocks in My Library under your account — download it immediately or come back anytime.",
+      "Instantly. As soon as your payment is confirmed, your code is emailed to you and saved in your account under Orders — no waiting, no shipping.",
   },
   {
-    question: "What license should I choose?",
+    question: "Are these codes genuine and safe to use?",
     answer:
-      "Personal licenses cover your own projects, Commercial licenses cover client and business use, and Extended/Agency licenses cover resale or large-team use. Each product page explains what's included.",
+      "Yes. We source directly from authorized distributors and verify every code before it's listed, so every purchase is guaranteed to work.",
   },
   {
     question: "What payment methods do you accept?",
     answer:
-      "We accept all major cards and PayPal. All transactions are processed through an encrypted, PCI-compliant checkout.",
+      "We accept all major cards, PayPal, Apple Pay, and Google Pay. All transactions are processed through an encrypted, PCI-compliant checkout.",
   },
   {
-    question: "Can I get a refund if a file doesn't work for me?",
+    question: "Can I get a refund if I change my mind?",
     answer:
-      "Yes — reach out within 14 days of purchase if a file is defective or not as described and we'll make it right. Once a download link has been used, refunds are reviewed case by case.",
+      "Unused codes can be refunded within 14 days of purchase. Once a code has been revealed or redeemed, it's no longer eligible for a refund.",
   },
   {
-    question: "Will I be notified about product updates?",
+    question: "Do you ship internationally?",
     answer:
-      "Yes. When a product you own gets a new version, it shows up under Product Updates in your account and you can re-download the latest files at no extra cost.",
+      "There's nothing to ship — everything is delivered digitally. We support customers in 60+ countries with local currency pricing at checkout.",
   },
 ]
 

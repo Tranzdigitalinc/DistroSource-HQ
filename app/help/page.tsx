@@ -3,9 +3,9 @@ import {
   PackageSearch,
   CreditCard,
   ShieldCheck,
-  FileText,
+  Gift,
   Building2,
-  Library,
+  Globe2,
   ArrowRight,
   MessageCircle,
   HelpCircle,
@@ -15,15 +15,15 @@ import { SiteFooter } from "@/components/footer/site-footer"
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 
 export const metadata = {
-  title: "Help Center — DistroSource",
-  description: "Find answers about orders, downloads, payments, refunds, and your DistroSource account.",
+  title: "Help Center — RedeemCove",
+  description: "Find answers about orders, delivery, payments, refunds, and your RedeemCove account.",
 }
 
 const categories = [
   {
     icon: PackageSearch,
     title: "Order Help",
-    description: "Track an order, resolve a delayed delivery, or get a download link re-sent.",
+    description: "Track an order, resolve a delayed delivery, or get a code re-sent.",
     href: "/help/orders",
   },
   {
@@ -33,16 +33,10 @@ const categories = [
     href: "/legal/payment-terms",
   },
   {
-    icon: Library,
-    title: "Downloads & My Library",
-    description: "Where to find your files, re-download past purchases, and get product updates.",
-    href: "/account/library",
-  },
-  {
-    icon: FileText,
-    title: "Licensing",
-    description: "Understand Personal, Commercial, Extended, and Agency license tiers.",
-    href: "/legal/terms",
+    icon: Gift,
+    title: "Gift cards & redemption",
+    description: "How to reveal, redeem, and check the balance of a gift card.",
+    href: "/legal/gift-card-terms",
   },
   {
     icon: ShieldCheck,
@@ -51,10 +45,16 @@ const categories = [
     href: "/legal/refund-policy",
   },
   {
+    icon: Globe2,
+    title: "Regional restrictions",
+    description: "Understand which products are available in your country.",
+    href: "/countries",
+  },
+  {
     icon: Building2,
-    title: "Team Licensing",
-    description: "Multi-seat pricing, invoicing, and license requests for teams and agencies.",
-    href: "/team-licensing",
+    title: "Business & bulk gifting",
+    description: "Volume pricing, invoicing, and rewards programs for teams.",
+    href: "/bulk-gifting",
   },
 ]
 

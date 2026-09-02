@@ -80,7 +80,7 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
         </div>
         <div className="flex flex-col gap-2">
           <h2 className="text-lg font-semibold">Check your inbox</h2>
-          <p className="text-sm leading-relaxed text-muted-foreground">We sent a verification link to <strong className="text-foreground">{email}</strong>. Verify it to activate your DistroSource account.</p>
+          <p className="text-sm leading-relaxed text-muted-foreground">We sent a branded verification link to <strong className="text-foreground">{email}</strong>. Verify it to activate your RedeemCove account.</p>
         </div>
         <Button type="button" variant="outline" onClick={resendVerification} disabled={resending} className="h-11 font-semibold">
           {resending && <Loader2 className="size-4 animate-spin" />}
@@ -162,7 +162,7 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
           </>
         ) : (
           <>
-            New to DistroSource?{" "}
+            New to RedeemCove?{" "}
             <Link href="/sign-up" className="font-medium text-primary hover:underline">
               Create an account
             </Link>

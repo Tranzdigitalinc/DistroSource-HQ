@@ -12,7 +12,7 @@ import { formatUsd } from "@/lib/format"
 import { isAdminEmail } from "@/lib/admin-emails"
 
 export const metadata = {
-  title: "Affiliates | DistroSource Admin",
+  title: "Affiliates | RedeemCove Admin",
   description: "Manage affiliate partner codes and view attribution performance.",
 }
 

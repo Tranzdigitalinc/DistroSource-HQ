@@ -3,11 +3,7 @@ import { SiteFooter } from "@/components/footer/site-footer"
 import { CatalogFilters } from "@/components/catalog/catalog-filters"
 import { CatalogToolbar } from "@/components/catalog/catalog-toolbar"
 import { ProductGrid } from "@/components/catalog/product-grid"
-import { getCategories, getProducts } from "@/lib/queries/catalog"
-
-export const metadata = {
-  title: "All products — DistroSource",
-}
+import { getCategories, getBrands, getCountries, getProducts } from "@/lib/queries/catalog"
 
 export default async function ProductsPage({
   searchParams,
@@ -15,15 +11,19 @@ export default async function ProductsPage({
   searchParams: Promise<Record<string, string | undefined>>
 }) {
   const params = await searchParams
-  const [categories, products] = await Promise.all([
+  const [categories, brands, countries, products] = await Promise.all([
     getCategories(),
+    getBrands(),
+    getCountries(),
     getProducts({
       categorySlug: params.category,
+      brandSlug: params.brand,
+      countryCode: params.country,
       search: params.q,
-      free: params.free === "true",
-      bundle: params.bundle === "true",
+      deliveryType: params.delivery,
+      minDiscount: params.discount ? Number(params.discount) : undefined,
       maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
-      sort: (params.sort as any) ?? "featured",
+      sort: (params.sort as any) ?? "popular",
     }),
   ])
 
@@ -37,11 +37,11 @@ export default async function ProductsPage({
               {params.q ? `Results for "${params.q}"` : "All products"}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Browse templates, fonts, presentations, and digital products across every category
+              Browse gift cards, top-ups, and digital codes from trusted brands
             </p>
           </div>
           <div className="flex flex-col gap-8 lg:flex-row">
-            <CatalogFilters categories={categories} />
+            <CatalogFilters categories={categories} brands={brands} countries={countries} />
             <div className="flex-1">
               <CatalogToolbar resultCount={products.length} />
               <ProductGrid items={products} />

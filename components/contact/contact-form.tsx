@@ -11,11 +11,11 @@ import { submitContactMessage } from "@/lib/actions/contact"
 import { Loader2 } from "lucide-react"
 
 const topics = [
-  { value: "order", label: "Order or download issue" },
+  { value: "order", label: "Order or delivery issue" },
   { value: "billing", label: "Billing or payment" },
   { value: "account", label: "Account access" },
-  { value: "business", label: "Business & team licensing" },
-  { value: "partnership", label: "Partnership" },
+  { value: "business", label: "Business & bulk gifting" },
+  { value: "partnership", label: "Brand partnership" },
   { value: "other", label: "Something else" },
 ]
 

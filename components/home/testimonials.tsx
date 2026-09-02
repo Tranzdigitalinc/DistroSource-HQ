@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { motion } from "motion/react"
-import { Star, Quote } from "lucide-react"
+import { Star, BadgeCheck, Quote } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 import type { getTopReviews } from "@/lib/queries/catalog"
@@ -34,7 +34,7 @@ export function Testimonials({ reviews, stats }: TestimonialsProps) {
             What shoppers are saying
           </h2>
           <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
-            Real reviews from customers across our catalog.
+            Real reviews from verified purchases across our catalog.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -52,7 +52,7 @@ export function Testimonials({ reviews, stats }: TestimonialsProps) {
       </Reveal>
 
       <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" stagger={0.07}>
-        {reviews.map(({ review, product }) => (
+        {reviews.map(({ review, product, brand }) => (
           <RevealItem key={review.id}>
             <MotionLink
               href={`/products/${product.slug}`}
@@ -79,8 +79,15 @@ export function Testimonials({ reviews, stats }: TestimonialsProps) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex min-w-0 flex-col">
-                  <span className="text-xs font-medium text-foreground">{review.authorName}</span>
-                  <span className="truncate text-xs text-muted-foreground">on {product.name}</span>
+                  <span className="flex items-center gap-1 text-xs font-medium text-foreground">
+                    {review.authorName}
+                    {review.isVerifiedPurchase && (
+                      <BadgeCheck className="size-3.5 shrink-0 text-primary" aria-label="Verified purchase" />
+                    )}
+                  </span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    on {brand.name} &middot; {product.name}
+                  </span>
                 </div>
               </div>
             </MotionLink>

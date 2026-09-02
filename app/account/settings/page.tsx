@@ -2,7 +2,7 @@ import { getSession } from "@/lib/session"
 import { ProfileSettingsForm } from "@/components/account/profile-settings-form"
 
 export const metadata = {
-  title: "Profile settings — DistroSource",
+  title: "Profile settings — RedeemCove",
 }
 
 export default async function AccountSettingsPage() {
