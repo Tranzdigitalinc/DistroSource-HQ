@@ -19,6 +19,7 @@ import {
 import { Testimonials } from "@/components/home/testimonials"
 import { ShopByGoal } from "@/components/home/shop-by-goal"
 import { ShopByPrice } from "@/components/home/shop-by-price"
+import { PromoBanner } from "@/components/home/promo-banner"
 
 const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["homepage", key], { revalidate: 300 })
 
@@ -42,6 +43,7 @@ export default async function HomePage() {
         <ShopByGoal />
         <CategoryGrid categories={categories} />
         <ProductRail title="Featured products" href="/products" items={featured} />
+        <PromoBanner />
         <ProductRail
           title="New arrivals"
           subtitle="Fresh templates, fonts, and assets just added to the catalog"
