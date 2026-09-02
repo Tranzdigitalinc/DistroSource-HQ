@@ -58,8 +58,8 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
   }
 
   return (
-    <div className="flex flex-col gap-5 rounded-xl border border-border bg-card p-5 sm:p-6">
-      <div className="flex items-start justify-between gap-4">
+    <div className="flex flex-col gap-5 border border-border bg-card p-5 sm:p-6">
+      <div className="flex items-start justify-between gap-4 border-b border-border pb-4">
         <div>
           <h2 className="font-display text-lg font-bold">Order summary</h2>
           <p className="mt-1 text-xs text-muted-foreground">Digital delivery, no hidden fees</p>
@@ -70,7 +70,7 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
       <div className="flex flex-col gap-2">
         <label
           htmlFor="coupon"
-          className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+          className="flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-muted-foreground"
         >
           <Tag className="size-3" />
           Coupon code
@@ -82,9 +82,9 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className="flex items-center justify-between gap-2 rounded-lg border border-success/30 bg-success/10 px-3 py-2.5"
+              className="flex items-center justify-between gap-2 border border-success/30 bg-success/10 px-3 py-2.5"
             >
-              <span className="flex items-center gap-2 text-sm font-semibold text-success">
+              <span className="flex items-center gap-2 font-mono text-sm font-semibold text-success">
                 <Check className="size-4 shrink-0" />
                 {appliedCode} applied — {discountPercent}% off
               </span>
@@ -92,7 +92,7 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
                 type="button"
                 onClick={handleRemoveCoupon}
                 aria-label="Remove coupon"
-                className="flex size-7 shrink-0 items-center justify-center rounded-full text-success/80 transition-colors hover:bg-success/15 hover:text-success"
+                className="flex size-7 shrink-0 items-center justify-center text-success/80 transition-colors hover:bg-success/15 hover:text-success"
               >
                 <X className="size-3.5" />
               </button>
@@ -111,7 +111,7 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
                 onChange={(e) => setCode(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="e.g. WELCOME10"
-                className="h-10 uppercase"
+                className="h-10 rounded-[3px] font-mono uppercase"
                 disabled={isPending}
               />
               <Button
@@ -119,7 +119,7 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
                 variant="outline"
                 onClick={handleApply}
                 disabled={isPending || !code.trim()}
-                className="h-10 shrink-0"
+                className="h-10 shrink-0 rounded-[3px]"
               >
                 {isPending ? <Loader2 className="size-4 animate-spin" /> : "Apply"}
               </Button>
@@ -128,7 +128,7 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
         </AnimatePresence>
       </div>
 
-      <div className="flex flex-col gap-2.5 border-t border-border pt-4 text-sm">
+      <div className="flex flex-col gap-2.5 border-t border-border pt-4 font-mono text-sm">
         <div className="flex justify-between">
           <span className="text-muted-foreground">
             Subtotal ({itemCount} {itemCount === 1 ? "item" : "items"})
@@ -150,7 +150,7 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
             </motion.div>
           )}
         </AnimatePresence>
-        <div className="flex justify-between border-t border-border pt-3 font-display text-base font-bold">
+        <div className="flex justify-between border-t border-border pt-3 text-base font-bold">
           <span>Total</span>
           <PriceDisplay usdAmount={total} />
         </div>
@@ -158,7 +158,7 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
 
       <Button
         size="lg"
-        className="h-11 font-semibold"
+        className="h-11 rounded-[3px] font-mono text-xs font-semibold uppercase tracking-[0.02em]"
         onClick={handleCheckout}
         disabled={subtotal <= 0 || isNavigating}
       >

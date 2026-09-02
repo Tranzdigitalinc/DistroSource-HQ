@@ -22,18 +22,18 @@ export default async function CartPage() {
       <SiteHeader />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
-          <div className="mb-6 flex items-baseline gap-3">
+          <div className="mb-6 flex items-baseline gap-3 border-b border-border pb-5">
             <h1 className="font-display text-2xl font-bold md:text-3xl">Your cart</h1>
             {items.length > 0 && (
-              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+              <span className="border border-primary/30 bg-primary/10 px-2.5 py-0.5 font-mono text-xs font-semibold text-primary">
                 {totalItems} {totalItems === 1 ? "item" : "items"}
               </span>
             )}
           </div>
 
           {items.length === 0 ? (
-            <Reveal className="flex flex-col items-center gap-5 rounded-xl border border-dashed border-border bg-card py-20 text-center">
-              <div className="flex size-16 items-center justify-center rounded-full bg-muted">
+            <Reveal className="flex flex-col items-center gap-5 border border-dashed border-border bg-card py-20 text-center">
+              <div className="flex size-16 items-center justify-center border border-border bg-secondary">
                 <ShoppingBag className="size-7 text-muted-foreground" aria-hidden="true" />
               </div>
               <div>
@@ -43,11 +43,16 @@ export default async function CartPage() {
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                <Button render={<Link href="/products" />} nativeButton={false}>
+                <Button render={<Link href="/products" />} nativeButton={false} className="rounded-[3px]">
                   Browse products
                   <ArrowRight className="size-4" />
                 </Button>
-                <Button variant="outline" render={<Link href="/products?free=true" />} nativeButton={false}>
+                <Button
+                  variant="outline"
+                  render={<Link href="/products?free=true" />}
+                  nativeButton={false}
+                  className="rounded-[3px]"
+                >
                   <Tag className="size-4" />
                   Free resources
                 </Button>
@@ -55,7 +60,7 @@ export default async function CartPage() {
             </Reveal>
           ) : (
             <div className="grid grid-cols-1 gap-6 lg:gap-8 lg:grid-cols-[1fr_360px]">
-              <div className="rounded-xl border border-border bg-card px-5">
+              <div className="border border-border bg-card px-5">
                 <CartItemsList
                   items={items.map((item) => ({
                     cartItemId: item.cartItem.id,
