@@ -12,36 +12,47 @@ interface Category {
 
 export function MegaMenu({ categories }: { categories: Category[] }) {
   return (
-    <div className="p-4">
-      <ul className="grid grid-cols-2 gap-1">
-        {categories.map((category) => {
-          const Icon = getCategoryIcon(category.slug)
-          return (
-            <li key={category.id}>
-              <Link
-                href={`/categories/${category.slug}`}
-                className="flex items-start gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-secondary"
-              >
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary">
-                  <Icon className="size-4.5" />
-                </span>
-                <span className="flex flex-col">
-                  <span className="font-medium text-foreground">{category.name}</span>
-                  {category.description && (
-                    <span className="line-clamp-1 text-xs text-muted-foreground">{category.description}</span>
-                  )}
-                </span>
-              </Link>
-            </li>
-          )
-        })}
-      </ul>
-      <div className="mt-2 flex items-center justify-between rounded-lg border border-border bg-secondary/40 px-4 py-3">
-        <p className="text-xs text-muted-foreground">Explore the full catalog across every category</p>
-        <Link href="/categories" className="text-xs font-semibold text-primary hover:underline">
-          View all categories
-        </Link>
+    <div>
+      <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
+        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Catalog index
+        </span>
+        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          {String(categories.length).padStart(2, "0")} categories
+        </span>
       </div>
+      <ul className="grid grid-cols-2 divide-x divide-border">
+        {[0, 1].map((col) => (
+          <li key={col} className="divide-y divide-border">
+            {categories
+              .filter((_, i) => i % 2 === col)
+              .map((category) => {
+                const Icon = getCategoryIcon(category.slug)
+                const index = categories.findIndex((c) => c.id === category.id) + 1
+                return (
+                  <Link
+                    key={category.id}
+                    href={`/categories/${category.slug}`}
+                    className="group flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-secondary"
+                  >
+                    <span className="font-mono text-[10px] font-semibold text-muted-foreground/70">
+                      {String(index).padStart(2, "0")}
+                    </span>
+                    <Icon className="size-4 shrink-0 text-foreground/60 transition-colors group-hover:text-primary" />
+                    <span className="font-medium text-foreground">{category.name}</span>
+                  </Link>
+                )
+              })}
+          </li>
+        ))}
+      </ul>
+      <Link
+        href="/categories"
+        className="flex items-center justify-between border-t border-border bg-secondary/50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.04em] text-primary transition-colors hover:bg-secondary"
+      >
+        View full catalog
+        <span aria-hidden="true">&rarr;</span>
+      </Link>
     </div>
   )
 }

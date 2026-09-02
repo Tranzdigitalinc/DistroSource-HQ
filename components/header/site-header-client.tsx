@@ -14,9 +14,9 @@ type Category = { id: number; slug: string; name: string; description: string | 
 
 export function SiteHeaderClient({ categories = [] }: { categories?: Category[] }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/80">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/98 backdrop-blur-sm supports-backdrop-filter:bg-background/90">
       <TrustStrip />
-      <div className="mx-auto flex h-[68px] max-w-7xl items-center gap-3 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6">
         <MobileNav categories={categories} />
         <Link href="/" className="flex min-w-0 shrink items-center gap-2 transition-opacity hover:opacity-90"><BrandLogo href={null} heightClassName="h-8 sm:h-9" /></Link>
         <DesktopNav categories={categories} />

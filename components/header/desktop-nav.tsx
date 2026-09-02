@@ -17,18 +17,18 @@ interface Category {
 export function DesktopNav({ categories }: { categories: Category[] }) {
   const [open, setOpen] = useState(false)
 
+  const linkClass =
+    "relative flex items-center gap-1 px-3 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.06em] text-foreground/70 transition-colors after:absolute after:inset-x-3 after:-bottom-px after:h-[2px] after:origin-left after:scale-x-0 after:bg-primary after:transition-transform hover:text-foreground hover:after:scale-x-100"
+
   return (
-    <nav className="hidden items-center gap-1 lg:flex">
+    <nav className="hidden items-center lg:flex">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           render={
             <button
               type="button"
               onMouseEnter={() => setOpen(true)}
-              className={cn(
-                "flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium text-foreground/85 transition-colors hover:bg-accent/10 hover:text-accent",
-                open && "bg-accent/10 text-accent",
-              )}
+              className={cn(linkClass, open && "text-foreground after:scale-x-100")}
             />
           }
         >
@@ -37,31 +37,22 @@ export function DesktopNav({ categories }: { categories: Category[] }) {
         </PopoverTrigger>
         <PopoverContent
           align="start"
-          sideOffset={12}
+          sideOffset={16}
           onMouseLeave={() => setOpen(false)}
-          className="w-[520px] max-w-[92vw] p-0"
+          className="w-[560px] max-w-[92vw] rounded-[4px] p-0"
         >
           <MegaMenu categories={categories} />
         </PopoverContent>
       </Popover>
 
-      <Link
-        href="/products?free=true"
-        className="rounded-full px-3 py-1.5 text-sm font-medium text-foreground/85 transition-colors hover:bg-accent/10 hover:text-accent"
-      >
-        Free Resources
+      <Link href="/products?free=true" className={linkClass}>
+        Free
       </Link>
-      <Link
-        href="/products?bundle=true"
-        className="rounded-full px-3 py-1.5 text-sm font-medium text-foreground/85 transition-colors hover:bg-accent/10 hover:text-accent"
-      >
+      <Link href="/products?bundle=true" className={linkClass}>
         Bundles
       </Link>
-      <Link
-        href="/team-licensing"
-        className="rounded-full px-3 py-1.5 text-sm font-medium text-foreground/85 transition-colors hover:bg-accent/10 hover:text-accent"
-      >
-        Team Licensing
+      <Link href="/team-licensing" className={linkClass}>
+        Team licensing
       </Link>
     </nav>
   )

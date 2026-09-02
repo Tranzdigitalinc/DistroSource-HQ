@@ -71,14 +71,15 @@ const categoryPreviewCards = [
   { name: "UI kits", image: "/images/categories/ui-kits.png" },
 ]
 
-function StatCounter({ label, value, suffix = "" }: { label: string; value: number; suffix?: string }) {
+function StatCounter({ label, value, suffix = "", index }: { label: string; value: number; suffix?: string; index: number }) {
   const counter = useAnimatedCounter(value)
   return (
-    <div className="flex flex-col gap-1">
-      <span ref={counter.ref} className="font-display text-2xl font-semibold text-hero-foreground sm:text-3xl">
+    <div className="flex flex-col gap-1 border-l border-border pl-4 first:border-l-0 first:pl-0">
+      <span className="font-mono text-[10px] font-semibold text-muted-foreground/60">{String(index).padStart(2, "0")}</span>
+      <span ref={counter.ref} className="font-mono text-2xl font-bold tabular-nums text-hero-foreground sm:text-3xl">
         {formatCount(counter.value)}{suffix}
       </span>
-      <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
+      <span className="font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground">{label}</span>
     </div>
   )
 }
@@ -86,57 +87,41 @@ function StatCounter({ label, value, suffix = "" }: { label: string; value: numb
 export function Hero({ stats }: { stats: HeroStats }) {
   return (
     <section className="relative overflow-hidden border-b border-border bg-hero">
-      {/* Layered background: fine grid + soft brand highlight (decorative) */}
+      {/* Fine grid texture — the catalog identity's graph-paper base */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.5] [mask-image:radial-gradient(120%_90%_at_50%_0%,black,transparent_72%)]"
+        className="pointer-events-none absolute inset-0 opacity-[0.4] [mask-image:radial-gradient(120%_90%_at_50%_0%,black,transparent_72%)]"
         style={{
           backgroundImage:
             "linear-gradient(to right, var(--border) 1px, transparent 1px), linear-gradient(to bottom, var(--border) 1px, transparent 1px)",
           backgroundSize: "56px 56px",
         }}
       />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
-        style={{
-          background:
-            "radial-gradient(50% 50% at 50% 50%, var(--glow), transparent 70%)",
-        }}
-      />
-      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 px-4 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:py-20">
+      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-stretch gap-0 px-4 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-0">
         <motion.div
           initial="hidden"
           animate="visible"
           transition={{ staggerChildren: 0.03, delayChildren: 0 }}
-          className="flex flex-col items-start gap-7"
+          className="flex flex-col items-start gap-7 border-border py-16 lg:border-r lg:py-20 lg:pr-12"
         >
           <motion.span
             variants={item}
             transition={{ duration: 0.2, ease: EASE }}
-            className="flex w-fit items-center gap-2 rounded-full border border-border bg-card/80 py-1.5 pl-2 pr-3.5 text-xs font-medium text-foreground shadow-sm backdrop-blur-sm"
+            className="flex w-fit items-center gap-2 border border-border px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-foreground"
           >
-            <span className="relative flex size-4 items-center justify-center rounded-full bg-brand-blue/15">
-              <span className="size-1.5 rounded-full bg-brand-blue" />
-              <span className="absolute inset-0 animate-ping rounded-full bg-brand-blue/40" />
-            </span>
-            <span className="tracking-wide">Everything digital. One source.</span>
+            <span className="size-1.5 rounded-full bg-primary" />
+            Everything digital. One source.
           </motion.span>
 
           <motion.h1
             variants={item}
             transition={{ duration: 0.2, ease: EASE }}
-            className="font-display text-5xl font-medium leading-[1.05] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.1rem]"
+            className="font-display text-5xl font-black leading-[0.98] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.1rem]"
           >
             Digital assets,{" "}
             <span className="relative text-primary">
               unlocked in seconds
-              <motion.span
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.6, ease: EASE, delay: 0.6 }}
-                className="absolute -bottom-1 left-0 h-[3px] w-full origin-left rounded-full bg-accent/50"
-              />
+              <span className="absolute -bottom-1 left-0 h-[4px] w-full bg-primary/30" />
             </span>
           </motion.h1>
 
@@ -152,33 +137,25 @@ export function Hero({ stats }: { stats: HeroStats }) {
           <motion.div
             variants={item}
             transition={{ duration: 0.2, ease: EASE }}
-            className="flex w-full flex-wrap items-center gap-4"
+            className="flex w-full flex-wrap items-center gap-3"
           >
             <Button
               size="lg"
               nativeButton={false}
-              className="group/cta relative h-12 overflow-hidden px-8 font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98]"
-              style={{
-                backgroundImage:
-                  "linear-gradient(135deg, var(--brand-blue-bright), var(--brand-blue) 60%, var(--navy))",
-              }}
+              className="h-12 rounded-[4px] bg-primary px-8 font-mono text-sm font-semibold uppercase tracking-[0.04em] text-primary-foreground transition-transform hover:bg-primary/90 active:scale-[0.98]"
               render={<Link href="/products" />}
             >
-              <span
-                aria-hidden
-                className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover/cta:translate-x-full"
-              />
               Shop all products
-              <ArrowRight className="size-4 transition-transform duration-200 group-hover/cta:translate-x-0.5" />
+              <ArrowRight className="size-4" />
             </Button>
             <Button
               size="lg"
               variant="outline"
               nativeButton={false}
-              className="h-12 border-border-strong bg-card px-8 font-semibold text-foreground shadow-xs transition-all hover:border-primary/40 hover:bg-secondary hover:shadow-sm active:scale-[0.98]"
+              className="h-12 rounded-[4px] border-border-strong bg-transparent px-8 font-mono text-sm font-semibold uppercase tracking-[0.04em] text-foreground transition-colors hover:bg-secondary active:scale-[0.98]"
               render={<Link href="/deals" />}
             >
-              <Sparkles className="size-4 text-brand-cyan" />
+              <Sparkles className="size-4 text-primary" />
               View today&apos;s deals
             </Button>
           </motion.div>
@@ -190,8 +167,8 @@ export function Hero({ stats }: { stats: HeroStats }) {
           >
             {trustChips.map(({ icon: Icon, label }) => (
               <div key={label} className="flex items-center gap-2 text-muted-foreground">
-                <Icon className="size-4 shrink-0 text-accent" />
-                <span className="text-xs font-medium sm:text-sm">{label}</span>
+                <Icon className="size-4 shrink-0 text-primary" />
+                <span className="font-mono text-[11px] font-medium uppercase tracking-[0.03em] sm:text-xs">{label}</span>
               </div>
             ))}
           </motion.div>
@@ -199,17 +176,18 @@ export function Hero({ stats }: { stats: HeroStats }) {
           <motion.div
             variants={item}
             transition={{ duration: 0.2, ease: EASE }}
-            className="flex w-full flex-wrap items-center gap-x-8 gap-y-4"
+            className="flex w-full flex-wrap items-center gap-x-0 gap-y-4"
           >
-            <StatCounter label="Products" value={stats.productCount} suffix="+" />
-            <StatCounter label="Categories" value={stats.categoryCount} />
-            <StatCounter label="Reviews" value={stats.reviewCount} />
-            <div className="flex flex-col gap-1">
-              <span className="flex items-center gap-1.5 font-display text-2xl font-semibold text-hero-foreground sm:text-3xl">
+            <StatCounter label="Products" value={stats.productCount} suffix="+" index={1} />
+            <StatCounter label="Categories" value={stats.categoryCount} index={2} />
+            <StatCounter label="Reviews" value={stats.reviewCount} index={3} />
+            <div className="flex flex-col gap-1 border-l border-border pl-4">
+              <span className="font-mono text-[10px] font-semibold text-muted-foreground/60">04</span>
+              <span className="flex items-center gap-1.5 font-mono text-2xl font-bold tabular-nums text-hero-foreground sm:text-3xl">
                 {stats.avgRating.toFixed(1)}
-                <Star className="size-4 fill-accent text-accent" />
+                <Star className="size-4 fill-primary text-primary" />
               </span>
-              <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              <span className="font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
                 Avg rating
               </span>
             </div>
@@ -220,18 +198,22 @@ export function Hero({ stats }: { stats: HeroStats }) {
           initial="hidden"
           animate="visible"
           transition={{ staggerChildren: 0.02, delayChildren: 0 }}
-          className="relative mx-auto w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-sm"
+          className="relative mx-auto flex w-full max-w-md flex-col py-16 lg:py-20 lg:pl-12"
         >
-          <p className="mb-5 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            A category for every project
-          </p>
-          <div className="grid grid-cols-3 gap-3">
-            {categoryPreviewCards.map(({ name, image }) => (
+          <div className="mb-5 flex items-center justify-between font-mono text-[10.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+            <span>A category for every project</span>
+            <span className="text-primary">06 shown</span>
+          </div>
+          <div className="grid grid-cols-3 gap-px border border-border bg-border">
+            {categoryPreviewCards.map(({ name, image }, i) => (
               <motion.div key={name} variants={card} transition={{ duration: 0.5, ease: EASE }}>
                 <Link
                   href="/products"
-                  className="group/cat relative flex aspect-square items-end overflow-hidden rounded-xl border border-border bg-secondary shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+                  className="group/cat relative flex aspect-square items-end overflow-hidden bg-secondary transition-opacity hover:opacity-90"
                 >
+                  <span className="absolute left-0 top-0 z-10 flex size-5 items-center justify-center bg-navy/80 font-mono text-[9px] font-semibold text-navy-foreground">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                   <Image
                     src={image || "/placeholder.svg"}
                     alt={name}
@@ -239,8 +221,8 @@ export function Hero({ stats }: { stats: HeroStats }) {
                     className="object-cover transition-transform duration-500 group-hover/cat:scale-110"
                     sizes="120px"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                  <span className="relative z-10 line-clamp-2 p-2 text-[10px] font-medium leading-tight text-white">
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy/85 via-navy/10 to-transparent" />
+                  <span className="relative z-10 line-clamp-2 p-2 text-[10px] font-medium leading-tight text-navy-foreground">
                     {name}
                   </span>
                 </Link>

@@ -1,13 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { motion } from "motion/react"
 import { Star, Quote } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 import type { getTopReviews } from "@/lib/queries/catalog"
-
-const MotionLink = motion.create(Link)
 
 function initials(name: string) {
   return name
@@ -28,16 +25,17 @@ export function Testimonials({ reviews, stats }: TestimonialsProps) {
 
   return (
     <section className="mx-auto max-w-7xl px-6 py-16 sm:px-8">
-      <Reveal className="mb-10 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <Reveal className="mb-10 flex flex-col gap-2 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="font-display text-2xl font-medium tracking-tight text-foreground sm:text-3xl">
+          <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Customer record</p>
+          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             What shoppers are saying
           </h2>
           <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
             Real reviews from customers across our catalog.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 font-mono">
           <div className="flex items-center gap-0.5">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
@@ -51,17 +49,14 @@ export function Testimonials({ reviews, stats }: TestimonialsProps) {
         </div>
       </Reveal>
 
-      <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" stagger={0.07}>
+      <RevealGroup className="grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-3" stagger={0.07}>
         {reviews.map(({ review, product }) => (
           <RevealItem key={review.id}>
-            <MotionLink
+            <Link
               href={`/products/${product.slug}`}
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 400, damping: 28 }}
-              className="group relative flex h-full flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-accent/35 hover:shadow-lg hover:shadow-accent/10"
+              className="group relative flex h-full flex-col gap-3 bg-card p-5 transition-colors hover:bg-background"
             >
-              <Quote className="absolute right-4 top-4 size-8 text-accent/10" aria-hidden />
+              <Quote className="absolute right-4 top-4 size-8 text-primary/10" aria-hidden />
               <div className="flex items-center gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
@@ -70,20 +65,20 @@ export function Testimonials({ reviews, stats }: TestimonialsProps) {
                   />
                 ))}
               </div>
-              {review.title && <p className="font-display text-sm font-semibold text-foreground">{review.title}</p>}
+              {review.title && <p className="font-display text-sm font-bold text-foreground">{review.title}</p>}
               <p className="line-clamp-4 text-sm leading-relaxed text-muted-foreground">{review.body}</p>
-              <div className="mt-auto flex items-center gap-2.5 border-t border-border/60 pt-3">
+              <div className="mt-auto flex items-center gap-2.5 border-t border-border pt-3">
                 <Avatar size="sm">
-                  <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+                  <AvatarFallback className="rounded-[3px] bg-primary/10 text-primary text-[10px] font-bold">
                     {initials(review.authorName)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex min-w-0 flex-col">
                   <span className="text-xs font-medium text-foreground">{review.authorName}</span>
-                  <span className="truncate text-xs text-muted-foreground">on {product.name}</span>
+                  <span className="truncate font-mono text-[11px] text-muted-foreground">on {product.name}</span>
                 </div>
               </div>
-            </MotionLink>
+            </Link>
           </RevealItem>
         ))}
       </RevealGroup>
