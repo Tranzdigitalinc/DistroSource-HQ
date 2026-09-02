@@ -16,9 +16,9 @@ export function SiteHeaderClient({ categories = [] }: { categories?: Category[] 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/98 backdrop-blur-sm supports-backdrop-filter:bg-background/90">
       <TrustStrip />
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6">
+      <div className="mx-auto flex h-20 max-w-7xl items-center gap-4 px-4 sm:h-24 sm:px-6">
         <MobileNav categories={categories} />
-        <Link href="/" className="flex min-w-0 shrink items-center gap-2 transition-opacity hover:opacity-90"><BrandLogo href={null} heightClassName="h-11 sm:h-12" /></Link>
+        <Link href="/" className="flex min-w-0 shrink items-center gap-2 transition-opacity hover:opacity-90"><BrandLogo href={null} heightClassName="h-14 sm:h-16" /></Link>
         <DesktopNav categories={categories} />
         <HeaderSearch className="mx-auto hidden max-w-md flex-1 md:block" categories={categories} />
         <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1"><ThemeToggle /><CartTrigger /><AccountMenu /></div>
