@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 export function BrandLogo({
   href = "/",
   className,
-  heightClassName = "h-8",
+  heightClassName = "h-14",
 }: {
   href?: string | null
   className?: string
@@ -20,8 +20,17 @@ export function BrandLogo({
         alt="DistroSource — Digital Products. Endless Possibilities."
         width={2172}
         height={724}
-        priority
-        className="h-full w-auto max-w-[min(46vw,270px)] object-contain object-left"
+        loading="lazy"
+        className="h-full w-auto max-w-[min(90vw,760px)] object-contain object-left dark:hidden"
+      />
+      <Image
+        src="/images/distro-source-logo-dark.png"
+        alt="DistroSource — Digital Products. Endless Possibilities."
+        width={2172}
+        height={724}
+        loading="lazy"
+        aria-hidden="true"
+        className="hidden h-full w-auto max-w-[min(90vw,760px)] object-contain object-left dark:block"
       />
     </span>
   )
