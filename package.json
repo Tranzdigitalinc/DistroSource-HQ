@@ -12,6 +12,7 @@
     "@netlify/plugin-nextjs": "^5.15.13",
     "@paypal/react-paypal-js": "^10.4.0",
     "@shadcn/react": "^0.3.1",
+    "@tabler/icons-react": "^3.46.0",
     "@vercel/analytics": "1.6.1",
     "@vercel/blob": "^2.8.0",
     "better-auth": "^1.7.2",
