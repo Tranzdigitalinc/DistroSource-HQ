@@ -43,23 +43,6 @@ export async function resolveOperationEvent(id: number) {
   revalidatePath("/admin")
 }
 
-export async function getReloadlySyncHealth() {
-  await requireAdmin()
-  const [lastSuccess] = await db
-    .select()
-    .from(operationEvents)
-    .where(eq(operationEvents.eventType, "reloadly_sync_completed"))
-    .orderBy(desc(operationEvents.createdAt))
-    .limit(1)
-  const [lastFailure] = await db
-    .select()
-    .from(operationEvents)
-    .where(and(eq(operationEvents.eventType, "reloadly_sync_failed"), eq(operationEvents.status, "open")))
-    .orderBy(desc(operationEvents.createdAt))
-    .limit(1)
-  return { lastSuccess: lastSuccess ?? null, lastFailure: lastFailure ?? null }
-}
-
 export async function createOperationEvent(input: { eventType: string; entityType: string; entityId?: string; payload?: unknown }) {
   const userId = await requireAdmin()
   await db.insert(operationEvents).values({ eventType: input.eventType, entityType: input.entityType, entityId: input.entityId, payload: input.payload, createdBy: userId })
