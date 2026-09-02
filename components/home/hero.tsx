@@ -1,41 +1,18 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { motion, useInView } from "motion/react"
+import { motion } from "motion/react"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Star, Sparkles, ShieldCheck, Zap, Download, Headphones } from "lucide-react"
+import { PriceDisplay } from "@/components/price-display"
+import { ArrowRight, Sparkles, Star, ImageOff } from "lucide-react"
+import type { ProductCardData } from "@/components/product/product-card"
 
 interface HeroStats {
   productCount: number
   categoryCount: number
   reviewCount: number
   avgRating: number
-}
-
-function useAnimatedCounter(target: number, duration = 500, startDelay = 0) {
-  const [value, setValue] = useState(0)
-  const ref = useRef<HTMLSpanElement>(null)
-  const inView = useInView(ref, { once: true })
-
-  useEffect(() => {
-    if (!inView) return
-    const timeout = setTimeout(() => {
-      const start = performance.now()
-      function tick(now: number) {
-        const elapsed = now - start
-        const progress = Math.min(elapsed / duration, 1)
-        const eased = 1 - Math.pow(1 - progress, 3)
-        setValue(Math.round(eased * target))
-        if (progress < 1) requestAnimationFrame(tick)
-      }
-      requestAnimationFrame(tick)
-    }, startDelay)
-    return () => clearTimeout(timeout)
-  }, [inView, target, duration, startDelay])
-
-  return { value, ref }
 }
 
 function formatCount(value: number) {
@@ -50,41 +27,49 @@ const item = {
   visible: { opacity: 1, y: 0 },
 }
 
-const card = {
-  hidden: { opacity: 0, y: 14 },
-  visible: { opacity: 1, y: 0 },
-}
+function MarqueeCard({ data, index }: { data: ProductCardData; index: number }) {
+  const image = data.product.thumbnailUrl ?? data.product.coverImageUrl ?? data.images[0]?.url ?? null
+  const isFree = data.product.isFree || data.startingPrice === 0
 
-const trustChips = [
-  { icon: Download, label: "Instant access" },
-  { icon: ShieldCheck, label: "Secure payments" },
-  { icon: Zap, label: "New drops weekly" },
-  { icon: Headphones, label: "24/7 support" },
-]
-
-const categoryPreviewCards = [
-  { name: "Website templates", image: "/images/categories/website-templates.png" },
-  { name: "Fonts", image: "/images/categories/fonts.png" },
-  { name: "Presentation kits", image: "/images/categories/presentation-kits.png" },
-  { name: "Notion systems", image: "/images/categories/notion-systems.png" },
-  { name: "3D & mockups", image: "/images/categories/3d-mockups.png" },
-  { name: "UI kits", image: "/images/categories/ui-kits.png" },
-]
-
-function StatCounter({ label, value, suffix = "", index }: { label: string; value: number; suffix?: string; index: number }) {
-  const counter = useAnimatedCounter(value)
   return (
-    <div className="flex flex-col gap-1 border-l border-border pl-4 first:border-l-0 first:pl-0">
-      <span className="font-mono text-[10px] font-semibold text-muted-foreground/60">{String(index).padStart(2, "0")}</span>
-      <span ref={counter.ref} className="font-mono text-2xl font-bold tabular-nums text-hero-foreground sm:text-3xl">
-        {formatCount(counter.value)}{suffix}
-      </span>
-      <span className="font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground">{label}</span>
-    </div>
+    <Link
+      href={`/products/${data.product.slug}`}
+      className="group/mc flex w-[168px] shrink-0 flex-col border-r border-border bg-card transition-colors hover:bg-secondary/60 sm:w-[192px]"
+    >
+      <div className="relative aspect-square w-full overflow-hidden border-b border-border bg-secondary">
+        <span className="absolute left-0 top-0 z-10 flex size-5 items-center justify-center bg-navy/80 font-mono text-[9px] font-semibold text-navy-foreground">
+          {String((index % 999) + 1).padStart(2, "0")}
+        </span>
+        {image ? (
+          <Image
+            src={image || "/placeholder.svg"}
+            alt={data.product.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover/mc:scale-[1.04]"
+            sizes="192px"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-muted-foreground/40">
+            <ImageOff className="size-6" />
+          </div>
+        )}
+      </div>
+      <div className="flex flex-col gap-1 p-2.5">
+        <span className="font-mono text-[9.5px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+          {data.category.name}
+        </span>
+        <h3 className="line-clamp-1 text-xs font-semibold leading-snug text-foreground">{data.product.name}</h3>
+        <span className="font-mono text-sm font-bold text-foreground">
+          {isFree ? "Free" : <PriceDisplay usdAmount={data.startingPrice} />}
+        </span>
+      </div>
+    </Link>
   )
 }
 
-export function Hero({ stats }: { stats: HeroStats }) {
+export function Hero({ stats, products }: { stats: HeroStats; products: ProductCardData[] }) {
+  const marqueeItems = products.length > 0 ? [...products, ...products] : []
+
   return (
     <section className="relative overflow-hidden border-b border-border bg-hero">
       {/* Fine grid texture — the catalog identity's graph-paper base */}
@@ -97,140 +82,119 @@ export function Hero({ stats }: { stats: HeroStats }) {
           backgroundSize: "56px 56px",
         }}
       />
-      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-stretch gap-0 px-4 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-0">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          transition={{ staggerChildren: 0.03, delayChildren: 0 }}
-          className="flex flex-col items-start gap-7 border-border py-16 lg:border-r lg:py-20 lg:pr-12"
-        >
-          <motion.span
-            variants={item}
-            transition={{ duration: 0.2, ease: EASE }}
-            className="flex w-fit items-center gap-2 border border-border px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-foreground"
-          >
-            <span className="size-1.5 rounded-full bg-primary" />
-            Everything digital. One source.
-          </motion.span>
 
-          <motion.h1
-            variants={item}
-            transition={{ duration: 0.2, ease: EASE }}
-            className="font-display text-5xl font-black leading-[0.98] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.1rem]"
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        transition={{ staggerChildren: 0.03, delayChildren: 0 }}
+        className="relative mx-auto flex max-w-3xl flex-col items-center gap-6 px-4 pt-16 pb-10 text-center sm:px-8 lg:pt-24 lg:pb-14"
+      >
+        <motion.span
+          variants={item}
+          transition={{ duration: 0.2, ease: EASE }}
+          className="flex w-fit items-center gap-2 border border-border px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-foreground"
+        >
+          <span className="size-1.5 rounded-full bg-primary" />
+          Everything digital. One source.
+        </motion.span>
+
+        <motion.h1
+          variants={item}
+          transition={{ duration: 0.2, ease: EASE }}
+          className="font-display text-5xl font-black leading-[0.98] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.1rem]"
+        >
+          Digital assets,{" "}
+          <span className="relative text-primary">
+            unlocked in seconds
+            <span className="absolute -bottom-1 left-0 h-[4px] w-full bg-primary/30" />
+          </span>
+        </motion.h1>
+
+        <motion.p
+          variants={item}
+          transition={{ duration: 0.2, ease: EASE }}
+          className="max-w-lg text-lg leading-relaxed text-muted-foreground text-pretty"
+        >
+          Templates, fonts, presentations, Notion systems, 3D assets, and more — one department store for digital
+          products, with instant access to every download in your library.
+        </motion.p>
+
+        <motion.div
+          variants={item}
+          transition={{ duration: 0.2, ease: EASE }}
+          className="flex w-full flex-wrap items-center justify-center gap-3"
+        >
+          <Button
+            size="lg"
+            nativeButton={false}
+            className="h-12 rounded-[4px] bg-primary px-8 font-mono text-sm font-semibold uppercase tracking-[0.04em] text-primary-foreground transition-transform hover:bg-primary/90 active:scale-[0.98]"
+            render={<Link href="/products" />}
           >
-            Digital assets,{" "}
-            <span className="relative text-primary">
-              unlocked in seconds
-              <span className="absolute -bottom-1 left-0 h-[4px] w-full bg-primary/30" />
+            Shop all products
+            <ArrowRight className="size-4" />
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            nativeButton={false}
+            className="h-12 rounded-[4px] border-border-strong bg-transparent px-8 font-mono text-sm font-semibold uppercase tracking-[0.04em] text-foreground transition-colors hover:bg-secondary active:scale-[0.98]"
+            render={<Link href="/deals" />}
+          >
+            <Sparkles className="size-4 text-primary" />
+            View today&apos;s deals
+          </Button>
+        </motion.div>
+
+        <motion.div
+          variants={item}
+          transition={{ duration: 0.2, ease: EASE }}
+          className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.05em] text-muted-foreground"
+        >
+          <span>{formatCount(stats.productCount)}+ products</span>
+          <span className="text-border">/</span>
+          <span>{stats.categoryCount} categories</span>
+          <span className="text-border">/</span>
+          <span className="flex items-center gap-1">
+            {stats.avgRating.toFixed(1)}
+            <Star className="size-3 fill-primary text-primary" />
+            avg rating
+          </span>
+          <span className="text-border">/</span>
+          <span>{formatCount(stats.reviewCount)}+ reviews</span>
+        </motion.div>
+      </motion.div>
+
+      {marqueeItems.length > 0 && (
+        <div className="relative border-t border-border">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 pb-4 pt-6 sm:px-8">
+            <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              Fresh off the shelf
             </span>
-          </motion.h1>
-
-          <motion.p
-            variants={item}
-            transition={{ duration: 0.2, ease: EASE }}
-            className="max-w-lg text-lg leading-relaxed text-muted-foreground text-pretty"
-          >
-            Templates, fonts, presentations, Notion systems, 3D assets, and more — one department store for digital
-            products, with instant access to every download in your library.
-          </motion.p>
-
-          <motion.div
-            variants={item}
-            transition={{ duration: 0.2, ease: EASE }}
-            className="flex w-full flex-wrap items-center gap-3"
-          >
-            <Button
-              size="lg"
-              nativeButton={false}
-              className="h-12 rounded-[4px] bg-primary px-8 font-mono text-sm font-semibold uppercase tracking-[0.04em] text-primary-foreground transition-transform hover:bg-primary/90 active:scale-[0.98]"
-              render={<Link href="/products" />}
+            <Link
+              href="/products"
+              className="group flex items-center gap-1 font-mono text-[11px] font-semibold uppercase tracking-[0.06em] text-primary hover:underline"
             >
-              Shop all products
-              <ArrowRight className="size-4" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              nativeButton={false}
-              className="h-12 rounded-[4px] border-border-strong bg-transparent px-8 font-mono text-sm font-semibold uppercase tracking-[0.04em] text-foreground transition-colors hover:bg-secondary active:scale-[0.98]"
-              render={<Link href="/deals" />}
-            >
-              <Sparkles className="size-4 text-primary" />
-              View today&apos;s deals
-            </Button>
-          </motion.div>
-
-          <motion.div
-            variants={item}
-            transition={{ duration: 0.2, ease: EASE }}
-            className="grid w-full grid-cols-2 gap-y-3 border-t border-border pt-6 sm:grid-cols-4"
-          >
-            {trustChips.map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2 text-muted-foreground">
-                <Icon className="size-4 shrink-0 text-primary" />
-                <span className="font-mono text-[11px] font-medium uppercase tracking-[0.03em] sm:text-xs">{label}</span>
-              </div>
-            ))}
-          </motion.div>
-
-          <motion.div
-            variants={item}
-            transition={{ duration: 0.2, ease: EASE }}
-            className="flex w-full flex-wrap items-center gap-x-0 gap-y-4"
-          >
-            <StatCounter label="Products" value={stats.productCount} suffix="+" index={1} />
-            <StatCounter label="Categories" value={stats.categoryCount} index={2} />
-            <StatCounter label="Reviews" value={stats.reviewCount} index={3} />
-            <div className="flex flex-col gap-1 border-l border-border pl-4">
-              <span className="font-mono text-[10px] font-semibold text-muted-foreground/60">04</span>
-              <span className="flex items-center gap-1.5 font-mono text-2xl font-bold tabular-nums text-hero-foreground sm:text-3xl">
-                {stats.avgRating.toFixed(1)}
-                <Star className="size-4 fill-primary text-primary" />
-              </span>
-              <span className="font-mono text-[10.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
-                Avg rating
-              </span>
+              Browse all
+              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          </div>
+          <div className="relative overflow-hidden border-y border-border">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-hero to-transparent sm:w-20"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-hero to-transparent sm:w-20"
+            />
+            <div className="flex w-max animate-marquee">
+              {marqueeItems.map((data, i) => (
+                <MarqueeCard key={`${data.product.id}-${i}`} data={data} index={i} />
+              ))}
             </div>
-          </motion.div>
-        </motion.div>
-
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          transition={{ staggerChildren: 0.02, delayChildren: 0 }}
-          className="relative mx-auto flex w-full max-w-md flex-col py-16 lg:py-20 lg:pl-12"
-        >
-          <div className="mb-5 flex items-center justify-between font-mono text-[10.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-            <span>A category for every project</span>
-            <span className="text-primary">06 shown</span>
           </div>
-          <div className="grid grid-cols-3 gap-px border border-border bg-border">
-            {categoryPreviewCards.map(({ name, image }, i) => (
-              <motion.div key={name} variants={card} transition={{ duration: 0.5, ease: EASE }}>
-                <Link
-                  href="/products"
-                  className="group/cat relative flex aspect-square items-end overflow-hidden bg-secondary transition-opacity hover:opacity-90"
-                >
-                  <span className="absolute left-0 top-0 z-10 flex size-5 items-center justify-center bg-navy/80 font-mono text-[9px] font-semibold text-navy-foreground">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <Image
-                    src={image || "/placeholder.svg"}
-                    alt={name}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover/cat:scale-110"
-                    sizes="120px"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-navy/85 via-navy/10 to-transparent" />
-                  <span className="relative z-10 line-clamp-2 p-2 text-[10px] font-medium leading-tight text-navy-foreground">
-                    {name}
-                  </span>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
+        </div>
+      )}
     </section>
   )
 }

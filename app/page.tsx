@@ -38,7 +38,7 @@ export default async function HomePage() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <Hero stats={stats} />
+        <Hero stats={stats} products={featured.slice(0, 10)} />
         <QuickCategoryNav categories={categories} />
         <ShopByGoal />
         <CategoryGrid categories={categories} />
