@@ -11,6 +11,7 @@ import { ProductLicensesPanel } from "@/components/admin/product-licenses-panel"
 import { ProductVersionsPanel } from "@/components/admin/product-versions-panel"
 import { DeleteProductButton } from "@/components/admin/delete-product-button"
 import { BundleContentsPanel } from "@/components/admin/bundle-contents-panel"
+import { ProductReadiness } from "@/components/admin/product-readiness"
 import { Button } from "@/components/ui/button"
 
 export const metadata = {
@@ -48,6 +49,16 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           <DeleteProductButton productId={product.id} productName={product.name} redirectTo="/admin/products" />
         </div>
       </header>
+
+      <ProductReadiness
+        status={product.status}
+        thumbnailUrl={product.thumbnailUrl}
+        coverImageUrl={product.coverImageUrl}
+        imageCount={images.length}
+        fileCount={files.length}
+        licenseCount={licenses.length}
+        description={product.description}
+      />
 
       <ProductForm
         categories={allCategories}
