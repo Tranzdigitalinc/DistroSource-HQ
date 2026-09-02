@@ -5,6 +5,12 @@ import Link from "next/link"
 import { motion } from "motion/react"
 import { Button } from "@/components/ui/button"
 import { PriceDisplay } from "@/components/price-display"
+import { AuroraBackground } from "@/components/velora/aurora-background"
+import { Particles } from "@/components/velora/particles"
+import { AnimatedGradientText } from "@/components/velora/animated-gradient-text"
+import { Typewriter } from "@/components/velora/typewriter"
+import { NumberTicker } from "@/components/velora/number-ticker"
+import { BorderBeam } from "@/components/velora/border-beam"
 import { ArrowRight, Sparkles, Star, ImageOff } from "lucide-react"
 import type { ProductCardData } from "@/components/product/product-card"
 
@@ -72,6 +78,10 @@ export function Hero({ stats, products }: { stats: HeroStats; products: ProductC
 
   return (
     <section className="relative overflow-hidden border-b border-border bg-hero">
+      {/* Velora aurora backdrop, tinted to the amber brand gradient, kept subtle behind the grid */}
+      <AuroraBackground intensity="subtle" />
+      <Particles quantity={70} className="opacity-70" />
+
       {/* Fine grid texture — the catalog identity's graph-paper base */}
       <div
         aria-hidden
@@ -103,11 +113,7 @@ export function Hero({ stats, products }: { stats: HeroStats; products: ProductC
           transition={{ duration: 0.2, ease: EASE }}
           className="font-display text-5xl font-black leading-[0.98] tracking-tight text-hero-foreground text-balance sm:text-6xl lg:text-[4.1rem]"
         >
-          Digital assets,{" "}
-          <span className="relative text-primary">
-            unlocked in seconds
-            <span className="absolute -bottom-1 left-0 h-[4px] w-full bg-primary/30" />
-          </span>
+          Digital assets, <AnimatedGradientText>unlocked in seconds</AnimatedGradientText>
         </motion.h1>
 
         <motion.p
@@ -115,8 +121,15 @@ export function Hero({ stats, products }: { stats: HeroStats; products: ProductC
           transition={{ duration: 0.2, ease: EASE }}
           className="max-w-lg text-lg leading-relaxed text-muted-foreground text-pretty"
         >
-          Templates, fonts, presentations, Notion systems, 3D assets, and more — one department store for digital
-          products, with instant access to every download in your library.
+          <Typewriter
+            words={[
+              "Templates, fonts, and presentations.",
+              "Notion systems and 3D assets.",
+              "One department store for digital products.",
+            ]}
+            className="text-lg text-foreground"
+          />{" "}
+          Instant access to every download in your library.
         </motion.p>
 
         <motion.div
@@ -124,15 +137,20 @@ export function Hero({ stats, products }: { stats: HeroStats; products: ProductC
           transition={{ duration: 0.2, ease: EASE }}
           className="flex w-full flex-wrap items-center justify-center gap-3"
         >
-          <Button
-            size="lg"
-            nativeButton={false}
-            className="h-12 rounded-[4px] bg-primary px-8 font-mono text-sm font-semibold uppercase tracking-[0.04em] text-primary-foreground transition-transform hover:bg-primary/90 active:scale-[0.98]"
-            render={<Link href="/products" />}
+          <Link
+            href="/products"
+            className="group relative inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-[4px] bg-primary px-8 font-mono text-sm font-semibold uppercase tracking-[0.04em] text-primary-foreground shadow-lg shadow-primary/30 transition-[transform,box-shadow] duration-300 hover:scale-[1.03] hover:shadow-xl hover:shadow-primary/40 active:scale-[0.98]"
           >
-            Shop all products
-            <ArrowRight className="size-4" />
-          </Button>
+            <BorderBeam size={48} duration={5} />
+            <span className="relative z-10 inline-flex items-center gap-2">
+              Shop all products
+              <ArrowRight className="size-4" />
+            </span>
+            <span
+              aria-hidden
+              className="animate-shimmer absolute inset-0 bg-[linear-gradient(110deg,transparent_30%,rgba(255,255,255,0.35)_50%,transparent_70%)] bg-[length:250%_100%]"
+            />
+          </Link>
           <Button
             size="lg"
             variant="outline"
@@ -150,9 +168,13 @@ export function Hero({ stats, products }: { stats: HeroStats; products: ProductC
           transition={{ duration: 0.2, ease: EASE }}
           className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.05em] text-muted-foreground"
         >
-          <span>{formatCount(stats.productCount)}+ products</span>
+          <span className="flex items-center gap-1">
+            <NumberTicker value={stats.productCount} className="text-foreground" />+ products
+          </span>
           <span className="text-border">/</span>
-          <span>{stats.categoryCount} categories</span>
+          <span className="flex items-center gap-1">
+            <NumberTicker value={stats.categoryCount} className="text-foreground" /> categories
+          </span>
           <span className="text-border">/</span>
           <span className="flex items-center gap-1">
             {stats.avgRating.toFixed(1)}
@@ -160,7 +182,9 @@ export function Hero({ stats, products }: { stats: HeroStats; products: ProductC
             avg rating
           </span>
           <span className="text-border">/</span>
-          <span>{formatCount(stats.reviewCount)}+ reviews</span>
+          <span className="flex items-center gap-1">
+            <NumberTicker value={stats.reviewCount} className="text-foreground" />+ reviews
+          </span>
         </motion.div>
       </motion.div>
 

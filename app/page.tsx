@@ -20,6 +20,7 @@ import { Testimonials } from "@/components/home/testimonials"
 import { ShopByGoal } from "@/components/home/shop-by-goal"
 import { ShopByPrice } from "@/components/home/shop-by-price"
 import { PromoBanner } from "@/components/home/promo-banner"
+import { VeloraShowcase } from "@/components/home/velora-showcase"
 
 const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["homepage", key], { revalidate: 300 })
 
@@ -65,6 +66,7 @@ export default async function HomePage() {
           items={topRated}
         />
         <HowItWorks />
+        <VeloraShowcase />
         <Testimonials reviews={topReviews} stats={stats} />
         <FAQSection />
         <TrustBadges />
