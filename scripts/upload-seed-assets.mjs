@@ -23,9 +23,15 @@ async function uploadAll(entries) {
     const filePath = path.join(entry.dir, entry.name)
     const buffer = fs.readFileSync(filePath)
     const pathname = `products/${entry.kind}s/${entry.name}`
-    const blob = await put(pathname, buffer, { access: "private", addRandomSuffix: false })
-    manifest[entry.kind === "file" ? "files" : "images"][entry.name] = blob.pathname
-    console.log("uploaded", pathname)
+    // Files use a random suffix so the download URL is unguessable; the app never links to it
+    // directly and only serves it through the entitlement-gated /api/downloads route.
+    // Images are meant to be public and are linked to directly.
+    const blob = await put(pathname, buffer, {
+      access: "public",
+      addRandomSuffix: entry.kind === "file",
+    })
+    manifest[entry.kind === "file" ? "files" : "images"][entry.name] = { url: blob.url, pathname: blob.pathname }
+    console.log("uploaded", pathname, "->", blob.url)
   }
 }
 
