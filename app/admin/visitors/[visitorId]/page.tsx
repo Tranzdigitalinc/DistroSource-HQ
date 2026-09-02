@@ -3,7 +3,7 @@ import { headers } from "next/headers"
 import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { getVisitorSession } from "@/lib/actions/visitor-logs"
-import { countryCodeToName } from "@/lib/user-agent"
+import { countryCodeToName, parseBrowser, parseOs } from "@/lib/user-agent"
 import { IpReputationBadge } from "@/components/admin/ip-reputation-badge"
 import { CountryFlag } from "@/components/admin/country-flag"
 import { isAdminEmail } from "@/lib/admin-emails"
@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
 export const metadata = {
-  title: "Visitor session | RedeemCove Admin",
+  title: "Visitor session | DistroSource Admin",
   description: "Full activity timeline for a single visitor.",
 }
 
@@ -50,9 +50,7 @@ export default async function VisitorSessionPage({
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Visitor session</p>
-          <h1 className="mt-2 font-display text-2xl font-semibold tracking-tight text-foreground">
-            {latest.userId ? "Signed-in visitor" : "Guest visitor"}
-          </h1>
+          <h1 className="mt-2 font-display text-2xl font-semibold tracking-tight text-foreground">Visitor activity</h1>
           <p className="mt-1 font-mono text-xs text-muted-foreground">{visitorId}</p>
         </div>
         <Button variant="outline" size="sm" render={<Link href="/admin/visitors" />} nativeButton={false}>
@@ -87,7 +85,8 @@ export default async function VisitorSessionPage({
           <CardContent>
             <p className="text-2xl font-semibold capitalize">{latest.deviceType ?? "Unknown"}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {latest.browser ?? "Unknown"} · {latest.os ?? "Unknown"}
+              {latest.userAgent ? parseBrowser(latest.userAgent) : "Unknown"} ·{" "}
+              {latest.userAgent ? parseOs(latest.userAgent) : "Unknown"}
             </p>
           </CardContent>
         </Card>
@@ -121,9 +120,6 @@ export default async function VisitorSessionPage({
                     <span className="text-xs font-medium text-muted-foreground">
                       {event.createdAt.toLocaleString()}
                     </span>
-                    <Badge variant="outline" className="capitalize">
-                      {event.action}
-                    </Badge>
                     {i === 0 ? (
                       <Badge variant="secondary" className="text-[10px]">
                         Most recent
@@ -133,8 +129,7 @@ export default async function VisitorSessionPage({
                   <p className="font-medium text-foreground">{event.path}</p>
                   <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <CountryFlag code={event.country} />
-                    {countryCodeToName(event.country)}
-                    {event.city ? ` · ${event.city}` : ""} · {event.ipAddress ?? "Unknown IP"}
+                    {countryCodeToName(event.country)} · {event.ipAddress ?? "Unknown IP"}
                     {event.referrer ? ` · from ${event.referrer}` : ""}
                   </p>
                 </div>

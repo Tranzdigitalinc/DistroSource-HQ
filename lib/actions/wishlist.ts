@@ -65,9 +65,17 @@ export async function getWishlistItems() {
     licensesByProduct.set(license.productId, list)
   }
 
-  return rows.map((r) => ({
-    ...r,
-    images: imagesByProduct.get(r.product.id) ?? [],
-    licenses: licensesByProduct.get(r.product.id) ?? [],
-  }))
+  return rows.map((r) => {
+    const productLicensesList = licensesByProduct.get(r.product.id) ?? []
+    const startingPrice = productLicensesList.length
+      ? Math.min(...productLicensesList.map((l) => Number.parseFloat(l.price)))
+      : Number.parseFloat(r.product.basePrice)
+
+    return {
+      ...r,
+      images: imagesByProduct.get(r.product.id) ?? [],
+      licenses: productLicensesList,
+      startingPrice,
+    }
+  })
 }
