@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto"
 import { and, eq, inArray, isNull, lt, or } from "drizzle-orm"
 import { db } from "@/lib/db"
-import { abandonedCarts, notificationPreferences, productVariants } from "@/lib/db/schema"
+import { abandonedCarts, notificationPreferences, productLicenses } from "@/lib/db/schema"
 import { getOptionalOwnerId, getOwnerId } from "@/lib/session"
 import { addToCart } from "@/lib/actions/cart"
 import { sendAbandonedCartEmail, sendAbandonedCartReminderEmail } from "@/lib/email"
@@ -12,7 +12,7 @@ const REMINDER_DELAY_HOURS = 24
 
 interface AbandonedCartItem {
   productId: number
-  variantId: number
+  licenseId: number
   quantity: number
 }
 
@@ -42,17 +42,17 @@ export async function restoreAbandonedCart(token: string) {
   if (!cart) return { success: false, reason: "not_found" as const }
 
   const snapshot = Array.isArray(cart.cartSnapshot) ? (cart.cartSnapshot as AbandonedCartItem[]) : []
-  const restorable = snapshot.filter((item) => Number.isInteger(item.productId) && Number.isInteger(item.variantId))
+  const restorable = snapshot.filter((item) => Number.isInteger(item.productId) && Number.isInteger(item.licenseId))
   if (restorable.length === 0) return { success: false, reason: "empty_snapshot" as const }
 
-  const variantIds = restorable.map((item) => item.variantId)
-  const availableVariants = await db.select({ id: productVariants.id }).from(productVariants).where(inArray(productVariants.id, variantIds))
-  const availableIds = new Set(availableVariants.map((v) => v.id))
+  const licenseIds = restorable.map((item) => item.licenseId)
+  const availableLicenses = await db.select({ id: productLicenses.id }).from(productLicenses).where(inArray(productLicenses.id, licenseIds))
+  const availableIds = new Set(availableLicenses.map((l) => l.id))
 
   let restoredCount = 0
   for (const item of restorable) {
-    if (!availableIds.has(item.variantId)) continue
-    await addToCart(item.productId, item.variantId, item.quantity)
+    if (!availableIds.has(item.licenseId)) continue
+    await addToCart(item.productId, item.licenseId, item.quantity)
     restoredCount += 1
   }
 
@@ -78,7 +78,7 @@ export async function sendAbandonedCartReminders() {
   for (const cart of eligibleCarts) {
     if (cart.userId) {
       const [prefs] = await db.select().from(notificationPreferences).where(eq(notificationPreferences.userId, cart.userId)).limit(1)
-      if (prefs && !prefs.deals) {
+      if (prefs && !prefs.promotions) {
         skippedCount += 1
         continue
       }

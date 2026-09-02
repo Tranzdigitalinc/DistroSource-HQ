@@ -1,6 +1,6 @@
 import Link from "next/link"
-import { Package, KeyRound, Heart, LifeBuoy, ArrowRight } from "lucide-react"
-import { getUserOrderItems } from "@/lib/actions/account"
+import { Package, Library, Heart, LifeBuoy, ArrowRight } from "lucide-react"
+import { getUserLibrary, getUserOrderItems } from "@/lib/actions/account"
 import { getWishlistItems } from "@/lib/actions/wishlist"
 import { getRecentlyViewed } from "@/lib/actions/recently-viewed"
 import { ProductGrid } from "@/components/catalog/product-grid"
@@ -9,20 +9,24 @@ import { Button } from "@/components/ui/button"
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 
 export const metadata = {
-  title: "Account overview — RedeemCove",
+  title: "Account overview — DistroSource",
 }
 
 export default async function AccountOverviewPage() {
-  const [orderGroups, wishlistItems, recentlyViewed] = await Promise.all([getUserOrderItems(), getWishlistItems(), getRecentlyViewed()])
+  const [orderGroups, library, wishlistItems, recentlyViewed] = await Promise.all([
+    getUserOrderItems(),
+    getUserLibrary(),
+    getWishlistItems(),
+    getRecentlyViewed(),
+  ])
 
   const totalOrders = orderGroups.length
-  const totalCodes = orderGroups.reduce((sum, g) => sum + g.items.length, 0)
   const totalSpent = orderGroups.reduce((sum, g) => sum + Number.parseFloat(g.order.totalUsd), 0)
   const recentOrders = orderGroups.slice(0, 3)
 
   const stats = [
     { label: "Orders placed", value: totalOrders, icon: Package, href: "/account/orders" },
-    { label: "Codes owned", value: totalCodes, icon: KeyRound, href: "/account/codes" },
+    { label: "Products owned", value: library.length, icon: Library, href: "/account/library" },
     { label: "Wishlist items", value: wishlistItems.length, icon: Heart, href: "/account/wishlist" },
   ]
 

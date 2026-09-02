@@ -5,17 +5,18 @@ import {
   affiliateCodes,
   cartItems,
   coupons,
+  entitlements,
   operationEvents,
   orderItems,
   orders,
-  productVariants,
+  productLicenses,
   products,
   promotionCampaigns,
   referralCodes,
   referralRedemptions,
   user,
 } from "@/lib/db/schema"
-import { generateOrderNumber, generateRedemptionCode } from "@/lib/format"
+import { generateOrderNumber } from "@/lib/format"
 import { sendOrderConfirmationEmail, sendReferralRewardEmail } from "@/lib/email"
 import { capturePaypalOrder, createPaypalOrder, refundPaypalCapture } from "@/lib/paypal"
 import { getOptionalOwnerId, getOwnerId, getSession } from "@/lib/session"
@@ -87,9 +88,9 @@ interface OrderPricing {
   total: number
   validatedItems: {
     productId: number
-    variantId: number
+    licenseId: number
     productName: string
-    denominationLabel: string
+    licenseType: string
     unitPriceUsd: number
     quantity: number
   }[]
@@ -114,9 +115,9 @@ async function computeOrderPricing(
   cookieStore: Awaited<ReturnType<typeof cookies>>,
 ): Promise<OrderPricing> {
   const rows = await db
-    .select({ cartItem: cartItems, variant: productVariants, product: products })
+    .select({ cartItem: cartItems, license: productLicenses, product: products })
     .from(cartItems)
-    .innerJoin(productVariants, eq(cartItems.variantId, productVariants.id))
+    .innerJoin(productLicenses, eq(cartItems.licenseId, productLicenses.id))
     .innerJoin(products, eq(cartItems.productId, products.id))
     .where(eq(cartItems.userId, ownerId))
 
@@ -128,13 +129,13 @@ async function computeOrderPricing(
   let subtotal = 0
   const validatedItems = rows.map((r) => {
     const quantity = Math.min(Math.max(1, Math.trunc(r.cartItem.quantity)), MAX_QUANTITY_PER_ITEM)
-    const unitPrice = Number.parseFloat(r.variant.priceUsd)
+    const unitPrice = Number.parseFloat(r.license.price)
     subtotal += unitPrice * quantity
     return {
       productId: r.product.id,
-      variantId: r.variant.id,
+      licenseId: r.license.id,
       productName: r.product.name,
-      denominationLabel: r.variant.denominationLabel,
+      licenseType: r.license.licenseType,
       unitPriceUsd: unitPrice,
       quantity,
     }
@@ -201,10 +202,11 @@ async function computeOrderPricing(
 
 /**
  * Persists a priced cart as a completed order: writes the order + items,
- * increments coupon/campaign usage, records referral redemptions, clears the
- * cart, sends the confirmation email, and issues referral rewards. Shared by
- * every payment method so each one only has to price the cart and hand off
- * the confirmed payment reference.
+ * grants an entitlement per order item (so the buyer immediately owns the
+ * product in My Library), increments coupon/campaign usage, records
+ * referral redemptions, clears the cart, sends the confirmation email, and
+ * issues referral rewards. Shared by every payment method so each one only
+ * has to price the cart and hand off the confirmed payment reference.
  */
 async function persistOrder(
   pricing: OrderPricing,
@@ -244,18 +246,27 @@ async function persistOrder(
         validatedItems.map((item) => ({
           orderId: order.id,
           productId: item.productId,
-          variantId: item.variantId,
+          licenseId: item.licenseId,
           productName: item.productName,
-          denominationLabel: item.denominationLabel,
+          licenseType: item.licenseType,
           unitPriceUsd: item.unitPriceUsd.toFixed(2),
           quantity: item.quantity,
-          redemptionCode: generateRedemptionCode(),
-          redemptionInstructions:
-            "Redeem this code at checkout or in the brand's app under Redeem Gift Card / Enter Code.",
-          isRevealed: false,
         })),
       )
       .returning()
+
+    // Grant an entitlement per order item so the buyer immediately owns the
+    // product (gates My Library + downloads). Entitlements are never
+    // inferred from the client — this insert is the only place they're created.
+    await tx.insert(entitlements).values(
+      insertedItems.map((item) => ({
+        userId: ownerId,
+        productId: item.productId,
+        licenseId: item.licenseId,
+        orderId: order.id,
+        orderItemId: item.id,
+      })),
+    )
 
     if (coupon) {
       await tx.update(coupons).set({ usedCount: sql`${coupons.usedCount} + 1` }).where(eq(coupons.code, coupon.code))
@@ -287,9 +298,8 @@ async function persistOrder(
       orderResult.orderNumber,
       itemsForEmail.map((item) => ({
         productName: item.productName,
-        denominationLabel: item.denominationLabel,
+        licenseType: item.licenseType,
         quantity: item.quantity,
-        redemptionCode: item.redemptionCode,
       })),
     )
   } catch (error) {
@@ -359,6 +369,7 @@ async function persistOrder(
 
   revalidatePath("/cart")
   revalidatePath("/account/orders")
+  revalidatePath("/account/library")
   revalidatePath("/account/referrals")
 
   return { orderNumber: orderResult.orderNumber, id: orderResult.id }
@@ -373,7 +384,7 @@ export async function checkout(input: {
   const billingName = input.billingName.trim()
 
   if (!EMAIL_PATTERN.test(billingEmail)) {
-    throw new Error("Enter a valid email address so we know where to deliver your codes.")
+    throw new Error("Enter a valid email address so we know where to deliver your order.")
   }
   if (!billingName) {
     throw new Error("Enter the name on this order.")
@@ -410,7 +421,7 @@ const PAYMENTS_UNDER_MAINTENANCE = true
  * Step 1 of PayPal checkout: prices the cart from the server, creates a
  * fixed-amount PayPal order for that total, and returns the PayPal order id
  * for the client to render into the PayPal Buttons approval flow. No
- * RedeemCove order is created yet — that only happens once payment is
+ * DistroSource order is created yet — that only happens once payment is
  * actually captured.
  */
 export async function createPaypalCheckoutOrder(input: {
@@ -426,7 +437,7 @@ export async function createPaypalCheckoutOrder(input: {
   const billingName = input.billingName.trim()
 
   if (!EMAIL_PATTERN.test(billingEmail)) {
-    throw new Error("Enter a valid email address so we know where to deliver your codes.")
+    throw new Error("Enter a valid email address so we know where to deliver your order.")
   }
   if (!billingName) {
     throw new Error("Enter the name on this order.")
@@ -485,7 +496,7 @@ export async function capturePaypalCheckoutOrder(input: {
   const billingName = input.billingName.trim()
 
   if (!EMAIL_PATTERN.test(billingEmail)) {
-    throw new Error("Enter a valid email address so we know where to deliver your codes.")
+    throw new Error("Enter a valid email address so we know where to deliver your order.")
   }
   if (!billingName) {
     throw new Error("Enter the name on this order.")
@@ -547,22 +558,4 @@ export async function capturePaypalCheckoutOrder(input: {
   })
   if (pricing.referral) cookieStore.delete("rc_ref")
   return { orderNumber, id }
-}
-
-export async function revealOrderItemCode(orderItemId: number) {
-  const ownerId = await getOptionalOwnerId()
-  if (!ownerId) throw new Error("Not found")
-
-  const rows = await db
-    .select({ orderItem: orderItems, order: orders })
-    .from(orderItems)
-    .innerJoin(orders, eq(orderItems.orderId, orders.id))
-    .where(and(eq(orderItems.id, orderItemId), eq(orders.userId, ownerId)))
-    .limit(1)
-
-  if (!rows[0]) throw new Error("Not found")
-
-  await db.update(orderItems).set({ isRevealed: true }).where(eq(orderItems.id, orderItemId))
-
-  return { redemptionCode: rows[0].orderItem.redemptionCode }
 }

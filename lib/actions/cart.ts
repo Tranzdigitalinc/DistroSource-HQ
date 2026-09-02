@@ -1,10 +1,10 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { cartItems, productVariants, products, brands } from "@/lib/db/schema"
+import { cartItems, productImages, productLicenses, products } from "@/lib/db/schema"
 import { getOptionalOwnerId, getOwnerId } from "@/lib/session"
 import { getGuestId } from "@/lib/guest"
-import { and, eq } from "drizzle-orm"
+import { and, asc, eq, inArray } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
 const MAX_QUANTITY_PER_ITEM = 20
@@ -13,14 +13,14 @@ function clampQuantity(quantity: number) {
   return Math.min(Math.max(1, Math.trunc(quantity) || 1), MAX_QUANTITY_PER_ITEM)
 }
 
-export async function addToCart(productId: number, variantId: number, quantity = 1) {
+export async function addToCart(productId: number, licenseId: number, quantity = 1) {
   const ownerId = await getOwnerId()
   const safeQuantity = clampQuantity(quantity)
 
   const existing = await db
     .select()
     .from(cartItems)
-    .where(and(eq(cartItems.userId, ownerId), eq(cartItems.variantId, variantId)))
+    .where(and(eq(cartItems.userId, ownerId), eq(cartItems.licenseId, licenseId)))
     .limit(1)
 
   if (existing[0]) {
@@ -29,7 +29,7 @@ export async function addToCart(productId: number, variantId: number, quantity =
       .set({ quantity: clampQuantity(existing[0].quantity + safeQuantity) })
       .where(eq(cartItems.id, existing[0].id))
   } else {
-    await db.insert(cartItems).values({ userId: ownerId, productId, variantId, quantity: safeQuantity })
+    await db.insert(cartItems).values({ userId: ownerId, productId, licenseId, quantity: safeQuantity })
   }
 
   revalidatePath("/cart")
@@ -73,7 +73,7 @@ export async function mergeGuestCartIntoAccount() {
     const existing = await db
       .select()
       .from(cartItems)
-      .where(and(eq(cartItems.userId, session), eq(cartItems.variantId, item.variantId)))
+      .where(and(eq(cartItems.userId, session), eq(cartItems.licenseId, item.licenseId)))
       .limit(1)
     if (existing[0]) {
       await db.update(cartItems).set({ quantity: clampQuantity(existing[0].quantity + item.quantity) }).where(eq(cartItems.id, existing[0].id))
@@ -94,18 +94,33 @@ export async function getCartItems() {
   const rows = await db
     .select({
       cartItem: cartItems,
-      variant: productVariants,
+      license: productLicenses,
       product: products,
-      brand: brands,
     })
     .from(cartItems)
-    .innerJoin(productVariants, eq(cartItems.variantId, productVariants.id))
+    .innerJoin(productLicenses, eq(cartItems.licenseId, productLicenses.id))
     .innerJoin(products, eq(cartItems.productId, products.id))
-    .innerJoin(brands, eq(products.brandId, brands.id))
     .where(eq(cartItems.userId, ownerId))
     .orderBy(cartItems.createdAt)
 
-  return rows
+  if (rows.length === 0) return []
+
+  const productIds = rows.map((r) => r.product.id)
+  const thumbnails = await db
+    .select()
+    .from(productImages)
+    .where(inArray(productImages.productId, productIds))
+    .orderBy(asc(productImages.sortOrder))
+
+  const thumbnailByProduct = new Map<number, string | null>()
+  for (const image of thumbnails) {
+    if (!thumbnailByProduct.has(image.productId)) thumbnailByProduct.set(image.productId, image.url)
+  }
+
+  return rows.map((row) => ({
+    ...row,
+    imageUrl: row.product.thumbnailUrl ?? thumbnailByProduct.get(row.product.id) ?? null,
+  }))
 }
 
 export async function getCartCount() {

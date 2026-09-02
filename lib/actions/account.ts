@@ -1,17 +1,29 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { bulkGiftRequests, notificationPreferences, operationEvents, orderItems, orders, supportTickets } from "@/lib/db/schema"
-import { getUserId, getOptionalUserId, getOptionalOwnerId } from "@/lib/session"
-import { and, desc, eq } from "drizzle-orm"
+import {
+  downloadEvents,
+  entitlements,
+  notificationPreferences,
+  operationEvents,
+  orderItems,
+  orders,
+  productFiles,
+  productLicenses,
+  products,
+  supportTickets,
+  teamLicenseRequests,
+} from "@/lib/db/schema"
+import { getUserId, getOptionalUserId, getOptionalOwnerId, getSession } from "@/lib/session"
+import { and, desc, eq, inArray } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { sendOrderConfirmationEmail } from "@/lib/email"
 
 const NOTIFICATION_DEFAULTS = {
+  productUpdates: true,
+  newReleases: true,
+  promotions: true,
   orderUpdates: true,
-  deals: true,
-  productNews: false,
-  accountAlerts: true,
 }
 
 export async function getNotificationPreferences() {
@@ -23,12 +35,12 @@ export async function getNotificationPreferences() {
     .limit(1)
 
   if (rows.length === 0) return NOTIFICATION_DEFAULTS
-  const { orderUpdates, deals, productNews, accountAlerts } = rows[0]
-  return { orderUpdates, deals, productNews, accountAlerts }
+  const { productUpdates, newReleases, promotions, orderUpdates } = rows[0]
+  return { productUpdates, newReleases, promotions, orderUpdates }
 }
 
 export async function updateNotificationPreference(
-  key: "orderUpdates" | "deals" | "productNews" | "accountAlerts",
+  key: "productUpdates" | "newReleases" | "promotions" | "orderUpdates",
   value: boolean,
 ) {
   const userId = await getUserId()
@@ -38,7 +50,7 @@ export async function updateNotificationPreference(
     .values({ userId, ...NOTIFICATION_DEFAULTS, [key]: value })
     .onConflictDoUpdate({
       target: notificationPreferences.userId,
-      set: { [key]: value, updatedAt: new Date() },
+      set: { [key]: value },
     })
 
   return { success: true }
@@ -80,9 +92,8 @@ export async function resendOrderConfirmationEmail(orderNumber: string) {
     order.orderNumber,
     items.map((item) => ({
       productName: item.productName,
-      denominationLabel: item.denominationLabel,
+      licenseType: item.licenseType,
       quantity: item.quantity,
-      redemptionCode: item.redemptionCode,
     })),
   )
 
@@ -112,9 +123,8 @@ export async function resendOrderConfirmationEmailForAdmin(orderNumber: string) 
     order.orderNumber,
     items.map((item) => ({
       productName: item.productName,
-      denominationLabel: item.denominationLabel,
+      licenseType: item.licenseType,
       quantity: item.quantity,
-      redemptionCode: item.redemptionCode,
     })),
   )
 
@@ -146,6 +156,60 @@ export async function getUserOrderItems() {
   return results
 }
 
+/**
+ * My Library: every product the signed-in user owns via a non-revoked
+ * entitlement, with the product record and the files available for that
+ * license attached so the page can render download buttons directly.
+ */
+export async function getUserLibrary() {
+  const userId = await getOptionalUserId()
+  if (!userId) return []
+
+  const rows = await db
+    .select({ entitlement: entitlements, product: products, license: productLicenses })
+    .from(entitlements)
+    .innerJoin(products, eq(entitlements.productId, products.id))
+    .innerJoin(productLicenses, eq(entitlements.licenseId, productLicenses.id))
+    .where(and(eq(entitlements.userId, userId), eq(entitlements.isRevoked, false)))
+    .orderBy(desc(entitlements.createdAt))
+
+  if (rows.length === 0) return []
+
+  const productIds = rows.map((r) => r.product.id)
+  const files = await db.select().from(productFiles).where(inArray(productFiles.productId, productIds))
+  const filesByProduct = new Map<number, typeof files>()
+  for (const file of files) {
+    const list = filesByProduct.get(file.productId) ?? []
+    list.push(file)
+    filesByProduct.set(file.productId, list)
+  }
+
+  return rows.map((row) => ({
+    ...row,
+    files: (filesByProduct.get(row.product.id) ?? []).filter(
+      (file) => file.licenseType === null || file.licenseType === row.license.licenseType,
+    ),
+  }))
+}
+
+/**
+ * Download history for the signed-in user, most recent first — real events
+ * only, sourced from download_events rows written by the download route.
+ */
+export async function getUserDownloadHistory(limit = 50) {
+  const userId = await getOptionalUserId()
+  if (!userId) return []
+
+  return db
+    .select({ downloadEvent: downloadEvents, file: productFiles, product: products })
+    .from(downloadEvents)
+    .innerJoin(productFiles, eq(downloadEvents.productFileId, productFiles.id))
+    .innerJoin(products, eq(productFiles.productId, products.id))
+    .where(eq(downloadEvents.userId, userId))
+    .orderBy(desc(downloadEvents.downloadedAt))
+    .limit(limit)
+}
+
 export async function submitSupportTicket(input: {
   subject: string
   category: string
@@ -153,6 +217,9 @@ export async function submitSupportTicket(input: {
   orderNumber?: string
 }) {
   const userId = await getUserId()
+  const session = await getSession()
+  const email = session?.user?.email
+  if (!email) throw new Error("Sign in to submit a support ticket.")
 
   const subject = input.subject.trim()
   const message = input.message.trim()
@@ -161,8 +228,8 @@ export async function submitSupportTicket(input: {
 
   await db.insert(supportTickets).values({
     userId,
-    subject,
-    category: input.category,
+    email,
+    subject: `[${input.category}] ${subject}`,
     message,
     orderNumber: input.orderNumber || null,
   })
@@ -176,23 +243,23 @@ export async function getUserSupportTickets() {
   return db.select().from(supportTickets).where(eq(supportTickets.userId, userId)).orderBy(desc(supportTickets.createdAt))
 }
 
-export async function submitBulkGiftRequest(input: {
+export async function submitTeamLicenseRequest(input: {
   companyName: string
   contactName: string
   contactEmail: string
   productInterest?: string
-  quantityEstimate?: number
+  seatsEstimate?: number
   budgetUsd?: number
   message?: string
 }) {
   const userId = await getOptionalUserId()
-  await db.insert(bulkGiftRequests).values({
+  await db.insert(teamLicenseRequests).values({
     userId,
     companyName: input.companyName,
     contactName: input.contactName,
     contactEmail: input.contactEmail,
     productInterest: input.productInterest || null,
-    quantityEstimate: input.quantityEstimate ?? null,
+    seatsEstimate: input.seatsEstimate ?? null,
     budgetUsd: input.budgetUsd?.toFixed(2) ?? null,
     message: input.message || null,
   })

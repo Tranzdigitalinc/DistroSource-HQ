@@ -76,9 +76,19 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string) {
 
 interface OrderConfirmationItem {
   productName: string
-  denominationLabel: string
+  licenseType: string
   quantity: number
-  redemptionCode: string
+}
+
+function formatLicenseLabel(licenseType: string) {
+  return licenseType
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+}
+
+function getSiteUrl() {
+  return process.env.BETTER_AUTH_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
 }
 
 export async function sendAbandonedCartEmail(to: string, recoveryUrl: string, subtotalUsd: number) {
@@ -110,44 +120,49 @@ export async function sendOrderConfirmationEmail(
   orderNumber: string,
   items: OrderConfirmationItem[],
 ) {
+  const libraryUrl = `${getSiteUrl()}/account/library`
+
   const itemsHtml = items
     .map(
       (item) => `
         <tr>
           <td style="padding: 10px 0; border-bottom: 1px solid #e5e5e5; font-size: 14px; color: #1a1a1a;">
-            ${item.productName} — ${item.denominationLabel} ${item.quantity > 1 ? `x${item.quantity}` : ""}
+            ${item.productName} ${item.quantity > 1 ? `x${item.quantity}` : ""}
           </td>
-          <td style="padding: 10px 0; border-bottom: 1px solid #e5e5e5; font-size: 13px; font-family: monospace; color: #4a4a4a; text-align: right;">
-            ${item.redemptionCode}
+          <td style="padding: 10px 0; border-bottom: 1px solid #e5e5e5; font-size: 13px; color: #4a4a4a; text-align: right;">
+            ${formatLicenseLabel(item.licenseType)} license
           </td>
         </tr>`,
     )
     .join("")
 
   const itemsText = items
-    .map((item) => `${item.productName} — ${item.denominationLabel} x${item.quantity}: ${item.redemptionCode}`)
+    .map((item) => `${item.productName} x${item.quantity} — ${formatLicenseLabel(item.licenseType)} license`)
     .join("\n")
 
   const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
     to,
-    subject: `Your RedeemCove order ${orderNumber} — codes inside`,
+    subject: `Your order ${orderNumber} is ready to download`,
     html: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
         <h1 style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">Order confirmed</h1>
         <p style="font-size: 14px; line-height: 1.6; color: #4a4a4a; margin: 0 0 24px;">
-          Order <strong>${orderNumber}</strong> — your codes are below. Keep this email for your records.
+          Order <strong>${orderNumber}</strong> — here&apos;s what you bought. Everything is ready in your library now.
         </p>
         <table style="width: 100%; border-collapse: collapse;">${itemsHtml}</table>
+        <div style="padding: 24px 0 8px; text-align: center;">
+          <a href="${libraryUrl}" style="display: inline-block; background: #13bfdc; color: #061426; font-weight: 700; font-size: 14px; text-decoration: none; padding: 13px 24px; border-radius: 8px;">Go to My Library</a>
+        </div>
         <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 24px 0 0;">
-          Redeem each code at checkout or in the brand's app under Redeem Gift Card / Enter Code.
+          Sign in and open My Library to download your files anytime — every download is tied to your account, not a link that can expire or be shared away.
         </p>
         <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 16px 0 0;">
-          RedeemCove &middot; Support@RedeemCove.com
+          DistroSource &middot; Support@DistroSource.com
         </p>
       </div>
     `,
-    text: `Order ${orderNumber} confirmed. Your codes:\n\n${itemsText}\n\nRedeem each code at checkout or in the brand's app under Redeem Gift Card / Enter Code.`,
+    text: `Order ${orderNumber} confirmed. Here's what you bought:\n\n${itemsText}\n\nEverything is ready in your library now: ${libraryUrl}`,
   })
 
   if (error) {
@@ -166,18 +181,18 @@ export async function sendRefundConfirmationEmail(to: string, orderNumber: strin
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
         <h1 style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">Refund confirmed</h1>
         <p style="font-size: 14px; line-height: 1.6; color: #4a4a4a; margin: 0 0 16px;">
-          Order <strong>${orderNumber}</strong> for <strong>$${totalUsd.toFixed(2)}</strong> has been refunded. Any codes issued on this order have been voided and can no longer be redeemed.
+          Order <strong>${orderNumber}</strong> for <strong>$${totalUsd.toFixed(2)}</strong> has been refunded. Download access for the products on this order has been revoked and they&apos;ve been removed from your library.
         </p>
         ${reason ? `<p style="font-size: 13px; line-height: 1.6; color: #6a6a6a; margin: 0 0 16px;">Reason: ${reason}</p>` : ""}
         <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 24px 0 0;">
           If you have questions about this refund, reply to this email or contact support.
         </p>
         <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 16px 0 0;">
-          RedeemCove &middot; Support@RedeemCove.com
+          DistroSource &middot; Support@DistroSource.com
         </p>
       </div>
     `,
-    text: `Order ${orderNumber} for $${totalUsd.toFixed(2)} has been refunded. Any codes issued on this order have been voided.${reason ? `\n\nReason: ${reason}` : ""}\n\nRedeemCove · Support@RedeemCove.com`,
+    text: `Order ${orderNumber} for $${totalUsd.toFixed(2)} has been refunded. Download access for the products on this order has been revoked.${reason ? `\n\nReason: ${reason}` : ""}\n\nDistroSource · Support@DistroSource.com`,
   })
 
   if (error) {
@@ -218,38 +233,3 @@ export async function sendReferralRewardEmail(to: string, couponCode: string, di
   return true
 }
 
-export async function sendReplacementCodeEmail(
-  to: string,
-  orderNumber: string,
-  productName: string,
-  denominationLabel: string,
-  redemptionCode: string,
-) {
-  const { error } = await getResend().emails.send({
-    from: FROM_EMAIL,
-    to,
-    subject: `Your replacement code for order ${orderNumber}`,
-    html: `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
-        <h1 style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">Replacement code issued</h1>
-        <p style="font-size: 14px; line-height: 1.6; color: #4a4a4a; margin: 0 0 16px;">
-          We&apos;ve issued a new code for <strong>${productName} — ${denominationLabel}</strong> on order <strong>${orderNumber}</strong>. Your previous code has been voided.
-        </p>
-        <p style="font-size: 15px; font-family: monospace; background: #f3f3f3; padding: 12px 16px; border-radius: 8px; margin: 0 0 16px;">${redemptionCode}</p>
-        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 24px 0 0;">
-          Redeem this code at checkout or in the brand's app under Redeem Gift Card / Enter Code.
-        </p>
-        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 16px 0 0;">
-          RedeemCove &middot; Support@RedeemCove.com
-        </p>
-      </div>
-    `,
-    text: `We've issued a new code for ${productName} — ${denominationLabel} on order ${orderNumber}. Your previous code has been voided.\n\nNew code: ${redemptionCode}\n\nRedeemCove · Support@RedeemCove.com`,
-  })
-
-  if (error) {
-    console.error("[v0] Failed to send replacement code email:", error)
-    return false
-  }
-  return true
-}
