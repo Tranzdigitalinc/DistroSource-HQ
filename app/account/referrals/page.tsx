@@ -29,7 +29,7 @@ export default async function AccountReferralsPage() {
   }
 
   const requestHeaders = await headers()
-  const host = requestHeaders.get("host") ?? "redeemcove.com"
+  const host = requestHeaders.get("host") ?? "distrosource.com"
   const protocol = host.startsWith("localhost") ? "http" : "https"
   const referralUrl = `${protocol}://${host}/?ref=${referral.code}`
 

@@ -40,7 +40,7 @@ function ResetPasswordForm() {
   }
 
   return (
-    <AuthShell title="Set a new password" subtitle="Choose a new password for your RedeemCove account.">
+    <AuthShell title="Set a new password" subtitle="Choose a new password for your DistroSource account.">
       {success ? (
         <Alert>
           <AlertDescription>Password updated. Redirecting you to sign in...</AlertDescription>
