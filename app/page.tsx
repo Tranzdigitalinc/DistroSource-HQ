@@ -18,6 +18,7 @@ import {
 } from "@/lib/queries/catalog"
 import { Testimonials } from "@/components/home/testimonials"
 import { ShopByGoal } from "@/components/home/shop-by-goal"
+import { ShopByPrice } from "@/components/home/shop-by-price"
 
 const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["homepage", key], { revalidate: 300 })
 
@@ -54,6 +55,7 @@ export default async function HomePage() {
           items={deals}
           variant="deals"
         />
+        <ShopByPrice />
         <ProductRail
           title="Top rated by customers"
           subtitle="Highest-reviewed products across the marketplace"

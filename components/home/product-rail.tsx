@@ -26,8 +26,8 @@ export function ProductRail({
       <div className="mb-6 flex items-end justify-between">
         <div className="flex items-start gap-3">
           {variant === "deals" && (
-            <span className="mt-1 flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-accent/20 to-primary/20">
-              <Icon className="size-4 text-accent" />
+            <span className="mt-1 flex size-8 items-center justify-center rounded-lg bg-brand-blue/10">
+              <Icon className="size-4 text-brand-blue" />
             </span>
           )}
           <div>
