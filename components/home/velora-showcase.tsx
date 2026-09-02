@@ -9,9 +9,6 @@ import { SparklesText } from "@/components/velora/sparkles-text"
 import { BentoGrid, BentoCard } from "@/components/velora/bento-grid"
 import { SpotlightCard } from "@/components/velora/spotlight-card"
 import { TiltCard } from "@/components/velora/tilt-card"
-import { RetroGrid } from "@/components/velora/retro-grid"
-import { BackgroundBeams } from "@/components/velora/background-beams"
-import { Meteors } from "@/components/velora/meteors"
 import { OrbitingCircles } from "@/components/velora/orbiting-circles"
 import { AvatarCircles } from "@/components/velora/avatar-circles"
 import { AnimatedTooltip } from "@/components/velora/animated-tooltip"
@@ -82,7 +79,9 @@ export function VeloraShowcase() {
               name="Discover fast"
               description="Filter by format, license, and price across every category in one search."
               icon={<Search />}
-              background={<RetroGrid className="opacity-60" />}
+              background={
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:32px_32px] opacity-30" />
+              }
               className="h-full border-0 bg-transparent"
             />
           </SpotlightCard>
@@ -91,7 +90,9 @@ export function VeloraShowcase() {
               name="Secure by default"
               description="Encrypted checkout and account-gated downloads on every single order."
               icon={<ShieldCheck />}
-              background={<BackgroundBeams count={5} />}
+              background={
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-transparent" />
+              }
               className="h-full"
             />
           </TiltCard>
@@ -100,7 +101,9 @@ export function VeloraShowcase() {
               name="Instant unlocks"
               description="Files land in My Library the moment payment clears — no waiting on email."
               icon={<Zap />}
-              background={<Meteors number={16} />}
+              background={
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/15 via-transparent to-transparent" />
+              }
               className="h-full border-0 bg-transparent"
             />
           </SpotlightCard>
