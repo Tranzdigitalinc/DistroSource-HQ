@@ -31,7 +31,7 @@ const navItems = [
   { href: "/account/wishlist", label: "Wishlist", icon: Heart },
   { href: "/account/referrals", label: "Referrals", icon: Gift },
   { href: "/account/settings", label: "Profile settings", icon: User },
-  { href: "/account/security", label: "Security", icon: ShieldCheck },
+  { href: "/account/security", label: "Security", icon: Lock },
   { href: "/account/notifications", label: "Notifications", icon: Bell },
   { href: "/account/support", label: "Support", icon: LifeBuoy },
 ]

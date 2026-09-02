@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { formatDate } from "@/lib/format"
 
 export const metadata = {
-  title: "Referrals — RedeemCove",
+  title: "Referrals — DistroSource",
 }
 
 function maskName(name: string | null) {

@@ -1,8 +1,9 @@
 import { Check, LockKeyhole, Zap } from "lucide-react"
 import { SiteHeaderClient } from "@/components/header/site-header-client"
 import { SiteFooter } from "@/components/footer/site-footer"
+import { getCatalogStats } from "@/lib/queries/catalog"
 
-export function AuthShell({
+export async function AuthShell({
   title,
   subtitle,
   children,
@@ -11,6 +12,8 @@ export function AuthShell({
   subtitle: string
   children: React.ReactNode
 }) {
+  const stats = await getCatalogStats()
+
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeaderClient />
@@ -19,7 +22,7 @@ export function AuthShell({
           <div className="mx-auto w-full max-w-sm">
             <div className="mb-7 flex items-center gap-3 lg:hidden">
               <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20"><LockKeyhole className="size-5" /></span>
-              <div><p className="text-sm font-semibold">RedeemCove account</p><p className="text-xs text-muted-foreground">Secure digital gifting</p></div>
+              <div><p className="text-sm font-semibold">DistroSource account</p><p className="text-xs text-muted-foreground">Your digital asset library</p></div>
             </div>
             <h1 className="font-display text-2xl font-bold tracking-tight text-balance">{title}</h1>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{subtitle}</p>
@@ -47,24 +50,24 @@ export function AuthShell({
               </div>
               <div className="flex flex-col gap-5">
                 <h2 className="max-w-xl text-4xl font-semibold leading-tight tracking-tight text-hero-foreground xl:text-5xl text-balance">
-                  Everything you love, delivered instantly.
+                  Every asset you need, unlocked instantly.
                 </h2>
                 <p className="max-w-md text-base leading-relaxed text-hero-foreground/70">
-                  Buy gift cards, game top-ups, and streaming codes from trusted brands around the world.
+                  Templates, fonts, UI kits, and Notion systems from independent creators — yours the moment you buy.
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-2xl border border-hero-foreground/10 bg-hero-foreground/[0.04] p-4">
-                  <p className="text-2xl font-semibold text-hero-foreground">500+</p>
-                  <p className="mt-1 text-xs text-hero-foreground/60">Trusted brands</p>
+                  <p className="text-2xl font-semibold text-hero-foreground">{stats.productCount}+</p>
+                  <p className="mt-1 text-xs text-hero-foreground/60">Digital products</p>
                 </div>
                 <div className="rounded-2xl border border-hero-foreground/10 bg-hero-foreground/[0.04] p-4">
-                  <p className="text-2xl font-semibold text-hero-foreground">190+</p>
-                  <p className="mt-1 text-xs text-hero-foreground/60">Countries supported</p>
+                  <p className="text-2xl font-semibold text-hero-foreground">{stats.categoryCount}+</p>
+                  <p className="mt-1 text-xs text-hero-foreground/60">Categories</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 text-xs text-hero-foreground/70">
-                {['Gaming', 'Streaming', 'Shopping', 'Mobile top-up'].map((category) => (
+                {['Templates', 'Fonts', 'UI kits', 'Notion systems'].map((category) => (
                   <span key={category} className="rounded-full border border-hero-foreground/10 px-3 py-2">{category}</span>
                 ))}
               </div>
