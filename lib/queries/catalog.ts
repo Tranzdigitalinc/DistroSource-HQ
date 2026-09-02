@@ -133,6 +133,7 @@ interface ProductQueryOptions {
   newRelease?: boolean
   free?: boolean
   bundle?: boolean
+  deal?: boolean
   maxPrice?: number
   minPrice?: number
   sort?: "featured" | "price-asc" | "price-desc" | "newest" | "rating"
@@ -154,6 +155,7 @@ export async function getProducts(options: ProductQueryOptions = {}) {
   if (options.newRelease) conditions.push(eq(products.isNewRelease, true))
   if (options.free) conditions.push(eq(products.isFree, true))
   if (options.bundle) conditions.push(eq(products.isBundle, true))
+  if (options.deal) conditions.push(sql`${products.compareAtPrice} is not null and ${products.compareAtPrice} > ${products.basePrice}`)
 
   const orderBy =
     options.sort === "newest"
@@ -232,6 +234,10 @@ export async function getUnderPriceProducts(maxPrice: number, limit = 12) {
   return getProducts({ maxPrice, sort: "price-asc", limit })
 }
 
+export async function getDealProducts(limit = 12) {
+  return getProducts({ deal: true, sort: "featured", limit })
+}
+
 export async function getCatalogStats() {
   const [[productCount], [categoryCount], [reviewStats]] = await Promise.all([
     db.select({ count: sql<number>`count(*)::int` }).from(products).where(eq(products.status, "published")),
@@ -249,12 +255,17 @@ export async function getCatalogStats() {
   }
 }
 
+export const getMarketplaceStats = getCatalogStats
+
 export async function getTopReviews(limit = 8) {
-  return db
-    .select({ review: reviews, product: products })
+  const rows = await db
+    .select({ review: reviews, product: products, authorName: user.name })
     .from(reviews)
     .innerJoin(products, eq(reviews.productId, products.id))
+    .innerJoin(user, eq(reviews.userId, user.id))
     .where(and(sql`${reviews.rating} >= 4`, sql`length(coalesce(${reviews.body}, '')) > 40`))
     .orderBy(desc(reviews.rating), desc(reviews.createdAt))
     .limit(limit)
+
+  return rows.map((row) => ({ review: { ...row.review, authorName: row.authorName }, product: row.product }))
 }
