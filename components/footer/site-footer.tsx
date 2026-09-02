@@ -143,7 +143,7 @@ export function SiteFooter() {
         <Reveal className="pb-10">
           <div className="grid gap-10 lg:grid-cols-[1.1fr_2fr]">
             <div className="max-w-sm">
-              <BrandLogo heightClassName="h-9" />
+              <BrandLogo heightClassName="h-14 sm:h-16" />
               <p className="mt-4 text-sm leading-relaxed text-navy-foreground/60">
                 Your one-stop marketplace for website templates, fonts, presentations, Notion systems, and every
                 other digital asset — with instant access to every download.
