@@ -51,6 +51,114 @@
   --radius-2xl: calc(var(--radius) * 1.5);
   --radius-3xl: calc(var(--radius) * 1.75);
   --radius-4xl: calc(var(--radius) * 2);
+  --color-brand: var(--brand);
+  --color-brand-from: var(--brand-from);
+  --color-brand-via: var(--brand-via);
+  --color-brand-to: var(--brand-to);
+  --animate-aurora-1: aurora-1 14s ease-in-out infinite alternate;
+  --animate-aurora-2: aurora-2 18s ease-in-out infinite alternate;
+  --animate-aurora-3: aurora-3 22s ease-in-out infinite alternate;
+  --animate-retro-grid: retro-grid 18s linear infinite;
+  --animate-meteor: meteor 5s linear infinite;
+  --animate-gradient: gradient 6s ease infinite;
+  --animate-shimmer: shimmer 2.5s linear infinite;
+  --animate-marquee: marquee var(--duration, 40s) linear infinite;
+  --animate-marquee-vertical: marquee-vertical var(--duration, 40s) linear infinite;
+  --animate-orbit: orbit calc(var(--duration) * 1s) linear infinite;
+  @keyframes aurora-1 {
+  0% {
+    transform: translate(-10%, -12%) scale(1);
+    }
+  50% {
+    transform: translate(12%, 8%) scale(1.25);
+    }
+  100% {
+    transform: translate(-6%, 14%) scale(0.95);
+    }
+  }
+  @keyframes aurora-2 {
+  0% {
+    transform: translate(12%, 10%) scale(1.1);
+    }
+  50% {
+    transform: translate(-14%, -6%) scale(0.9);
+    }
+  100% {
+    transform: translate(8%, -12%) scale(1.2);
+    }
+  }
+  @keyframes aurora-3 {
+  0% {
+    transform: translate(0%, 16%) scale(0.95);
+    }
+  50% {
+    transform: translate(10%, -10%) scale(1.15);
+    }
+  100% {
+    transform: translate(-12%, 4%) scale(1);
+    }
+  }
+  @keyframes retro-grid {
+  from {
+    transform: translateY(-50%);
+    }
+  to {
+    transform: translateY(0);
+    }
+  }
+  @keyframes meteor {
+  0% {
+    transform: rotate(var(--meteor-angle, 215deg)) translateX(0);
+    opacity: 1;
+    }
+  70% {
+    opacity: 1;
+    }
+  100% {
+    transform: rotate(var(--meteor-angle, 215deg)) translateX(-600px);
+    opacity: 0;
+    }
+  }
+  @keyframes gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+    }
+  50% {
+    background-position: 100% 50%;
+    }
+  }
+  @keyframes shimmer {
+  from {
+    background-position: 200% 0;
+    }
+  to {
+    background-position: -200% 0;
+    }
+  }
+  @keyframes marquee {
+  from {
+    transform: translateX(0);
+    }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+    }
+  to {
+    transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes orbit {
+  0% {
+    transform: rotate(calc(var(--angle) * 1deg)) translateY(calc(var(--radius) * -1px)) rotate(calc(var(--angle) * -1deg));
+    }
+  100% {
+    transform: rotate(calc(var(--angle) * 1deg + 360deg)) translateY(calc(var(--radius) * -1px)) rotate(calc((var(--angle) * 1deg + 360deg) * -1));
+    }
+  }
 }
 
 :root {
@@ -109,6 +217,11 @@
   --hero-foreground: oklch(0.17 0.006 55);
   --hero-accent: oklch(0.62 0.21 34);
   --glow: oklch(0.62 0.21 34 / 0.14);
+  /* Retinted to DistroSource's signal red-orange family instead of Velora's default blue/purple */
+  --brand: oklch(0.62 0.21 34);
+  --brand-from: oklch(0.62 0.21 34);
+  --brand-via: oklch(0.68 0.19 40);
+  --brand-to: oklch(0.72 0.16 48);
 }
 
 .dark {
@@ -161,6 +274,10 @@
   --surface-warm: oklch(0.19 0.008 55);
   --surface-blue: oklch(0.22 0.03 40);
   --border-strong: oklch(1 0 0 / 20%);
+  --brand: oklch(0.68 0.2 36);
+  --brand-from: oklch(0.68 0.2 36);
+  --brand-via: oklch(0.73 0.18 42);
+  --brand-to: oklch(0.78 0.15 50);
 }
 
 @theme inline {
