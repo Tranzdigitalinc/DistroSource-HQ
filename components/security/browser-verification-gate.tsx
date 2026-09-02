@@ -34,7 +34,7 @@ export function BrowserVerificationGate({ children }: { children: React.ReactNod
   return (
     <main className="fixed inset-0 z-[100] flex min-h-screen items-center justify-center bg-background px-5 py-8 text-foreground">
       <section className="flex w-full max-w-md flex-col items-center gap-6 text-center" aria-labelledby="browser-check-title">
-        <div className="relative flex h-20 w-full max-w-xs items-center justify-center px-4">
+        <div className="relative flex h-28 w-full max-w-md items-center justify-center px-4">
           <span className="absolute inset-0 animate-pulse rounded-md border-2 border-primary/30" aria-hidden="true" />
           <Image src="/images/distro-source-logo.png" alt="DistroSource — Digital Products. Endless Possibilities." width={2172} height={724} className="relative h-auto w-full object-contain dark:hidden" loading="lazy" />
           <Image src="/images/distro-source-logo-dark.png" alt="DistroSource — Digital Products. Endless Possibilities." width={2172} height={724} aria-hidden="true" className="relative hidden h-auto w-full object-contain dark:block" loading="lazy" />

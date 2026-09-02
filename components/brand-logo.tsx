@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 export function BrandLogo({
   href = "/",
   className,
-  heightClassName = "h-8",
+  heightClassName = "h-11",
 }: {
   href?: string | null
   className?: string
@@ -21,7 +21,7 @@ export function BrandLogo({
         width={2172}
         height={724}
         loading="lazy"
-        className="h-full w-auto max-w-[min(46vw,270px)] object-contain object-left dark:hidden"
+        className="h-full w-auto max-w-[min(58vw,360px)] object-contain object-left dark:hidden"
       />
       <Image
         src="/images/distro-source-logo-dark.png"
@@ -30,7 +30,7 @@ export function BrandLogo({
         height={724}
         loading="lazy"
         aria-hidden="true"
-        className="hidden h-full w-auto max-w-[min(46vw,270px)] object-contain object-left dark:block"
+        className="hidden h-full w-auto max-w-[min(58vw,360px)] object-contain object-left dark:block"
       />
     </span>
   )
