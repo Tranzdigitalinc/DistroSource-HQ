@@ -185,31 +185,33 @@ export const cartItems = pgTable("cart_items", {
 export const coupons = pgTable("coupons", {
   id: serial("id").primaryKey(),
   code: text("code").notNull().unique(),
-  discountType: text("discountType").notNull(), // percent | fixed
-  discountValue: numeric("discountValue", { precision: 10, scale: 2 }).notNull(),
+  description: text("description"),
+  discountPercent: integer("discountPercent").notNull(),
+  minOrderUsd: numeric("minOrderUsd", { precision: 10, scale: 2 }).notNull().default("0"),
   maxUses: integer("maxUses"),
   usedCount: integer("usedCount").notNull().default(0),
   expiresAt: timestamp("expiresAt"),
   isActive: boolean("isActive").notNull().default(true),
-  createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
-  userId: text("userId").notNull(),
   orderNumber: text("orderNumber").notNull().unique(),
-  status: text("status").notNull().default("pending"), // pending | paid | refunded | failed
-  subtotal: numeric("subtotal", { precision: 10, scale: 2 }).notNull(),
-  discount: numeric("discount", { precision: 10, scale: 2 }).notNull().default("0"),
-  tax: numeric("tax", { precision: 10, scale: 2 }).notNull().default("0"),
-  total: numeric("total", { precision: 10, scale: 2 }).notNull(),
-  currency: text("currency").notNull().default("USD"),
+  userId: text("userId").notNull(),
+  status: text("status").notNull().default("completed"), // completed | refunded | failed
+  subtotalUsd: numeric("subtotalUsd", { precision: 10, scale: 2 }).notNull(),
+  discountUsd: numeric("discountUsd", { precision: 10, scale: 2 }).notNull().default("0"),
+  totalUsd: numeric("totalUsd", { precision: 10, scale: 2 }).notNull(),
   couponCode: text("couponCode"),
-  paymentProvider: text("paymentProvider"),
-  paymentId: text("paymentId"),
-  customerEmail: text("customerEmail"),
+  affiliateCode: text("affiliateCode"),
+  referralCode: text("referralCode"),
+  billingEmail: text("billingEmail").notNull(),
+  billingName: text("billingName").notNull(),
+  paymentMethod: text("paymentMethod").notNull().default("card"),
+  confirmationEmailSent: boolean("confirmationEmailSent").notNull().default(false),
+  paypalOrderId: text("paypalOrderId"),
+  paypalCaptureId: text("paypalCaptureId"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
-  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 })
 
 export const orderItems = pgTable("order_items", {
@@ -225,9 +227,9 @@ export const orderItems = pgTable("order_items", {
     .references(() => productLicenses.id),
   productName: text("productName").notNull(),
   licenseType: text("licenseType").notNull(),
-  unitPrice: numeric("unitPrice", { precision: 10, scale: 2 }).notNull(),
+  unitPriceUsd: numeric("unitPriceUsd", { precision: 10, scale: 2 }).notNull(),
   quantity: integer("quantity").notNull().default(1),
-  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  isVoided: boolean("isVoided").notNull().default(false),
 })
 
 export const entitlements = pgTable("entitlements", {
@@ -245,6 +247,7 @@ export const entitlements = pgTable("entitlements", {
   orderItemId: integer("orderItemId")
     .notNull()
     .references(() => orderItems.id),
+  isRevoked: boolean("isRevoked").notNull().default(false),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
@@ -304,43 +307,60 @@ export const notificationPreferences = pgTable("notification_preferences", {
 export const abandonedCarts = pgTable("abandoned_carts", {
   id: serial("id").primaryKey(),
   userId: text("userId"),
-  email: text("email"),
-  itemsSnapshot: jsonb("itemsSnapshot"),
-  totalValue: numeric("totalValue", { precision: 10, scale: 2 }),
-  reminderSentAt: timestamp("reminderSentAt"),
+  email: text("email").notNull(),
+  cartSnapshot: jsonb("cartSnapshot").notNull(),
+  subtotalUsd: numeric("subtotalUsd", { precision: 10, scale: 2 }).notNull(),
+  recoveryToken: text("recoveryToken").notNull().unique(),
+  status: text("status").notNull().default("open"),
+  lastRemindedAt: timestamp("lastRemindedAt"),
+  recoveredAt: timestamp("recoveredAt"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
 export const visitorLogs = pgTable("visitor_logs", {
   id: serial("id").primaryKey(),
+  visitorId: text("visitorId").notNull(),
   path: text("path").notNull(),
   ipAddress: text("ipAddress"),
   userAgent: text("userAgent"),
   referrer: text("referrer"),
+  country: text("country"),
+  deviceType: text("deviceType"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
 export const ipReputation = pgTable("ip_reputation", {
-  id: serial("id").primaryKey(),
-  ipAddress: text("ipAddress").notNull().unique(),
-  riskScore: integer("riskScore").notNull().default(0),
-  isBlocked: boolean("isBlocked").notNull().default(false),
+  ipAddress: text("ipAddress").primaryKey(),
+  abuseConfidenceScore: integer("abuseConfidenceScore"),
+  totalReports: integer("totalReports"),
+  isWhitelisted: boolean("isWhitelisted"),
+  isPrivate: boolean("isPrivate").notNull().default(false),
+  isp: text("isp"),
+  usageType: text("usageType"),
+  domain: text("domain"),
+  countryCode: text("countryCode"),
   lastCheckedAt: timestamp("lastCheckedAt").notNull().defaultNow(),
 })
 
 export const operationEvents = pgTable("operation_events", {
   id: serial("id").primaryKey(),
   eventType: text("eventType").notNull(),
-  entityType: text("entityType"),
+  entityType: text("entityType").notNull(),
   entityId: text("entityId"),
-  metadata: jsonb("metadata"),
+  status: text("status").notNull().default("open"),
+  payload: jsonb("payload"),
+  createdBy: text("createdBy"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
+  resolvedAt: timestamp("resolvedAt"),
 })
 
 export const referralCodes = pgTable("referral_codes", {
   id: serial("id").primaryKey(),
   userId: text("userId").notNull().unique(),
   code: text("code").notNull().unique(),
+  rewardDiscountPercent: integer("rewardDiscountPercent").notNull().default(10),
+  refereeDiscountPercent: integer("refereeDiscountPercent").notNull().default(10),
+  redemptionCount: integer("redemptionCount").notNull().default(0),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
@@ -349,39 +369,52 @@ export const referralRedemptions = pgTable("referral_redemptions", {
   referralCodeId: integer("referralCodeId")
     .notNull()
     .references(() => referralCodes.id, { onDelete: "cascade" }),
-  referredUserId: text("referredUserId").notNull(),
-  orderId: integer("orderId").references(() => orders.id),
+  referrerUserId: text("referrerUserId").notNull(),
+  refereeUserId: text("refereeUserId").notNull().unique(),
+  refereeOrderId: integer("refereeOrderId").references(() => orders.id),
+  rewardCouponCode: text("rewardCouponCode"),
+  status: text("status").notNull().default("pending"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
+  rewardedAt: timestamp("rewardedAt"),
 })
 
 export const affiliateCodes = pgTable("affiliate_codes", {
   id: serial("id").primaryKey(),
-  partnerName: text("partnerName").notNull(),
   code: text("code").notNull().unique(),
-  commissionPercent: numeric("commissionPercent", { precision: 5, scale: 2 }).notNull().default("10"),
+  partnerName: text("partnerName").notNull(),
+  contactEmail: text("contactEmail"),
+  commissionPercent: numeric("commissionPercent", { precision: 5, scale: 2 }).notNull().default("5"),
   isActive: boolean("isActive").notNull().default(true),
+  notes: text("notes"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
 export const promotionCampaigns = pgTable("promotion_campaigns", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  code: text("code").unique(),
   description: text("description"),
-  discountPercent: numeric("discountPercent", { precision: 5, scale: 2 }),
-  startsAt: timestamp("startsAt"),
-  endsAt: timestamp("endsAt"),
+  discountType: text("discountType").notNull().default("percent"),
+  discountValue: numeric("discountValue", { precision: 10, scale: 2 }).notNull().default("0"),
+  minOrderUsd: numeric("minOrderUsd", { precision: 10, scale: 2 }).notNull().default("0"),
+  maxUses: integer("maxUses"),
+  usedCount: integer("usedCount").notNull().default(0),
+  startsAt: timestamp("startsAt").notNull().defaultNow(),
+  expiresAt: timestamp("expiresAt"),
   isActive: boolean("isActive").notNull().default(true),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
 export const teamLicenseRequests = pgTable("team_license_requests", {
   id: serial("id").primaryKey(),
+  userId: text("userId"),
   companyName: text("companyName").notNull(),
   contactName: text("contactName").notNull(),
-  email: text("email").notNull(),
-  seatsNeeded: integer("seatsNeeded"),
-  productsInterested: text("productsInterested"),
+  contactEmail: text("contactEmail").notNull(),
+  productInterest: text("productInterest"),
+  seatsEstimate: integer("seatsEstimate"),
+  budgetUsd: numeric("budgetUsd", { precision: 12, scale: 2 }),
   message: text("message"),
-  status: text("status").notNull().default("new"),
+  status: text("status").notNull().default("pending"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
