@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Search, ArrowRight } from "lucide-react"
+import { Search, ArrowRight } from "@/lib/storefront-icons"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 

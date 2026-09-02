@@ -2,7 +2,7 @@
 
 import useSWR from "swr"
 import { motion, AnimatePresence } from "motion/react"
-import { Heart } from "lucide-react"
+import { Heart } from "@/lib/storefront-icons"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { getWishlistProductIds, toggleWishlist } from "@/lib/actions/wishlist"

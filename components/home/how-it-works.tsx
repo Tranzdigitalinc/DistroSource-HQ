@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, SlidersHorizontal, CreditCard, FolderDown } from "lucide-react"
+import { Search, SlidersHorizontal, CreditCard, FolderDown } from "@/lib/storefront-icons"
 import { RevealGroup, RevealItem } from "@/components/motion/reveal"
 
 const steps = [

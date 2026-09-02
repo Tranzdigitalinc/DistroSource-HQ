@@ -1,7 +1,7 @@
 "use client"
 
 import { useTransition } from "react"
-import { RotateCw, Loader2 } from "lucide-react"
+import { RotateCw, Loader2 } from "@/lib/admin-icons"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { retryOperationEvent } from "@/lib/actions/operations"

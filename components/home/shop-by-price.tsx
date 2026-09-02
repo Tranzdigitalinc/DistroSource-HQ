@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Gift, Coins, Wallet, Layers } from "lucide-react"
+import { ArrowRight, Gift, Coins, Wallet, Layers } from "@/lib/storefront-icons"
 import { TextShimmer } from "@/components/velora/text-shimmer"
 import { BlurFade } from "@/components/velora/blur-fade"
 

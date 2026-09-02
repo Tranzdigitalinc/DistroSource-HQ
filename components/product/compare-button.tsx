@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import { GitCompareArrows } from "lucide-react"
+import { GitCompareArrows } from "@/lib/storefront-icons"
 import { Button } from "@/components/ui/button"
 
 export function CompareButton({ productId }: { productId: number }) {

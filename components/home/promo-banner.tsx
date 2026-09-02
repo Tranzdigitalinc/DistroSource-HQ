@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Package, Sparkles } from "lucide-react"
+import { ArrowRight, Package, Sparkles } from "@/lib/storefront-icons"
 
 export function PromoBanner() {
   return (

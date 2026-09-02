@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "motion/react"
-import { ArrowUpRight } from "lucide-react"
+import { ArrowUpRight } from "@/lib/storefront-icons"
 import { getCategoryIcon } from "@/lib/category-icons"
 import { RevealGroup, RevealItem } from "@/components/motion/reveal"
 import { cn } from "@/lib/utils"

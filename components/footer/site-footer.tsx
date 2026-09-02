@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ShieldCheck, Send, ArrowRight } from "lucide-react"
+import { ShieldCheck, Send, ArrowRight } from "@/lib/storefront-icons"
 import { toast } from "sonner"
 import { Reveal } from "@/components/motion/reveal"
 import { BrandLogo } from "@/components/brand-logo"

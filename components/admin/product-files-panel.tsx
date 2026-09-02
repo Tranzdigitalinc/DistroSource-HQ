@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState, useTransition } from "react"
-import { File as FileIcon, Loader2, Trash2, Upload } from "lucide-react"
+import { File as FileIcon, Loader2, Trash2, Upload } from "@/lib/admin-icons"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"

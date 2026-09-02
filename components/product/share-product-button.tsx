@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Check, Copy, Share2 } from "lucide-react"
+import { Check, Copy, Share2 } from "@/lib/storefront-icons"
 import { Button } from "@/components/ui/button"
 
 export function ShareProductButton({ name }: { name: string }) {

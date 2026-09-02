@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Flame, Sparkles } from "lucide-react"
+import { ArrowRight, Flame, Sparkles } from "@/lib/storefront-icons"
 import { ProductCard } from "@/components/product/product-card"
 import { RevealGroup, RevealItem } from "@/components/motion/reveal"
 import type { getProducts } from "@/lib/queries/catalog"

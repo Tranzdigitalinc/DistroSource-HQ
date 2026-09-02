@@ -1,6 +1,6 @@
 "use client"
 
-import { Star } from "lucide-react"
+import { Star } from "@/lib/storefront-icons"
 import { motion } from "motion/react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { revealItemVariants } from "@/components/motion/reveal"

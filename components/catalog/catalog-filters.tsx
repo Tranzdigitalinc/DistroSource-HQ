@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
-import { X } from "lucide-react"
+import { X } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
 
 const priceOptions = [

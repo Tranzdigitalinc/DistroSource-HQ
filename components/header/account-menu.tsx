@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { User, Package, Heart, Settings, LifeBuoy, LogOut, LogIn } from "lucide-react"
+import { User, Package, Heart, Settings, LifeBuoy, LogOut, LogIn } from "@/lib/storefront-icons"
 import {
   DropdownMenu,
   DropdownMenuContent,

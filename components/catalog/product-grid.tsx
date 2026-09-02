@@ -1,4 +1,4 @@
-import { PackageSearch } from "lucide-react"
+import { PackageSearch } from "@/lib/storefront-icons"
 import { ProductCard, type ProductCardData } from "@/components/product/product-card"
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 

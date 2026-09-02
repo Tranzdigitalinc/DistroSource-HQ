@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowUpRight, BriefcaseBusiness, Compass, LayoutTemplate, WandSparkles } from "lucide-react"
+import { ArrowUpRight, BriefcaseBusiness, Compass, LayoutTemplate, WandSparkles } from "@/lib/storefront-icons"
 import { FlipWords } from "@/components/velora/flip-words"
 import { BlurFade } from "@/components/velora/blur-fade"
 import { GridPattern } from "@/components/velora/grid-pattern"

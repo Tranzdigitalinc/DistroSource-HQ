@@ -1,4 +1,4 @@
-import { Zap, ShieldCheck, Globe2, HeadphonesIcon } from "lucide-react"
+import { Zap, ShieldCheck, Globe2, HeadphonesIcon } from "@/lib/storefront-icons"
 
 const items = [
   { icon: Zap, label: "Instant download access" },

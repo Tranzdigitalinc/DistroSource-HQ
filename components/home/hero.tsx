@@ -12,7 +12,7 @@ import { Typewriter } from "@/components/velora/typewriter"
 import { NumberTicker } from "@/components/velora/number-ticker"
 import { BorderBeam } from "@/components/velora/border-beam"
 import { Marquee } from "@/components/velora/marquee"
-import { ArrowRight, Sparkles, Star, ImageOff } from "lucide-react"
+import { ArrowRight, Sparkles, Star, ImageOff } from "@/lib/storefront-icons"
 import type { ProductCardData } from "@/components/product/product-card"
 
 interface HeroStats {

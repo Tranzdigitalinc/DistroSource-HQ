@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, FileCheck2, ImageIcon, PackageCheck } from "lucide-react"
+import { AlertTriangle, CheckCircle2, FileCheck2, ImageIcon, PackageCheck } from "@/lib/admin-icons"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
