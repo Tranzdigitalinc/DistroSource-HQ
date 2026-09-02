@@ -1,22 +1,18 @@
 "use client"
 
-import { Star, ShieldCheck } from "lucide-react"
+import { Star } from "lucide-react"
 import { motion } from "motion/react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { revealItemVariants } from "@/components/motion/reveal"
+import { formatDate } from "@/lib/format"
 
 interface Review {
   id: number
   authorName: string
   rating: number
   title: string | null
-  body: string
-  isVerifiedPurchase: boolean
+  body: string | null
   createdAt: Date
-}
-
-function formatDate(date: Date) {
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(date)
 }
 
 export function ReviewList({ reviews }: { reviews: Review[] }) {
@@ -48,15 +44,7 @@ export function ReviewList({ reviews }: { reviews: Review[] }) {
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-1 flex-col gap-1.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-semibold">{review.authorName}</span>
-              {review.isVerifiedPurchase && (
-                <span className="inline-flex items-center gap-1 text-xs font-medium text-success">
-                  <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-                  Verified purchase
-                </span>
-              )}
-            </div>
+            <span className="text-sm font-semibold">{review.authorName}</span>
             <div className="flex items-center gap-1" role="img" aria-label={`${review.rating} out of 5 stars`}>
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star
@@ -68,7 +56,7 @@ export function ReviewList({ reviews }: { reviews: Review[] }) {
               <span className="ml-1 text-xs text-muted-foreground">{formatDate(review.createdAt)}</span>
             </div>
             {review.title && <p className="text-sm font-semibold">{review.title}</p>}
-            <p className="text-sm leading-relaxed text-muted-foreground">{review.body}</p>
+            {review.body && <p className="text-sm leading-relaxed text-muted-foreground">{review.body}</p>}
           </div>
         </motion.li>
       ))}

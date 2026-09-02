@@ -1,43 +1,38 @@
-import Image from "next/image"
 import Link from "next/link"
+import { Boxes } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-const BRAND_LOGO_SRC = "/images/logos/redeemcove-main-logo.png"
 
 export function BrandLogo({
   href = "/",
   className,
-  imgClassName,
-  height = 28,
-  heightClassName,
+  heightClassName = "h-8",
 }: {
   href?: string | null
   className?: string
   imgClassName?: string
   height?: number
-  /** Responsive Tailwind height classes (e.g. "h-8 sm:h-10"). When provided, these override the fixed `height` prop so the logo can shrink on small screens. */
   heightClassName?: string
 }) {
-  const logo = (
-    <Image
-      src={BRAND_LOGO_SRC}
-      alt="RedeemCove — gift cards, digital codes, instant value"
-      width={2048}
-      height={576}
-      priority
-      unoptimized
-      className={cn("w-auto", heightClassName, imgClassName)}
-      style={heightClassName ? undefined : { height }}
-    />
+  const mark = (
+    <span className={cn("inline-flex items-center gap-2", heightClassName)}>
+      <span className="flex aspect-square h-full shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-primary text-primary-foreground shadow-sm shadow-accent/30">
+        <Boxes className="h-[55%] w-[55%]" aria-hidden="true" />
+      </span>
+      <span className="flex flex-col leading-none">
+        <span className="font-display text-[1.05em] font-bold tracking-tight text-foreground">
+          Distro<span className="text-accent">Source</span>
+        </span>
+      </span>
+    </span>
   )
 
   if (href === null) {
-    return <span className={cn("inline-flex items-center", className)}>{logo}</span>
+    return <span className={cn("inline-flex items-center", className)}>{mark}</span>
   }
 
   return (
-    <Link href={href} className={cn("inline-flex items-center", className)}>
-      {logo}
+    <Link href={href} className={cn("inline-flex items-center", className)} aria-label="DistroSource home">
+      {mark}
     </Link>
   )
 }

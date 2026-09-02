@@ -12,7 +12,7 @@ export default async function CategoriesPage() {
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-6 py-10 sm:px-8">
           <h1 className="font-display text-3xl font-bold tracking-tight">All categories</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Explore every corner of the RedeemCove catalog</p>
+          <p className="mt-1 text-sm text-muted-foreground">Explore every corner of the DistroSource catalog</p>
           <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {categories.map((category) => (
               <Link
@@ -21,7 +21,7 @@ export default async function CategoriesPage() {
                 className="group flex min-h-44 flex-col justify-between rounded-2xl border border-primary/20 bg-card p-6 transition-colors hover:border-primary/60"
               >
                 <div className="flex size-12 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
-                  {(() => { const Icon = getCategoryIcon(category.name); return <Icon aria-hidden="true" /> })()}
+                  {(() => { const Icon = getCategoryIcon(category.slug); return <Icon aria-hidden="true" /> })()}
                 </div>
                 <span className="flex flex-col gap-1">
                   <h2 className="font-display text-lg font-bold text-foreground">{category.name}</h2>

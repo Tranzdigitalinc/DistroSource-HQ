@@ -19,7 +19,7 @@ export function QuickCategoryNav({
       <div className="mx-auto max-w-7xl px-4 sm:px-8">
         <div className="flex gap-1.5 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {categories.map((category) => {
-            const Icon = getCategoryIcon(category.name)
+            const Icon = getCategoryIcon(category.slug)
             return (
               <MotionLink
                 key={category.slug}

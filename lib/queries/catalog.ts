@@ -8,6 +8,7 @@ import {
   productVersions,
   products,
   reviews,
+  user,
 } from "@/lib/db/schema"
 import { and, asc, desc, eq, ilike, inArray, or, sql } from "drizzle-orm"
 
@@ -83,11 +84,17 @@ export async function getProductBySlug(slug: string) {
   if (!rows[0]) return null
   const { product, category } = rows[0]
 
-  const [images, licenses, files, productReviews, versions, bundleContents] = await Promise.all([
+  const [images, licenses, files, productReviewRows, versions, bundleContents] = await Promise.all([
     db.select().from(productImages).where(eq(productImages.productId, product.id)).orderBy(asc(productImages.sortOrder)),
     db.select().from(productLicenses).where(eq(productLicenses.productId, product.id)).orderBy(asc(productLicenses.sortOrder)),
     db.select().from(productFiles).where(eq(productFiles.productId, product.id)).orderBy(asc(productFiles.sortOrder)),
-    db.select().from(reviews).where(eq(reviews.productId, product.id)).orderBy(desc(reviews.createdAt)).limit(20),
+    db
+      .select({ review: reviews, authorName: user.name })
+      .from(reviews)
+      .innerJoin(user, eq(reviews.userId, user.id))
+      .where(eq(reviews.productId, product.id))
+      .orderBy(desc(reviews.createdAt))
+      .limit(20),
     db.select().from(productVersions).where(eq(productVersions.productId, product.id)).orderBy(desc(productVersions.releasedAt)),
     product.isBundle
       ? db
@@ -98,6 +105,8 @@ export async function getProductBySlug(slug: string) {
           .where(eq(bundleItems.bundleProductId, product.id))
       : Promise.resolve([]),
   ])
+
+  const productReviews = productReviewRows.map((row) => ({ ...row.review, authorName: row.authorName }))
 
   const avgRating = productReviews.length
     ? productReviews.reduce((sum, r) => sum + r.rating, 0) / productReviews.length
