@@ -36,7 +36,7 @@ export function BrowserVerificationGate({ children }: { children: React.ReactNod
       <section className="flex w-full max-w-md flex-col items-center gap-6 text-center" aria-labelledby="browser-check-title">
         <div className="relative flex h-20 w-full max-w-xs items-center justify-center px-4">
           <span className="absolute inset-0 animate-pulse rounded-md border-2 border-primary/30" aria-hidden="true" />
-          <Image src="/images/distro-source-logo.png" alt="DistroSource — Digital Products. Endless Possibilities." width={2172} height={724} className="relative h-auto w-full object-contain" priority />
+          <Image src="/images/distro-source-logo.png" alt="DistroSource — Digital Products. Endless Possibilities." width={2172} height={724} className="relative h-auto w-full object-contain brightness-125 saturate-150 dark:brightness-150 dark:saturate-150" priority />
         </div>
         <div className="flex flex-col gap-2">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">DistroSource security</p>

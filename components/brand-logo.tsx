@@ -30,7 +30,7 @@ export function BrandLogo({
         height={724}
         priority
         aria-hidden="true"
-        className="hidden h-full w-auto max-w-[min(46vw,270px)] object-contain object-left brightness-0 invert dark:block"
+        className="hidden h-full w-auto max-w-[min(46vw,270px)] object-contain object-left brightness-125 saturate-150 dark:block"
       />
     </span>
   )
