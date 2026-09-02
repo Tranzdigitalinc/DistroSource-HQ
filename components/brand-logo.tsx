@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
@@ -13,19 +14,15 @@ export function BrandLogo({
   heightClassName?: string
 }) {
   const mark = (
-    <span className={cn("inline-flex items-center gap-2.5", heightClassName)}>
-      <span className="relative flex aspect-square h-full shrink-0 items-center justify-center rounded-[4px] bg-foreground text-background">
-        <span className="font-mono text-[0.55em] font-bold leading-none">DS</span>
-        <span className="absolute -bottom-[3px] -right-[3px] size-[28%] rounded-[2px] bg-primary" aria-hidden="true" />
-      </span>
-      <span className="flex flex-col leading-none">
-        <span className="font-display text-[1.05em] font-black tracking-tight text-foreground">
-          Distro<span className="text-primary">Source</span>
-        </span>
-        <span className="hidden font-mono text-[0.28em] font-semibold uppercase tracking-[0.24em] text-muted-foreground sm:block">
-          Digital catalog
-        </span>
-      </span>
+    <span className={cn("inline-flex items-center", heightClassName)}>
+      <Image
+        src="/images/distro-source-logo.png"
+        alt="DistroSource — Digital Products. Endless Possibilities."
+        width={2172}
+        height={724}
+        priority
+        className="h-full w-auto max-w-[min(46vw,270px)] object-contain object-left"
+      />
     </span>
   )
 
