@@ -24,10 +24,12 @@ export async function CatalogPage({
       <main className="flex-1">
         {banner}
         <div className="mx-auto max-w-7xl px-6 py-10 sm:px-8">
-          <div className="mb-6">
-            <h1 className="font-display text-3xl font-bold tracking-tight">{title}</h1>
-            {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
-          </div>
+          {!banner && (
+            <div className="mb-6">
+              <h1 className="font-display text-3xl font-bold tracking-tight">{title}</h1>
+              {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
+            </div>
+          )}
           <div className="flex flex-col gap-8 lg:flex-row">
             <CatalogFilters categories={categories} />
             <div className="flex-1">

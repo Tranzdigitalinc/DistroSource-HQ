@@ -15,12 +15,11 @@ const footerColumns = [
   {
     title: "Shop",
     links: [
-      { label: "All Gift Cards", href: "/categories/gift-cards" },
+      { label: "All Products", href: "/products" },
       { label: "Today's Deals", href: "/deals" },
-      { label: "Gaming", href: "/categories/gaming" },
-      { label: "Streaming & Entertainment", href: "/categories/streaming" },
-      { label: "Mobile Top-Up", href: "/categories/mobile-topup" },
-      { label: "Software & Productivity", href: "/categories/software" },
+      { label: "All Categories", href: "/categories" },
+      { label: "Bundles", href: "/products?bundle=true" },
+      { label: "Free Resources", href: "/products?free=true" },
     ],
   },
   {
@@ -46,8 +45,8 @@ const footerColumns = [
     title: "Company",
     links: [
       { label: "About Us", href: "/about" },
-      { label: "Bulk Gifting for Business", href: "/bulk-gifting" },
-      { label: "Countries We Serve", href: "/countries" },
+      { label: "Team Licensing", href: "/team-licensing" },
+      { label: "Compare Products", href: "/compare" },
     ],
   },
   {
@@ -57,7 +56,6 @@ const footerColumns = [
       { label: "Privacy Policy", href: "/legal/privacy" },
       { label: "Refund Policy", href: "/legal/refund-policy" },
       { label: "Delivery Policy", href: "/legal/delivery-policy" },
-      { label: "Gift Card Terms", href: "/legal/gift-card-terms" },
       { label: "Cookie Policy", href: "/legal/cookie-policy" },
       { label: "Acceptable Use", href: "/legal/acceptable-use" },
       { label: "Payment Terms", href: "/legal/payment-terms" },
@@ -136,10 +134,10 @@ export function SiteFooter() {
 
         <Reveal className="pb-10">
           <div className="max-w-sm">
-            <BrandLogo height={48} />
+            <BrandLogo heightClassName="h-9" />
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Your one-stop marketplace for gift cards, game top-ups, mobile recharges, and software licenses —
-              delivered instantly, worldwide.
+              Your one-stop marketplace for website templates, fonts, presentations, Notion systems, and every other
+              digital asset — with instant access to every download.
             </p>
             <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
               <ShieldCheck className="size-4 text-accent" />
@@ -169,7 +167,9 @@ export function SiteFooter() {
         </Reveal>
 
         <div className="flex flex-col gap-4 border-t border-border/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} RedeemCove. All rights reserved.</p>
+          <p className="text-xs text-muted-foreground">
+            &copy; {new Date().getFullYear()} DistroSource. All rights reserved.
+          </p>
           <div className="flex items-center gap-2">
             {paymentIcons.map((icon) => (
               <span
@@ -189,7 +189,7 @@ export function SiteFooter() {
           </div>
         </div>
         <p className="mt-4 text-center text-xs text-muted-foreground sm:text-left">
-          Digital codes are delivered to your account instantly after purchase.
+          Every purchase unlocks instantly in your library — no shipping, ever.
         </p>
       </div>
     </footer>

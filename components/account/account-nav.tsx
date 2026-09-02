@@ -3,7 +3,21 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "motion/react"
-import { LayoutDashboard, Package, Download, Library, Heart, User, ShieldCheck, Bell, LifeBuoy, Gift } from "lucide-react"
+import {
+  LayoutDashboard,
+  Package,
+  Download,
+  Library,
+  Heart,
+  User,
+  ShieldCheck,
+  Bell,
+  LifeBuoy,
+  Gift,
+  FileText,
+  RefreshCw,
+  Lock,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navItems = [
@@ -11,6 +25,9 @@ const navItems = [
   { href: "/account/orders", label: "Orders", icon: Package },
   { href: "/account/library", label: "My library", icon: Library },
   { href: "/account/downloads", label: "Downloads", icon: Download },
+  { href: "/account/licenses", label: "Licenses", icon: ShieldCheck },
+  { href: "/account/invoices", label: "Invoices", icon: FileText },
+  { href: "/account/updates", label: "Product updates", icon: RefreshCw },
   { href: "/account/wishlist", label: "Wishlist", icon: Heart },
   { href: "/account/referrals", label: "Referrals", icon: Gift },
   { href: "/account/settings", label: "Profile settings", icon: User },

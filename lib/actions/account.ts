@@ -10,6 +10,7 @@ import {
   orders,
   productFiles,
   productLicenses,
+  productVersions,
   products,
   supportTickets,
   teamLicenseRequests,
@@ -208,6 +209,101 @@ export async function getUserDownloadHistory(limit = 50) {
     .where(eq(downloadEvents.userId, userId))
     .orderBy(desc(downloadEvents.downloadedAt))
     .limit(limit)
+}
+
+/**
+ * Licenses: one row per entitlement, with the full license terms (type,
+ * price paid, description) attached so the page can render a per-purchase
+ * license certificate.
+ */
+export async function getUserLicenses() {
+  const userId = await getOptionalUserId()
+  if (!userId) return []
+
+  return db
+    .select({ entitlement: entitlements, product: products, license: productLicenses, order: orders })
+    .from(entitlements)
+    .innerJoin(products, eq(entitlements.productId, products.id))
+    .innerJoin(productLicenses, eq(entitlements.licenseId, productLicenses.id))
+    .innerJoin(orders, eq(entitlements.orderId, orders.id))
+    .where(and(eq(entitlements.userId, userId), eq(entitlements.isRevoked, false)))
+    .orderBy(desc(entitlements.createdAt))
+}
+
+/**
+ * Invoices: one per completed order, with line items attached so the page
+ * can render a printable invoice without a second round trip.
+ */
+export async function getUserInvoices() {
+  const userId = await getOptionalUserId()
+  if (!userId) return []
+
+  const userOrders = await db.select().from(orders).where(eq(orders.userId, userId)).orderBy(desc(orders.createdAt))
+  if (userOrders.length === 0) return []
+
+  const orderIds = userOrders.map((o) => o.id)
+  const items = await db.select().from(orderItems).where(inArray(orderItems.orderId, orderIds))
+  const itemsByOrder = new Map<number, typeof items>()
+  for (const item of items) {
+    const list = itemsByOrder.get(item.orderId) ?? []
+    list.push(item)
+    itemsByOrder.set(item.orderId, list)
+  }
+
+  return userOrders.map((order) => ({ order, items: itemsByOrder.get(order.id) ?? [] }))
+}
+
+export async function getInvoiceByOrderNumber(orderNumber: string) {
+  const ownerId = await getOptionalOwnerId()
+  if (!ownerId) return null
+
+  const [order] = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber)).limit(1)
+  if (!order || order.userId !== ownerId) return null
+
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id))
+  return { order, items }
+}
+
+/**
+ * Product Updates: for every product the user owns, surface version history
+ * rows newer than the entitlement's own createdAt so customers see updates
+ * released after they bought — real changelog rows only, no fake numbers.
+ */
+export async function getUserProductUpdates() {
+  const userId = await getOptionalUserId()
+  if (!userId) return []
+
+  const owned = await db
+    .select({ entitlement: entitlements, product: products })
+    .from(entitlements)
+    .innerJoin(products, eq(entitlements.productId, products.id))
+    .where(and(eq(entitlements.userId, userId), eq(entitlements.isRevoked, false)))
+
+  if (owned.length === 0) return []
+
+  const productIds = [...new Set(owned.map((row) => row.product.id))]
+  const versions = await db
+    .select()
+    .from(productVersions)
+    .where(inArray(productVersions.productId, productIds))
+    .orderBy(desc(productVersions.releasedAt))
+
+  const earliestPurchaseByProduct = new Map<number, Date>()
+  for (const row of owned) {
+    const existing = earliestPurchaseByProduct.get(row.product.id)
+    const purchased = new Date(row.entitlement.createdAt)
+    if (!existing || purchased < existing) earliestPurchaseByProduct.set(row.product.id, purchased)
+  }
+
+  const productsById = new Map(owned.map((row) => [row.product.id, row.product]))
+
+  return versions
+    .map((version) => ({
+      version,
+      product: productsById.get(version.productId)!,
+      isNewSincePurchase: new Date(version.releasedAt) > (earliestPurchaseByProduct.get(version.productId) ?? new Date(0)),
+    }))
+    .filter((row) => row.product)
 }
 
 export async function submitSupportTicket(input: {
