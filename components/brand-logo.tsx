@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { Boxes } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function BrandLogo({
@@ -14,13 +13,17 @@ export function BrandLogo({
   heightClassName?: string
 }) {
   const mark = (
-    <span className={cn("inline-flex items-center gap-2", heightClassName)}>
-      <span className="flex aspect-square h-full shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-primary text-primary-foreground shadow-sm shadow-accent/30">
-        <Boxes className="h-[55%] w-[55%]" aria-hidden="true" />
+    <span className={cn("inline-flex items-center gap-2.5", heightClassName)}>
+      <span className="relative flex aspect-square h-full shrink-0 items-center justify-center rounded-[4px] bg-foreground text-background">
+        <span className="font-mono text-[0.55em] font-bold leading-none">DS</span>
+        <span className="absolute -bottom-[3px] -right-[3px] size-[28%] rounded-[2px] bg-primary" aria-hidden="true" />
       </span>
       <span className="flex flex-col leading-none">
-        <span className="font-display text-[1.05em] font-bold tracking-tight text-foreground">
-          Distro<span className="text-accent">Source</span>
+        <span className="font-display text-[1.05em] font-black tracking-tight text-foreground">
+          Distro<span className="text-primary">Source</span>
+        </span>
+        <span className="hidden font-mono text-[0.28em] font-semibold uppercase tracking-[0.24em] text-muted-foreground sm:block">
+          Digital catalog
         </span>
       </span>
     </span>

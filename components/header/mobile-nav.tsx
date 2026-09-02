@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { ArrowRight, BriefcaseBusiness, CircleHelp, Gift, Mail, Menu, Package, ShieldCheck, Sparkles, Store } from "lucide-react"
+import { ArrowRight, BriefcaseBusiness, CircleHelp, Gift, Mail, Menu, Package, ShieldCheck, Sparkles, Store } from "@/lib/storefront-icons"
 import { BrandLogo } from "@/components/brand-logo"
 import {
   Sheet,

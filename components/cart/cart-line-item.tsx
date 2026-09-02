@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { motion } from "motion/react"
-import { Check, Loader2, Minus, Plus, X } from "lucide-react"
+import { Check, Loader2, Minus, Plus, X } from "@/lib/storefront-icons"
 import { PriceDisplay } from "@/components/price-display"
 import { updateCartItemQuantity, removeCartItem } from "@/lib/actions/cart"
 import { formatLicenseType } from "@/lib/format"
@@ -77,11 +77,11 @@ export function CartLineItem({
       animate={{ opacity: isRemoving ? 0.4 : 1, y: 0 }}
       exit={{ opacity: 0, x: -24, height: 0, marginTop: 0, marginBottom: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex gap-3 border-b border-border py-5 last:border-0 sm:gap-4"
+      className="flex gap-3 border-b border-border py-5 last:border-0 sm:gap-5"
     >
       <Link
         href={`/products/${productSlug}`}
-        className="relative size-20 shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted sm:size-24"
+        className="relative size-20 shrink-0 overflow-hidden border border-border bg-muted sm:size-24"
       >
         {imageUrl ? (
           <Image src={imageUrl || "/placeholder.svg"} alt={productName} fill className="object-cover" sizes="96px" />
@@ -113,7 +113,7 @@ export function CartLineItem({
           </motion.button>
         </div>
         <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center rounded-lg border border-border">
+          <div className="flex items-center border border-border">
             <motion.button
               type="button"
               whileTap={{ scale: 0.85 }}
@@ -124,7 +124,7 @@ export function CartLineItem({
             >
               <Minus className="size-3.5" />
             </motion.button>
-            <span className="w-7 text-center text-sm font-medium tabular-nums">
+            <span className="w-7 text-center font-mono text-sm font-medium tabular-nums">
               {isUpdating ? <Loader2 className="mx-auto size-3.5 animate-spin text-muted-foreground" /> : qty}
             </span>
             <motion.button
@@ -138,7 +138,7 @@ export function CartLineItem({
               <Plus className="size-3.5" />
             </motion.button>
           </div>
-          <span className={cn("font-display text-base font-bold", isRemoving && "opacity-40")}>
+          <span className={cn("font-mono text-base font-bold", isRemoving && "opacity-40")}>
             <PriceDisplay usdAmount={Number.parseFloat(unitPriceUsd) * qty} />
           </span>
         </div>

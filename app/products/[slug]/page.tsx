@@ -83,7 +83,10 @@ export default async function ProductDetailPage({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
-          <nav className="mb-6 flex items-center gap-1.5 text-xs text-muted-foreground" aria-label="Breadcrumb">
+          <nav
+            className="mb-6 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.04em] text-muted-foreground"
+            aria-label="Breadcrumb"
+          >
             <Link href="/" className="transition-colors hover:text-foreground">
               Home
             </Link>
@@ -97,7 +100,7 @@ export default async function ProductDetailPage({
 
           <Reveal className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-10">
             <div className="flex flex-col gap-4">
-              <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-border bg-secondary">
+              <div className="group relative aspect-[4/3] w-full overflow-hidden border border-border bg-secondary">
                 {gallery[0] ? (
                   <Image
                     src={gallery[0] || "/placeholder.svg"}
@@ -113,7 +116,7 @@ export default async function ProductDetailPage({
                   </div>
                 )}
                 {product.isNewRelease && (
-                  <Badge className="absolute left-3 top-3 border-none bg-primary font-semibold text-primary-foreground">
+                  <Badge className="absolute left-0 top-0 rounded-none border-none bg-navy font-mono text-[10px] font-semibold uppercase tracking-[0.04em] text-navy-foreground">
                     New
                   </Badge>
                 )}
@@ -121,7 +124,7 @@ export default async function ProductDetailPage({
               {gallery.length > 1 && (
                 <div className="grid grid-cols-4 gap-2">
                   {gallery.slice(1, 5).map((src) => (
-                    <div key={src} className="relative aspect-[4/3] overflow-hidden rounded-lg border border-border/60 bg-secondary">
+                    <div key={src} className="relative aspect-[4/3] overflow-hidden border border-border bg-secondary">
                       <Image src={src || "/placeholder.svg"} alt="" fill className="object-cover" sizes="20vw" />
                     </div>
                   ))}
@@ -129,7 +132,7 @@ export default async function ProductDetailPage({
               )}
 
               {reviewCount > 0 && (
-                <div className="flex flex-wrap items-center gap-3 text-sm">
+                <div className="flex flex-wrap items-center gap-3 border-y border-border py-3 text-sm">
                   <div className="flex items-center gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
@@ -139,30 +142,38 @@ export default async function ProductDetailPage({
                       />
                     ))}
                   </div>
-                  <span className="font-display font-semibold">{avgRating?.toFixed(1)}</span>
+                  <span className="font-mono font-bold">{avgRating?.toFixed(1)}</span>
                   <span className="text-muted-foreground">({reviewCount.toLocaleString()} reviews)</span>
                 </div>
               )}
 
-              <div className="grid grid-cols-3 gap-3">
-                <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
-                  <Download className="size-4 shrink-0 text-accent" />
-                  <span className="text-xs font-medium text-muted-foreground">Instant download</span>
+              <div className="grid grid-cols-3 divide-x divide-border border border-border">
+                <div className="flex flex-col items-start gap-1.5 px-3 py-3">
+                  <Download className="size-4 shrink-0 text-primary" />
+                  <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.02em] text-muted-foreground">
+                    Instant download
+                  </span>
                 </div>
-                <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
-                  <ShieldCheck className="size-4 shrink-0 text-accent" />
-                  <span className="text-xs font-medium text-muted-foreground">Secure checkout</span>
+                <div className="flex flex-col items-start gap-1.5 px-3 py-3">
+                  <ShieldCheck className="size-4 shrink-0 text-primary" />
+                  <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.02em] text-muted-foreground">
+                    Secure checkout
+                  </span>
                 </div>
-                <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
-                  <RefreshCw className="size-4 shrink-0 text-accent" />
-                  <span className="text-xs font-medium text-muted-foreground">v{product.currentVersion}</span>
+                <div className="flex flex-col items-start gap-1.5 px-3 py-3">
+                  <RefreshCw className="size-4 shrink-0 text-primary" />
+                  <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.02em] text-muted-foreground">
+                    v{product.currentVersion}
+                  </span>
                 </div>
               </div>
             </div>
 
             <div className="flex flex-col gap-5">
               <div>
-                <span className="text-xs font-semibold uppercase tracking-wide text-primary">{category.name}</span>
+                <span className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+                  {category.name}
+                </span>
                 <h1 className="mt-2 font-display text-2xl font-bold text-balance md:text-3xl">{product.name}</h1>
                 {product.tagline && (
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{product.tagline}</p>
@@ -182,41 +193,63 @@ export default async function ProductDetailPage({
 
           <Reveal delay={0.1}>
             <Tabs defaultValue="details" className="mt-12">
-              <TabsList variant="line" className="border-b border-border">
+              <TabsList
+                variant="line"
+                className="border-b border-border font-mono text-xs font-semibold uppercase tracking-[0.04em]"
+              >
                 <TabsTrigger value="details">Details</TabsTrigger>
                 <TabsTrigger value="updates">Updates ({versions.length})</TabsTrigger>
                 <TabsTrigger value="reviews">Reviews ({reviewCount})</TabsTrigger>
               </TabsList>
               <TabsContent value="details" className="py-6">
-                <div className="max-w-2xl space-y-4 text-sm leading-relaxed text-muted-foreground">
-                  <p>{product.description}</p>
-                  {product.fileFormats.length > 0 && (
-                    <p>
-                      <span className="font-semibold text-foreground">File formats:</span> {product.fileFormats.join(", ")}
-                    </p>
+                <div className="max-w-2xl space-y-6">
+                  <p className="text-sm leading-relaxed text-muted-foreground">{product.description}</p>
+                  <dl className="divide-y divide-border border border-border">
+                    {product.fileFormats.length > 0 && (
+                      <div className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
+                        <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                          File formats
+                        </dt>
+                        <dd className="text-sm text-foreground">{product.fileFormats.join(", ")}</dd>
+                      </div>
+                    )}
+                    {product.softwareCompatibility.length > 0 && (
+                      <div className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
+                        <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                          Compatible with
+                        </dt>
+                        <dd className="text-sm text-foreground">{product.softwareCompatibility.join(", ")}</dd>
+                      </div>
+                    )}
+                    {product.fileSizeMb && (
+                      <div className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
+                        <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                          File size
+                        </dt>
+                        <dd className="font-mono text-sm text-foreground">{product.fileSizeMb} MB</dd>
+                      </div>
+                    )}
+                    {product.includedFiles.length > 0 && (
+                      <div className="flex flex-col gap-1.5 px-4 py-3 sm:flex-row sm:gap-4">
+                        <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                          Included
+                        </dt>
+                        <dd className="text-sm text-foreground">
+                          <ul className="space-y-1">
+                            {product.includedFiles.map((file) => (
+                              <li key={file} className="flex items-baseline gap-2">
+                                <span className="text-primary">—</span>
+                                {file}
+                              </li>
+                            ))}
+                          </ul>
+                        </dd>
+                      </div>
+                    )}
+                  </dl>
+                  {product.documentation && (
+                    <p className="text-sm leading-relaxed text-muted-foreground">{product.documentation}</p>
                   )}
-                  {product.softwareCompatibility.length > 0 && (
-                    <p>
-                      <span className="font-semibold text-foreground">Compatible with:</span>{" "}
-                      {product.softwareCompatibility.join(", ")}
-                    </p>
-                  )}
-                  {product.fileSizeMb && (
-                    <p>
-                      <span className="font-semibold text-foreground">File size:</span> {product.fileSizeMb} MB
-                    </p>
-                  )}
-                  {product.includedFiles.length > 0 && (
-                    <div>
-                      <p className="font-semibold text-foreground">What&apos;s included:</p>
-                      <ul className="mt-1 list-disc pl-5">
-                        {product.includedFiles.map((file) => (
-                          <li key={file}>{file}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {product.documentation && <p>{product.documentation}</p>}
                 </div>
               </TabsContent>
               <TabsContent value="updates" className="py-6">
@@ -224,14 +257,14 @@ export default async function ProductDetailPage({
                   {versions.length === 0 ? (
                     <p className="text-sm text-muted-foreground">No version history yet — this is the initial release.</p>
                   ) : (
-                    <ul className="flex flex-col gap-4">
+                    <ul className="flex flex-col divide-y divide-border border border-border">
                       {versions.map((v) => (
-                        <li key={v.id} className="border-b border-border pb-4 last:border-0 last:pb-0">
+                        <li key={v.id} className="flex flex-col gap-1 px-4 py-3.5">
                           <div className="flex items-center gap-2">
-                            <span className="font-display text-sm font-semibold">v{v.version}</span>
-                            <span className="text-xs text-muted-foreground">{formatDate(v.releasedAt)}</span>
+                            <span className="font-mono text-sm font-bold text-foreground">v{v.version}</span>
+                            <span className="font-mono text-xs text-muted-foreground">{formatDate(v.releasedAt)}</span>
                           </div>
-                          {v.changelog && <p className="mt-1 text-sm text-muted-foreground">{v.changelog}</p>}
+                          {v.changelog && <p className="text-sm text-muted-foreground">{v.changelog}</p>}
                         </li>
                       ))}
                     </ul>
@@ -248,7 +281,8 @@ export default async function ProductDetailPage({
 
           {related.length > 0 && (
             <Reveal className="mt-16 border-t border-border pt-10">
-              <h2 className="mb-6 font-display text-xl font-bold">Recommended for you</h2>
+              <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Related</p>
+              <h2 className="mt-2 mb-6 font-display text-xl font-bold">Recommended for you</h2>
               <ProductGrid items={related} />
             </Reveal>
           )}

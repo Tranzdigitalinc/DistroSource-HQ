@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ShieldCheck, Send, ArrowRight } from "lucide-react"
+import { ShieldCheck, Send, ArrowRight } from "@/lib/storefront-icons"
 import { toast } from "sonner"
 import { Reveal } from "@/components/motion/reveal"
 import { BrandLogo } from "@/components/brand-logo"
@@ -93,7 +93,7 @@ function NewsletterForm() {
 
   if (submitted) {
     return (
-      <p className="flex items-center gap-2 text-sm font-medium text-accent">
+      <p className="flex items-center gap-2 font-mono text-sm font-medium text-primary">
         <Send className="size-4" />
         Thanks! You&apos;ll hear from us soon.
       </p>
@@ -108,9 +108,14 @@ function NewsletterForm() {
         onChange={(e) => setEmail(e.target.value)}
         placeholder="you@example.com"
         required
-        className="h-9 max-w-[220px] bg-background/50 text-sm"
+        className="h-10 max-w-[220px] rounded-[4px] border-navy-foreground/20 bg-navy-foreground/5 text-sm text-navy-foreground placeholder:text-navy-foreground/40"
       />
-      <Button type="submit" size="sm" disabled={isPending} className="h-9 px-3">
+      <Button
+        type="submit"
+        size="sm"
+        disabled={isPending}
+        className="h-10 rounded-[4px] bg-primary px-4 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary-foreground hover:bg-primary/90"
+      >
         Subscribe
         <ArrowRight className="size-3.5" />
       </Button>
@@ -120,61 +125,69 @@ function NewsletterForm() {
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border/60 bg-secondary/40">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-        <Reveal className="mb-10 flex flex-col gap-4 rounded-xl border border-border bg-card p-6 sm:flex-row sm:items-center sm:justify-between">
+    <footer className="bg-navy text-navy-foreground">
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+        <Reveal className="mb-12 flex flex-col gap-5 border-b border-navy-foreground/15 pb-10 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="font-display text-base font-semibold text-foreground">Get deals in your inbox</h3>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              Subscribe for exclusive discounts and new brand drops.
-            </p>
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
+              Newsletter
+            </span>
+            <h3 className="mt-1 font-display text-xl font-bold tracking-tight text-navy-foreground">
+              Get deals in your inbox
+            </h3>
+            <p className="mt-1 text-sm text-navy-foreground/60">Exclusive discounts and new brand drops, weekly.</p>
           </div>
           <NewsletterForm />
         </Reveal>
 
         <Reveal className="pb-10">
-          <div className="max-w-sm">
-            <BrandLogo heightClassName="h-9" />
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Your one-stop marketplace for website templates, fonts, presentations, Notion systems, and every other
-              digital asset — with instant access to every download.
-            </p>
-            <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-              <ShieldCheck className="size-4 text-accent" />
-              Encrypted checkout on every order
-            </div>
-          </div>
-
-          <div className="mt-10 grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
-            {footerColumns.map((column) => (
-              <div key={column.title}>
-                <h3 className="font-display text-sm font-semibold text-foreground">{column.title}</h3>
-                <ul className="mt-3 flex flex-col gap-2">
-                  {column.links.map((link) => (
-                    <li key={link.label}>
-                      <Link
-                        href={link.href}
-                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+          <div className="grid gap-10 lg:grid-cols-[1.1fr_2fr]">
+            <div className="max-w-sm">
+              <BrandLogo heightClassName="h-9" />
+              <p className="mt-4 text-sm leading-relaxed text-navy-foreground/60">
+                Your one-stop marketplace for website templates, fonts, presentations, Notion systems, and every
+                other digital asset — with instant access to every download.
+              </p>
+              <div className="mt-5 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.04em] text-navy-foreground/50">
+                <ShieldCheck className="size-4 text-primary" />
+                Encrypted checkout on every order
               </div>
-            ))}
+            </div>
+
+            <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
+              {footerColumns.map((column, i) => (
+                <div key={column.title}>
+                  <h3 className="flex items-baseline gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-navy-foreground/50">
+                    <span className="text-primary">{String(i + 1).padStart(2, "0")}</span>
+                    {column.title}
+                  </h3>
+                  <ul className="mt-4 flex flex-col gap-2.5">
+                    {column.links.map((link) => (
+                      <li key={link.label}>
+                        <Link
+                          href={link.href}
+                          className="text-sm text-navy-foreground/70 transition-colors hover:text-navy-foreground"
+                        >
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
         </Reveal>
 
-        <div className="flex flex-col gap-4 border-t border-border/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-muted-foreground">
+        <div className="flex flex-col gap-4 border-t border-navy-foreground/15 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-mono text-xs text-navy-foreground/50">
             &copy; {new Date().getFullYear()} DistroSource. All rights reserved.
           </p>
           <div className="flex items-center gap-2">
             {paymentIcons.map((icon) => (
               <span
                 key={icon.file}
-                className="flex h-7 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-white"
+                className="flex h-7 w-11 shrink-0 items-center justify-center rounded-[3px] border border-navy-foreground/10 bg-navy-foreground/95"
                 title={icon.label}
               >
                 <Image
@@ -188,7 +201,7 @@ export function SiteFooter() {
             ))}
           </div>
         </div>
-        <p className="mt-4 text-center text-xs text-muted-foreground sm:text-left">
+        <p className="mt-4 text-center font-mono text-[11px] uppercase tracking-[0.04em] text-navy-foreground/40 sm:text-left">
           Every purchase unlocks instantly in your library — no shipping, ever.
         </p>
       </div>

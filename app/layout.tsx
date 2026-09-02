@@ -1,7 +1,7 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
-import { Inter, Geist } from 'next/font/google'
+import { Archivo, JetBrains_Mono } from 'next/font/google'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -10,10 +10,11 @@ import { ScrollToTop } from '@/components/scroll-to-top'
 import { ResizeObserverErrorGuard } from '@/components/resize-observer-error-guard'
 import { BrowserVerificationGate } from '@/components/security/browser-verification-gate'
 import { VisitorTracker } from '@/components/analytics/visitor-tracker'
+import { ScrollProgress } from '@/components/velora/scroll-progress'
 import './globals.css'
 
-const _inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
-const _geist = Geist({ subsets: ['latin'], variable: '--font-geist' })
+const _archivo = Archivo({ subsets: ['latin'], variable: '--font-archivo', weight: ['400', '500', '600', '700', '800', '900'] })
+const _jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains', weight: ['400', '500', '600', '700'] })
 
 export const metadata: Metadata = {
   title: 'DistroSource — Everything Digital. One Source.',
@@ -51,8 +52,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   colorScheme: 'light dark',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#080b18' },
-    { media: '(prefers-color-scheme: dark)', color: '#080b18' },
+    { media: '(prefers-color-scheme: light)', color: '#fcfbf8' },
+    { media: '(prefers-color-scheme: dark)', color: '#211d19' },
   ],
 }
 
@@ -66,7 +67,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`bg-background ${_inter.variable} ${_geist.variable}`}
+      className={`bg-background ${_archivo.variable} ${_jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased">
@@ -74,6 +75,7 @@ export default async function RootLayout({
           <VisitorTracker />
         </Suspense>
         <ResizeObserverErrorGuard />
+        <ScrollProgress />
         <MotionProvider>
           <ThemeProvider>
             <BrowserVerificationGate>

@@ -17,7 +17,7 @@ export function QuickCategoryNav({
   return (
     <nav aria-label="Quick category links" className="border-b border-border bg-card/40">
       <div className="mx-auto max-w-7xl px-4 sm:px-8">
-        <div className="flex gap-1.5 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex gap-px overflow-x-auto py-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {categories.map((category) => {
             const Icon = getCategoryIcon(category.slug)
             return (
@@ -25,7 +25,7 @@ export function QuickCategoryNav({
                 key={category.slug}
                 href={`/categories/${category.slug}`}
                 whileTap={{ scale: 0.96 }}
-                className="flex shrink-0 items-center gap-2 rounded-full border border-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-border hover:bg-secondary hover:text-foreground"
+                className="flex shrink-0 items-center gap-2 border-x border-transparent px-3.5 py-3 font-mono text-xs font-semibold uppercase tracking-[0.02em] text-muted-foreground transition-colors hover:border-border hover:bg-secondary hover:text-foreground"
               >
                 <Icon aria-hidden="true" className="size-4 text-primary" />
                 {category.name}

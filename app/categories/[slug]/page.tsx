@@ -55,13 +55,14 @@ export default async function CategoryDetailPage({
         banner={
           <div className="relative flex w-full flex-col gap-4 border-b border-border bg-secondary/40 px-6 py-6 sm:px-10 sm:py-8">
             <div className="mx-auto flex w-full max-w-7xl items-center gap-5">
-              <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl border border-border bg-card text-primary">
+              <div className="flex size-16 shrink-0 items-center justify-center border border-border bg-card text-primary">
                 {(() => {
                   const Icon = getCategoryIcon(category.slug)
                   return <Icon aria-hidden="true" className="size-7" />
                 })()}
               </div>
               <div className="flex flex-col gap-1">
+                <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-primary">Category</p>
                 <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{category.name}</h1>
                 {category.description ? (
                   <p className="max-w-xl text-sm text-muted-foreground">{category.description}</p>

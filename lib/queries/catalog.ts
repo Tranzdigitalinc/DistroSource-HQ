@@ -149,7 +149,15 @@ export async function getProducts(options: ProductQueryOptions = {}) {
     if (cat) conditions.push(eq(products.categoryId, cat.id))
   }
   if (options.search) {
-    conditions.push(or(ilike(products.name, `%${options.search}%`), ilike(products.tagline, `%${options.search}%`))!)
+    const term = `%${options.search.trim()}%`
+    conditions.push(
+      or(
+        ilike(products.name, term),
+        ilike(products.tagline, term),
+        ilike(products.description, term),
+        sql`exists (select 1 from unnest(${products.tags}) as tag where tag ilike ${term})`,
+      )!,
+    )
   }
   if (options.featured) conditions.push(eq(products.isFeatured, true))
   if (options.newRelease) conditions.push(eq(products.isNewRelease, true))
@@ -157,12 +165,15 @@ export async function getProducts(options: ProductQueryOptions = {}) {
   if (options.bundle) conditions.push(eq(products.isBundle, true))
   if (options.deal) conditions.push(sql`${products.compareAtPrice} is not null and ${products.compareAtPrice} > ${products.basePrice}`)
 
+  const ratingAverage = sql<number>`coalesce((select avg(${reviews.rating}) from ${reviews} where ${reviews.productId} = ${products.id}), 0)`
   const orderBy =
     options.sort === "newest"
       ? [desc(products.createdAt)]
       : options.sort === "price-asc" || options.sort === "price-desc"
         ? [asc(products.basePrice)]
-        : [desc(products.isFeatured), desc(products.createdAt)]
+        : options.sort === "rating"
+          ? [desc(ratingAverage), desc(products.isFeatured), desc(products.createdAt)]
+          : [desc(products.isFeatured), desc(products.createdAt)]
 
   const rows = await db
     .select({ product: products, category: categories })

@@ -9,11 +9,11 @@ import {
   Box,
   NotebookPen,
   Package,
-  type LucideIcon,
-} from "lucide-react"
+  type IconComponent,
+} from "@/lib/storefront-icons"
 
 // Explicit slug -> icon mapping for DistroSource's digital-product categories.
-export const categoryIconMap: Record<string, LucideIcon> = {
+export const categoryIconMap: Record<string, IconComponent> = {
   "templates-documents": FileText,
   "design-branding": Palette,
   "code-templates": Code2,
@@ -26,7 +26,7 @@ export const categoryIconMap: Record<string, LucideIcon> = {
   bundles: Package,
 }
 
-export function getCategoryIcon(value: string | null | undefined): LucideIcon {
+export function getCategoryIcon(value: string | null | undefined): IconComponent {
   if (!value) return Package
   const key = value.toLowerCase()
   return categoryIconMap[key] ?? Package

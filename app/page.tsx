@@ -17,6 +17,10 @@ import {
   getTopReviews,
 } from "@/lib/queries/catalog"
 import { Testimonials } from "@/components/home/testimonials"
+import { ShopByGoal } from "@/components/home/shop-by-goal"
+import { ShopByPrice } from "@/components/home/shop-by-price"
+import { PromoBanner } from "@/components/home/promo-banner"
+import { VeloraShowcase } from "@/components/home/velora-showcase"
 
 const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["homepage", key], { revalidate: 300 })
 
@@ -35,10 +39,12 @@ export default async function HomePage() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <Hero stats={stats} />
+        <Hero stats={stats} products={featured.slice(0, 10)} />
         <QuickCategoryNav categories={categories} />
+        <ShopByGoal />
         <CategoryGrid categories={categories} />
         <ProductRail title="Featured products" href="/products" items={featured} />
+        <PromoBanner />
         <ProductRail
           title="New arrivals"
           subtitle="Fresh templates, fonts, and assets just added to the catalog"
@@ -52,6 +58,7 @@ export default async function HomePage() {
           items={deals}
           variant="deals"
         />
+        <ShopByPrice />
         <ProductRail
           title="Top rated by customers"
           subtitle="Highest-reviewed products across the marketplace"
@@ -59,6 +66,7 @@ export default async function HomePage() {
           items={topRated}
         />
         <HowItWorks />
+        <VeloraShowcase />
         <Testimonials reviews={topReviews} stats={stats} />
         <FAQSection />
         <TrustBadges />
