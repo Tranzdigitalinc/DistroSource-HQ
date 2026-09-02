@@ -129,7 +129,7 @@ export function ProductCard({
             "relative flex h-9 w-full items-center justify-center gap-1.5 overflow-hidden rounded-lg px-2 text-xs font-semibold transition-all disabled:opacity-70",
             justAdded
               ? "bg-success text-success-foreground"
-              : "bg-accent text-accent-foreground shadow-sm shadow-accent/25 hover:bg-accent/90",
+              : "bg-primary text-primary-foreground shadow-sm shadow-primary/25 hover:bg-primary/90",
           )}
         >
           {isPending ? (
