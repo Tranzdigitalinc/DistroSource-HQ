@@ -2,25 +2,25 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
-import { Bell, Tag, Package, Megaphone } from "lucide-react"
+import { Bell, Tag, Package, Sparkles } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { updateNotificationPreference } from "@/lib/actions/account"
 
-type PreferenceKey = "orderUpdates" | "deals" | "productNews" | "accountAlerts"
+type PreferenceKey = "orderUpdates" | "promotions" | "newReleases" | "productUpdates"
 
 const preferenceMeta: Record<PreferenceKey, { icon: typeof Bell; label: string; description: string }> = {
-  orderUpdates: { icon: Package, label: "Order updates", description: "Delivery confirmations and code reveals." },
-  deals: { icon: Tag, label: "Deals & discounts", description: "New promotions on your favorite brands." },
-  productNews: {
-    icon: Megaphone,
-    label: "Product news",
-    description: "New brands and categories added to RedeemCove.",
+  orderUpdates: { icon: Package, label: "Order updates", description: "Purchase confirmations and download receipts." },
+  promotions: { icon: Tag, label: "Deals & promotions", description: "Sales, coupons, and limited-time discounts." },
+  newReleases: {
+    icon: Sparkles,
+    label: "New releases",
+    description: "New products and categories added to the catalog.",
   },
-  accountAlerts: { icon: Bell, label: "Account alerts", description: "Sign-in activity and security notices." },
+  productUpdates: { icon: Bell, label: "Product updates", description: "New versions and changelogs for products you own." },
 }
 
-const order: PreferenceKey[] = ["orderUpdates", "deals", "productNews", "accountAlerts"]
+const order: PreferenceKey[] = ["orderUpdates", "promotions", "newReleases", "productUpdates"]
 
 export function NotificationPreferencesForm({
   initialPreferences,

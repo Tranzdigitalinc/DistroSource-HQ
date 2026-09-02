@@ -10,8 +10,8 @@ import { Input } from "@/components/ui/input"
 import { isAdminEmail } from "@/lib/admin-emails"
 
 export const metadata = {
-  title: "Orders | RedeemCove Admin",
-  description: "Search and manage orders for refunds, replacements, and fraud review.",
+  title: "Orders | DistroSource Admin",
+  description: "Search and manage orders for refunds and fraud review.",
 }
 
 export default async function AdminOrdersPage({
@@ -33,7 +33,7 @@ export default async function AdminOrdersPage({
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Administration</p>
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-foreground">Orders</h1>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">Search by order number or billing email to refund, replace a code, or flag for fraud review.</p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">Search by order number or billing email to refund an order or flag it for fraud review.</p>
         </div>
         <Button variant="outline" size="sm" render={<Link href="/admin" />} nativeButton={false}>
           Back to control center

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Globe2, ShieldCheck, Zap, HeartHandshake, Gamepad2, Building2 } from "lucide-react"
+import { Sparkles, ShieldCheck, Zap, HeartHandshake, LayoutTemplate, Building2 } from "lucide-react"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { Button } from "@/components/ui/button"
@@ -7,9 +7,9 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 import { getMarketplaceStats } from "@/lib/queries/catalog"
 
 export const metadata = {
-  title: "About Us — RedeemCove",
+  title: "About Us — DistroSource",
   description:
-    "RedeemCove is a digital marketplace for gift cards, game top-ups, mobile recharges, and software licenses, delivered instantly worldwide.",
+    "DistroSource is a digital-products department store — templates, fonts, presentation kits, Notion systems, 3D assets, and more, delivered instantly with clear licensing.",
 }
 
 const values = [
@@ -17,48 +17,48 @@ const values = [
     icon: Zap,
     title: "Instant by design",
     description:
-      "Every product on RedeemCove is delivered digitally the moment payment is confirmed — no shipping, no waiting.",
+      "Every product on DistroSource unlocks the moment payment is confirmed — no shipping, no waiting, straight into your library.",
   },
   {
     icon: ShieldCheck,
-    title: "Verified inventory",
+    title: "Clear licensing",
     description:
-      "We source every code directly from authorized distributors and fulfillment partners, and verify it before it's listed for sale.",
+      "Personal, commercial, extended, and agency license tiers are spelled out up front so you always know what you can do with a purchase.",
   },
   {
-    icon: Globe2,
-    title: "Built for a global audience",
+    icon: LayoutTemplate,
+    title: "Curated, not crowded",
     description:
-      "Regional pricing, local currencies, and country-specific catalogs make it easy to shop no matter where you are.",
+      "We publish products only once they have real preview files and real sample downloads — no placeholder listings, ever.",
   },
   {
     icon: HeartHandshake,
     title: "Support that responds",
     description:
-      "Our support team reviews every ticket personally — from delivery delays to refund requests — with fast, human follow-up.",
+      "Our support team reviews every ticket personally — from download issues to license questions — with fast, human follow-up.",
   },
 ]
 
 const timeline = [
   {
-    year: "2021",
-    title: "RedeemCove is founded",
-    description: "Started as a small catalog of gaming top-ups for a handful of regions.",
-  },
-  {
     year: "2022",
-    title: "Streaming & software added",
-    description: "Expanded into streaming subscriptions, software licenses, and mobile recharges.",
+    title: "DistroSource is founded",
+    description: "Started as a small catalog of website templates and font pairings for independent designers.",
   },
   {
     year: "2023",
-    title: "Global fulfillment partnerships",
-    description: "Partnered with international distribution networks to support instant delivery worldwide.",
+    title: "Categories expand",
+    description: "Added presentation kits, Notion systems, UI kits, and 3D assets to serve a wider range of creators.",
   },
   {
     year: "2024",
-    title: "Bulk gifting for business",
-    description: "Launched a dedicated program for HR, marketing, and rewards teams ordering at volume.",
+    title: "Licensing tiers introduced",
+    description: "Launched personal, commercial, extended, and agency licensing so teams of any size can buy with confidence.",
+  },
+  {
+    year: "2025",
+    title: "Team licensing for business",
+    description: "Launched a dedicated program for agencies and studios purchasing at volume across the catalog.",
   },
 ]
 
@@ -66,9 +66,9 @@ export default async function AboutPage() {
   const stats = await getMarketplaceStats()
 
   const statCards = [
-    { label: "Brands available", value: `${stats.brandCount}+` },
     { label: "Products in catalog", value: `${stats.productCount.toLocaleString()}+` },
-    { label: "Countries served", value: `${stats.countryCount}+` },
+    { label: "Categories", value: `${stats.categoryCount}+` },
+    { label: "Customer reviews", value: `${stats.reviewCount.toLocaleString()}+` },
     { label: "Average customer rating", value: stats.avgRating.toFixed(1) },
   ]
 
@@ -86,15 +86,15 @@ export default async function AboutPage() {
           />
           <div className="relative mx-auto max-w-4xl px-6 py-20 text-center sm:px-8">
             <span className="mx-auto flex w-fit items-center gap-1.5 rounded-full bg-hero-foreground/10 px-3 py-1 text-xs font-medium text-hero-foreground/90 ring-1 ring-inset ring-hero-foreground/20">
-              <Gamepad2 className="size-3.5 text-hero-accent" />
-              About RedeemCove
+              <Sparkles className="size-3.5 text-hero-accent" />
+              About DistroSource
             </span>
             <h1 className="mt-5 font-display text-4xl font-bold leading-[1.1] tracking-tight text-hero-foreground text-balance sm:text-5xl">
-              The instant marketplace for digital value
+              Everything digital. One source.
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-hero-foreground/75 text-pretty">
-              RedeemCove connects customers with gift cards, game top-ups, mobile recharges, and software licenses —
-              delivered to your account in seconds, wherever you are.
+              DistroSource is a department store for digital products — templates, fonts, presentation kits, Notion
+              systems, 3D assets, and more — unlocked into your library in seconds.
             </p>
           </div>
         </section>
@@ -116,15 +116,14 @@ export default async function AboutPage() {
           <Reveal>
             <h2 className="font-display text-2xl font-bold tracking-tight">Our mission</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Buying digital value shouldn&apos;t be complicated. Whether you&apos;re topping up a game, gifting a
-              streaming subscription, or recharging a family member&apos;s phone abroad, RedeemCove exists to make
-              that purchase instant, transparent, and trustworthy — with real-time pricing, verified codes, and a
+              Buying a digital asset shouldn&apos;t be complicated. Whether you&apos;re shipping a client site,
+              putting together a pitch deck, or building out a Notion workspace, DistroSource exists to make that
+              purchase instant, transparent, and trustworthy — with clear licensing, real preview files, and a
               support team that actually answers.
             </p>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              We work directly with authorized distributors and regional fulfillment partners to keep our catalog
-              current across {stats.countryCount}+ countries, so the products you see reflect real, redeemable
-              inventory — not stale listings.
+              Every product in our catalog of {stats.productCount.toLocaleString()}+ items ships with real preview
+              images and a real sample file before it ever goes live — so what you see is exactly what you get.
             </p>
           </Reveal>
         </section>
@@ -173,7 +172,7 @@ export default async function AboutPage() {
           </span>
           <h2 className="mt-4 font-display text-2xl font-bold tracking-tight">Want to work with us?</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            From bulk gifting programs to brand partnerships, we&apos;d love to hear from you.
+            From agency licensing to volume purchases, we&apos;d love to hear from you.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Button size="lg" className="h-11 px-6 font-semibold" nativeButton={false} render={<Link href="/contact" />}>
@@ -184,9 +183,9 @@ export default async function AboutPage() {
               variant="outline"
               className="h-11 px-6 font-semibold"
               nativeButton={false}
-              render={<Link href="/bulk-gifting" />}
+              render={<Link href="/team-licensing" />}
             >
-              Bulk gifting for business
+              Team licensing for business
             </Button>
           </div>
         </section>

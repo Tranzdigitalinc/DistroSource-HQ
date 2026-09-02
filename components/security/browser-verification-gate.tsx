@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 
-const COOKIE_NAME = 'redeemcove_browser_verified'
+const COOKIE_NAME = 'distrosource_browser_verified'
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 30
 
 function hasVerificationCookie() {
@@ -36,12 +36,12 @@ export function BrowserVerificationGate({ children }: { children: React.ReactNod
       <section className="flex w-full max-w-md flex-col items-center gap-6 text-center" aria-labelledby="browser-check-title">
         <div className="relative flex h-28 w-28 items-center justify-center">
           <span className="absolute inset-0 animate-spin rounded-full border-2 border-primary/20 border-t-primary" aria-hidden="true" />
-          <Image src="/loading-icon.png" alt="RedeemCove" width={92} height={92} className="rounded-full" priority />
+          <Image src="/loading-icon.png" alt="DistroSource" width={92} height={92} className="rounded-full" priority />
         </div>
         <div className="flex flex-col gap-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">RedeemCove security</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">DistroSource security</p>
           <h1 id="browser-check-title" className="text-2xl font-semibold tracking-tight text-balance">Checking your browser</h1>
-          <p className="text-sm leading-relaxed text-muted-foreground">This quick check helps us keep RedeemCove safe from automated traffic. It only happens on your first visit.</p>
+          <p className="text-sm leading-relaxed text-muted-foreground">This quick check helps us keep DistroSource safe from automated traffic. It only happens on your first visit.</p>
         </div>
         <button type="button" onClick={verifyBrowser} disabled={checking} className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-wait disabled:opacity-70">
           {checking ? 'Verifying browser…' : 'Verify and continue'}

@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { CircleCheck as CheckCircle2, ArrowRight, Gift, Mail } from "lucide-react"
+import { CircleCheck as CheckCircle2, ArrowRight, Package, Mail } from "lucide-react"
 import { getOrderByNumber } from "@/lib/actions/account"
 import { OrderItemsList } from "@/components/order/order-items-list"
 import { CopyOrderNumber } from "@/components/order/copy-order-number"
@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/button"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { Reveal } from "@/components/motion/reveal"
-import { ResendConfirmationButton } from "@/components/orders/resend-confirmation-button"
+import { ResendConfirmationButton } from "@/components/order/resend-confirmation-button"
 
 export const metadata = {
-  title: "Order confirmed — RedeemCove",
+  title: "Order confirmed — DistroSource",
 }
 
 export default async function CheckoutSuccessPage({
@@ -39,7 +39,8 @@ export default async function CheckoutSuccessPage({
             </div>
             <h1 className="font-display text-2xl font-bold md:text-3xl">Order confirmed!</h1>
             <p className="max-w-sm text-sm text-muted-foreground">
-              Order <CopyOrderNumber orderNumber={order.orderNumber} /> — your codes are ready to reveal below.
+              Order <CopyOrderNumber orderNumber={order.orderNumber} /> — your products are ready to download in My
+              Library.
             </p>
           </Reveal>
 
@@ -47,15 +48,15 @@ export default async function CheckoutSuccessPage({
             <Reveal delay={0.05} className="mt-6 flex items-center gap-3 rounded-xl border border-success/20 bg-success/5 px-4 py-3">
               <Mail className="size-5 shrink-0 text-success" />
               <p className="text-sm text-foreground/80">
-                A copy of your codes was also sent to <span className="font-semibold">{order.billingEmail}</span>
+                A copy of your receipt was also sent to <span className="font-semibold">{order.billingEmail}</span>
               </p>
             </Reveal>
           ) : (
             <Reveal delay={0.05} className="mt-6 flex items-center gap-3 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3">
               <Mail className="size-5 shrink-0 text-destructive" />
               <p className="text-sm text-foreground/80">
-                We couldn&apos;t email a copy of your codes to{" "}
-                <span className="font-semibold">{order.billingEmail}</span>. Save the codes below or view them
+                We couldn&apos;t email a copy of your receipt to{" "}
+                <span className="font-semibold">{order.billingEmail}</span>. Your purchase is still saved — view it
                 anytime from your order history.
               </p>
               <ResendConfirmationButton orderNumber={order.orderNumber} />
@@ -64,7 +65,7 @@ export default async function CheckoutSuccessPage({
 
           <Reveal delay={0.1} className="mt-6 overflow-hidden rounded-xl border border-border bg-card">
             <div className="flex items-center gap-2 border-b border-border bg-secondary/30 px-6 py-3">
-              <Gift className="size-4 text-primary" />
+              <Package className="size-4 text-primary" />
               <h2 className="font-display text-sm font-semibold">Your items</h2>
             </div>
             <div className="p-6">
@@ -94,10 +95,10 @@ export default async function CheckoutSuccessPage({
             <Button
               variant="outline"
               className="bg-transparent"
-              render={<Link href="/account/orders" />}
+              render={<Link href="/account/library" />}
               nativeButton={false}
             >
-              View all orders
+              Go to My Library
             </Button>
             <Button render={<Link href="/products" />} nativeButton={false}>
               Continue shopping

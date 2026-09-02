@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, serial, integer, numeric, jsonb, unique } from "drizzle-orm/pg-core"
+import { pgTable, text, timestamp, boolean, serial, integer, numeric, jsonb } from "drizzle-orm/pg-core"
 
 // --- Better Auth required tables -------------------------------------------
 // Column names are camelCase to match Better Auth's defaults. Do not rename.
@@ -11,6 +11,7 @@ export const user = pgTable("user", {
   image: text("image"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+  role: text("role").notNull().default("customer"),
 })
 
 export const session = pgTable("session", {
@@ -54,105 +55,338 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updatedAt").defaultNow(),
 })
 
-// --- App tables --------------------------------------------------------------
-
-export const countries = pgTable("countries", {
-  id: serial("id").primaryKey(),
-  code: text("code").notNull().unique(),
-  name: text("name").notNull(),
-  flagEmoji: text("flag_emoji"),
-  currencyCode: text("currency_code").notNull(),
-  currencySymbol: text("currency_symbol").notNull(),
-  usdToLocalRate: numeric("usd_to_local_rate", { precision: 12, scale: 6 }).notNull().default("1"),
-  isPopular: boolean("is_popular").notNull().default(false),
-})
+// --- Catalog -----------------------------------------------------------------
 
 export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
   description: text("description"),
-  iconName: text("icon_name").notNull().default("tag"),
-  sortOrder: integer("sort_order").notNull().default(0),
-  reloadlyCategoryId: integer("reloadly_category_id"),
-})
-
-export const brands = pgTable("brands", {
-  id: serial("id").primaryKey(),
-  slug: text("slug").notNull().unique(),
-  name: text("name").notNull(),
-  categoryId: integer("category_id").notNull(),
-  logoUrl: text("logo_url"),
-  brandColor: text("brand_color"),
-  description: text("description"),
-  isFeatured: boolean("is_featured").notNull().default(false),
-  rating: numeric("rating", { precision: 3, scale: 2 }).notNull().default("4.5"),
-  reviewCount: integer("review_count").notNull().default(0),
-  reloadlyBrandId: integer("reloadly_brand_id"),
+  icon: text("icon"),
+  heroImageUrl: text("heroImageUrl"),
+  sortOrder: integer("sortOrder").notNull().default(0),
+  seoTitle: text("seoTitle"),
+  seoDescription: text("seoDescription"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
-  brandId: integer("brand_id").notNull(),
-  categoryId: integer("category_id").notNull(),
-  countryId: integer("country_id"),
-  productType: text("product_type").notNull().default("gift_card"),
-  shortDescription: text("short_description"),
-  description: text("description"),
-  howItWorks: text("how_it_works"),
-  terms: text("terms"),
-  imageUrl: text("image_url"),
-  isFeatured: boolean("is_featured").notNull().default(false),
-  isDeal: boolean("is_deal").notNull().default(false),
-  deliveryType: text("delivery_type").notNull().default("instant_code"),
-  rating: numeric("rating", { precision: 3, scale: 2 }).notNull().default("4.5"),
-  reviewCount: integer("review_count").notNull().default(0),
-  salesCount: integer("sales_count").notNull().default(0),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  reloadlyProductId: integer("reloadly_product_id"),
-  reloadlyStatus: text("reloadly_status"),
-  reloadlyGlobal: boolean("reloadly_global"),
-  reloadlySupportsPreOrder: boolean("reloadly_supports_pre_order"),
-  reloadlyDenominationType: text("reloadly_denomination_type"),
-  recipientCurrencyCode: text("recipient_currency_code"),
-  senderCurrencyCode: text("sender_currency_code"),
-  minRecipientDenomination: numeric("min_recipient_denomination", { precision: 12, scale: 4 }),
-  maxRecipientDenomination: numeric("max_recipient_denomination", { precision: 12, scale: 4 }),
-  minSenderDenomination: numeric("min_sender_denomination", { precision: 12, scale: 4 }),
-  maxSenderDenomination: numeric("max_sender_denomination", { precision: 12, scale: 4 }),
-  senderFee: numeric("sender_fee", { precision: 12, scale: 4 }),
-  senderFeePercentage: numeric("sender_fee_percentage", { precision: 12, scale: 4 }),
-  recipientSenderExchangeRate: numeric("recipient_sender_exchange_rate", { precision: 18, scale: 8 }),
-  redeemInstruction: jsonb("redeem_instruction"),
-  additionalRequirements: jsonb("additional_requirements"),
-  reloadlyMetadata: jsonb("reloadly_metadata"),
-  reloadlyPayload: jsonb("reloadly_payload"),
+  tagline: text("tagline"),
+  description: text("description").notNull(),
+  categoryId: integer("categoryId")
+    .notNull()
+    .references(() => categories.id),
+  status: text("status").notNull().default("draft"), // draft | published
+  basePrice: numeric("basePrice", { precision: 10, scale: 2 }).notNull(),
+  compareAtPrice: numeric("compareAtPrice", { precision: 10, scale: 2 }),
+  thumbnailUrl: text("thumbnailUrl"),
+  coverImageUrl: text("coverImageUrl"),
+  fileFormats: text("fileFormats").array().notNull().default([]),
+  fileSizeMb: numeric("fileSizeMb", { precision: 10, scale: 2 }),
+  softwareCompatibility: text("softwareCompatibility").array().notNull().default([]),
+  currentVersion: text("currentVersion").notNull().default("1.0.0"),
+  includedFiles: text("includedFiles").array().notNull().default([]),
+  documentation: text("documentation"),
+  tags: text("tags").array().notNull().default([]),
+  isFeatured: boolean("isFeatured").notNull().default(false),
+  isNewRelease: boolean("isNewRelease").notNull().default(false),
+  isFree: boolean("isFree").notNull().default(false),
+  isBundle: boolean("isBundle").notNull().default(false),
+  seoTitle: text("seoTitle"),
+  seoDescription: text("seoDescription"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 })
 
-export const productVariants = pgTable("product_variants", {
+export const productImages = pgTable("product_images", {
   id: serial("id").primaryKey(),
-  productId: integer("product_id").notNull(),
-  denominationLabel: text("denomination_label").notNull(),
-  faceValueUsd: numeric("face_value_usd", { precision: 10, scale: 2 }).notNull(),
-  priceUsd: numeric("price_usd", { precision: 10, scale: 2 }).notNull(),
-  discountPercent: integer("discount_percent").notNull().default(0),
-  stockCount: integer("stock_count").notNull().default(500),
-  sortOrder: integer("sort_order").notNull().default(0),
-  reloadlyVariantId: text("reloadly_variant_id"),
+  productId: integer("productId")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  url: text("url").notNull(),
+  alt: text("alt"),
+  sortOrder: integer("sortOrder").notNull().default(0),
+})
+
+export const productLicenses = pgTable("product_licenses", {
+  id: serial("id").primaryKey(),
+  productId: integer("productId")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  licenseType: text("licenseType").notNull(), // personal | commercial | extended_commercial | agency
+  price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  description: text("description"),
+  sortOrder: integer("sortOrder").notNull().default(0),
+})
+
+export const productFiles = pgTable("product_files", {
+  id: serial("id").primaryKey(),
+  productId: integer("productId")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  licenseType: text("licenseType"), // null = included with all licenses
+  fileName: text("fileName").notNull(),
+  blobPathname: text("blobPathname").notNull(),
+  fileSizeBytes: integer("fileSizeBytes"),
+  fileType: text("fileType"),
+  sortOrder: integer("sortOrder").notNull().default(0),
+})
+
+export const productVersions = pgTable("product_versions", {
+  id: serial("id").primaryKey(),
+  productId: integer("productId")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  version: text("version").notNull(),
+  changelog: text("changelog"),
+  releasedAt: timestamp("releasedAt").notNull().defaultNow(),
+})
+
+export const bundleItems = pgTable("bundle_items", {
+  id: serial("id").primaryKey(),
+  bundleProductId: integer("bundleProductId")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  includedProductId: integer("includedProductId")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
 })
 
 export const reviews = pgTable("reviews", {
   id: serial("id").primaryKey(),
-  productId: integer("product_id").notNull(),
-  userId: text("user_id"),
-  authorName: text("author_name").notNull(),
+  productId: integer("productId")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  userId: text("userId").notNull(),
   rating: integer("rating").notNull(),
   title: text("title"),
-  body: text("body").notNull(),
-  isVerifiedPurchase: boolean("is_verified_purchase").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  body: text("body"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
+// --- Cart / Checkout / Orders -------------------------------------------------
+
+export const cartItems = pgTable("cart_items", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull(),
+  productId: integer("productId")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  licenseId: integer("licenseId")
+    .notNull()
+    .references(() => productLicenses.id),
+  quantity: integer("quantity").notNull().default(1),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
+export const coupons = pgTable("coupons", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  description: text("description"),
+  discountPercent: integer("discountPercent").notNull(),
+  minOrderUsd: numeric("minOrderUsd", { precision: 10, scale: 2 }).notNull().default("0"),
+  maxUses: integer("maxUses"),
+  usedCount: integer("usedCount").notNull().default(0),
+  expiresAt: timestamp("expiresAt"),
+  isActive: boolean("isActive").notNull().default(true),
+})
+
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  orderNumber: text("orderNumber").notNull().unique(),
+  userId: text("userId").notNull(),
+  status: text("status").notNull().default("completed"), // completed | refunded | failed
+  subtotalUsd: numeric("subtotalUsd", { precision: 10, scale: 2 }).notNull(),
+  discountUsd: numeric("discountUsd", { precision: 10, scale: 2 }).notNull().default("0"),
+  totalUsd: numeric("totalUsd", { precision: 10, scale: 2 }).notNull(),
+  couponCode: text("couponCode"),
+  affiliateCode: text("affiliateCode"),
+  referralCode: text("referralCode"),
+  billingEmail: text("billingEmail").notNull(),
+  billingName: text("billingName").notNull(),
+  paymentMethod: text("paymentMethod").notNull().default("card"),
+  confirmationEmailSent: boolean("confirmationEmailSent").notNull().default(false),
+  paypalOrderId: text("paypalOrderId"),
+  paypalCaptureId: text("paypalCaptureId"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
+export const orderItems = pgTable("order_items", {
+  id: serial("id").primaryKey(),
+  orderId: integer("orderId")
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade" }),
+  productId: integer("productId")
+    .notNull()
+    .references(() => products.id),
+  licenseId: integer("licenseId")
+    .notNull()
+    .references(() => productLicenses.id),
+  productName: text("productName").notNull(),
+  licenseType: text("licenseType").notNull(),
+  unitPriceUsd: numeric("unitPriceUsd", { precision: 10, scale: 2 }).notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  isVoided: boolean("isVoided").notNull().default(false),
+})
+
+export const entitlements = pgTable("entitlements", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull(),
+  productId: integer("productId")
+    .notNull()
+    .references(() => products.id),
+  licenseId: integer("licenseId")
+    .notNull()
+    .references(() => productLicenses.id),
+  orderId: integer("orderId")
+    .notNull()
+    .references(() => orders.id),
+  orderItemId: integer("orderItemId")
+    .notNull()
+    .references(() => orderItems.id),
+  isRevoked: boolean("isRevoked").notNull().default(false),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
+export const downloadEvents = pgTable("download_events", {
+  id: serial("id").primaryKey(),
+  entitlementId: integer("entitlementId")
+    .notNull()
+    .references(() => entitlements.id, { onDelete: "cascade" }),
+  userId: text("userId").notNull(),
+  productFileId: integer("productFileId")
+    .notNull()
+    .references(() => productFiles.id),
+  ipAddress: text("ipAddress"),
+  downloadedAt: timestamp("downloadedAt").notNull().defaultNow(),
+})
+
+export const wishlistItems = pgTable("wishlist_items", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull(),
+  productId: integer("productId")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
+// --- Support / Marketing / Ops ------------------------------------------------
+
+export const supportTickets = pgTable("support_tickets", {
+  id: serial("id").primaryKey(),
+  userId: text("userId"),
+  email: text("email").notNull(),
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  orderNumber: text("orderNumber"),
+  status: text("status").notNull().default("open"),
+  priority: text("priority").notNull().default("normal"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+})
+
+export const newsletterSubscribers = pgTable("newsletter_subscribers", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  subscribedAt: timestamp("subscribedAt").notNull().defaultNow(),
+  isActive: boolean("isActive").notNull().default(true),
+})
+
+export const notificationPreferences = pgTable("notification_preferences", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull().unique(),
+  productUpdates: boolean("productUpdates").notNull().default(true),
+  newReleases: boolean("newReleases").notNull().default(true),
+  promotions: boolean("promotions").notNull().default(true),
+  orderUpdates: boolean("orderUpdates").notNull().default(true),
+})
+
+export const abandonedCarts = pgTable("abandoned_carts", {
+  id: serial("id").primaryKey(),
+  userId: text("userId"),
+  email: text("email").notNull(),
+  cartSnapshot: jsonb("cartSnapshot").notNull(),
+  subtotalUsd: numeric("subtotalUsd", { precision: 10, scale: 2 }).notNull(),
+  recoveryToken: text("recoveryToken").notNull().unique(),
+  status: text("status").notNull().default("open"),
+  lastRemindedAt: timestamp("lastRemindedAt"),
+  recoveredAt: timestamp("recoveredAt"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
+export const visitorLogs = pgTable("visitor_logs", {
+  id: serial("id").primaryKey(),
+  visitorId: text("visitorId").notNull(),
+  path: text("path").notNull(),
+  ipAddress: text("ipAddress"),
+  userAgent: text("userAgent"),
+  referrer: text("referrer"),
+  country: text("country"),
+  deviceType: text("deviceType"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
+export const ipReputation = pgTable("ip_reputation", {
+  ipAddress: text("ipAddress").primaryKey(),
+  abuseConfidenceScore: integer("abuseConfidenceScore"),
+  totalReports: integer("totalReports"),
+  isWhitelisted: boolean("isWhitelisted"),
+  isPrivate: boolean("isPrivate").notNull().default(false),
+  isp: text("isp"),
+  usageType: text("usageType"),
+  domain: text("domain"),
+  countryCode: text("countryCode"),
+  lastCheckedAt: timestamp("lastCheckedAt").notNull().defaultNow(),
+})
+
+export const operationEvents = pgTable("operation_events", {
+  id: serial("id").primaryKey(),
+  eventType: text("eventType").notNull(),
+  entityType: text("entityType").notNull(),
+  entityId: text("entityId"),
+  status: text("status").notNull().default("open"),
+  payload: jsonb("payload"),
+  createdBy: text("createdBy"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  resolvedAt: timestamp("resolvedAt"),
+})
+
+export const referralCodes = pgTable("referral_codes", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull().unique(),
+  code: text("code").notNull().unique(),
+  rewardDiscountPercent: integer("rewardDiscountPercent").notNull().default(10),
+  refereeDiscountPercent: integer("refereeDiscountPercent").notNull().default(10),
+  redemptionCount: integer("redemptionCount").notNull().default(0),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
+export const referralRedemptions = pgTable("referral_redemptions", {
+  id: serial("id").primaryKey(),
+  referralCodeId: integer("referralCodeId")
+    .notNull()
+    .references(() => referralCodes.id, { onDelete: "cascade" }),
+  referrerUserId: text("referrerUserId").notNull(),
+  refereeUserId: text("refereeUserId").notNull().unique(),
+  refereeOrderId: integer("refereeOrderId").references(() => orders.id),
+  rewardCouponCode: text("rewardCouponCode"),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  rewardedAt: timestamp("rewardedAt"),
+})
+
+export const affiliateCodes = pgTable("affiliate_codes", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  partnerName: text("partnerName").notNull(),
+  contactEmail: text("contactEmail"),
+  commissionPercent: numeric("commissionPercent", { precision: 5, scale: 2 }).notNull().default("5"),
+  isActive: boolean("isActive").notNull().default(true),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
 export const promotionCampaigns = pgTable("promotion_campaigns", {
@@ -160,222 +394,27 @@ export const promotionCampaigns = pgTable("promotion_campaigns", {
   name: text("name").notNull(),
   code: text("code").unique(),
   description: text("description"),
-  discountType: text("discount_type").notNull().default("percent"),
-  discountValue: numeric("discount_value", { precision: 10, scale: 2 }).notNull().default("0"),
-  minOrderUsd: numeric("min_order_usd", { precision: 10, scale: 2 }).notNull().default("0"),
-  maxUses: integer("max_uses"),
-  usedCount: integer("used_count").notNull().default(0),
-  startsAt: timestamp("starts_at").notNull().defaultNow(),
-  expiresAt: timestamp("expires_at"),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  discountType: text("discountType").notNull().default("percent"),
+  discountValue: numeric("discountValue", { precision: 10, scale: 2 }).notNull().default("0"),
+  minOrderUsd: numeric("minOrderUsd", { precision: 10, scale: 2 }).notNull().default("0"),
+  maxUses: integer("maxUses"),
+  usedCount: integer("usedCount").notNull().default(0),
+  startsAt: timestamp("startsAt").notNull().defaultNow(),
+  expiresAt: timestamp("expiresAt"),
+  isActive: boolean("isActive").notNull().default(true),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
-export const productBundles = pgTable("product_bundles", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  description: text("description"),
-  discountPercent: integer("discount_percent").notNull().default(0),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-})
-
-export const operationEvents = pgTable("operation_events", {
-  id: serial("id").primaryKey(),
-  eventType: text("event_type").notNull(),
-  entityType: text("entity_type").notNull(),
-  entityId: text("entity_id"),
-  status: text("status").notNull().default("open"),
-  payload: jsonb("payload"),
-  createdBy: text("created_by"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  resolvedAt: timestamp("resolved_at"),
-})
-
-export const abandonedCarts = pgTable("abandoned_carts", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id"),
-  email: text("email").notNull(),
-  cartSnapshot: jsonb("cart_snapshot").notNull(),
-  subtotalUsd: numeric("subtotal_usd", { precision: 10, scale: 2 }).notNull().default("0"),
-  recoveryToken: text("recovery_token").notNull().unique(),
-  status: text("status").notNull().default("open"),
-  lastRemindedAt: timestamp("last_reminded_at"),
-  recoveredAt: timestamp("recovered_at"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-})
-
-export const coupons = pgTable("coupons", {
-  id: serial("id").primaryKey(),
-  code: text("code").notNull().unique(),
-  description: text("description"),
-  discountPercent: integer("discount_percent").notNull(),
-  minOrderUsd: numeric("min_order_usd", { precision: 10, scale: 2 }).notNull().default("0"),
-  maxUses: integer("max_uses"),
-  usedCount: integer("used_count").notNull().default(0),
-  expiresAt: timestamp("expires_at"),
-  isActive: boolean("is_active").notNull().default(true),
-})
-
-export const wishlistItems = pgTable(
-  "wishlist_items",
-  {
-    id: serial("id").primaryKey(),
-    userId: text("userId").notNull(),
-    productId: integer("product_id").notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-  },
-  (table) => ({
-    userProductUnique: unique().on(table.userId, table.productId),
-  }),
-)
-
-export const cartItems = pgTable("cart_items", {
-  id: serial("id").primaryKey(),
-  userId: text("userId").notNull(),
-  productId: integer("product_id").notNull(),
-  variantId: integer("variant_id").notNull(),
-  quantity: integer("quantity").notNull().default(1),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-})
-
-export const orders = pgTable("orders", {
-  id: serial("id").primaryKey(),
-  orderNumber: text("order_number").notNull().unique(),
-  userId: text("userId").notNull(),
-  status: text("status").notNull().default("completed"),
-  subtotalUsd: numeric("subtotal_usd", { precision: 10, scale: 2 }).notNull(),
-  discountUsd: numeric("discount_usd", { precision: 10, scale: 2 }).notNull().default("0"),
-  totalUsd: numeric("total_usd", { precision: 10, scale: 2 }).notNull(),
-  couponCode: text("coupon_code"),
-  affiliateCode: text("affiliate_code"),
-  referralCode: text("referral_code"),
-  billingEmail: text("billing_email").notNull(),
-  billingName: text("billing_name").notNull(),
-  paymentMethod: text("payment_method").notNull().default("card"),
-  confirmationEmailSent: boolean("confirmation_email_sent").notNull().default(false),
-  paypalOrderId: text("paypal_order_id"),
-  paypalCaptureId: text("paypal_capture_id"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-})
-
-export const referralCodes = pgTable("referral_codes", {
-  id: serial("id").primaryKey(),
-  userId: text("userId").notNull().unique(),
-  code: text("code").notNull().unique(),
-  rewardDiscountPercent: integer("reward_discount_percent").notNull().default(10),
-  refereeDiscountPercent: integer("referee_discount_percent").notNull().default(10),
-  redemptionCount: integer("redemption_count").notNull().default(0),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-})
-
-export const referralRedemptions = pgTable("referral_redemptions", {
-  id: serial("id").primaryKey(),
-  referralCodeId: integer("referral_code_id").notNull(),
-  referrerUserId: text("referrer_user_id").notNull(),
-  refereeUserId: text("referee_user_id").notNull().unique(),
-  refereeOrderId: integer("referee_order_id"),
-  rewardCouponCode: text("reward_coupon_code"),
-  status: text("status").notNull().default("pending"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  rewardedAt: timestamp("rewarded_at"),
-})
-
-export const affiliateCodes = pgTable("affiliate_codes", {
-  id: serial("id").primaryKey(),
-  code: text("code").notNull().unique(),
-  partnerName: text("partner_name").notNull(),
-  contactEmail: text("contact_email"),
-  commissionPercent: numeric("commission_percent", { precision: 5, scale: 2 }).notNull().default("5"),
-  isActive: boolean("is_active").notNull().default(true),
-  notes: text("notes"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-})
-
-export const orderItems = pgTable("order_items", {
-  id: serial("id").primaryKey(),
-  orderId: integer("order_id").notNull(),
-  productId: integer("product_id").notNull(),
-  variantId: integer("variant_id").notNull(),
-  productName: text("product_name").notNull(),
-  denominationLabel: text("denomination_label").notNull(),
-  unitPriceUsd: numeric("unit_price_usd", { precision: 10, scale: 2 }).notNull(),
-  quantity: integer("quantity").notNull().default(1),
-  redemptionCode: text("redemption_code").notNull(),
-  redemptionInstructions: text("redemption_instructions"),
-  isRevealed: boolean("is_revealed").notNull().default(false),
-  isVoided: boolean("is_voided").notNull().default(false),
-})
-
-export const supportTickets = pgTable("support_tickets", {
-  id: serial("id").primaryKey(),
-  userId: text("userId").notNull(),
-  subject: text("subject").notNull(),
-  category: text("category").notNull().default("general"),
-  message: text("message").notNull(),
-  orderNumber: text("order_number"),
-  status: text("status").notNull().default("open"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-})
-
-export const notificationPreferences = pgTable("notification_preferences", {
-  id: serial("id").primaryKey(),
-  userId: text("userId").notNull().unique(),
-  orderUpdates: boolean("order_updates").notNull().default(true),
-  deals: boolean("deals").notNull().default(true),
-  productNews: boolean("product_news").notNull().default(false),
-  accountAlerts: boolean("account_alerts").notNull().default(true),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-})
-
-export const newsletterSubscribers = pgTable("newsletter_subscribers", {
-  id: serial("id").primaryKey(),
-  email: text("email").notNull().unique(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-})
-
-export const visitorLogs = pgTable("visitor_logs", {
-  id: serial("id").primaryKey(),
-  visitorId: text("visitor_id").notNull(),
-  userId: text("user_id"),
-  path: text("path").notNull(),
-  action: text("action").notNull().default("page_view"),
-  referrer: text("referrer"),
-  ipAddress: text("ip_address"),
-  country: text("country"),
-  region: text("region"),
-  city: text("city"),
-  deviceType: text("device_type"),
-  browser: text("browser"),
-  os: text("os"),
-  userAgent: text("user_agent"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-})
-
-export const ipReputation = pgTable("ip_reputation", {
-  ipAddress: text("ip_address").primaryKey(),
-  abuseConfidenceScore: integer("abuse_confidence_score"),
-  totalReports: integer("total_reports"),
-  isWhitelisted: boolean("is_whitelisted"),
-  isPrivate: boolean("is_private").notNull().default(false),
-  isp: text("isp"),
-  usageType: text("usage_type"),
-  domain: text("domain"),
-  countryCode: text("country_code"),
-  lastCheckedAt: timestamp("last_checked_at").notNull().defaultNow(),
-})
-
-export const bulkGiftRequests = pgTable("bulk_gift_requests", {
+export const teamLicenseRequests = pgTable("team_license_requests", {
   id: serial("id").primaryKey(),
   userId: text("userId"),
-  companyName: text("company_name").notNull(),
-  contactName: text("contact_name").notNull(),
-  contactEmail: text("contact_email").notNull(),
-  productInterest: text("product_interest"),
-  quantityEstimate: integer("quantity_estimate"),
-  budgetUsd: numeric("budget_usd", { precision: 12, scale: 2 }),
+  companyName: text("companyName").notNull(),
+  contactName: text("contactName").notNull(),
+  contactEmail: text("contactEmail").notNull(),
+  productInterest: text("productInterest"),
+  seatsEstimate: integer("seatsEstimate"),
+  budgetUsd: numeric("budgetUsd", { precision: 12, scale: 2 }),
   message: text("message"),
   status: text("status").notNull().default("pending"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
 })

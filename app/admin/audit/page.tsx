@@ -11,8 +11,8 @@ import { Button } from "@/components/ui/button"
 import { RetryEventButton } from "@/components/admin/retry-event-button"
 
 export const metadata = {
-  title: "Audit log | RedeemCove Admin",
-  description: "Full operations and audit event history for RedeemCove.",
+  title: "Audit log | DistroSource Admin",
+  description: "Full operations and audit event history for DistroSource.",
 }
 
 export default async function AuditLogPage({

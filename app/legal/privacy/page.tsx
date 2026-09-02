@@ -1,7 +1,7 @@
 import { LegalPageLayout } from "@/components/legal/legal-page-layout"
 
 export const metadata = {
-  title: "Privacy Policy — RedeemCove",
+  title: "Privacy Policy — DistroSource",
 }
 
 export default function PrivacyPolicyPage() {
@@ -10,24 +10,24 @@ export default function PrivacyPolicyPage() {
       title="Privacy Policy"
       updatedAt="January 15, 2025"
       currentHref="/legal/privacy"
-      intro="This Privacy Policy explains what information RedeemCove collects, how we use it, and the choices you have. We collect only what is needed to process orders, secure your account, and improve the marketplace."
+      intro="This Privacy Policy explains what information DistroSource collects, how we use it, and the choices you have. We collect only what is needed to process orders, secure your account, and improve the marketplace."
       sections={[
         {
           heading: "1. Information we collect",
           body: (
             <>
               <p>
-                <span className="font-medium text-foreground">Account information</span> — name, email address,
-                password (stored as a secure hash), and country/region.
+                <span className="font-medium text-foreground">Account information</span> — name, email address, and
+                password (stored as a secure hash).
               </p>
               <p>
-                <span className="font-medium text-foreground">Order information</span> — products purchased, order
-                totals, payment method type (we do not store full card numbers), and delivery status of digital
-                codes.
+                <span className="font-medium text-foreground">Order information</span> — products purchased, license
+                tiers selected, order totals, payment method type (we do not store full card numbers), and download
+                history for your files.
               </p>
               <p>
                 <span className="font-medium text-foreground">Usage data</span> — pages visited, device and browser
-                type, and general location (country-level) used for fraud prevention and to tailor regional pricing.
+                type, and general location (country-level) used for fraud prevention and analytics.
               </p>
             </>
           ),
@@ -36,9 +36,10 @@ export default function PrivacyPolicyPage() {
           heading: "2. How we use your information",
           body: (
             <p>
-              We use your information to fulfill orders and deliver digital codes, authenticate your account,
-              provide customer support, detect and prevent fraud, send transactional emails (order confirmations,
-              receipts), and, if you opt in, send marketing emails about deals and new brands.
+              We use your information to fulfill orders and grant download access to your files, authenticate your
+              account, provide customer support, detect and prevent fraud, send transactional emails (order
+              confirmations, receipts, product update notices), and, if you opt in, send marketing emails about
+              deals and new products.
             </p>
           ),
         },
@@ -46,25 +47,15 @@ export default function PrivacyPolicyPage() {
           heading: "3. Payment processing",
           body: (
             <p>
-              Payments are processed by PCI-compliant third-party payment processors. RedeemCove does not store your
-              full card number, CVV, or bank credentials on our servers. Payment processors may share limited
-              transaction data with us (such as approval status and card type) to complete and reconcile your order.
+              Payments are processed by PCI-compliant third-party payment processors. DistroSource does not store
+              your full card number, CVV, or bank credentials on our servers. Payment processors may share limited
+              transaction data with us (such as approval status and card type) to complete and reconcile your
+              order.
             </p>
           ),
         },
         {
-          heading: "4. Sharing with fulfillment partners",
-          body: (
-            <p>
-              To deliver certain gift cards, mobile top-ups, and game currency, we share the minimum information
-              required (such as product SKU, denomination, and recipient mobile number for top-ups) with our
-              authorized distribution and fulfillment partners. These partners are contractually required to use
-              this information only to fulfill your order.
-            </p>
-          ),
-        },
-        {
-          heading: "5. Cookies and tracking",
+          heading: "4. Cookies and tracking",
           body: (
             <p>
               We use cookies and similar technologies for authentication, shopping cart persistence, and analytics.
@@ -75,7 +66,7 @@ export default function PrivacyPolicyPage() {
           ),
         },
         {
-          heading: "6. Data retention",
+          heading: "5. Data retention",
           body: (
             <p>
               We retain account and order data for as long as your account is active and as needed to comply with
@@ -85,7 +76,7 @@ export default function PrivacyPolicyPage() {
           ),
         },
         {
-          heading: "7. Your rights",
+          heading: "6. Your rights",
           body: (
             <p>
               Depending on your region, you may have the right to access, correct, export, or delete your personal
@@ -95,27 +86,27 @@ export default function PrivacyPolicyPage() {
           ),
         },
         {
-          heading: "8. Security",
+          heading: "7. Security",
           body: (
             <p>
               We use encryption in transit (HTTPS), password hashing, and access controls to protect your
-              information. No online service is 100% secure, but we continuously monitor for vulnerabilities and
-              respond promptly to reported issues.
+              information and your purchased files. No online service is 100% secure, but we continuously monitor
+              for vulnerabilities and respond promptly to reported issues.
             </p>
           ),
         },
         {
-          heading: "9. Children's privacy",
+          heading: "8. Children's privacy",
           body: (
             <p>
-              RedeemCove is not directed at children under 16, and we do not knowingly collect personal information
-              from them. If you believe a child has provided us with personal data, please contact us so we can
-              remove it.
+              DistroSource is not directed at children under 16, and we do not knowingly collect personal
+              information from them. If you believe a child has provided us with personal data, please contact us
+              so we can remove it.
             </p>
           ),
         },
         {
-          heading: "10. Contact",
+          heading: "9. Contact",
           body: (
             <p>
               For privacy questions or data requests, reach out via our{" "}

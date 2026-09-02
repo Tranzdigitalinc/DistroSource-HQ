@@ -1,59 +1,69 @@
 import {
-  Gamepad2,
-  Gift,
-  Smartphone,
-  Laptop2,
-  UtensilsCrossed,
-  Users,
-  Clapperboard,
-  ShoppingBag,
-  Plane,
-  Bitcoin,
-  CreditCard,
+  Globe,
+  Rocket,
+  Briefcase,
+  Sheet,
+  StickyNote,
+  Type,
+  Palette,
+  Shapes,
+  Layers,
+  Sparkles,
+  Share2,
+  Megaphone,
+  Presentation,
+  FileUser,
+  GraduationCap,
+  Baby,
+  Heart,
+  NotebookPen,
+  Brush,
+  Camera,
   Music,
-  Tv,
+  Box,
+  Scissors,
+  MonitorSmartphone,
+  Code2,
+  FileText,
+  Users,
+  Package,
   type LucideIcon,
 } from "lucide-react"
 
-// Explicit icon-name mapping (used when a category has a known icon_name).
+// Explicit slug -> icon mapping for DistroSource's digital-product categories.
 export const categoryIconMap: Record<string, LucideIcon> = {
-  "gamepad-2": Gamepad2,
-  gift: Gift,
-  smartphone: Smartphone,
-  "laptop-2": Laptop2,
-  utensils: UtensilsCrossed,
-  users: Users,
-  clapperboard: Clapperboard,
-  "shopping-bag": ShoppingBag,
-  plane: Plane,
-  bitcoin: Bitcoin,
-  "credit-card": CreditCard,
-  music: Music,
-  tv: Tv,
+  "website-templates": Globe,
+  "business-starter-kits": Rocket,
+  "industry-business-packs": Briefcase,
+  "spreadsheet-systems": Sheet,
+  "notion-productivity": StickyNote,
+  "fonts-typography": Type,
+  "graphics-illustrations": Palette,
+  icons: Shapes,
+  mockups: Layers,
+  "branding-kits": Sparkles,
+  "social-media-packs": Share2,
+  "marketing-resources": Megaphone,
+  presentations: Presentation,
+  "resume-career": FileUser,
+  "learning-education": GraduationCap,
+  "kids-family": Baby,
+  "wedding-events": Heart,
+  "personal-planners": NotebookPen,
+  "creator-resources": Brush,
+  "photography-video": Camera,
+  "audio-sound-effects": Music,
+  "3d-stl-models": Box,
+  "svg-craft-files": Scissors,
+  "ui-ux-kits": MonitorSmartphone,
+  "developer-products": Code2,
+  "business-documents": FileText,
+  "freelancer-resources": Users,
+  "premium-bundles": Package,
 }
 
-// Keyword-based fallback that resolves an icon from a category name or slug.
-// Reloadly categories don't carry usable icon names, so we infer from the label.
-const keywordIcons: Array<{ match: string[]; icon: LucideIcon }> = [
-  { match: ["game", "gaming", "playstation", "xbox", "steam", "roblox"], icon: Gamepad2 },
-  { match: ["entertain", "stream", "movie", "video", "netflix", "tv"], icon: Clapperboard },
-  { match: ["music", "spotify", "audio"], icon: Music },
-  { match: ["shop", "retail", "ecommerce", "store", "amazon"], icon: ShoppingBag },
-  { match: ["travel", "flight", "hotel", "airline"], icon: Plane },
-  { match: ["crypto", "bitcoin", "token", "wallet"], icon: Bitcoin },
-  { match: ["payment", "card", "visa", "mastercard", "prepaid"], icon: CreditCard },
-  { match: ["software", "app", "productivity", "cloud"], icon: Laptop2 },
-  { match: ["mobile", "topup", "top-up", "airtime", "phone"], icon: Smartphone },
-  { match: ["food", "dining", "restaurant", "delivery"], icon: UtensilsCrossed },
-  { match: ["social", "community"], icon: Users },
-]
-
 export function getCategoryIcon(value: string | null | undefined): LucideIcon {
-  if (!value) return Gift
+  if (!value) return Package
   const key = value.toLowerCase()
-  if (categoryIconMap[key]) return categoryIconMap[key]
-  for (const entry of keywordIcons) {
-    if (entry.match.some((m) => key.includes(m))) return entry.icon
-  }
-  return Gift
+  return categoryIconMap[key] ?? Package
 }

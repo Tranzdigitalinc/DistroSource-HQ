@@ -4,10 +4,9 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const sortOptions = [
-  { value: "popular", label: "Most popular" },
+  { value: "featured", label: "Featured" },
   { value: "newest", label: "Newest" },
   { value: "rating", label: "Highest rated" },
-  { value: "best-value", label: "Best value" },
   { value: "price-asc", label: "Price: low to high" },
   { value: "price-desc", label: "Price: high to low" },
 ]
@@ -16,11 +15,11 @@ export function CatalogToolbar({ resultCount }: { resultCount: number }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const currentSort = searchParams.get("sort") ?? "popular"
+  const currentSort = searchParams.get("sort") ?? "featured"
 
   function setSort(value: string | null) {
     const params = new URLSearchParams(searchParams.toString())
-    if (value && value !== "popular") {
+    if (value && value !== "featured") {
       params.set("sort", value)
     } else {
       params.delete("sort")

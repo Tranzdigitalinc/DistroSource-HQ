@@ -4,17 +4,21 @@ import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { X } from "lucide-react"
 import { getCategoryIcon } from "@/lib/category-icons"
-import { FlagIcon } from "@/components/flag-icon"
 import { cn } from "@/lib/utils"
-import type { getCategories, getBrands, getCountries } from "@/lib/queries/catalog"
+import type { getCategories } from "@/lib/queries/catalog"
 
 interface Props {
   categories: Awaited<ReturnType<typeof getCategories>>
-  brands: Awaited<ReturnType<typeof getBrands>>
-  countries: Awaited<ReturnType<typeof getCountries>>
 }
 
-export function CatalogFilters({ categories, brands, countries }: Props) {
+const priceOptions = [
+  { label: "Under $10", value: "10" },
+  { label: "Under $25", value: "25" },
+  { label: "Under $50", value: "50" },
+  { label: "Under $100", value: "100" },
+]
+
+export function CatalogFilters({ categories }: Props) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -26,12 +30,10 @@ export function CatalogFilters({ categories, brands, countries }: Props) {
   }
 
   const activeCategory = searchParams.get("category")
-  const activeBrand = searchParams.get("brand")
-  const activeCountry = searchParams.get("country")
-  const activeDelivery = searchParams.get("delivery")
-  const activeDiscount = searchParams.get("discount")
   const activeMaxPrice = searchParams.get("maxPrice")
-  const hasActiveFilters = Boolean(activeCategory || activeBrand || activeCountry || activeDelivery || activeDiscount || activeMaxPrice)
+  const activeFree = searchParams.get("free")
+  const activeBundle = searchParams.get("bundle")
+  const hasActiveFilters = Boolean(activeCategory || activeMaxPrice || activeFree || activeBundle)
 
   return (
     <aside className="flex w-full flex-col gap-5 lg:w-64">
@@ -53,7 +55,7 @@ export function CatalogFilters({ categories, brands, countries }: Props) {
           <FilterGroup title="Category">
             <FilterLink href={buildHref("category", null)} active={!activeCategory} label="All categories" />
             {categories.map((c) => {
-              const Icon = getCategoryIcon(c.name)
+              const Icon = getCategoryIcon(c.slug)
               return (
                 <FilterLink
                   key={c.slug}
@@ -66,43 +68,21 @@ export function CatalogFilters({ categories, brands, countries }: Props) {
             })}
           </FilterGroup>
 
-          <FilterGroup title="Country">
-            <FilterLink href={buildHref("country", null)} active={!activeCountry} label="All countries" />
-            {countries.slice(0, 10).map((c) => (
-              <FilterLink
-                key={c.code}
-                href={buildHref("country", c.code)}
-                active={activeCountry === c.code}
-                label={c.name}
-                countryCode={c.code}
-              />
-            ))}
-          </FilterGroup>
-
-          <FilterGroup title="Delivery">
-            <FilterLink href={buildHref("delivery", null)} active={!activeDelivery} label="All delivery types" />
-            <FilterLink href={buildHref("delivery", "instant_code")} active={activeDelivery === "instant_code"} label="Instant code" />
-            <FilterLink href={buildHref("delivery", "top_up")} active={activeDelivery === "top_up"} label="Top-up" />
-          </FilterGroup>
-
-          <FilterGroup title="Value">
-            <FilterLink href={buildHref("discount", null)} active={!activeDiscount} label="Any discount" />
-            <FilterLink href={buildHref("discount", "10")} active={activeDiscount === "10"} label="10% or more" />
-            <FilterLink href={buildHref("discount", "20")} active={activeDiscount === "20"} label="20% or more" />
+          <FilterGroup title="Price">
             <FilterLink href={buildHref("maxPrice", null)} active={!activeMaxPrice} label="Any price" />
-            <FilterLink href={buildHref("maxPrice", "50")} active={activeMaxPrice === "50"} label="Under $50" />
-          </FilterGroup>
-
-          <FilterGroup title="Brand">
-            <FilterLink href={buildHref("brand", null)} active={!activeBrand} label="All brands" />
-            {brands.slice(0, 14).map((b) => (
+            {priceOptions.map((opt) => (
               <FilterLink
-                key={b.slug}
-                href={buildHref("brand", b.slug)}
-                active={activeBrand === b.slug}
-                label={b.name}
+                key={opt.value}
+                href={buildHref("maxPrice", opt.value)}
+                active={activeMaxPrice === opt.value}
+                label={opt.label}
               />
             ))}
+          </FilterGroup>
+
+          <FilterGroup title="Type">
+            <FilterLink href={buildHref("free", "true")} active={activeFree === "true"} label="Free resources" />
+            <FilterLink href={buildHref("bundle", "true")} active={activeBundle === "true"} label="Premium bundles" />
           </FilterGroup>
         </div>
       </div>
@@ -124,13 +104,11 @@ function FilterLink({
   active,
   label,
   icon,
-  countryCode,
 }: {
   href: string
   active: boolean
   label: string
   icon?: React.ReactNode
-  countryCode?: string | null
 }) {
   return (
     <Link
@@ -146,7 +124,6 @@ function FilterLink({
           active ? "bg-primary" : "bg-transparent group-hover:bg-border",
         )}
       />
-      {countryCode && <FlagIcon code={countryCode} />}
       {icon && <span className={cn("shrink-0", active ? "text-primary" : "text-muted-foreground")}>{icon}</span>}
       <span className="truncate">{label}</span>
     </Link>

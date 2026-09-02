@@ -7,18 +7,18 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 const badges = [
   {
     icon: Zap,
-    title: "Instant delivery",
-    body: "Codes land in your account and inbox within seconds of payment — no waiting, no queues.",
+    title: "Instant access",
+    body: "Every purchase unlocks in My Library the moment payment clears — no waiting, no queues.",
   },
   {
     icon: ShieldCheck,
     title: "Secure checkout",
-    body: "Every order is encrypted end-to-end and every code is generated fresh at the point of sale.",
+    body: "Every order is encrypted end-to-end and download links are gated to your account only.",
   },
   {
     icon: RefreshCcw,
-    title: "Verified codes",
-    body: "Every catalog listing is sourced directly from authorized distributors and publishers.",
+    title: "Real, working files",
+    body: "Nothing goes live until it has real preview images and a real sample file to download.",
   },
   {
     icon: Headphones,
@@ -33,11 +33,11 @@ export function TrustBadges() {
       <div className="mx-auto max-w-7xl px-6 py-16 sm:px-8">
         <Reveal className="mb-10 max-w-2xl">
           <h2 className="font-display text-2xl font-medium tracking-tight text-foreground sm:text-3xl">
-            Why shoppers trust RedeemCove
+            Why shoppers trust DistroSource
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            No middlemen guesswork, no delivery delays — just a straightforward marketplace built around getting
-            your code into your hands correctly, the first time.
+            No guesswork, no delivery delays — just a straightforward department store built around getting the
+            right file into your hands correctly, the first time.
           </p>
         </Reveal>
         <RevealGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" stagger={0.08}>

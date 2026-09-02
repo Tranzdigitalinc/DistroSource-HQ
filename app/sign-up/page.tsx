@@ -15,7 +15,7 @@ export default async function SignUpPage({
   if (session?.user) redirect(redirectTo)
 
   return (
-    <AuthShell title="Create your account" subtitle="Join RedeemCove to buy, track, and manage your digital codes.">
+    <AuthShell title="Create your account" subtitle="Join DistroSource to buy, download, and manage your digital products.">
       <AuthForm mode="sign-up" redirectTo={redirectTo} />
     </AuthShell>
   )

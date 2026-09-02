@@ -6,28 +6,28 @@ import { Reveal } from "@/components/motion/reveal"
 import { ContactForm } from "@/components/contact/contact-form"
 
 export const metadata = {
-  title: "Contact Us — RedeemCove",
-  description: "Get in touch with the RedeemCove team for order support, billing questions, or business inquiries.",
+  title: "Contact Us — DistroSource",
+  description: "Get in touch with the DistroSource team for order support, licensing questions, or business inquiries.",
 }
 
 const channels = [
   {
     icon: MessageCircle,
     title: "Order & account support",
-    description: "For delivery issues, refunds, or account access — fastest way to reach us.",
+    description: "For download issues, license activation, or account access — fastest way to reach us.",
     action: { label: "Visit the Help Center", href: "/help" },
   },
   {
     icon: Mail,
     title: "General inquiries",
     description: "Press, partnerships, or anything that doesn't fit elsewhere.",
-    action: { label: "hello@redeemcove.com", href: "mailto:hello@redeemcove.com" },
+    action: { label: "hello@distrosource.com", href: "mailto:hello@distrosource.com" },
   },
   {
     icon: Building2,
-    title: "Business & bulk gifting",
-    description: "Volume orders, employee rewards, and corporate gifting programs.",
-    action: { label: "business@redeemcove.com", href: "mailto:business@redeemcove.com?subject=Bulk%20gifting%20inquiry" },
+    title: "Business & team licensing",
+    description: "Volume seats, agency use, and team licensing programs.",
+    action: { label: "business@distrosource.com", href: "mailto:business@distrosource.com?subject=Team%20licensing%20inquiry" },
   },
 ]
 
