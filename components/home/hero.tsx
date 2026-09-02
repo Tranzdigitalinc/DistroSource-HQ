@@ -5,8 +5,6 @@ import Link from "next/link"
 import { motion } from "motion/react"
 import { Button } from "@/components/ui/button"
 import { PriceDisplay } from "@/components/price-display"
-import { AuroraBackground } from "@/components/velora/aurora-background"
-import { Particles } from "@/components/velora/particles"
 import { AnimatedGradientText } from "@/components/velora/animated-gradient-text"
 import { Typewriter } from "@/components/velora/typewriter"
 import { NumberTicker } from "@/components/velora/number-ticker"
@@ -79,10 +77,6 @@ export function Hero({ stats, products }: { stats: HeroStats; products: ProductC
 
   return (
     <section className="relative overflow-hidden border-b border-border bg-hero">
-      {/* Velora aurora backdrop, tinted to the amber brand gradient, kept subtle behind the grid */}
-      <AuroraBackground intensity="subtle" />
-      <Particles quantity={70} className="opacity-70" />
-
       {/* Fine grid texture — the catalog identity's graph-paper base */}
       <div
         aria-hidden
