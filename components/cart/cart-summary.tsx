@@ -58,7 +58,7 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
   }
 
   return (
-    <div className="flex flex-col gap-5 border border-border bg-card p-5 sm:p-6">
+    <div className="flex flex-col gap-5 border border-border bg-card p-5 shadow-sm sm:p-6">
       <div className="flex items-start justify-between gap-4 border-b border-border pb-4">
         <div>
           <h2 className="font-display text-lg font-bold">Order summary</h2>

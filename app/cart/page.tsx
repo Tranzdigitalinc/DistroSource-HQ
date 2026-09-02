@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ShoppingBag, ArrowRight, Tag } from "lucide-react"
+import { ShoppingBag, ArrowRight, Tag, Sparkles } from "@/lib/storefront-icons"
 import { getCartItems } from "@/lib/actions/cart"
 import { CartItemsList } from "@/components/cart/cart-items-list"
 import { CartSummary } from "@/components/cart/cart-summary"
@@ -21,9 +21,14 @@ export default async function CartPage() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
-          <div className="mb-6 flex items-baseline gap-3 border-b border-border pb-5">
-            <h1 className="font-display text-2xl font-bold md:text-3xl">Your cart</h1>
+        <div className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
+          <div className="mb-8 flex flex-col gap-3 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="mb-2 flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+                <Sparkles className="size-3.5" aria-hidden="true" /> Ready when you are
+              </p>
+              <h1 className="font-display text-3xl font-bold tracking-tight md:text-4xl">Your cart</h1>
+            </div>
             {items.length > 0 && (
               <span className="border border-primary/30 bg-primary/10 px-2.5 py-0.5 font-mono text-xs font-semibold text-primary">
                 {totalItems} {totalItems === 1 ? "item" : "items"}
@@ -32,7 +37,7 @@ export default async function CartPage() {
           </div>
 
           {items.length === 0 ? (
-            <Reveal className="flex flex-col items-center gap-5 border border-dashed border-border bg-card py-20 text-center">
+            <Reveal className="flex flex-col items-center gap-5 border border-dashed border-border bg-card px-6 py-20 text-center shadow-sm">
               <div className="flex size-16 items-center justify-center border border-border bg-secondary">
                 <ShoppingBag className="size-7 text-muted-foreground" aria-hidden="true" />
               </div>
@@ -59,7 +64,7 @@ export default async function CartPage() {
               </div>
             </Reveal>
           ) : (
-            <div className="grid grid-cols-1 gap-6 lg:gap-8 lg:grid-cols-[1fr_360px]">
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px] lg:gap-8">
               <div className="border border-border bg-card px-5">
                 <CartItemsList
                   items={items.map((item) => ({

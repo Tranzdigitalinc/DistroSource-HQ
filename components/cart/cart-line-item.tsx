@@ -77,7 +77,7 @@ export function CartLineItem({
       animate={{ opacity: isRemoving ? 0.4 : 1, y: 0 }}
       exit={{ opacity: 0, x: -24, height: 0, marginTop: 0, marginBottom: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex gap-3 border-b border-border py-5 last:border-0 sm:gap-4"
+      className="flex gap-3 border-b border-border py-5 last:border-0 sm:gap-5"
     >
       <Link
         href={`/products/${productSlug}`}

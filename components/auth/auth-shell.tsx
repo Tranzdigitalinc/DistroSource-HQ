@@ -1,4 +1,4 @@
-import { Check, LockKeyhole, Zap } from "lucide-react"
+import { Check, LockKeyhole, Zap } from "@/lib/storefront-icons"
 import { SiteHeaderClient } from "@/components/header/site-header-client"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { getCatalogStats } from "@/lib/queries/catalog"
@@ -26,7 +26,7 @@ export async function AuthShell({
             </div>
             <h1 className="font-display text-2xl font-bold tracking-tight text-balance">{title}</h1>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{subtitle}</p>
-            <div className="mt-7 rounded-2xl border border-border/70 bg-card/70 p-4 shadow-sm sm:p-6">{children}</div>
+            <div className="mt-7 border border-border/70 bg-card/80 p-4 shadow-sm backdrop-blur-sm sm:p-6">{children}</div>
             <div className="mt-6 grid grid-cols-3 gap-2 text-center text-[11px] text-muted-foreground">
               <div className="rounded-xl bg-secondary/60 px-2 py-3"><Zap className="mx-auto mb-1 size-4 text-primary" />Fast delivery</div>
               <div className="rounded-xl bg-secondary/60 px-2 py-3"><LockKeyhole className="mx-auto mb-1 size-4 text-primary" />Protected</div>
