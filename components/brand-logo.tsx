@@ -21,7 +21,16 @@ export function BrandLogo({
         width={2172}
         height={724}
         loading="lazy"
-        className="h-full w-auto max-w-[min(46vw,270px)] object-contain object-left"
+        className="h-full w-auto max-w-[min(46vw,270px)] object-contain object-left dark:hidden"
+      />
+      <Image
+        src="/images/distro-source-logo-dark.png"
+        alt="DistroSource — Digital Products. Endless Possibilities."
+        width={2172}
+        height={724}
+        loading="lazy"
+        aria-hidden="true"
+        className="hidden h-full w-auto max-w-[min(46vw,270px)] object-contain object-left dark:block"
       />
     </span>
   )
