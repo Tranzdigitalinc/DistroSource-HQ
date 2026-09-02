@@ -17,6 +17,7 @@ import {
   getTopReviews,
 } from "@/lib/queries/catalog"
 import { Testimonials } from "@/components/home/testimonials"
+import { ShopByGoal } from "@/components/home/shop-by-goal"
 
 const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["homepage", key], { revalidate: 300 })
 
@@ -37,6 +38,7 @@ export default async function HomePage() {
       <main className="flex-1">
         <Hero stats={stats} />
         <QuickCategoryNav categories={categories} />
+        <ShopByGoal />
         <CategoryGrid categories={categories} />
         <ProductRail title="Featured products" href="/products" items={featured} />
         <ProductRail
