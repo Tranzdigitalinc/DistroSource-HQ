@@ -40,7 +40,7 @@ export function WishlistButton({ productId, className }: { productId: number; cl
       aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
       aria-pressed={isWishlisted}
       className={cn(
-        "flex size-8 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm ring-1 ring-border/60 backdrop-blur transition-colors hover:bg-background",
+        "flex size-8 items-center justify-center border border-border bg-background/95 text-foreground backdrop-blur transition-colors hover:bg-background",
         className,
       )}
     >

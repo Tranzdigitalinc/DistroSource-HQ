@@ -71,9 +71,9 @@ export function PurchasePanel({
   if (!selected) return null
 
   return (
-    <div className="flex flex-col gap-6 rounded-xl border border-border bg-card p-6">
+    <div className="flex flex-col gap-6 border border-border bg-card p-6">
       <div>
-        <p className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <p className="mb-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
           Choose a license
         </p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -82,16 +82,16 @@ export function PurchasePanel({
               key={license.id}
               type="button"
               onClick={() => { setSelectedId(license.id); setQuantity(1) }}
-              whileTap={{ scale: 0.96 }}
+              whileTap={{ scale: 0.98 }}
               className={cn(
-                "relative flex flex-col items-start gap-0.5 rounded-lg border px-3 py-2.5 text-left transition-all",
+                "relative flex flex-col items-start gap-0.5 border px-3 py-2.5 text-left transition-colors",
                 selectedId === license.id
-                  ? "border-accent bg-accent/10 ring-1 ring-accent"
-                  : "border-border hover:border-accent/40",
+                  ? "border-primary bg-primary/5"
+                  : "border-border hover:border-primary/40",
               )}
             >
               <span className="text-sm font-semibold">{formatLicenseType(license.licenseType)}</span>
-              <span className="text-xs text-muted-foreground">
+              <span className="font-mono text-xs text-muted-foreground">
                 <PriceDisplay usdAmount={Number.parseFloat(license.price)} />
               </span>
               {license.description && (
@@ -102,7 +102,10 @@ export function PurchasePanel({
         </div>
       </div>
 
-      <div className="flex items-center justify-between rounded-lg bg-secondary/50 px-4 py-3">
+      <div className="flex items-center justify-between border border-dashed border-border bg-secondary/50 px-4 py-3">
+        <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+          Total
+        </span>
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.span
             key={`${selected.id}-${quantity}`}
@@ -110,7 +113,7 @@ export function PurchasePanel({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 6 }}
             transition={{ duration: 0.18 }}
-            className="font-display text-2xl font-bold"
+            className="font-mono text-2xl font-bold"
           >
             <PriceDisplay usdAmount={Number.parseFloat(selected.price) * quantity} />
           </motion.span>
@@ -118,11 +121,11 @@ export function PurchasePanel({
       </div>
 
       <div className="flex items-center gap-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Qty</p>
-        <div className="flex items-center rounded-lg border border-border">
+        <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Qty</p>
+        <div className="flex items-center border border-border">
           <motion.button
             type="button"
-            whileTap={{ scale: 0.85 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
             disabled={quantity <= 1}
@@ -130,10 +133,10 @@ export function PurchasePanel({
           >
             <Minus className="size-3.5" />
           </motion.button>
-          <span className="w-8 text-center text-sm font-medium">{quantity}</span>
+          <span className="w-8 text-center font-mono text-sm font-medium">{quantity}</span>
           <motion.button
             type="button"
-            whileTap={{ scale: 0.85 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => setQuantity((q) => Math.min(10, q + 1))}
             className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
             disabled={quantity >= 10}
@@ -148,7 +151,10 @@ export function PurchasePanel({
         <Button
           onClick={handleAddToCart}
           disabled={isPending || justAdded}
-          className={cn("h-11 flex-1 font-semibold transition-all", justAdded && "bg-success hover:bg-success")}
+          className={cn(
+            "h-11 flex-1 rounded-[3px] font-mono text-sm font-semibold uppercase tracking-[0.02em] transition-colors",
+            justAdded && "bg-success hover:bg-success",
+          )}
         >
           {justAdded ? (
             <>
@@ -167,15 +173,15 @@ export function PurchasePanel({
           disabled={isPending}
           variant="outline"
           size="icon"
-          className="size-11 shrink-0 bg-transparent"
+          className="size-11 shrink-0 rounded-[3px] bg-transparent"
           aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
           <Heart className={cn("size-4.5 transition-all", wishlisted && "fill-destructive text-destructive scale-110")} />
         </Button>
       </div>
 
-      <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-        <Download className="size-3 text-accent" />
+      <div className="flex items-center gap-1.5 font-mono text-[11px] font-medium text-muted-foreground">
+        <Download className="size-3 text-primary" />
         Instant access — download from My Library right after purchase
       </div>
     </div>
