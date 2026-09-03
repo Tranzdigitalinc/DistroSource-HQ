@@ -15,10 +15,6 @@ export function getPolarClient() {
   })
 }
 
-export function getPolarProductId() {
-  return required("POLAR_PRODUCT_ID")
-}
-
 export function getPolarWebhookSecret() {
   return required("POLAR_WEBHOOK_SECRET")
 }

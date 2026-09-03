@@ -109,6 +109,7 @@ export const products = pgTable("products", {
   subcategory: text("subcategory"),
   features: text("features").array().notNull().default([]),
   searchKeywords: text("searchKeywords").array().notNull().default([]),
+  polarProductId: text("polarProductId"),
   releaseDate: timestamp("releaseDate").notNull().defaultNow(),
   // --- Product rights / inventory compliance -------------------------------
   // sourceType: distrosource_original | verified_creator | licensed_supplier | external_affiliate

@@ -20,7 +20,7 @@ import { generateOrderNumber } from "@/lib/format"
 import { sendOrderConfirmationEmail, sendReferralRewardEmail } from "@/lib/email"
 import { capturePaypalOrder, createPaypalOrder, refundPaypalCapture } from "@/lib/paypal"
 import { getOptionalOwnerId, getOwnerId, getSession } from "@/lib/session"
-import { getPolarClient, getPolarProductId, polarCheckoutUrl, polarAmountInCents } from "@/lib/polar"
+import { getPolarClient, polarCheckoutUrl, polarAmountInCents } from "@/lib/polar"
 import { and, eq, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
@@ -94,6 +94,7 @@ interface OrderPricing {
     licenseType: string
     unitPriceUsd: number
     quantity: number
+    polarProductId: string | null
   }[]
   promotion: ValidatedCoupon | null
   coupon: ValidatedCoupon | null
@@ -134,6 +135,7 @@ export async function computeOrderPricing(
     subtotal += unitPrice * quantity
     return {
       productId: r.product.id,
+      polarProductId: r.product.polarProductId,
       licenseId: r.license.id,
       productName: r.product.name,
       licenseType: r.license.licenseType,
@@ -433,6 +435,10 @@ export async function createPolarCheckout(input: {
   const cookieStore = await cookies()
   const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
   if (pricing.total <= 0) throw new Error("Your order total is $0 after discounts — use the free checkout instead of Polar.")
+  const polarProductIds = [...new Set(pricing.validatedItems.map((item) => item.polarProductId).filter((id): id is string => Boolean(id)))]
+  if (polarProductIds.length !== new Set(pricing.validatedItems.map((item) => item.productId)).size) {
+    throw new Error("One or more products in your cart are not activated for Polar checkout yet.")
+  }
 
   await db.insert(operationEvents).values({
     eventType: "checkout_started",
@@ -444,7 +450,7 @@ export async function createPolarCheckout(input: {
   })
 
   const checkout = await getPolarClient().checkouts.create({
-    products: [getPolarProductId()],
+    products: polarProductIds,
     amount: polarAmountInCents(pricing.total),
     currency: "usd",
     customerEmail: billingEmail,
