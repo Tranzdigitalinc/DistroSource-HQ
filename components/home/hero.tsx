@@ -15,8 +15,6 @@ interface HeroStats {
   avgRating: number
 }
 
-type SearchItem = { slug: string; name: string }
-
 const CATEGORY_LINE = ["Templates", "UI Kits", "Business Tools", "Graphics", "Code", "Fonts", "3D"]
 
 const EASE = [0.16, 1, 0.3, 1] as const
@@ -26,7 +24,7 @@ const item = {
   visible: { opacity: 1, y: 0 },
 }
 
-export function Hero({ stats, categories }: { stats: HeroStats; categories: SearchItem[] }) {
+export function Hero({ stats }: { stats: HeroStats }) {
   return (
     <section className="relative overflow-hidden border-b border-border bg-hero">
       {/* Fine grid texture — the catalog identity's graph-paper base */}
@@ -77,8 +75,8 @@ export function Hero({ stats, categories }: { stats: HeroStats; categories: Sear
           ))}
         </motion.p>
 
-        <motion.div variants={item} transition={{ duration: 0.2, ease: EASE }} className="w-full max-w-xl">
-          <HeaderSearch size="lg" categories={categories} />
+        <motion.div variants={item} transition={{ duration: 0.2, ease: EASE }} className="relative z-20 w-full max-w-xl">
+          <HeaderSearch size="lg" />
         </motion.div>
 
         <motion.div

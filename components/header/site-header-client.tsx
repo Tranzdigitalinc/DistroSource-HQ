@@ -14,8 +14,6 @@ type Subcategory = { id: number; slug: string; name: string; description: string
 type Department = Subcategory & { subcategories: Subcategory[] }
 
 export function SiteHeaderClient({ departments = [] }: { departments?: Department[] }) {
-  const subcategories = departments.flatMap((department) => department.subcategories)
-
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/98 backdrop-blur-sm supports-backdrop-filter:bg-background/90">
       <TrustStrip />
@@ -23,10 +21,10 @@ export function SiteHeaderClient({ departments = [] }: { departments?: Departmen
         <MobileNav departments={departments} />
         <Link href="/" className="flex min-w-0 shrink items-center gap-2 transition-opacity hover:opacity-90"><BrandLogo href={null} heightClassName="h-16 sm:h-20" /></Link>
         <DesktopNav departments={departments} />
-        <HeaderSearch className="mx-auto hidden max-w-md flex-1 md:block" categories={subcategories} />
+        <HeaderSearch className="mx-auto hidden max-w-md flex-1 md:block" />
         <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1"><ThemeToggle /><CartTrigger /><AccountMenu /></div>
       </div>
-      <div className="border-t border-border/60 px-4 py-2 md:hidden"><HeaderSearch categories={subcategories} /></div>
+      <div className="border-t border-border/60 px-4 py-2 md:hidden"><HeaderSearch /></div>
     </header>
   )
 }

@@ -29,13 +29,11 @@ export default async function HomePage() {
       cache(getMarketplaceStats, "stats")(),
     ])
 
-  const subcategories = departments.flatMap((department) => department.subcategories)
-
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <Hero stats={stats} categories={subcategories} />
+        <Hero stats={stats} />
         <CategoryGrid categories={departments} />
         <ProductRail title="Featured products" href="/products" items={featured} />
         <ProductRail

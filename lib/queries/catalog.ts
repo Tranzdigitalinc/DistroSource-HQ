@@ -279,13 +279,20 @@ function buildProductConditions(options: ProductQueryOptions) {
   const conditions = options.statusFilter === "all" ? [] : [publiclyVisible()]
 
   if (options.search) {
-    const term = `%${options.search.trim()}%`
+    const raw = options.search.trim()
+    const term = `%${raw}%`
     conditions.push(
       or(
         ilike(products.name, term),
         ilike(products.tagline, term),
         ilike(products.description, term),
         sql`exists (select 1 from unnest(${products.tags}) as tag where tag ilike ${term})`,
+        sql`exists (select 1 from unnest(${products.searchKeywords}) as kw where kw ilike ${term})`,
+        // word_similarity finds the best-matching word/phrase *within* the longer name or
+        // tagline, so typos like "tempalte" still surface "Annual Report Template" even
+        // though a plain-similarity comparison against the whole string would be diluted.
+        sql`word_similarity(${raw}, ${products.name}) > 0.4`,
+        sql`word_similarity(${raw}, coalesce(${products.tagline}, '')) > 0.4`,
       )!,
     )
   }
@@ -338,6 +345,12 @@ export async function getProducts(options: ProductQueryOptions = {}) {
   }
 
   const ratingAverage = sql<number>`coalesce((select avg(${reviews.rating}) from ${reviews} where ${reviews.productId} = ${products.id}), 0)`
+  // When the caller searched by keyword and didn't ask for an explicit sort,
+  // rank the closest name/tagline matches first instead of falling back to
+  // the generic "featured" ordering.
+  const searchRelevance = options.search
+    ? sql<number>`greatest(word_similarity(${options.search.trim()}, ${products.name}), word_similarity(${options.search.trim()}, coalesce(${products.tagline}, '')) * 0.6)`
+    : null
   const orderBy =
     options.sort === "newest"
       ? [desc(products.createdAt)]
@@ -345,7 +358,9 @@ export async function getProducts(options: ProductQueryOptions = {}) {
         ? [asc(products.basePrice)]
         : options.sort === "rating"
           ? [desc(ratingAverage), desc(products.isFeatured), desc(products.createdAt)]
-          : [desc(products.isFeatured), desc(products.createdAt)]
+          : searchRelevance
+            ? [desc(searchRelevance), desc(products.isFeatured), desc(products.createdAt)]
+            : [desc(products.isFeatured), desc(products.createdAt)]
 
   const rows = await db
     .select({ product: products, category: categories })
@@ -368,6 +383,90 @@ export async function getProducts(options: ProductQueryOptions = {}) {
   else if (options.sort === "price-desc") result = result.sort((a, b) => b.startingPrice - a.startingPrice)
 
   return attachDepartments(result)
+}
+
+// Powers the header's predictive search dropdown: a small, fast, typo-tolerant
+// lookup across both categories and products, categorized for display. Uses
+// pg_trgm similarity (see the products_name_trgm_idx / categories_name_trgm_idx
+// indexes) so misspellings like "tempalte" still surface "Templates".
+export async function getSearchSuggestions(query: string, limit = 6) {
+  const raw = query.trim()
+  if (raw.length < 2) return { categories: [], products: [] }
+  const term = `%${raw}%`
+
+  const categoryRows = await db
+    .select({
+      id: categories.id,
+      slug: categories.slug,
+      name: categories.name,
+      parentId: categories.parentId,
+      relevance: sql<number>`similarity(${categories.name}, ${raw})`,
+    })
+    .from(categories)
+    .where(or(ilike(categories.name, term), sql`similarity(${categories.name}, ${raw}) > 0.25`)!)
+    .orderBy(desc(sql`similarity(${categories.name}, ${raw})`))
+    .limit(4)
+
+  const departmentIds = [...new Set(categoryRows.map((c) => c.parentId).filter((id): id is number => id !== null))]
+  const departmentNameById = departmentIds.length
+    ? new Map(
+        (
+          await db
+            .select({ id: categories.id, name: categories.name })
+            .from(categories)
+            .where(inArray(categories.id, departmentIds))
+        ).map((d) => [d.id, d.name]),
+      )
+    : new Map<number, string>()
+
+  const productRows = await db
+    .select({
+      id: products.id,
+      slug: products.slug,
+      name: products.name,
+      thumbnailUrl: products.thumbnailUrl,
+      coverImageUrl: products.coverImageUrl,
+      basePrice: products.basePrice,
+      compareAtPrice: products.compareAtPrice,
+      isFree: products.isFree,
+      categoryName: categories.name,
+      relevance: sql<number>`greatest(similarity(${products.name}, ${raw}), similarity(coalesce(${products.tagline}, ''), ${raw}) * 0.6)`,
+    })
+    .from(products)
+    .innerJoin(categories, eq(products.categoryId, categories.id))
+    .where(
+      and(
+        publiclyVisible(),
+        or(
+          ilike(products.name, term),
+          ilike(products.tagline, term),
+          sql`similarity(${products.name}, ${raw}) > 0.3`,
+          sql`similarity(coalesce(${products.tagline}, ''), ${raw}) > 0.3`,
+        )!,
+      )!,
+    )
+    .orderBy(desc(sql`greatest(similarity(${products.name}, ${raw}), similarity(coalesce(${products.tagline}, ''), ${raw}) * 0.6)`))
+    .limit(limit)
+
+  return {
+    categories: categoryRows.map((c) => ({
+      id: c.id,
+      slug: c.slug,
+      name: c.name,
+      department: c.parentId ? departmentNameById.get(c.parentId) ?? null : null,
+      isDepartment: c.parentId === null,
+    })),
+    products: productRows.map((p) => ({
+      id: p.id,
+      slug: p.slug,
+      name: p.name,
+      image: p.thumbnailUrl ?? p.coverImageUrl ?? null,
+      categoryName: p.categoryName,
+      isFree: p.isFree,
+      price: p.basePrice,
+      compareAtPrice: p.compareAtPrice,
+    })),
+  }
 }
 
 export async function getProductsByIds(ids: number[]) {
