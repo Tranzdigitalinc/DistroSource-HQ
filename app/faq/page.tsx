@@ -36,7 +36,7 @@ const faqGroups = [
       {
         question: "What payment methods do you accept?",
         answer:
-          "We accept PayPal and major debit and credit cards through PayPal Checkout, all processed through an encrypted, PCI-compliant checkout.",
+          "Checkout is temporarily under maintenance while we work on payment processing. We'll update this answer with accepted payment methods once it's back online.",
       },
       {
         question: "Why was my payment declined?",

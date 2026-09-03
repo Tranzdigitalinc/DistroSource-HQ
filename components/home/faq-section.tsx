@@ -14,12 +14,12 @@ const faqs = [
   {
     question: "What license should I choose?",
     answer:
-      "Personal licenses cover your own projects, Commercial licenses cover client and business use, and Extended/Agency licenses cover resale or large-team use. Each product page explains what's included.",
+      "Personal licenses cover your own projects, Commercial licenses cover client and business use, and Extended/Agency licenses cover unlimited projects or large-team use. No license tier permits reselling or redistributing the underlying files. Each product page explains what's included.",
   },
   {
     question: "What payment methods do you accept?",
     answer:
-      "We accept all major cards and PayPal. All transactions are processed through an encrypted, PCI-compliant checkout.",
+      "Checkout is temporarily under maintenance while we work on payment processing. We'll display accepted payment methods here again once it's back online.",
   },
   {
     question: "Can I get a refund if a file doesn't work for me?",

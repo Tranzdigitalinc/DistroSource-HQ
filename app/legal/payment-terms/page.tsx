@@ -16,8 +16,9 @@ export default function PaymentTermsPage() {
           heading: "1. Accepted payment methods",
           body: (
             <p>
-              We accept PayPal and major debit and credit cards through PayPal Checkout. Available methods are
-              shown at checkout.
+              Checkout is temporarily under maintenance while we work on payment processing, and no payment methods
+              are currently being accepted. This page will be updated with accepted methods once checkout is back
+              online.
             </p>
           ),
         },
