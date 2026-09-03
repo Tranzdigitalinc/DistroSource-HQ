@@ -4,11 +4,13 @@ import type { Metadata } from "next"
 import { Star, ChevronRight, Download, ShieldCheck, RefreshCw } from "lucide-react"
 import { getProductBySlug, getRecommendedProducts } from "@/lib/queries/catalog"
 import { getWishlistProductIds } from "@/lib/actions/wishlist"
+import { getReviewEligibility } from "@/lib/actions/reviews"
 import { stripLiteMarkdown } from "@/lib/html-to-text"
 import { PurchasePanel } from "@/components/product/purchase-panel"
 import { ProductGallery } from "@/components/product/product-gallery"
 import { LiteMarkdown } from "@/components/product/lite-markdown"
 import { ReviewList } from "@/components/product/review-list"
+import { ReviewForm } from "@/components/product/review-form"
 import { ProductGrid } from "@/components/catalog/product-grid"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
@@ -64,6 +66,7 @@ export default async function ProductDetailPage({
   const { product, category, images, licenses, reviews, versions, avgRating, reviewCount } = data
   const related = await getRecommendedProducts(category.id, product.id, 8)
   const wishlistIds = await getWishlistProductIds()
+  const reviewEligibility = await getReviewEligibility(product.id)
 
   // Cover art is the high-resolution hero; Envato's thumbnail is often a
   // tiny icon intended for search cards, so never let it become the hero when
@@ -263,7 +266,8 @@ export default async function ProductDetailPage({
                 </div>
               </TabsContent>
               <TabsContent value="reviews" className="py-6">
-                <div className="max-w-2xl">
+                <div className="flex max-w-2xl flex-col gap-8">
+                  <ReviewForm productId={product.id} eligibility={reviewEligibility} />
                   <ReviewList reviews={reviews} />
                 </div>
               </TabsContent>

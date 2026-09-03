@@ -68,8 +68,12 @@ export default async function AboutPage() {
   const statCards = [
     { label: "Products in catalog", value: `${stats.productCount.toLocaleString()}+` },
     { label: "Categories", value: `${stats.categoryCount}+` },
-    { label: "Customer reviews", value: `${stats.reviewCount.toLocaleString()}+` },
-    { label: "Average customer rating", value: stats.avgRating.toFixed(1) },
+    ...(stats.reviewCount > 0
+      ? [
+          { label: "Customer reviews", value: `${stats.reviewCount.toLocaleString()}+` },
+          { label: "Average customer rating", value: stats.avgRating.toFixed(1) },
+        ]
+      : []),
   ]
 
   return (
@@ -93,7 +97,10 @@ export default async function AboutPage() {
         </section>
 
         <section className="mx-auto max-w-6xl px-6 py-14 sm:px-8">
-          <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-4" stagger={0.06}>
+          <RevealGroup
+            className={`grid grid-cols-2 gap-4 ${statCards.length >= 4 ? "sm:grid-cols-4" : "sm:grid-cols-2"}`}
+            stagger={0.06}
+          >
             {statCards.map((stat) => (
               <RevealItem key={stat.label}>
                 <div className="rounded-xl border border-border bg-card p-5 text-center">

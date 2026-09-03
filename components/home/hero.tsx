@@ -170,16 +170,20 @@ export function Hero({ stats, products }: { stats: HeroStats; products: ProductC
           <span className="flex items-center gap-1">
             <NumberTicker value={stats.categoryCount} className="text-foreground" /> categories
           </span>
-          <span className="text-border">/</span>
-          <span className="flex items-center gap-1">
-            {stats.avgRating.toFixed(1)}
-            <Star className="size-3 fill-primary text-primary" />
-            avg rating
-          </span>
-          <span className="text-border">/</span>
-          <span className="flex items-center gap-1">
-            <NumberTicker value={stats.reviewCount} className="text-foreground" />+ reviews
-          </span>
+          {stats.reviewCount > 0 && (
+            <>
+              <span className="text-border">/</span>
+              <span className="flex items-center gap-1">
+                {stats.avgRating.toFixed(1)}
+                <Star className="size-3 fill-primary text-primary" />
+                avg rating
+              </span>
+              <span className="text-border">/</span>
+              <span className="flex items-center gap-1">
+                <NumberTicker value={stats.reviewCount} className="text-foreground" />+ reviews
+              </span>
+            </>
+          )}
         </motion.div>
       </motion.div>
 

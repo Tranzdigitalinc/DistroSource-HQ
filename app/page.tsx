@@ -59,12 +59,14 @@ export default async function HomePage() {
           variant="deals"
         />
         <ShopByPrice />
-        <ProductRail
-          title="Top rated by customers"
-          subtitle="Highest-reviewed products across the marketplace"
-          href="/products?sort=rating"
-          items={topRated}
-        />
+        {stats.reviewCount > 0 && (
+          <ProductRail
+            title="Top rated by customers"
+            subtitle="Highest-reviewed products across the marketplace"
+            href="/products?sort=rating"
+            items={topRated}
+          />
+        )}
         <HowItWorks />
         <VeloraShowcase />
         <Testimonials reviews={topReviews} stats={stats} />
