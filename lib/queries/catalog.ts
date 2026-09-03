@@ -116,6 +116,41 @@ async function getCategoryIdsForSlug(slug: string) {
   return { category, ids: children.map((c) => c.id) }
 }
 
+// Every product's category is a subcategory (see note above), so cards and
+// list pages that want to show the full "Department / Subcategory" chain
+// need the parent department's name too. Looks it up in one extra query
+// against the (tiny) categories table rather than a self-join everywhere.
+async function attachDepartments<T extends { category: typeof categories.$inferSelect }>(
+  rows: T[],
+): Promise<(T & { department: { slug: string; name: string } | null })[]> {
+  const departmentIds = [...new Set(rows.map((r) => r.category.parentId).filter((id): id is number => id !== null))]
+  if (departmentIds.length === 0) return rows.map((r) => ({ ...r, department: null }))
+
+  const departmentRows = await db
+    .select({ id: categories.id, slug: categories.slug, name: categories.name })
+    .from(categories)
+    .where(inArray(categories.id, departmentIds))
+  const byId = new Map(departmentRows.map((d) => [d.id, { slug: d.slug, name: d.name }]))
+
+  return rows.map((r) => ({ ...r, department: r.category.parentId ? byId.get(r.category.parentId) ?? null : null }))
+}
+
+// Distinct file formats across the published catalog, ranked by how many
+// products carry each one — powers the "Format" catalog filter.
+export async function getAvailableFileFormats(limit = 14) {
+  const rows = await db.select({ fileFormats: products.fileFormats }).from(products).where(publiclyVisible())
+  const counts = new Map<string, number>()
+  for (const row of rows) {
+    for (const format of row.fileFormats) {
+      counts.set(format, (counts.get(format) ?? 0) + 1)
+    }
+  }
+  return [...counts.entries()]
+    .map(([format, count]) => ({ format, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit)
+}
+
 async function attachRelations(productRows: (typeof products.$inferSelect)[]) {
   if (productRows.length === 0) return []
   const ids = productRows.map((p) => p.id)
@@ -215,6 +250,7 @@ interface ProductQueryOptions {
   free?: boolean
   bundle?: boolean
   deal?: boolean
+  format?: string
   maxPrice?: number
   minPrice?: number
   sort?: "featured" | "price-asc" | "price-desc" | "newest" | "rating"
@@ -244,6 +280,9 @@ function buildProductConditions(options: ProductQueryOptions) {
   if (options.free) conditions.push(eq(products.isFree, true))
   if (options.bundle) conditions.push(eq(products.isBundle, true))
   if (options.deal) conditions.push(sql`${products.compareAtPrice} is not null and ${products.compareAtPrice} > ${products.basePrice}`)
+  if (options.format) {
+    conditions.push(sql`exists (select 1 from unnest(${products.fileFormats}) as fmt where fmt = ${options.format})`)
+  }
 
   return conditions
 }
@@ -309,7 +348,7 @@ export async function getProducts(options: ProductQueryOptions = {}) {
   if (options.sort === "price-asc") result = result.sort((a, b) => a.startingPrice - b.startingPrice)
   else if (options.sort === "price-desc") result = result.sort((a, b) => b.startingPrice - a.startingPrice)
 
-  return result
+  return attachDepartments(result)
 }
 
 export async function getProductsByIds(ids: number[]) {
@@ -321,7 +360,7 @@ export async function getProductsByIds(ids: number[]) {
     .where(inArray(products.id, ids))
   const withRelations = await attachRelations(rows.map((r) => r.product))
   const categoryById = new Map(rows.map((r) => [r.product.id, r.category]))
-  return withRelations.map((item) => ({ ...item, category: categoryById.get(item.product.id)! }))
+  return attachDepartments(withRelations.map((item) => ({ ...item, category: categoryById.get(item.product.id)! })))
 }
 
 export async function getRecommendedProducts(categoryId: number, excludeProductId: number, limit = 8) {
@@ -337,7 +376,7 @@ export async function getRecommendedProducts(categoryId: number, excludeProductI
 
   const withRelations = await attachRelations(rows.map((r) => r.product))
   const categoryById = new Map(rows.map((r) => [r.product.id, r.category]))
-  return withRelations.map((item) => ({ ...item, category: categoryById.get(item.product.id)! }))
+  return attachDepartments(withRelations.map((item) => ({ ...item, category: categoryById.get(item.product.id)! })))
 }
 
 export const getRelatedProducts = getRecommendedProducts
