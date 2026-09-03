@@ -120,7 +120,7 @@ export default async function ProductDetailPage({
             <span className="truncate font-medium text-foreground">{product.name}</span>
           </nav>
 
-          <Reveal className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-10">
+          <Reveal className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 md:gap-10">
             <div className="flex flex-col gap-4">
               <ProductGallery images={gallery} alt={product.name} />
 
