@@ -39,14 +39,14 @@ export async function AuthShell({
             <div className="mx-auto flex w-full max-w-lg flex-col gap-8">
               <div className="flex items-center gap-3 text-sm font-semibold tracking-wide text-hero-foreground/70">
                 <span className="h-px w-10 bg-primary" />
-                THE DIGITAL VALUE PLATFORM
+                EVERYTHING DIGITAL. ONE SOURCE.
               </div>
               <div className="flex flex-col gap-5">
                 <h2 className="max-w-xl text-4xl font-semibold leading-tight tracking-tight text-hero-foreground xl:text-5xl text-balance">
                   Every asset you need, unlocked instantly.
                 </h2>
                 <p className="max-w-md text-base leading-relaxed text-hero-foreground/70">
-                  Templates, fonts, UI kits, and Notion systems from independent creators — yours the moment you buy.
+                  Templates, fonts, UI kits, and Notion systems — yours the moment you buy.
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-3">

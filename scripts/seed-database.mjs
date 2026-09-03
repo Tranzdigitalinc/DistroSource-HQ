@@ -91,7 +91,7 @@ const bundles = [
 const licenseTiers = [
   { licenseType: "personal", mult: 1, description: "For personal, non-commercial projects." },
   { licenseType: "commercial", mult: 2.5, description: "For a single commercial project or client." },
-  { licenseType: "extended_commercial", mult: 5, description: "For unlimited commercial projects and resale-ready products." },
+  { licenseType: "extended_commercial", mult: 5, description: "For unlimited commercial projects and use across multiple end products. Does not grant resale or redistribution of the raw asset itself." },
 ]
 
 async function main() {
