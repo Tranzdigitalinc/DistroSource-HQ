@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import { useState } from "react"
 import { ImageOff } from "lucide-react"
 
@@ -19,6 +18,13 @@ export function ProductGallery({ images, alt }: ProductGalleryProps) {
     setFailed((current) => (current.includes(src) ? current : [...current, src]))
   }
 
+  function validateQuality(src: string, image: HTMLImageElement) {
+    // Envato exposes tiny icon/badge assets alongside the real screenshots.
+    // They technically load successfully but become visibly blurry when
+    // enlarged, so treat them as unusable gallery media.
+    if (image.naturalWidth < 400 || image.naturalHeight < 250) markFailed(src)
+  }
+
   if (!hero) {
     return (
       <div className="flex aspect-[4/3] w-full items-center justify-center border border-border bg-secondary text-muted-foreground/40">
@@ -31,14 +37,12 @@ export function ProductGallery({ images, alt }: ProductGalleryProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="group relative aspect-[4/3] w-full overflow-hidden border border-border bg-secondary">
-        <Image
+        <img
           src={hero}
           alt={alt}
-          fill
-          priority
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, 50vw"
+          className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
           onError={() => markFailed(hero)}
+          onLoad={(event) => validateQuality(hero, event.currentTarget)}
         />
       </div>
       {available.length > 1 && (
@@ -51,13 +55,12 @@ export function ProductGallery({ images, alt }: ProductGalleryProps) {
               onClick={() => setSelected(src)}
               aria-label={`View product image ${index + 2}`}
             >
-              <Image
+              <img
                 src={src}
                 alt=""
-                fill
-                className="object-cover"
-                sizes="20vw"
+                className="h-full w-full object-contain"
                 onError={() => markFailed(src)}
+                onLoad={(event) => validateQuality(src, event.currentTarget)}
               />
             </button>
           ))}
