@@ -266,6 +266,7 @@ interface ProductQueryOptions {
   format?: string
   maxPrice?: number
   minPrice?: number
+  minRating?: number
   sort?: "featured" | "price-asc" | "price-desc" | "newest" | "rating"
   limit?: number
   offset?: number
@@ -295,6 +296,11 @@ function buildProductConditions(options: ProductQueryOptions) {
   if (options.deal) conditions.push(sql`${products.compareAtPrice} is not null and ${products.compareAtPrice} > ${products.basePrice}`)
   if (options.format) {
     conditions.push(sql`exists (select 1 from unnest(${products.fileFormats}) as fmt where fmt = ${options.format})`)
+  }
+  if (options.minRating) {
+    conditions.push(
+      sql`(select coalesce(avg(${reviews.rating}), 0) from ${reviews} where ${reviews.productId} = ${products.id}) >= ${options.minRating}`,
+    )
   }
 
   return conditions
