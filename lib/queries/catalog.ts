@@ -387,8 +387,9 @@ export async function getProducts(options: ProductQueryOptions = {}) {
 
 // Powers the header's predictive search dropdown: a small, fast, typo-tolerant
 // lookup across both categories and products, categorized for display. Uses
-// pg_trgm similarity (see the products_name_trgm_idx / categories_name_trgm_idx
-// indexes) so misspellings like "tempalte" still surface "Templates".
+// pg_trgm word_similarity (see the products_name_trgm_idx / products_tagline_trgm_idx /
+// categories_name_trgm_idx indexes) so misspellings like "tempalte" still surface
+// "Templates" even when they're a substring of a longer name.
 export async function getSearchSuggestions(query: string, limit = 6) {
   const raw = query.trim()
   if (raw.length < 2) return { categories: [], products: [] }
@@ -400,11 +401,11 @@ export async function getSearchSuggestions(query: string, limit = 6) {
       slug: categories.slug,
       name: categories.name,
       parentId: categories.parentId,
-      relevance: sql<number>`similarity(${categories.name}, ${raw})`,
+      relevance: sql<number>`word_similarity(${raw}, ${categories.name})`,
     })
     .from(categories)
-    .where(or(ilike(categories.name, term), sql`similarity(${categories.name}, ${raw}) > 0.25`)!)
-    .orderBy(desc(sql`similarity(${categories.name}, ${raw})`))
+    .where(or(ilike(categories.name, term), sql`word_similarity(${raw}, ${categories.name}) > 0.4`)!)
+    .orderBy(desc(sql`word_similarity(${raw}, ${categories.name})`))
     .limit(4)
 
   const departmentIds = [...new Set(categoryRows.map((c) => c.parentId).filter((id): id is number => id !== null))]
@@ -430,7 +431,7 @@ export async function getSearchSuggestions(query: string, limit = 6) {
       compareAtPrice: products.compareAtPrice,
       isFree: products.isFree,
       categoryName: categories.name,
-      relevance: sql<number>`greatest(similarity(${products.name}, ${raw}), similarity(coalesce(${products.tagline}, ''), ${raw}) * 0.6)`,
+      relevance: sql<number>`greatest(word_similarity(${raw}, ${products.name}), word_similarity(${raw}, coalesce(${products.tagline}, '')) * 0.6)`,
     })
     .from(products)
     .innerJoin(categories, eq(products.categoryId, categories.id))
@@ -440,12 +441,12 @@ export async function getSearchSuggestions(query: string, limit = 6) {
         or(
           ilike(products.name, term),
           ilike(products.tagline, term),
-          sql`similarity(${products.name}, ${raw}) > 0.3`,
-          sql`similarity(coalesce(${products.tagline}, ''), ${raw}) > 0.3`,
+          sql`word_similarity(${raw}, ${products.name}) > 0.4`,
+          sql`word_similarity(${raw}, coalesce(${products.tagline}, '')) > 0.4`,
         )!,
       )!,
     )
-    .orderBy(desc(sql`greatest(similarity(${products.name}, ${raw}), similarity(coalesce(${products.tagline}, ''), ${raw}) * 0.6)`))
+    .orderBy(desc(sql`greatest(word_similarity(${raw}, ${products.name}), word_similarity(${raw}, coalesce(${products.tagline}, '')) * 0.6)`))
     .limit(limit)
 
   return {
