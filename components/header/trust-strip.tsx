@@ -4,7 +4,7 @@ const items = [
   { icon: Zap, label: "Instant download access" },
   { icon: ShieldCheck, label: "Encrypted, secure checkout" },
   { icon: Globe2, label: "Available worldwide" },
-  { icon: HeadphonesIcon, label: "24/7 human support" },
+  { icon: HeadphonesIcon, label: "Support within 1 business day" },
 ]
 
 export function TrustStrip() {
