@@ -49,19 +49,34 @@ interface EnvatoRawItem {
 // to a few known keys we walk the whole tree and pull every image URL we
 // find. This is what actually gets us "all" media instead of just one
 // hero thumbnail.
-const PREVIEW_IMAGE_KEYS = new Set(["icon_url", "landscape_url", "small_url", "large_url", "large_landscape_url"])
+const PREVIEW_IMAGE_KEYS = new Set(["large_landscape_url", "landscape_url", "large_url"])
+const FALLBACK_IMAGE_KEYS = new Set(["icon_url"])
+const REJECTED_IMAGE_RE = /(?:badge|banner|logo|avatar|sprite|watermark|envato|themeforest|codecanyon)/i
+
+function isUsableImageUrl(value: string): boolean {
+  try {
+    const url = new URL(value)
+    if (!/^https?:$/.test(url.protocol)) return false
+    if (!/\.(?:jpe?g|png|webp)(?:$|\?)/i.test(url.pathname + url.search)) return false
+    return !REJECTED_IMAGE_RE.test(url.pathname)
+  } catch {
+    return false
+  }
+}
 
 function collectPreviewUrls(previews: EnvatoRawItem["previews"]): string[] {
   if (!previews) return []
-  const urls: string[] = []
+  const preferred: string[] = []
+  const fallback: string[] = []
   const seen = new Set<string>()
 
   function walk(node: unknown) {
     if (!node || typeof node !== "object") return
     for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
-      if (typeof value === "string" && PREVIEW_IMAGE_KEYS.has(key) && !seen.has(value)) {
+      if (typeof value === "string" && isUsableImageUrl(value) && !seen.has(value)) {
         seen.add(value)
-        urls.push(value)
+        if (PREVIEW_IMAGE_KEYS.has(key)) preferred.push(value)
+        else if (FALLBACK_IMAGE_KEYS.has(key)) fallback.push(value)
       } else if (value && typeof value === "object") {
         walk(value)
       }
@@ -69,7 +84,7 @@ function collectPreviewUrls(previews: EnvatoRawItem["previews"]): string[] {
   }
 
   walk(previews)
-  return urls
+  return [...preferred, ...fallback]
 }
 
 // Envato listing descriptions embed real product screenshots inline as plain
@@ -87,7 +102,11 @@ function extractContentImages(html: string | null | undefined): string[] {
   let match: RegExpExecArray | null
   while ((match = IMG_TAG_RE.exec(withoutAffiliateAds))) {
     const [fullTag, src] = match
-    if (/exclusive|badge|banner/i.test(fullTag)) continue
+    if (/exclusive|badge|banner|logo|avatar|sprite|watermark/i.test(fullTag)) continue
+    if (!isUsableImageUrl(src)) continue
+    const width = Number(fullTag.match(/\bwidth=["']?(\d+)/i)?.[1] ?? 0)
+    const height = Number(fullTag.match(/\bheight=["']?(\d+)/i)?.[1] ?? 0)
+    if ((width > 0 && width < 400) || (height > 0 && height < 250)) continue
     urls.push(src)
   }
   return urls
