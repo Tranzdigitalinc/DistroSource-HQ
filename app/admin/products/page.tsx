@@ -16,17 +16,26 @@ export const metadata = {
   description: "Manage the DistroSource product catalog.",
 }
 
+const STATUS_FILTERS = [
+  { value: "", label: "All" },
+  { value: "ready", label: "Ready" },
+  { value: "preview_only", label: "Preview only" },
+  { value: "draft", label: "Draft" },
+  { value: "published", label: "Published" },
+] as const
+
 export default async function AdminProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string }>
+  searchParams: Promise<{ search?: string; status?: string }>
 }) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) redirect("/sign-in?next=/admin/products")
   if (!isAdminEmail(session.user.email)) redirect("/")
 
-  const { search } = await searchParams
-  const rows = await getAdminProducts(search)
+  const { search, status } = await searchParams
+  const statusFilter = STATUS_FILTERS.find((f) => f.value === status)?.value || undefined
+  const rows = await getAdminProducts(search, statusFilter as "ready" | "preview_only" | "draft" | "published" | undefined)
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
@@ -50,8 +59,23 @@ export default async function AdminProductsPage({
         </div>
       </header>
 
-      <form action="/admin/products" method="get" className="flex items-center gap-3">
+      <form action="/admin/products" method="get" className="flex flex-wrap items-center gap-3">
         <Input name="search" defaultValue={search ?? ""} placeholder="Search by name or slug" className="max-w-sm" />
+        <div className="flex items-center gap-1 border border-border p-1">
+          {STATUS_FILTERS.map((f) => (
+            <Button
+              key={f.value || "all"}
+              type="submit"
+              name="status"
+              value={f.value}
+              size="sm"
+              variant={(status ?? "") === f.value ? "default" : "ghost"}
+              className="h-8 px-3 text-xs"
+            >
+              {f.label}
+            </Button>
+          ))}
+        </div>
         <Button type="submit" size="sm" variant="outline">
           Search
         </Button>
@@ -78,6 +102,12 @@ export default async function AdminProductsPage({
                   <p className="truncate text-xs text-muted-foreground">{category.name} · /{product.slug}</p>
                 </div>
                 <p className="shrink-0 text-sm font-medium text-foreground">${product.basePrice}</p>
+                <Badge
+                  variant={product.assetStatus === "ready" ? "secondary" : "outline"}
+                  className="shrink-0 capitalize"
+                >
+                  {product.assetStatus === "ready" ? "Ready" : "Preview only"}
+                </Badge>
                 <Badge variant={product.status === "published" ? "secondary" : "outline"} className="shrink-0 capitalize">
                   {product.status}
                 </Badge>

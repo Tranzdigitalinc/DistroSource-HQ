@@ -56,12 +56,20 @@ async function ensureUniqueSlug(baseSlug: string, excludeId?: number): Promise<s
   return `${baseSlug}-${n}`
 }
 
-export async function getAdminProducts(search?: string) {
+export async function getAdminProducts(
+  search?: string,
+  statusFilter?: "ready" | "preview_only" | "draft" | "published",
+) {
   await requireAdmin()
 
   const conditions = search
     ? [or(ilike(products.name, `%${search}%`), ilike(products.slug, `%${search}%`))!]
     : []
+
+  if (statusFilter === "ready") conditions.push(eq(products.assetStatus, "ready"))
+  else if (statusFilter === "preview_only") conditions.push(eq(products.assetStatus, "preview_only"))
+  else if (statusFilter === "draft") conditions.push(eq(products.status, "draft"))
+  else if (statusFilter === "published") conditions.push(eq(products.status, "published"))
 
   const rows = await db
     .select({ product: products, category: categories })
