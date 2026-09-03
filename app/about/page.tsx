@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Sparkles, ShieldCheck, Zap, HeartHandshake, LayoutTemplate, Building2 } from "lucide-react"
+import { Sparkles, ShieldCheck, Zap, HeartHandshake, LayoutTemplate, Building2, FileCheck, Lock, LifeBuoy } from "lucide-react"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { Button } from "@/components/ui/button"
@@ -39,26 +39,24 @@ const values = [
   },
 ]
 
-const timeline = [
+const standards = [
   {
-    year: "2022",
-    title: "DistroSource is founded",
-    description: "Started as a small catalog of website templates and font pairings for independent designers.",
+    icon: FileCheck,
+    title: "Rights-checked catalog",
+    description:
+      "Every listing is reviewed for distribution rights before it goes live. Nothing is published as owned inventory without a verified source.",
   },
   {
-    year: "2023",
-    title: "Categories expand",
-    description: "Added presentation kits, Notion systems, UI kits, and 3D assets to serve a wider range of creators.",
+    icon: Lock,
+    title: "Secure digital delivery",
+    description:
+      "Files are served through account-gated downloads over an encrypted connection, so purchases stay tied to your account and your library.",
   },
   {
-    year: "2024",
-    title: "Licensing tiers introduced",
-    description: "Launched personal, commercial, extended, and agency licensing so teams of any size can buy with confidence.",
-  },
-  {
-    year: "2025",
-    title: "Team licensing for business",
-    description: "Launched a dedicated program for agencies and studios purchasing at volume across the catalog.",
+    icon: LifeBuoy,
+    title: "Support that answers",
+    description:
+      "Every ticket — download issues, license questions, account access — is reviewed personally by our support team.",
   },
 ]
 
@@ -114,12 +112,12 @@ export default async function AboutPage() {
 
         <section className="mx-auto max-w-4xl px-6 py-6 sm:px-8">
           <Reveal>
-            <h2 className="font-display text-2xl font-bold tracking-tight">Our mission</h2>
+            <h2 className="font-display text-2xl font-bold tracking-tight">Why DistroSource exists</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Buying a digital asset shouldn&apos;t be complicated. Whether you&apos;re shipping a client site,
-              putting together a pitch deck, or building out a Notion workspace, DistroSource exists to make that
-              purchase instant, transparent, and trustworthy — with clear licensing, real preview files, and a
-              support team that actually answers.
+              DistroSource was created to make professional digital products easier to discover, purchase, and
+              manage from one place. Whether you&apos;re shipping a client site, putting together a pitch deck, or
+              building out a Notion workspace, we want that purchase to be instant, transparent, and trustworthy —
+              with clear licensing, real preview files, and a support team that actually answers.
             </p>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               Every product in our catalog of {stats.productCount.toLocaleString()}+ items ships with real preview
@@ -151,18 +149,24 @@ export default async function AboutPage() {
 
         <section className="mx-auto max-w-4xl px-6 py-16 sm:px-8">
           <div className="mb-10 text-center">
-            <h2 className="font-display text-2xl font-bold tracking-tight">Our story so far</h2>
+            <h2 className="font-display text-2xl font-bold tracking-tight">Our standards</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              What every product on DistroSource is held to before it reaches the catalog.
+            </p>
           </div>
-          <Reveal className="flex flex-col gap-6 border-l border-border pl-6">
-            {timeline.map((item) => (
-              <div key={item.year} className="relative">
-                <span className="absolute -left-[31px] top-1 flex size-3 items-center justify-center rounded-full bg-primary ring-4 ring-background" />
-                <p className="text-xs font-semibold uppercase tracking-wide text-primary">{item.year}</p>
-                <h3 className="mt-1 text-sm font-semibold text-foreground">{item.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
-              </div>
+          <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-3" stagger={0.06}>
+            {standards.map((item) => (
+              <RevealItem key={item.title}>
+                <div className="h-full rounded-xl border border-border bg-card p-5">
+                  <span className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <item.icon className="size-5" />
+                  </span>
+                  <h3 className="mt-4 text-sm font-semibold text-foreground">{item.title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                </div>
+              </RevealItem>
             ))}
-          </Reveal>
+          </RevealGroup>
         </section>
 
         <section className="mx-auto max-w-3xl px-6 py-16 text-center sm:px-8">
