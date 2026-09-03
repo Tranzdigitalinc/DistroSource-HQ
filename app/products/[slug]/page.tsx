@@ -193,7 +193,7 @@ export default async function ProductDetailPage({
               </TabsList>
               <TabsContent value="details" className="py-6">
                 <div className="max-w-2xl space-y-6">
-                  <LiteMarkdown text={product.description} className="flex flex-col gap-3" />
+                  <LiteMarkdown text={product.description} className="flex max-w-3xl flex-col gap-5" />
                   <dl className="divide-y divide-border border border-border">
                     {product.fileFormats.length > 0 && (
                       <div className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
