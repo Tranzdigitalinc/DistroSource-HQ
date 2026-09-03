@@ -15,11 +15,17 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file") as File | null
     if (!file) return NextResponse.json({ error: "No file provided" }, { status: 400 })
 
-    const blob = await put(`products/${Date.now()}-${file.name}`, file, { access: "public" })
+    // The Blob store backing this project is private, so blob.url is not
+    // publicly fetchable. We return two different handles for two different
+    // consumers: `url` is a ready-to-render path through our own public image
+    // route (for preview images), and `pathname` is the raw blob pathname
+    // (for downloadable files, which are streamed through the entitlement-
+    // checked /api/downloads route instead).
+    const blob = await put(`products/${Date.now()}-${file.name}`, file, { access: "private" })
 
     return NextResponse.json({
-      url: blob.url,
-      pathname: blob.url,
+      url: `/api/blob-image?pathname=${encodeURIComponent(blob.pathname)}`,
+      pathname: blob.pathname,
       fileName: file.name,
       fileSizeBytes: file.size,
       fileType: file.type || null,

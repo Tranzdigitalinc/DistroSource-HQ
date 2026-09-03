@@ -91,12 +91,14 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
 
   const zipBuffer = createPlaceholderZip(item.name)
   const zipBlob = await put(`products/${Date.now()}-${slugifyName(item.name)}-placeholder.zip`, zipBuffer, {
-    access: "public",
+    access: "private",
     contentType: "application/zip",
   })
+  // Store the raw private-blob pathname, not a URL — /api/downloads/[fileId]
+  // resolves this via get() after re-checking entitlement.
   await addProductFile(productId, {
     fileName: `${slugifyName(item.name)}.zip`,
-    blobPathname: zipBlob.url,
+    blobPathname: zipBlob.pathname,
     fileSizeBytes: zipBuffer.length,
     fileType: "application/zip",
     licenseType: null,
