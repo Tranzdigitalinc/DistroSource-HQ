@@ -138,12 +138,16 @@ export interface ProductFormInput {
 
 async function assertPublishable(id: number, status: string) {
   if (status !== "published") return
-  const [[fileCount], [imageCount]] = await Promise.all([
+  const [[fileCount], [imageCount], [licenseCount]] = await Promise.all([
     db.select({ count: sql<number>`count(*)::int` }).from(productFiles).where(eq(productFiles.productId, id)),
     db.select({ count: sql<number>`count(*)::int` }).from(productImages).where(eq(productImages.productId, id)),
+    db.select({ count: sql<number>`count(*)::int` }).from(productLicenses).where(eq(productLicenses.productId, id)),
   ])
   if ((fileCount?.count ?? 0) < 1) throw new Error("Add at least one downloadable file before publishing.")
   if ((imageCount?.count ?? 0) < 1) throw new Error("Add at least one preview image before publishing.")
+  // Without a license row, the purchase panel has nothing to sell and
+  // renders nothing — a live product with no way to buy it.
+  if ((licenseCount?.count ?? 0) < 1) throw new Error("Add at least one license/pricing plan before publishing.")
 }
 
 export async function createProduct(input: ProductFormInput) {

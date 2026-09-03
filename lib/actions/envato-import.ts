@@ -2,10 +2,17 @@
 
 import { put } from "@vercel/blob"
 import { requireAdmin } from "@/lib/actions/operations"
-import { createProduct, updateProduct, addProductImage, addProductFile, type ProductFormInput } from "@/lib/actions/admin-products"
+import {
+  createProduct,
+  updateProduct,
+  addProductImage,
+  addProductFile,
+  addProductLicense,
+  type ProductFormInput,
+} from "@/lib/actions/admin-products"
 import { searchEnvatoItems, getEnvatoItemDetail, type EnvatoSite } from "@/lib/envato"
 import { mirrorUrlToBlob } from "@/lib/blob-mirror"
-import { htmlToPlainText } from "@/lib/html-to-text"
+import { htmlToLiteMarkdown, stripLiteMarkdown } from "@/lib/html-to-text"
 import { createPlaceholderZip } from "@/lib/zip-placeholder"
 
 export async function searchEnvatoCatalog(term: string, sites: EnvatoSite[]) {
@@ -29,11 +36,17 @@ function slugifyName(name: string) {
 }
 
 // Imports a single Envato Market item as a fully live DistroSource product:
-// - Description is cleaned from raw HTML into plain text.
-// - Preview images are downloaded and re-uploaded to our own Blob storage, so
-//   the listing keeps working even if the Envato API key is revoked or the
-//   source item is later removed.
-// - Price matches Envato's listed price exactly.
+// - Description is converted from raw HTML into a light markdown format
+//   (headings, bullets, bold kept) instead of one flat paragraph, and
+//   cross-sell/affiliate ad content is filtered out — see htmlToLiteMarkdown.
+// - Every preview image Envato exposes (hero/landscape, icon, live-site
+//   preview) plus every real screenshot embedded in the description body is
+//   downloaded and re-uploaded to our own Blob storage, so the full gallery
+//   keeps working even if the Envato API key is revoked or the source item
+//   is later removed.
+// - Price matches Envato's listed price exactly, and that price is written
+//   as a real Regular License row — without this, the product has nothing
+//   to sell and the purchase panel simply doesn't render.
 // - A placeholder .zip is attached as the downloadable file so the product
 //   can publish immediately and the full purchase -> entitlement -> download
 //   flow can be tested before the real package replaces it.
@@ -43,8 +56,11 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
   const item = await getEnvatoItemDetail(input.envatoId)
   if (!item) throw new Error("Could not load this item from Envato. It may have been removed.")
 
-  const cleanDescription = htmlToPlainText(item.description) || item.summary || item.name
-  const tagline = cleanDescription.slice(0, 140).trim()
+  let description = htmlToLiteMarkdown(item.description) || item.summary || item.name
+  if (item.liveDemoUrl) {
+    description += `\n\n## Live preview\n${item.liveDemoUrl}`
+  }
+  const tagline = stripLiteMarkdown(description).slice(0, 140).trim()
   const basePrice = (item.priceCents / 100).toFixed(2)
 
   const sourceImageUrls = Array.from(
@@ -61,7 +77,7 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
     name: item.name,
     slug: slugifyName(item.name),
     tagline,
-    description: cleanDescription,
+    description,
     categoryId: input.categoryId,
     status: "draft",
     basePrice,
@@ -104,7 +120,19 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
     licenseType: null,
   })
 
-  // Now that it has images and a downloadable file, publish it live.
+  // Envato's public catalog API only ever exposes a single price — the
+  // Regular License price shown on the listing. Extended License pricing
+  // (when an item even offers one) isn't part of this API, so we import
+  // exactly what Envato actually gives us rather than inventing a second
+  // tier with a made-up price.
+  await addProductLicense(productId, {
+    licenseType: "regular_license",
+    price: basePrice,
+    description: "Use in a single end product, for yourself or one client — matches the license terms on the original Envato listing.",
+  })
+
+  // Now that it has images, a license to sell, and a downloadable file,
+  // publish it live.
   await updateProduct(productId, { ...formInput, status: "published" })
 
   return productId
