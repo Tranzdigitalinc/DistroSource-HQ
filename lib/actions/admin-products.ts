@@ -30,6 +30,32 @@ function parseListField(value: string): string[] {
     .filter(Boolean)
 }
 
+// Slugs have a unique constraint at the DB level, but nothing upstream of the
+// insert/update ever checked for collisions — two products with the same or
+// similarly-named title (e.g. importing the same Envato item twice, or two
+// items that normalize to the same slug) hit a raw Postgres unique-violation
+// that propagated out of the Server Action unhandled. Always resolve to a
+// slug that's actually free before writing, appending -2, -3, etc. as needed.
+async function ensureUniqueSlug(baseSlug: string, excludeId?: number): Promise<string> {
+  const existing = await db
+    .select({ slug: products.slug })
+    .from(products)
+    .where(
+      excludeId !== undefined
+        ? and(or(eq(products.slug, baseSlug), ilike(products.slug, `${baseSlug}-%`))!, sql`${products.id} != ${excludeId}`)
+        : or(eq(products.slug, baseSlug), ilike(products.slug, `${baseSlug}-%`))!,
+    )
+
+  if (existing.length === 0) return baseSlug
+
+  const taken = new Set(existing.map((row) => row.slug))
+  if (!taken.has(baseSlug)) return baseSlug
+
+  let n = 2
+  while (taken.has(`${baseSlug}-${n}`)) n++
+  return `${baseSlug}-${n}`
+}
+
 export async function getAdminProducts(search?: string) {
   await requireAdmin()
 
@@ -123,8 +149,9 @@ async function assertPublishable(id: number, status: string) {
 export async function createProduct(input: ProductFormInput) {
   await requireAdmin()
 
-  const slug = input.slug?.trim() ? slugify(input.slug) : slugify(input.name)
-  if (!slug) throw new Error("A product name or slug is required.")
+  const requestedSlug = input.slug?.trim() ? slugify(input.slug) : slugify(input.name)
+  if (!requestedSlug) throw new Error("A product name or slug is required.")
+  const slug = await ensureUniqueSlug(requestedSlug)
 
   const [created] = await db
     .insert(products)
@@ -166,7 +193,8 @@ export async function updateProduct(id: number, input: ProductFormInput) {
     await assertPublishable(id, input.status)
   }
 
-  const slug = input.slug?.trim() ? slugify(input.slug) : slugify(input.name)
+  const requestedSlug = input.slug?.trim() ? slugify(input.slug) : slugify(input.name)
+  const slug = await ensureUniqueSlug(requestedSlug, id)
 
   await db
     .update(products)
