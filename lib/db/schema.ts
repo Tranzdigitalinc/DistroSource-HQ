@@ -73,6 +73,7 @@ export const categories = pgTable("categories", {
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
+  sku: text("sku").unique(),
   name: text("name").notNull(),
   tagline: text("tagline"),
   description: text("description").notNull(),
