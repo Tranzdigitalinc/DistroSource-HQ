@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PriceDisplay } from "@/components/price-display"
+import { PolarInlineCheckout } from "@/components/checkout/polar-inline-checkout"
 import { Reveal } from "@/components/motion/reveal"
 import { saveAbandonedCart } from "@/lib/actions/recovery"
 import { createPolarCheckout } from "@/lib/actions/checkout"
@@ -77,6 +78,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const [cvc, setCvc] = useState("")
   const [isPending, startTransition] = useTransition()
   const [isPreparingAccount, setIsPreparingAccount] = useState(false)
+  const [polarCheckoutUrl, setPolarCheckoutUrl] = useState<string | null>(null)
 
   const discount = Math.round(subtotal * (discountPercent / 100) * 100) / 100
   const total = Math.max(0, subtotal - discount)
@@ -136,7 +138,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
       if (!ready) return
       try {
         const checkout = await createPolarCheckout({ billingEmail: email, billingName: name, couponCode })
-        window.location.assign(checkout.url)
+        setPolarCheckoutUrl(checkout.url)
       } catch (error) {
         await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
         toast.error(error instanceof Error ? error.message : "Could not start Polar checkout.")
@@ -239,13 +241,25 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             <Lock className="size-4 text-muted-foreground" aria-hidden="true" />
             <h2 className="font-display text-lg font-bold">Payment</h2>
           </div>
-          <div className="rounded-lg border border-primary/25 bg-primary/5 p-4" role="status">
-            <p className="text-sm font-semibold text-foreground">Pay securely with Polar</p>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">You&apos;ll be redirected to Polar&apos;s secure hosted checkout. Your digital products are delivered after payment is confirmed.</p>
-          </div>
-          <Button type="submit" size="lg" disabled={isPending || isPreparingAccount} className="h-12 font-semibold">
-            {isPending || isPreparingAccount ? <span className="flex items-center gap-2"><Loader2 className="size-4 animate-spin" />Preparing secure checkout...</span> : `Pay ${formattedTotal} with Polar`}
-          </Button>
+          {polarCheckoutUrl ? (
+            <PolarInlineCheckout
+              checkoutUrl={polarCheckoutUrl}
+              onSuccess={(successUrl) => {
+                const url = new URL(successUrl)
+                router.push(`${url.pathname}${url.search}`)
+              }}
+            />
+          ) : (
+            <>
+              <div className="rounded-lg border border-primary/25 bg-primary/5 p-4" role="status">
+                <p className="text-sm font-semibold text-foreground">Secure payment</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Complete your purchase securely without leaving DistroSource. Your digital products are delivered after payment is confirmed.</p>
+              </div>
+              <Button type="submit" size="lg" disabled={isPending || isPreparingAccount} className="h-12 font-semibold">
+                {isPending || isPreparingAccount ? <span className="flex items-center gap-2"><Loader2 className="size-4 animate-spin" />Preparing secure checkout...</span> : `Complete purchase · ${formattedTotal}`}
+              </Button>
+            </>
+          )}
         </Reveal>
 
         {/*
@@ -400,9 +414,11 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             <span>Total</span>
             <PriceDisplay usdAmount={total} />
           </div>
-          <Button type="submit" size="lg" disabled={isPending || isPreparingAccount} className="mt-2 hidden h-12 font-semibold lg:flex">
-            {isPending || isPreparingAccount ? "Preparing secure checkout..." : `Pay ${formattedTotal} with Polar`}
-          </Button>
+          {!polarCheckoutUrl && (
+            <Button type="submit" size="lg" disabled={isPending || isPreparingAccount} className="mt-2 hidden h-12 font-semibold lg:flex">
+              {isPending || isPreparingAccount ? "Preparing secure checkout..." : `Complete purchase · ${formattedTotal}`}
+            </Button>
+          )}
           <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
             <ShieldCheck className="size-3.5" aria-hidden="true" />
             Secured checkout — your details are protected
@@ -410,7 +426,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
         </Reveal>
       </form>
 
-      {(
+      {!polarCheckoutUrl && (
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-4 py-3 backdrop-blur-md lg:hidden">
           <div className="mx-auto flex max-w-2xl items-center justify-between gap-4">
             <div className="flex flex-col leading-tight">
@@ -419,13 +435,13 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 <PriceDisplay usdAmount={total} />
               </span>
             </div>
-            <Button type="submit" form={FORM_ID} size="lg" disabled={isPending} className="h-11 flex-1 font-semibold">
+            <Button type="submit" form={FORM_ID} size="lg" disabled={isPending || isPreparingAccount} className="h-11 flex-1 font-semibold">
               {isPending || isPreparingAccount ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="size-4 animate-spin" />
                   Preparing secure checkout...
                 </span>
-              ) : `Pay ${formattedTotal} with Polar`}
+              ) : `Complete purchase · ${formattedTotal}`}
             </Button>
           </div>
         </div>

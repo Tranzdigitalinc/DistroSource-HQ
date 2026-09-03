@@ -463,6 +463,7 @@ export async function createPolarCheckout(input: {
     },
     successUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/checkout/success?checkout_id={CHECKOUT_ID}`,
     returnUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/checkout`,
+    embedOrigin: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   })
 
   return { url: polarCheckoutUrl(checkout), checkoutId: checkout.id }
