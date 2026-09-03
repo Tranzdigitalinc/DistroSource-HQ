@@ -40,6 +40,9 @@ export default async function AdminProductsPage({
           <Button variant="outline" size="sm" render={<Link href="/admin" />} nativeButton={false}>
             Back to control center
           </Button>
+          <Button variant="outline" size="sm" render={<Link href="/admin/products/import-envato" />} nativeButton={false}>
+            Import from Envato
+          </Button>
           <Button size="sm" render={<Link href="/admin/products/new" />} nativeButton={false}>
             <Plus className="size-3.5" aria-hidden="true" />
             New product

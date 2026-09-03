@@ -13,6 +13,8 @@ export {
   IconUpload as Upload,
   IconPlus as Plus,
   IconRotate as RotateCw,
+  IconSearch as Search,
+  IconStar as Star,
 } from "@tabler/icons-react"
 
 export type { IconProps } from "@tabler/icons-react"
