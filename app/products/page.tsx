@@ -26,6 +26,7 @@ export default async function ProductsPage({
     search: params.q,
     free: params.free === "true",
     bundle: params.bundle === "true",
+    deal: params.deal === "true",
     maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
     format: params.format,
     minRating: params.minRating ? Number(params.minRating) : undefined,

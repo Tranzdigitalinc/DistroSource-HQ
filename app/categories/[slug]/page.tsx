@@ -30,6 +30,9 @@ export default async function CategoryDetailPage({
     getProducts({
       categorySlug: slug,
       search: sp.q,
+      free: sp.free === "true",
+      bundle: sp.bundle === "true",
+      deal: sp.deal === "true",
       maxPrice: sp.maxPrice ? Number(sp.maxPrice) : undefined,
       format: sp.format,
       minRating: sp.minRating ? Number(sp.minRating) : undefined,

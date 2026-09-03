@@ -28,9 +28,12 @@ export function CatalogFilters({ formats = [] }: { formats?: { format: string; c
   const activeMaxPrice = searchParams.get("maxPrice")
   const activeFree = searchParams.get("free")
   const activeBundle = searchParams.get("bundle")
+  const activeDeal = searchParams.get("deal")
   const activeFormat = searchParams.get("format")
   const activeMinRating = searchParams.get("minRating")
-  const hasActiveFilters = Boolean(activeMaxPrice || activeFree || activeBundle || activeFormat || activeMinRating)
+  const hasActiveFilters = Boolean(
+    activeMaxPrice || activeFree || activeBundle || activeDeal || activeFormat || activeMinRating,
+  )
 
   return (
     <aside className="flex w-full flex-col gap-5 lg:w-64">
@@ -64,6 +67,7 @@ export function CatalogFilters({ formats = [] }: { formats?: { format: string; c
           <FilterGroup title="Type">
             <FilterLink href={buildHref("free", "true")} active={activeFree === "true"} label="Free resources" />
             <FilterLink href={buildHref("bundle", "true")} active={activeBundle === "true"} label="Premium bundles" />
+            <FilterLink href={buildHref("deal", "true")} active={activeDeal === "true"} label="On sale" />
           </FilterGroup>
 
           {formats.length > 0 && (
