@@ -45,7 +45,7 @@ export function RefundOrderButton({ orderId, orderNumber, totalUsd }: { orderId:
         <DialogHeader>
           <DialogTitle>Refund order {orderNumber}</DialogTitle>
           <DialogDescription>
-            This marks the ${totalUsd} order as refunded, revokes the customer&apos;s download access to every item in the order, and emails a refund confirmation. No payment is actually processed — this app has no live payment gateway.
+            This refunds the ${totalUsd} payment through PayPal, revokes the customer&apos;s download access to every item in the order, and emails a refund confirmation. This cannot be undone.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-2">
