@@ -25,6 +25,7 @@ export type CategoryFormInput = {
   sortOrder: string
   seoTitle: string
   seoDescription: string
+  parentId: string // "" means top-level department
 }
 
 export async function getAdminCategories() {
@@ -38,6 +39,7 @@ export async function getAdminCategories() {
       icon: categories.icon,
       heroImageUrl: categories.heroImageUrl,
       sortOrder: categories.sortOrder,
+      parentId: categories.parentId,
       productCount: sql<number>`count(${products.id})`.mapWith(Number),
     })
     .from(categories)
@@ -47,10 +49,36 @@ export async function getAdminCategories() {
   return rows
 }
 
+// Top-level departments only, for the "parent department" select in the
+// category form. A department cannot be nested under another department.
+export async function getAdminDepartments() {
+  await requireAdmin()
+  return db
+    .select({ id: categories.id, name: categories.name })
+    .from(categories)
+    .where(sql`${categories.parentId} is null`)
+    .orderBy(categories.sortOrder, categories.name)
+}
+
 export async function getAdminCategoryById(id: number) {
   await requireAdmin()
   const [category] = await db.select().from(categories).where(eq(categories.id, id))
   return category ?? null
+}
+
+// Only 2 levels are allowed: departments (parentId null) and subcategories
+// (parentId -> a department). A subcategory can never be chosen as a parent.
+async function resolveParentId(rawParentId: string, selfId?: number) {
+  if (!rawParentId.trim()) return null
+  const parentId = Number.parseInt(rawParentId, 10)
+  if (!Number.isFinite(parentId)) throw new Error("Invalid parent department.")
+  if (selfId !== undefined && parentId === selfId) throw new Error("A category cannot be its own parent.")
+
+  const [parent] = await db.select({ id: categories.id, parentId: categories.parentId }).from(categories).where(eq(categories.id, parentId))
+  if (!parent) throw new Error("Selected parent department does not exist.")
+  if (parent.parentId !== null) throw new Error("The category model only supports 2 levels: a subcategory cannot be nested under another subcategory.")
+
+  return parentId
 }
 
 export async function createCategory(input: CategoryFormInput) {
@@ -60,6 +88,8 @@ export async function createCategory(input: CategoryFormInput) {
 
   const [existing] = await db.select({ id: categories.id }).from(categories).where(eq(categories.slug, slug))
   if (existing) throw new Error("A category with this slug already exists.")
+
+  const parentId = await resolveParentId(input.parentId)
 
   const [created] = await db
     .insert(categories)
@@ -72,6 +102,7 @@ export async function createCategory(input: CategoryFormInput) {
       sortOrder: input.sortOrder ? Number.parseInt(input.sortOrder, 10) || 0 : 0,
       seoTitle: input.seoTitle.trim() || null,
       seoDescription: input.seoDescription.trim() || null,
+      parentId,
     })
     .returning({ id: categories.id })
 
@@ -91,6 +122,20 @@ export async function updateCategory(id: number, input: CategoryFormInput) {
     .where(and(eq(categories.slug, slug), ne(categories.id, id)))
   if (existing) throw new Error("Another category already uses this slug.")
 
+  const parentId = await resolveParentId(input.parentId, id)
+
+  // Turning a department into a subcategory (or vice versa) is only safe
+  // when nothing currently depends on the old shape.
+  if (parentId !== null) {
+    const [{ count: childCount }] = await db
+      .select({ count: sql<number>`count(*)`.mapWith(Number) })
+      .from(categories)
+      .where(eq(categories.parentId, id))
+    if (childCount > 0) {
+      throw new Error(`This department has ${childCount} subcategor${childCount === 1 ? "y" : "ies"} under it. Move or delete them before assigning a parent department.`)
+    }
+  }
+
   await db
     .update(categories)
     .set({
@@ -102,6 +147,7 @@ export async function updateCategory(id: number, input: CategoryFormInput) {
       sortOrder: input.sortOrder ? Number.parseInt(input.sortOrder, 10) || 0 : 0,
       seoTitle: input.seoTitle.trim() || null,
       seoDescription: input.seoDescription.trim() || null,
+      parentId,
     })
     .where(eq(categories.id, id))
 
@@ -120,6 +166,14 @@ export async function deleteCategory(id: number) {
 
   if (count > 0) {
     throw new Error(`This category has ${count} product${count === 1 ? "" : "s"} assigned to it. Move or delete them first.`)
+  }
+
+  const [{ childCount }] = await db
+    .select({ childCount: sql<number>`count(*)`.mapWith(Number) })
+    .from(categories)
+    .where(eq(categories.parentId, id))
+  if (childCount > 0) {
+    throw new Error(`This department has ${childCount} subcategor${childCount === 1 ? "y" : "ies"} under it. Move or delete them first.`)
   }
 
   await db.delete(categories).where(eq(categories.id, id))

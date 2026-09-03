@@ -3,7 +3,7 @@ import { headers } from "next/headers"
 import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { isAdminEmail } from "@/lib/admin-emails"
-import { getAdminCategoryById } from "@/lib/actions/admin-categories"
+import { getAdminCategoryById, getAdminDepartments } from "@/lib/actions/admin-categories"
 import { CategoryForm } from "@/components/admin/category-form"
 import { Button } from "@/components/ui/button"
 
@@ -20,7 +20,7 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
   const parsedId = Number.parseInt(id, 10)
   if (!Number.isFinite(parsedId)) notFound()
 
-  const category = await getAdminCategoryById(parsedId)
+  const [category, departments] = await Promise.all([getAdminCategoryById(parsedId), getAdminDepartments()])
   if (!category) notFound()
 
   return (

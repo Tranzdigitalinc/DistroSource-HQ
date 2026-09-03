@@ -19,6 +19,9 @@ const APPROVED_RIGHTS_STATUSES = ["original", "licensed_for_distribution", "supp
 const publiclyVisible = () =>
   and(eq(products.status, "published"), eq(products.assetStatus, "ready"), inArray(products.rightsStatus, APPROVED_RIGHTS_STATUSES))!
 
+// Products only ever attach to a subcategory (parentId is not null), never
+// directly to a top-level department. Every list of "categories" for filter
+// pills, dropdowns, and sitemaps means subcategories unless noted otherwise.
 export async function getCategories() {
   return db
     .select({
@@ -29,17 +32,73 @@ export async function getCategories() {
       icon: categories.icon,
       heroImageUrl: categories.heroImageUrl,
       sortOrder: categories.sortOrder,
+      parentId: categories.parentId,
+      productCount: sql<number>`cast(count(${products.id}) as int)`,
+    })
+    .from(categories)
+    .leftJoin(products, and(eq(products.categoryId, categories.id), publiclyVisible()))
+    .where(sql`${categories.parentId} is not null`)
+    .groupBy(categories.id)
+    .orderBy(asc(categories.sortOrder))
+}
+
+export type CategoryTreeNode = Awaited<ReturnType<typeof getCategoryTree>>[number]
+
+// Full 2-level hierarchy: top-level departments, each with its subcategories
+// nested underneath and a rolled-up product count for the whole department.
+export async function getCategoryTree() {
+  const rows = await db
+    .select({
+      id: categories.id,
+      slug: categories.slug,
+      name: categories.name,
+      description: categories.description,
+      icon: categories.icon,
+      heroImageUrl: categories.heroImageUrl,
+      sortOrder: categories.sortOrder,
+      parentId: categories.parentId,
       productCount: sql<number>`cast(count(${products.id}) as int)`,
     })
     .from(categories)
     .leftJoin(products, and(eq(products.categoryId, categories.id), publiclyVisible()))
     .groupBy(categories.id)
     .orderBy(asc(categories.sortOrder))
+
+  const departments = rows.filter((row) => row.parentId === null)
+  const subcategoriesByParent = new Map<number, typeof rows>()
+  for (const row of rows) {
+    if (row.parentId === null) continue
+    const list = subcategoriesByParent.get(row.parentId) ?? []
+    list.push(row)
+    subcategoriesByParent.set(row.parentId, list)
+  }
+
+  return departments.map((department) => {
+    const subcategories = subcategoriesByParent.get(department.id) ?? []
+    return {
+      ...department,
+      subcategories,
+      productCount: subcategories.reduce((sum, sub) => sum + sub.productCount, 0),
+    }
+  })
 }
 
 export async function getCategoryBySlug(slug: string) {
   const rows = await db.select().from(categories).where(eq(categories.slug, slug)).limit(1)
   return rows[0] ?? null
+}
+
+// Resolves a category slug to the set of category ids whose products should
+// be shown on that page: itself if it's a subcategory, or all of its
+// subcategories if it's a top-level department (departments never hold
+// products directly).
+async function getCategoryIdsForSlug(slug: string) {
+  const category = await getCategoryBySlug(slug)
+  if (!category) return { category: null, ids: [] as number[] }
+  if (category.parentId !== null) return { category, ids: [category.id] }
+
+  const children = await db.select({ id: categories.id }).from(categories).where(eq(categories.parentId, category.id))
+  return { category, ids: children.map((c) => c.id) }
 }
 
 async function attachRelations(productRows: (typeof products.$inferSelect)[]) {
@@ -177,8 +236,8 @@ function buildProductConditions(options: ProductQueryOptions) {
 export async function getProductsCount(options: ProductQueryOptions = {}) {
   const conditions = buildProductConditions(options)
   if (options.categorySlug) {
-    const cat = await getCategoryBySlug(options.categorySlug)
-    if (cat) conditions.push(eq(products.categoryId, cat.id))
+    const { ids } = await getCategoryIdsForSlug(options.categorySlug)
+    conditions.push(ids.length ? inArray(products.categoryId, ids) : sql`false`)
   }
 
   const rows = await db
@@ -201,8 +260,8 @@ export async function getProducts(options: ProductQueryOptions = {}) {
   const conditions = buildProductConditions(options)
 
   if (options.categorySlug) {
-    const cat = await getCategoryBySlug(options.categorySlug)
-    if (cat) conditions.push(eq(products.categoryId, cat.id))
+    const { ids } = await getCategoryIdsForSlug(options.categorySlug)
+    conditions.push(ids.length ? inArray(products.categoryId, ids) : sql`false`)
   }
 
   const ratingAverage = sql<number>`coalesce((select avg(${reviews.rating}) from ${reviews} where ${reviews.productId} = ${products.id}), 0)`

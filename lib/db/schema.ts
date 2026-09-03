@@ -67,6 +67,11 @@ export const categories = pgTable("categories", {
   sortOrder: integer("sortOrder").notNull().default(0),
   seoTitle: text("seoTitle"),
   seoDescription: text("seoDescription"),
+  // Null for top-level departments (e.g. "Web & Development"). Set for
+  // subcategories, pointing at the department they belong to (e.g.
+  // "React / Next.js Templates" -> "Web & Development"). Products always
+  // attach to a subcategory, never directly to a department.
+  parentId: integer("parentId").references((): any => categories.id),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
