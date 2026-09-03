@@ -10,7 +10,7 @@ import {
   addProductLicense,
   type ProductFormInput,
 } from "@/lib/actions/admin-products"
-import { searchEnvatoItems, getEnvatoItemDetail, type EnvatoSite } from "@/lib/envato"
+import { searchEnvatoItems, getEnvatoItemDetail, type EnvatoSite, type EnvatoSearchResult } from "@/lib/envato"
 import { mirrorUrlToBlob } from "@/lib/blob-mirror"
 import { htmlToLiteMarkdown, stripLiteMarkdown } from "@/lib/html-to-text"
 import { createPlaceholderZip } from "@/lib/zip-placeholder"
@@ -87,7 +87,9 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
     fileFormats: "",
     fileSizeMb: "",
     softwareCompatibility: "",
-    currentVersion: "1.0.0",
+    // Bulk imports intentionally do not assign a release version. Add one
+    // later from the product editor when the real package is uploaded.
+    currentVersion: "",
     includedFiles: "",
     documentation: "",
     tags: item.tags.slice(0, 12).join(", "),
@@ -136,4 +138,40 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
   await updateProduct(productId, { ...formInput, status: "published" })
 
   return productId
+}
+
+export type BulkImportResult = {
+  envatoId: number
+  name: string
+  productId?: number
+  error?: string
+}
+
+// Import one item at a time so Envato and Blob requests stay within safe
+// limits. Bulk imports intentionally pass no version value; the product can
+// be versioned later from its editor when a real package is uploaded.
+export async function importEnvatoItems(input: {
+  items: Pick<EnvatoSearchResult, "id" | "name">[]
+  categoryId: number
+  isFeatured: boolean
+}): Promise<BulkImportResult[]> {
+  await requireAdmin()
+  const results: BulkImportResult[] = []
+  for (const item of input.items) {
+    try {
+      const productId = await importEnvatoItem({
+        envatoId: item.id,
+        categoryId: input.categoryId,
+        isFeatured: input.isFeatured,
+      })
+      results.push({ envatoId: item.id, name: item.name, productId })
+    } catch (error) {
+      results.push({
+        envatoId: item.id,
+        name: item.name,
+        error: error instanceof Error ? error.message : "Import failed.",
+      })
+    }
+  }
+  return results
 }
