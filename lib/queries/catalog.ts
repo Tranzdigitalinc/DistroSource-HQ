@@ -155,10 +155,20 @@ async function attachRelations(productRows: (typeof products.$inferSelect)[]) {
   if (productRows.length === 0) return []
   const ids = productRows.map((p) => p.id)
 
-  const [images, licenses] = await Promise.all([
+  const [images, licenses, reviewStatsRows] = await Promise.all([
     db.select().from(productImages).where(inArray(productImages.productId, ids)).orderBy(asc(productImages.sortOrder)),
     db.select().from(productLicenses).where(inArray(productLicenses.productId, ids)).orderBy(asc(productLicenses.sortOrder)),
+    db
+      .select({
+        productId: reviews.productId,
+        avgRating: sql<number>`avg(${reviews.rating})`,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(reviews)
+      .where(inArray(reviews.productId, ids))
+      .groupBy(reviews.productId),
   ])
+  const reviewStatsByProduct = new Map(reviewStatsRows.map((r) => [r.productId, { avgRating: Number(r.avgRating), count: r.count }]))
 
   const imagesByProduct = new Map<number, typeof images>()
   for (const img of images) {
@@ -178,11 +188,14 @@ async function attachRelations(productRows: (typeof products.$inferSelect)[]) {
     const startingPrice = productLicensesList.length
       ? Math.min(...productLicensesList.map((l) => Number.parseFloat(l.price)))
       : Number.parseFloat(product.basePrice)
+    const reviewStats = reviewStatsByProduct.get(product.id)
     return {
       product,
       images: imagesByProduct.get(product.id) ?? [],
       licenses: productLicensesList,
       startingPrice,
+      avgRating: reviewStats?.avgRating ?? 0,
+      reviewCount: reviewStats?.count ?? 0,
     }
   })
 }

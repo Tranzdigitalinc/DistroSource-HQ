@@ -19,7 +19,7 @@ const APPROVED_RIGHTS_STATUSES = ["original", "licensed_for_distribution", "supp
 export async function claimFreeProduct(productId: number) {
   const session = await getSession()
   if (!session?.user) {
-    throw new Error("Sign in to add this to your library.")
+    return { success: false as const, requiresSignIn: true as const }
   }
   const userId = session.user.id
 
@@ -49,7 +49,7 @@ export async function claimFreeProduct(productId: number) {
     .where(and(eq(entitlements.userId, userId), eq(entitlements.productId, productId)))
     .limit(1)
   if (existing) {
-    return { success: true, alreadyOwned: true as const }
+    return { success: true as const, requiresSignIn: false as const, alreadyOwned: true as const }
   }
 
   await db.transaction(async (tx) => {
@@ -92,5 +92,5 @@ export async function claimFreeProduct(productId: number) {
 
   revalidatePath("/account/library")
   revalidatePath("/account/orders")
-  return { success: true, alreadyOwned: false as const }
+  return { success: true as const, requiresSignIn: false as const, alreadyOwned: false as const }
 }

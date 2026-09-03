@@ -1,9 +1,10 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { wishlistItems, products, categories, productImages, productLicenses } from "@/lib/db/schema"
+import { wishlistItems } from "@/lib/db/schema"
+import { getProductsByIds } from "@/lib/queries/catalog"
 import { getOptionalUserId, getUserId } from "@/lib/session"
-import { and, asc, eq, inArray } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
 export async function toggleWishlist(productId: number) {
@@ -40,42 +41,8 @@ export async function getWishlistItems() {
   const wishRows = await db.select().from(wishlistItems).where(eq(wishlistItems.userId, userId))
   if (wishRows.length === 0) return []
 
-  const productIds = wishRows.map((w) => w.productId)
-  const rows = await db
-    .select({ product: products, category: categories })
-    .from(products)
-    .innerJoin(categories, eq(products.categoryId, categories.id))
-    .where(inArray(products.id, productIds))
-
-  const [imageRows, licenseRows] = await Promise.all([
-    db.select().from(productImages).where(inArray(productImages.productId, productIds)).orderBy(asc(productImages.sortOrder)),
-    db.select().from(productLicenses).where(inArray(productLicenses.productId, productIds)).orderBy(asc(productLicenses.sortOrder)),
-  ])
-
-  const imagesByProduct = new Map<number, typeof imageRows>()
-  for (const image of imageRows) {
-    const list = imagesByProduct.get(image.productId) ?? []
-    list.push(image)
-    imagesByProduct.set(image.productId, list)
-  }
-  const licensesByProduct = new Map<number, typeof licenseRows>()
-  for (const license of licenseRows) {
-    const list = licensesByProduct.get(license.productId) ?? []
-    list.push(license)
-    licensesByProduct.set(license.productId, list)
-  }
-
-  return rows.map((r) => {
-    const productLicensesList = licensesByProduct.get(r.product.id) ?? []
-    const startingPrice = productLicensesList.length
-      ? Math.min(...productLicensesList.map((l) => Number.parseFloat(l.price)))
-      : Number.parseFloat(r.product.basePrice)
-
-    return {
-      ...r,
-      images: imagesByProduct.get(r.product.id) ?? [],
-      licenses: productLicensesList,
-      startingPrice,
-    }
-  })
+  // Reuse the catalog's shared product-with-relations loader (images,
+  // licenses, department, ratings) instead of re-deriving the same shape by
+  // hand — keeps every product card on the site fed by one consistent shape.
+  return getProductsByIds(wishRows.map((w) => w.productId))
 }
