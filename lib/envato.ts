@@ -36,16 +36,61 @@ interface EnvatoRawItem {
   price_cents?: number
   number_of_sales?: number
   rating?: { rating: number } | null
-  previews?: {
-    icon_with_landscape_preview?: { icon_url?: string; landscape_url?: string }
-    icon_preview?: { icon_url?: string }
-    live_site_preview?: { icon_url?: string; landscape_url?: string }
-    thumbnail_preview?: { small_url?: string; large_url?: string }
-  }
+  previews?: Record<string, Record<string, unknown> | undefined>
   author_username?: string
   tags?: string[]
   summary?: string
   classification?: string
+  attributes?: { name: string; value: unknown; label?: string }[]
+}
+
+// The `previews` object's shape varies by item type (theme, script, graphic,
+// video) and Envato adds/renames sub-keys over time, so rather than pinning
+// to a few known keys we walk the whole tree and pull every image URL we
+// find. This is what actually gets us "all" media instead of just one
+// hero thumbnail.
+const PREVIEW_IMAGE_KEYS = new Set(["icon_url", "landscape_url", "small_url", "large_url", "large_landscape_url"])
+
+function collectPreviewUrls(previews: EnvatoRawItem["previews"]): string[] {
+  if (!previews) return []
+  const urls: string[] = []
+  const seen = new Set<string>()
+
+  function walk(node: unknown) {
+    if (!node || typeof node !== "object") return
+    for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+      if (typeof value === "string" && PREVIEW_IMAGE_KEYS.has(key) && !seen.has(value)) {
+        seen.add(value)
+        urls.push(value)
+      } else if (value && typeof value === "object") {
+        walk(value)
+      }
+    }
+  }
+
+  walk(previews)
+  return urls
+}
+
+// Envato listing descriptions embed real product screenshots inline as plain
+// <img> tags, but also embed promo badges ("Exclusive") and cross-sell ads
+// for unrelated products/tech-stack variants wrapped in affiliate links
+// (envato.market redirects). We want the former as gallery media and must
+// drop the latter — they aren't pictures of this item.
+const AFFILIATE_LINK_RE = /<a\b[^>]*href="[^"]*(?:envato\.market|click\.linksynergy)[^"]*"[^>]*>[\s\S]*?<\/a>/gi
+const IMG_TAG_RE = /<img\b[^>]*\ssrc="([^"]+)"[^>]*>/gi
+
+function extractContentImages(html: string | null | undefined): string[] {
+  if (!html) return []
+  const withoutAffiliateAds = html.replace(AFFILIATE_LINK_RE, " ")
+  const urls: string[] = []
+  let match: RegExpExecArray | null
+  while ((match = IMG_TAG_RE.exec(withoutAffiliateAds))) {
+    const [fullTag, src] = match
+    if (/exclusive|badge|banner/i.test(fullTag)) continue
+    urls.push(src)
+  }
+  return urls
 }
 
 function requireApiKey() {
@@ -55,17 +100,7 @@ function requireApiKey() {
 }
 
 function extractThumbnail(item: EnvatoRawItem): string | null {
-  const previews = item.previews
-  if (!previews) return null
-  return (
-    previews.icon_with_landscape_preview?.landscape_url ||
-    previews.icon_with_landscape_preview?.icon_url ||
-    previews.live_site_preview?.landscape_url ||
-    previews.thumbnail_preview?.large_url ||
-    previews.thumbnail_preview?.small_url ||
-    previews.icon_preview?.icon_url ||
-    null
-  )
+  return collectPreviewUrls(item.previews)[0] ?? null
 }
 
 function mapResult(item: EnvatoRawItem): EnvatoSearchResult {
@@ -116,6 +151,7 @@ export async function searchEnvatoItems(params: {
 export interface EnvatoItemDetail extends EnvatoSearchResult {
   description: string
   screenshots: string[]
+  liveDemoUrl: string | null
 }
 
 export async function getEnvatoItemDetail(id: number): Promise<EnvatoItemDetail | null> {
@@ -131,16 +167,20 @@ export async function getEnvatoItemDetail(id: number): Promise<EnvatoItemDetail 
   const item = (await res.json()) as EnvatoRawItem & { description?: string }
 
   const base = mapResult(item)
-  const previews = item.previews
-  const screenshots = [
-    previews?.icon_with_landscape_preview?.landscape_url,
-    previews?.live_site_preview?.landscape_url,
-    previews?.thumbnail_preview?.large_url,
-  ].filter((v): v is string => Boolean(v))
+  // Pull every preview image Envato exposes for this item (hero/landscape,
+  // icon, live-site preview, etc.) plus every real screenshot embedded in
+  // the description body — this is the full gallery, not a single thumbnail.
+  const screenshots = Array.from(
+    new Set([...collectPreviewUrls(item.previews), ...extractContentImages(item.description)]),
+  )
+
+  const demoAttribute = item.attributes?.find((a) => a.name === "demo-url")
+  const liveDemoUrl = typeof demoAttribute?.value === "string" ? demoAttribute.value : null
 
   return {
     ...base,
     description: item.description ?? item.summary ?? "",
-    screenshots: Array.from(new Set(screenshots)),
+    screenshots,
+    liveDemoUrl,
   }
 }

@@ -166,6 +166,9 @@ export function ProductForm({ categories, product }: { categories: Category[]; p
           <div className="flex flex-col gap-2 sm:col-span-2">
             <Label htmlFor="description">Description</Label>
             <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={5} required />
+            <p className="text-xs text-muted-foreground">
+              Supports light formatting: {"##"} for headings, {"-"} for bullet points, and **bold** for emphasis.
+            </p>
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="status">Status</Label>

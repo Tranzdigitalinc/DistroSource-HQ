@@ -5,7 +5,9 @@ import type { Metadata } from "next"
 import { Star, ChevronRight, Download, ShieldCheck, RefreshCw, ImageOff } from "lucide-react"
 import { getProductBySlug, getRecommendedProducts } from "@/lib/queries/catalog"
 import { getWishlistProductIds } from "@/lib/actions/wishlist"
+import { stripLiteMarkdown } from "@/lib/html-to-text"
 import { PurchasePanel } from "@/components/product/purchase-panel"
+import { LiteMarkdown } from "@/components/product/lite-markdown"
 import { ReviewList } from "@/components/product/review-list"
 import { ProductGrid } from "@/components/catalog/product-grid"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -64,7 +66,7 @@ export default async function ProductDetailPage({
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    description: product.description,
+    description: stripLiteMarkdown(product.description),
     image: gallery.length ? gallery : undefined,
     aggregateRating: reviewCount > 0 ? { "@type": "AggregateRating", ratingValue: avgRating, reviewCount } : undefined,
     offers: licenses.map((license) => ({
@@ -203,7 +205,7 @@ export default async function ProductDetailPage({
               </TabsList>
               <TabsContent value="details" className="py-6">
                 <div className="max-w-2xl space-y-6">
-                  <p className="text-sm leading-relaxed text-muted-foreground">{product.description}</p>
+                  <LiteMarkdown text={product.description} className="flex flex-col gap-3" />
                   <dl className="divide-y divide-border border border-border">
                     {product.fileFormats.length > 0 && (
                       <div className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
