@@ -141,19 +141,16 @@ interface ProductQueryOptions {
   minPrice?: number
   sort?: "featured" | "price-asc" | "price-desc" | "newest" | "rating"
   limit?: number
+  offset?: number
   statusFilter?: "published" | "all"
 }
 
-export async function getProducts(options: ProductQueryOptions = {}) {
+function buildProductConditions(options: ProductQueryOptions) {
   // "preview_only" products can exist in the DB (visible in admin) but must never
   // appear as purchasable products on the public storefront.
   const conditions =
     options.statusFilter === "all" ? [] : [eq(products.status, "published"), eq(products.assetStatus, "ready")]
 
-  if (options.categorySlug) {
-    const cat = await getCategoryBySlug(options.categorySlug)
-    if (cat) conditions.push(eq(products.categoryId, cat.id))
-  }
   if (options.search) {
     const term = `%${options.search.trim()}%`
     conditions.push(
@@ -170,6 +167,40 @@ export async function getProducts(options: ProductQueryOptions = {}) {
   if (options.free) conditions.push(eq(products.isFree, true))
   if (options.bundle) conditions.push(eq(products.isBundle, true))
   if (options.deal) conditions.push(sql`${products.compareAtPrice} is not null and ${products.compareAtPrice} > ${products.basePrice}`)
+
+  return conditions
+}
+
+export async function getProductsCount(options: ProductQueryOptions = {}) {
+  const conditions = buildProductConditions(options)
+  if (options.categorySlug) {
+    const cat = await getCategoryBySlug(options.categorySlug)
+    if (cat) conditions.push(eq(products.categoryId, cat.id))
+  }
+
+  const rows = await db
+    .select({ count: sql<number>`cast(count(*) as int)` })
+    .from(products)
+    .where(conditions.length ? and(...conditions) : undefined)
+
+  // minPrice/maxPrice are applied in-memory on getProducts (startingPrice is
+  // derived from license rows), so an exact count with those filters requires
+  // fetching all matching rows. Fall back to the unfiltered count in that case.
+  if (options.minPrice !== undefined || options.maxPrice !== undefined) {
+    const all = await getProducts({ ...options, limit: 5000, offset: 0 })
+    return all.length
+  }
+
+  return rows[0]?.count ?? 0
+}
+
+export async function getProducts(options: ProductQueryOptions = {}) {
+  const conditions = buildProductConditions(options)
+
+  if (options.categorySlug) {
+    const cat = await getCategoryBySlug(options.categorySlug)
+    if (cat) conditions.push(eq(products.categoryId, cat.id))
+  }
 
   const ratingAverage = sql<number>`coalesce((select avg(${reviews.rating}) from ${reviews} where ${reviews.productId} = ${products.id}), 0)`
   const orderBy =
@@ -188,6 +219,7 @@ export async function getProducts(options: ProductQueryOptions = {}) {
     .where(conditions.length ? and(...conditions) : undefined)
     .orderBy(...orderBy)
     .limit(options.limit ?? 200)
+    .offset(options.offset ?? 0)
 
   const withRelations = await attachRelations(rows.map((r) => r.product))
   const categoryById = new Map(rows.map((r) => [r.product.id, r.category]))

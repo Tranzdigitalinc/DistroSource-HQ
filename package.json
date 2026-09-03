@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "seed:catalog": "node scripts/catalog/upload.mjs && node scripts/catalog/seed.mjs"
+    "seed:catalog": "node scripts/catalog/upload.mjs && node scripts/catalog/seed.mjs",
+    "seed:catalog:batch2": "node scripts/catalog/upload-batch2.mjs && node scripts/catalog/seed-batch2.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
