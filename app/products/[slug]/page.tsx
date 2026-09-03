@@ -120,8 +120,9 @@ export default async function ProductDetailPage({
             <span className="truncate font-medium text-foreground">{product.name}</span>
           </nav>
 
-          <Reveal className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 md:gap-10">
-            <div className="flex flex-col gap-4">
+          <Reveal className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-x-12 lg:gap-y-10">
+            {/* Gallery + trust badges: first on mobile, top-left on desktop. */}
+            <div className="order-1 flex flex-col gap-4 lg:col-start-1 lg:row-start-1">
               <ProductGallery images={gallery} alt={product.name} />
 
               {reviewCount > 0 && (
@@ -162,7 +163,10 @@ export default async function ProductDetailPage({
               </div>
             </div>
 
-            <div className="flex flex-col gap-5">
+            {/* Purchase panel: shown right after the gallery on mobile so
+                pricing/checkout is never buried below the tab content;
+                pinned in the right column on desktop. */}
+            <div className="order-2 flex flex-col gap-5 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-20">
               <div>
                 <span className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-primary">
                   {category.name}
@@ -186,95 +190,97 @@ export default async function ProductDetailPage({
                 }
               />
             </div>
-          </Reveal>
 
-          <Reveal delay={0.1}>
-            <Tabs defaultValue="details" className="mt-12">
-              <TabsList
-                variant="line"
-                className="border-b border-border font-mono text-xs font-semibold uppercase tracking-[0.04em]"
-              >
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="updates">Updates ({versions.length})</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews ({reviewCount})</TabsTrigger>
-              </TabsList>
-              <TabsContent value="details" className="py-6">
-                <div className="max-w-2xl space-y-6">
-                  <LiteMarkdown text={product.description} className="flex max-w-3xl flex-col gap-5" />
-                  <dl className="divide-y divide-border border border-border">
-                    {product.fileFormats.length > 0 && (
-                      <div className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
-                        <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-                          File formats
-                        </dt>
-                        <dd className="text-sm text-foreground">{product.fileFormats.join(", ")}</dd>
-                      </div>
+            {/* Details / updates / reviews tabs: last on mobile, sits below
+                the gallery in the left column on desktop. */}
+            <div className="order-3 lg:col-start-1 lg:row-start-2">
+              <Tabs defaultValue="details">
+                <TabsList
+                  variant="line"
+                  className="border-b border-border font-mono text-xs font-semibold uppercase tracking-[0.04em]"
+                >
+                  <TabsTrigger value="details">Details</TabsTrigger>
+                  <TabsTrigger value="updates">Updates ({versions.length})</TabsTrigger>
+                  <TabsTrigger value="reviews">Reviews ({reviewCount})</TabsTrigger>
+                </TabsList>
+                <TabsContent value="details" className="py-6">
+                  <div className="max-w-2xl space-y-6">
+                    <LiteMarkdown text={product.description} className="flex max-w-3xl flex-col gap-5" />
+                    <dl className="divide-y divide-border border border-border">
+                      {product.fileFormats.length > 0 && (
+                        <div className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
+                          <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                            File formats
+                          </dt>
+                          <dd className="text-sm text-foreground">{product.fileFormats.join(", ")}</dd>
+                        </div>
+                      )}
+                      {product.softwareCompatibility.length > 0 && (
+                        <div className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
+                          <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                            Compatible with
+                          </dt>
+                          <dd className="text-sm text-foreground">{product.softwareCompatibility.join(", ")}</dd>
+                        </div>
+                      )}
+                      {product.fileSizeMb && (
+                        <div className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
+                          <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                            File size
+                          </dt>
+                          <dd className="font-mono text-sm text-foreground">{product.fileSizeMb} MB</dd>
+                        </div>
+                      )}
+                      {product.includedFiles.length > 0 && (
+                        <div className="flex flex-col gap-1.5 px-4 py-3 sm:flex-row sm:gap-4">
+                          <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                            Included
+                          </dt>
+                          <dd className="text-sm text-foreground">
+                            <ul className="space-y-1">
+                              {product.includedFiles.map((file) => (
+                                <li key={file} className="flex items-baseline gap-2">
+                                  <span className="text-primary">—</span>
+                                  {file}
+                                </li>
+                              ))}
+                            </ul>
+                          </dd>
+                        </div>
+                      )}
+                    </dl>
+                    {product.documentation && (
+                      <p className="text-sm leading-relaxed text-muted-foreground">{product.documentation}</p>
                     )}
-                    {product.softwareCompatibility.length > 0 && (
-                      <div className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
-                        <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-                          Compatible with
-                        </dt>
-                        <dd className="text-sm text-foreground">{product.softwareCompatibility.join(", ")}</dd>
-                      </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="updates" className="py-6">
+                  <div className="max-w-2xl">
+                    {versions.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No version history yet — this is the initial release.</p>
+                    ) : (
+                      <ul className="flex flex-col divide-y divide-border border border-border">
+                        {versions.map((v) => (
+                          <li key={v.id} className="flex flex-col gap-1 px-4 py-3.5">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-sm font-bold text-foreground">v{v.version}</span>
+                              <span className="font-mono text-xs text-muted-foreground">{formatDate(v.releasedAt)}</span>
+                            </div>
+                            {v.changelog && <p className="text-sm text-muted-foreground">{v.changelog}</p>}
+                          </li>
+                        ))}
+                      </ul>
                     )}
-                    {product.fileSizeMb && (
-                      <div className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
-                        <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-                          File size
-                        </dt>
-                        <dd className="font-mono text-sm text-foreground">{product.fileSizeMb} MB</dd>
-                      </div>
-                    )}
-                    {product.includedFiles.length > 0 && (
-                      <div className="flex flex-col gap-1.5 px-4 py-3 sm:flex-row sm:gap-4">
-                        <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-                          Included
-                        </dt>
-                        <dd className="text-sm text-foreground">
-                          <ul className="space-y-1">
-                            {product.includedFiles.map((file) => (
-                              <li key={file} className="flex items-baseline gap-2">
-                                <span className="text-primary">—</span>
-                                {file}
-                              </li>
-                            ))}
-                          </ul>
-                        </dd>
-                      </div>
-                    )}
-                  </dl>
-                  {product.documentation && (
-                    <p className="text-sm leading-relaxed text-muted-foreground">{product.documentation}</p>
-                  )}
-                </div>
-              </TabsContent>
-              <TabsContent value="updates" className="py-6">
-                <div className="max-w-2xl">
-                  {versions.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No version history yet — this is the initial release.</p>
-                  ) : (
-                    <ul className="flex flex-col divide-y divide-border border border-border">
-                      {versions.map((v) => (
-                        <li key={v.id} className="flex flex-col gap-1 px-4 py-3.5">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-sm font-bold text-foreground">v{v.version}</span>
-                            <span className="font-mono text-xs text-muted-foreground">{formatDate(v.releasedAt)}</span>
-                          </div>
-                          {v.changelog && <p className="text-sm text-muted-foreground">{v.changelog}</p>}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </TabsContent>
-              <TabsContent value="reviews" className="py-6">
-                <div className="flex max-w-2xl flex-col gap-8">
-                  <ReviewForm productId={product.id} eligibility={reviewEligibility} />
-                  <ReviewList reviews={reviews} />
-                </div>
-              </TabsContent>
-            </Tabs>
+                  </div>
+                </TabsContent>
+                <TabsContent value="reviews" className="py-6">
+                  <div className="flex max-w-2xl flex-col gap-8">
+                    <ReviewForm productId={product.id} eligibility={reviewEligibility} />
+                    <ReviewList reviews={reviews} />
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </div>
           </Reveal>
 
           {related.length > 0 && (
