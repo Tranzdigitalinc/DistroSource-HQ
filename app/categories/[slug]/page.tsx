@@ -31,6 +31,8 @@ export default async function CategoryDetailPage({
       categorySlug: slug,
       search: sp.q,
       maxPrice: sp.maxPrice ? Number(sp.maxPrice) : undefined,
+      format: sp.format,
+      minRating: sp.minRating ? Number(sp.minRating) : undefined,
       sort: (sp.sort as any) ?? "featured",
     }),
     getCategoryNavContext(category),

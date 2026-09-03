@@ -5,7 +5,7 @@ import { CatalogToolbar } from "@/components/catalog/catalog-toolbar"
 import { CategoryPillBar } from "@/components/catalog/category-pill-bar"
 import { ProductGrid } from "@/components/catalog/product-grid"
 import { CatalogPagination } from "@/components/catalog/catalog-pagination"
-import { getCategories, getProducts, getProductsCount } from "@/lib/queries/catalog"
+import { getAvailableFileFormats, getCategories, getProducts, getProductsCount } from "@/lib/queries/catalog"
 
 export const metadata = {
   title: "All products — DistroSource",
@@ -27,10 +27,16 @@ export default async function ProductsPage({
     free: params.free === "true",
     bundle: params.bundle === "true",
     maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
+    format: params.format,
+    minRating: params.minRating ? Number(params.minRating) : undefined,
     sort: (params.sort as any) ?? "featured",
   }
 
-  const [categories, totalCount] = await Promise.all([getCategories(), getProductsCount(queryOptions)])
+  const [categories, totalCount, formats] = await Promise.all([
+    getCategories(),
+    getProductsCount(queryOptions),
+    getAvailableFileFormats(),
+  ])
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
   const safePage = Math.min(currentPage, totalPages)
@@ -56,7 +62,7 @@ export default async function ProductsPage({
           </div>
           <CategoryPillBar categories={categories} />
           <div className="flex flex-col gap-8 lg:flex-row">
-            <CatalogFilters />
+            <CatalogFilters formats={formats} />
             <div className="flex-1">
               <CatalogToolbar resultCount={totalCount} />
               <ProductGrid items={products} />
