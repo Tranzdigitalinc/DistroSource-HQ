@@ -11,13 +11,20 @@ export async function CatalogPage({
   subtitle,
   banner,
   products,
+  categoryPillBar,
 }: {
   title: React.ReactNode
   subtitle?: string
   banner?: React.ReactNode
   products: Awaited<ReturnType<typeof getProducts>>
+  // Defaults to the query-param-driven CategoryPillBar (used by /products and
+  // /deals, which filter via `?category=`). Pass a real navigation element
+  // instead on pages like /categories/[slug] where the category is set by
+  // the route, not a query param — a query-param pill there would render
+  // but silently do nothing when clicked.
+  categoryPillBar?: React.ReactNode
 }) {
-  const categories = await getCategories()
+  const categories = categoryPillBar === undefined ? await getCategories() : null
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -31,7 +38,7 @@ export async function CatalogPage({
               {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
             </div>
           )}
-          <CategoryPillBar categories={categories} />
+          {categoryPillBar !== undefined ? categoryPillBar : <CategoryPillBar categories={categories!} />}
           <div className="flex flex-col gap-8 lg:flex-row">
             <CatalogFilters />
             <div className="flex-1">

@@ -88,6 +88,21 @@ export async function getCategoryBySlug(slug: string) {
   return rows[0] ?? null
 }
 
+// For a category page's in-page nav: the department this category belongs
+// to (itself, if it already is one) plus that department's subcategories,
+// so the page can link to real sibling routes instead of a query param.
+export async function getCategoryNavContext(category: { id: number; parentId: number | null }) {
+  const departmentId = category.parentId ?? category.id
+  const [department] = await db.select({ id: categories.id, slug: categories.slug, name: categories.name }).from(categories).where(eq(categories.id, departmentId))
+  const subcategories = await db
+    .select({ id: categories.id, slug: categories.slug, name: categories.name })
+    .from(categories)
+    .where(eq(categories.parentId, departmentId))
+    .orderBy(asc(categories.sortOrder))
+
+  return { department: department ?? null, subcategories }
+}
+
 // Resolves a category slug to the set of category ids whose products should
 // be shown on that page: itself if it's a subcategory, or all of its
 // subcategories if it's a top-level department (departments never hold
