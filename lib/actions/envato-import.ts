@@ -10,7 +10,7 @@ import {
   addProductLicense,
   type ProductFormInput,
 } from "@/lib/actions/admin-products"
-import { searchEnvatoItems, getEnvatoItemDetail, type EnvatoSite } from "@/lib/envato"
+import { searchEnvatoItems, getEnvatoItemDetail, type EnvatoSite, type EnvatoSearchResult } from "@/lib/envato"
 import { mirrorUrlToBlob } from "@/lib/blob-mirror"
 import { htmlToLiteMarkdown, stripLiteMarkdown } from "@/lib/html-to-text"
 import { createPlaceholderZip } from "@/lib/zip-placeholder"
@@ -35,6 +35,28 @@ function slugifyName(name: string) {
     .replace(/-+/g, "-")
 }
 
+function createOwnedProductName(sourceName: string): string {
+  const cleaned = sourceName
+    .replace(/\b(envato|themeforest|codecanyon|videohive|graphicriver|photodune|3docean|activeden)\b/gi, "")
+    .replace(/\b(template|kit)\b/gi, "")
+    .replace(/[|:–—-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+
+  const words = cleaned.split(" ").filter(Boolean).slice(0, 8)
+  const core = words.length > 0 ? words.join(" ") : "Digital Product"
+  return `DistroSource ${core} Studio`
+}
+
+function removeExternalLinks(text: string): string {
+  return text
+    .replace(/https?:\/\/[^\s)]+/gi, "")
+    .replace(/www\.[^\s)]+/gi, "")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/\s{2,}/g, " ")
+    .trim()
+}
+
 // Imports a single Envato Market item as a fully live DistroSource product:
 // - Description is converted from raw HTML into a light markdown format
 //   (headings, bullets, bold kept) instead of one flat paragraph, and
@@ -56,10 +78,11 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
   const item = await getEnvatoItemDetail(input.envatoId)
   if (!item) throw new Error("Could not load this item from Envato. It may have been removed.")
 
-  let description = htmlToLiteMarkdown(item.description) || item.summary || item.name
-  if (item.liveDemoUrl) {
-    description += `\n\n## Live preview\n${item.liveDemoUrl}`
-  }
+  const ownedName = createOwnedProductName(item.name)
+  // Keep useful product copy, but remove every outbound URL before it is
+  // stored. Imported listings become DistroSource-owned catalog content;
+  // the source item's live demo and marketplace links must never be shown.
+  const description = removeExternalLinks(htmlToLiteMarkdown(item.description) || item.summary || ownedName)
   const tagline = stripLiteMarkdown(description).slice(0, 140).trim()
   const basePrice = (item.priceCents / 100).toFixed(2)
 
@@ -74,8 +97,8 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
   const [thumbnailUrl, ...restImages] = mirroredUrls
 
   const formInput: ProductFormInput = {
-    name: item.name,
-    slug: slugifyName(item.name),
+    name: ownedName,
+    slug: slugifyName(ownedName),
     tagline,
     description,
     categoryId: input.categoryId,
@@ -87,7 +110,9 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
     fileFormats: "",
     fileSizeMb: "",
     softwareCompatibility: "",
-    currentVersion: "1.0.0",
+    // Bulk imports intentionally do not assign a release version. Add one
+    // later from the product editor when the real package is uploaded.
+    currentVersion: "",
     includedFiles: "",
     documentation: "",
     tags: item.tags.slice(0, 12).join(", "),
@@ -102,18 +127,18 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
   const productId = await createProduct(formInput)
 
   for (const url of mirroredUrls) {
-    await addProductImage(productId, url, item.name)
+    await addProductImage(productId, url, ownedName)
   }
 
-  const zipBuffer = createPlaceholderZip(item.name)
-  const zipBlob = await put(`products/${Date.now()}-${slugifyName(item.name)}-placeholder.zip`, zipBuffer, {
+  const zipBuffer = createPlaceholderZip(ownedName)
+  const zipBlob = await put(`products/${Date.now()}-${slugifyName(ownedName)}-placeholder.zip`, zipBuffer, {
     access: "private",
     contentType: "application/zip",
   })
   // Store the raw private-blob pathname, not a URL — /api/downloads/[fileId]
   // resolves this via get() after re-checking entitlement.
   await addProductFile(productId, {
-    fileName: `${slugifyName(item.name)}.zip`,
+    fileName: `${slugifyName(ownedName)}.zip`,
     blobPathname: zipBlob.pathname,
     fileSizeBytes: zipBuffer.length,
     fileType: "application/zip",
@@ -136,4 +161,40 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
   await updateProduct(productId, { ...formInput, status: "published" })
 
   return productId
+}
+
+export type BulkImportResult = {
+  envatoId: number
+  name: string
+  productId?: number
+  error?: string
+}
+
+// Import one item at a time so Envato and Blob requests stay within safe
+// limits. Bulk imports intentionally pass no version value; the product can
+// be versioned later from its editor when a real package is uploaded.
+export async function importEnvatoItems(input: {
+  items: Pick<EnvatoSearchResult, "id" | "name">[]
+  categoryId: number
+  isFeatured: boolean
+}): Promise<BulkImportResult[]> {
+  await requireAdmin()
+  const results: BulkImportResult[] = []
+  for (const item of input.items) {
+    try {
+      const productId = await importEnvatoItem({
+        envatoId: item.id,
+        categoryId: input.categoryId,
+        isFeatured: input.isFeatured,
+      })
+      results.push({ envatoId: item.id, name: item.name, productId })
+    } catch (error) {
+      results.push({
+        envatoId: item.id,
+        name: item.name,
+        error: error instanceof Error ? error.message : "Import failed.",
+      })
+    }
+  }
+  return results
 }

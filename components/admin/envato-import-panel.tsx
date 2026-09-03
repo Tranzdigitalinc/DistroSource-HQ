@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { searchEnvatoCatalog, importEnvatoItem } from "@/lib/actions/envato-import"
+import { searchEnvatoCatalog, importEnvatoItem, importEnvatoItems, type BulkImportResult } from "@/lib/actions/envato-import"
 import { ENVATO_SITES, type EnvatoSearchResult, type EnvatoSite } from "@/lib/envato"
 
 type Category = { id: number; name: string }
@@ -27,6 +27,9 @@ export function EnvatoImportPanel({ categories }: { categories: Category[] }) {
   const [searched, setSearched] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
   const [importingId, setImportingId] = useState<number | null>(null)
+  const [selectedIds, setSelectedIds] = useState<number[]>([])
+  const [bulkResults, setBulkResults] = useState<BulkImportResult[]>([])
+  const [isBulkImporting, setIsBulkImporting] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   const [categoryId, setCategoryId] = useState(categories[0] ? String(categories[0].id) : "")
@@ -57,6 +60,44 @@ export function EnvatoImportPanel({ categories }: { categories: Category[] }) {
     } finally {
       setIsSearching(false)
     }
+  }
+
+  function toggleSelected(id: number) {
+    setSelectedIds((current) => (current.includes(id) ? current.filter((value) => value !== id) : [...current, id]))
+  }
+
+  function toggleAll() {
+    setSelectedIds((current) => (current.length === results.length ? [] : results.map((item) => item.id)))
+  }
+
+  function handleBulkImport() {
+    if (!categoryId) {
+      toast.error("Choose a category before importing.")
+      return
+    }
+    const items = results.filter((item) => selectedIds.includes(item.id))
+    if (items.length === 0) {
+      toast.error("Select at least one item to import.")
+      return
+    }
+    setIsBulkImporting(true)
+    setBulkResults([])
+    startTransition(async () => {
+      try {
+        const completed = await importEnvatoItems({ items, categoryId: Number(categoryId), isFeatured })
+        setBulkResults(completed)
+        const successCount = completed.filter((result) => result.productId).length
+        const failureCount = completed.length - successCount
+        if (failureCount === 0) toast.success(`${successCount} products imported successfully.`)
+        else toast.error(`${successCount} imported, ${failureCount} failed. See the results below.`)
+        setSelectedIds([])
+        router.refresh()
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Bulk import failed.")
+      } finally {
+        setIsBulkImporting(false)
+      }
+    })
   }
 
   function handleImport(item: EnvatoSearchResult) {
@@ -154,10 +195,45 @@ export function EnvatoImportPanel({ categories }: { categories: Category[] }) {
       ) : null}
 
       {results.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <>
+          <div className="flex flex-wrap items-center justify-between gap-3 border border-border bg-card p-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Checkbox
+                checked={selectedIds.length === results.length && results.length > 0}
+                onCheckedChange={toggleAll}
+                aria-label="Select all search results"
+              />
+              Select all ({results.length})
+            </label>
+            <div className="flex items-center gap-3">
+              {selectedIds.length > 0 ? <span className="text-xs text-muted-foreground">{selectedIds.length} selected</span> : null}
+              <Button size="sm" onClick={handleBulkImport} disabled={isBulkImporting || selectedIds.length === 0}>
+                {isBulkImporting ? <Loader2 className="size-3.5 animate-spin" aria-hidden="true" /> : null}
+                {isBulkImporting ? "Importing selected..." : "Import selected"}
+              </Button>
+            </div>
+          </div>
+          {bulkResults.length > 0 ? (
+            <div className="flex flex-col gap-2 border border-border bg-muted/30 p-4 text-sm">
+              <p className="font-medium text-foreground">Bulk import results</p>
+              {bulkResults.map((result) => (
+                <p key={result.envatoId} className={result.error ? "text-destructive" : "text-muted-foreground"}>
+                  {result.error ? `Failed: ${result.name} — ${result.error}` : `Imported: ${result.name}`}
+                </p>
+              ))}
+            </div>
+          ) : null}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {results.map((item) => (
             <Card key={item.id} className="overflow-hidden">
               <div className="relative aspect-video w-full bg-secondary">
+                <div className="absolute left-2 top-2 z-10 rounded-sm bg-background/90 p-1">
+                  <Checkbox
+                    checked={selectedIds.includes(item.id)}
+                    onCheckedChange={() => toggleSelected(item.id)}
+                    aria-label={`Select ${item.name}`}
+                  />
+                </div>
                 {item.thumbnailUrl ? (
                   <Image src={item.thumbnailUrl || "/placeholder.svg"} alt={item.name} fill className="object-cover" unoptimized />
                 ) : null}
@@ -192,7 +268,8 @@ export function EnvatoImportPanel({ categories }: { categories: Category[] }) {
               </CardContent>
             </Card>
           ))}
-        </div>
+          </div>
+        </>
       ) : null}
     </div>
   )
