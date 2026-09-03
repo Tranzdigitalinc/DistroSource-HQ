@@ -22,7 +22,7 @@ export function ShopByGoal() {
       <div className="relative mx-auto max-w-7xl px-6 py-14 sm:px-8">
         <div className="mb-8 max-w-xl">
           <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Start with the outcome</p>
-          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Shop by goal, not file type</h2>
+          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Shop by purpose</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             A faster route to <FlipWords words={["launch", "sell", "design", "organize"]} className="font-semibold text-foreground" /> the thing you are trying to make.
           </p>

@@ -8,7 +8,15 @@ import { cn } from "@/lib/utils"
 
 type SearchItem = { slug: string; name: string }
 
-export function HeaderSearch({ className, categories = [] }: { className?: string; categories?: SearchItem[] }) {
+export function HeaderSearch({
+  className,
+  categories = [],
+  size = "default",
+}: {
+  className?: string
+  categories?: SearchItem[]
+  size?: "default" | "lg"
+}) {
   const router = useRouter()
   const [query, setQuery] = useState("")
   const [focused, setFocused] = useState(false)
@@ -25,14 +33,17 @@ export function HeaderSearch({ className, categories = [] }: { className?: strin
     router.push(`/products?q=${encodeURIComponent(query.trim())}`)
   }
 
+  const isLarge = size === "lg"
+
   return (
     <form onSubmit={handleSubmit} className={className}>
       <div className={cn(
         "relative w-full transition-all duration-200",
-        focused && "scale-[1.02]"
+        focused && "scale-[1.01]"
       )}>
         <Search className={cn(
-          "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 transition-colors",
+          "pointer-events-none absolute top-1/2 -translate-y-1/2 transition-colors",
+          isLarge ? "left-4 size-5" : "left-3 size-4",
           focused ? "text-accent" : "text-muted-foreground"
         )} />
         <Input
@@ -40,24 +51,37 @@ export function HeaderSearch({ className, categories = [] }: { className?: strin
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder="Search templates, fonts, presentations..."
+          placeholder="Search templates, fonts, UI kits, presentations..."
           className={cn(
-            "h-10 w-full rounded-full bg-secondary pl-9 pr-10 text-sm transition-all",
-            focused && "bg-secondary/80 ring-2 ring-accent/25"
+            "w-full transition-all",
+            isLarge
+              ? "h-14 rounded-[4px] border-border-strong bg-card pl-12 pr-14 text-base shadow-sm"
+              : "h-10 rounded-full bg-secondary pl-9 pr-10 text-sm",
+            focused && (isLarge ? "ring-2 ring-accent/25" : "bg-secondary/80 ring-2 ring-accent/25"),
           )}
           aria-label="Search products"
         />
         {query.trim() && (
           <button
             type="submit"
-            className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full bg-accent text-accent-foreground transition-transform hover:scale-110"
+            className={cn(
+              "absolute top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full bg-accent text-accent-foreground transition-transform hover:scale-110",
+              isLarge ? "right-3 size-9" : "right-2 size-6",
+            )}
             aria-label="Search"
           >
-            <ArrowRight className="size-3" />
+            <ArrowRight className={isLarge ? "size-4" : "size-3"} />
           </button>
         )}
         {focused && suggestions.length > 0 && (
-          <div className="absolute inset-x-0 top-12 z-50 overflow-hidden rounded-2xl border border-border bg-card p-1.5 shadow-xl" role="listbox" aria-label="Search suggestions">
+          <div
+            className={cn(
+              "absolute inset-x-0 z-50 overflow-hidden rounded-2xl border border-border bg-card p-1.5 shadow-xl",
+              isLarge ? "top-16" : "top-12",
+            )}
+            role="listbox"
+            aria-label="Search suggestions"
+          >
             {suggestions.map((item) => (
               <button
                 key={item.slug}
