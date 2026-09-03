@@ -16,6 +16,13 @@ import './globals.css'
 const _archivo = Archivo({ subsets: ['latin'], variable: '--font-archivo', weight: ['400', '500', '600', '700', '800', '900'] })
 const _jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains', weight: ['400', '500', '600', '700'] })
 
+const ogImage = {
+  url: '/og-distrosource.png',
+  width: 1536,
+  height: 1024,
+  alt: 'DistroSource — All your digital needs, one source. UI/UX kits, business templates, 3D assets, presentation templates, icons, and fonts.',
+}
+
 export const metadata: Metadata = {
   title: 'DistroSource — Everything Digital. One Source.',
   description:
@@ -28,20 +35,13 @@ export const metadata: Metadata = {
     siteName: 'DistroSource',
     title: 'DistroSource — Everything Digital. One Source.',
     description: 'Shop templates, fonts, presentations, and digital products across every category — instant access after checkout.',
-    images: [
-      {
-        url: '/og-distrosource.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'DistroSource — a digital products department store',
-      },
-    ],
+    images: [ogImage],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'DistroSource — Everything Digital. One Source.',
     description: 'Shop templates, fonts, presentations, and digital products across every category — instant access after checkout.',
-    images: ['/og-distrosource.jpg'],
+    images: [ogImage.url],
   },
   icons: {
     icon: '/icon.png',
