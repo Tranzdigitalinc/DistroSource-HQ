@@ -177,6 +177,7 @@ export default async function ProductDetailPage({
                 productId={product.id}
                 licenses={licenses}
                 initialWishlisted={wishlistIds.includes(product.id)}
+                isPreviewOnly={product.assetStatus !== "ready"}
               />
             </div>
           </Reveal>

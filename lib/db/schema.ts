@@ -97,6 +97,13 @@ export const products = pgTable("products", {
   isBundle: boolean("isBundle").notNull().default(false),
   seoTitle: text("seoTitle"),
   seoDescription: text("seoDescription"),
+  // asset lifecycle: "ready" products are purchasable and public; "preview_only"
+  // products can be browsed but not bought (assets not yet attached).
+  assetStatus: text("assetStatus").notNull().default("ready"),
+  subcategory: text("subcategory"),
+  features: text("features").array().notNull().default([]),
+  searchKeywords: text("searchKeywords").array().notNull().default([]),
+  releaseDate: timestamp("releaseDate").notNull().defaultNow(),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 })

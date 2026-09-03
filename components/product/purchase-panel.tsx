@@ -24,10 +24,12 @@ export function PurchasePanel({
   productId,
   licenses,
   initialWishlisted,
+  isPreviewOnly = false,
 }: {
   productId: number
   licenses: License[]
   initialWishlisted: boolean
+  isPreviewOnly?: boolean
 }) {
   const router = useRouter()
   const [selectedId, setSelectedId] = useState(licenses[0]?.id)
@@ -147,10 +149,16 @@ export function PurchasePanel({
         </div>
       </div>
 
+      {isPreviewOnly && (
+        <p className="border border-dashed border-border bg-secondary/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+          This product's downloadable asset is still being prepared and isn&apos;t purchasable yet.
+        </p>
+      )}
+
       <div className="flex items-center gap-2">
         <Button
           onClick={handleAddToCart}
-          disabled={isPending || justAdded}
+          disabled={isPending || justAdded || isPreviewOnly}
           className={cn(
             "h-11 flex-1 rounded-[3px] font-mono text-sm font-semibold uppercase tracking-[0.02em] transition-colors",
             justAdded && "bg-success hover:bg-success",
@@ -164,7 +172,7 @@ export function PurchasePanel({
           ) : (
             <>
               <ShoppingCart className="size-4" />
-              Add to cart
+              {isPreviewOnly ? "Not yet available" : "Add to cart"}
             </>
           )}
         </Button>

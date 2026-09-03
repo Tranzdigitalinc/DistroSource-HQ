@@ -25,7 +25,10 @@ export async function getCategories() {
       productCount: sql<number>`cast(count(${products.id}) as int)`,
     })
     .from(categories)
-    .leftJoin(products, and(eq(products.categoryId, categories.id), eq(products.status, "published")))
+    .leftJoin(
+      products,
+      and(eq(products.categoryId, categories.id), eq(products.status, "published"), eq(products.assetStatus, "ready")),
+    )
     .groupBy(categories.id)
     .orderBy(asc(categories.sortOrder))
 }
@@ -142,7 +145,10 @@ interface ProductQueryOptions {
 }
 
 export async function getProducts(options: ProductQueryOptions = {}) {
-  const conditions = options.statusFilter === "all" ? [] : [eq(products.status, "published")]
+  // "preview_only" products can exist in the DB (visible in admin) but must never
+  // appear as purchasable products on the public storefront.
+  const conditions =
+    options.statusFilter === "all" ? [] : [eq(products.status, "published"), eq(products.assetStatus, "ready")]
 
   if (options.categorySlug) {
     const cat = await getCategoryBySlug(options.categorySlug)
@@ -214,7 +220,14 @@ export async function getRecommendedProducts(categoryId: number, excludeProductI
     .select({ product: products, category: categories })
     .from(products)
     .innerJoin(categories, eq(products.categoryId, categories.id))
-    .where(and(eq(products.categoryId, categoryId), eq(products.status, "published"), sql`${products.id} != ${excludeProductId}`))
+    .where(
+      and(
+        eq(products.categoryId, categoryId),
+        eq(products.status, "published"),
+        eq(products.assetStatus, "ready"),
+        sql`${products.id} != ${excludeProductId}`,
+      ),
+    )
     .orderBy(desc(products.isFeatured), desc(products.createdAt))
     .limit(limit)
 
@@ -251,7 +264,10 @@ export async function getDealProducts(limit = 12) {
 
 export async function getCatalogStats() {
   const [[productCount], [categoryCount], [reviewStats]] = await Promise.all([
-    db.select({ count: sql<number>`count(*)::int` }).from(products).where(eq(products.status, "published")),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(products)
+      .where(and(eq(products.status, "published"), eq(products.assetStatus, "ready"))),
     db.select({ count: sql<number>`count(*)::int` }).from(categories),
     db
       .select({ count: sql<number>`count(*)::int`, avgRating: sql<number>`coalesce(avg(${reviews.rating}), 0)` })
