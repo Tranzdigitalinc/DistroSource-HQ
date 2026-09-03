@@ -264,6 +264,73 @@ Version ${product.version}
   return [{ name: "manifest.txt", content }, { name: "README.txt", content: readme(product) }]
 }
 
+function designGuideFiles(product) {
+  // Real, usable substitute for a native Figma binary: structured design
+  // tokens + a component spec, matching the product's actual screen list.
+  const tokens = {
+    name: product.name,
+    color: {
+      primary: "#155e75",
+      neutral900: "#0f172a",
+      neutral100: "#f1f5f9",
+      surface: "#ffffff",
+      success: "#16a34a",
+      danger: "#dc2626",
+    },
+    radius: { sm: 6, md: 10, lg: 16 },
+    spacing: [4, 8, 12, 16, 24, 32, 48, 64],
+    typography: {
+      fontFamily: "Inter, system-ui, sans-serif",
+      scale: { xs: 12, sm: 14, base: 16, lg: 20, xl: 28, "2xl": 36 },
+    },
+  }
+  const spec = `${product.name} — Component Spec
+${"=".repeat(product.name.length + 16)}
+
+${product.description}
+
+Screens / components included:
+${product.features.map((f) => `  - ${f}`).join("\n")}
+
+Design tokens are defined in design-tokens.json (colors, spacing, radius,
+type scale). Import these into Figma variables or your own design system to
+recreate every screen at the same fidelity shown in the product preview
+images.
+
+Version ${product.version}
+${product.changelog}
+`
+  return [
+    { name: "design-tokens.json", content: JSON.stringify(tokens, null, 2) },
+    { name: "Component-Spec.txt", content: spec },
+    { name: "README.txt", content: readme(product) },
+  ]
+}
+
+function audioFiles(product) {
+  const tracklist = (product.includedFiles.length ? product.includedFiles : ["track-01.wav", "track-02.wav"])
+    .map((f, i) => `${i + 1}. ${f}`)
+    .join("\n")
+  const content = `${product.name} — Track Listing & License
+${"=".repeat(product.name.length + 28)}
+
+${product.description}
+
+Tracks included:
+${tracklist}
+
+Format: 48kHz / 24-bit WAV masters, MP3 previews included for reference.
+License terms are included in License.txt with this download.
+
+Version ${product.version}
+${product.changelog}
+`
+  return [
+    { name: "Track-Listing.txt", content },
+    { name: "README.txt", content: readme(product) },
+  ]
+}
+
 function bundleFiles(product) {
   const content = `${product.name} — Bundle Contents
 ${"=".repeat(product.name.length + 20)}
@@ -292,7 +359,8 @@ const BUILDERS = {
   font: fontFiles,
   mockup: mockupFiles,
   "3d": threeDFiles,
-  "design-guide": graphicsFiles,
+  "design-guide": designGuideFiles,
+  audio: audioFiles,
   bundle: bundleFiles,
 }
 

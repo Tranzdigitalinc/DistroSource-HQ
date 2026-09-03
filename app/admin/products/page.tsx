@@ -22,7 +22,18 @@ const STATUS_FILTERS = [
   { value: "preview_only", label: "Preview only" },
   { value: "draft", label: "Draft" },
   { value: "published", label: "Published" },
+  { value: "rights_pending", label: "Rights pending" },
+  { value: "rights_rejected", label: "Rights rejected" },
+  { value: "rights_missing_proof", label: "Missing proof of rights" },
 ] as const
+
+const RIGHTS_STATUS_LABEL: Record<string, string> = {
+  original: "Original",
+  licensed_for_distribution: "Licensed",
+  supplier_verified: "Supplier verified",
+  pending_verification: "Rights pending",
+  rejected: "Rights rejected",
+}
 
 export default async function AdminProductsPage({
   searchParams,
@@ -35,7 +46,18 @@ export default async function AdminProductsPage({
 
   const { search, status } = await searchParams
   const statusFilter = STATUS_FILTERS.find((f) => f.value === status)?.value || undefined
-  const rows = await getAdminProducts(search, statusFilter as "ready" | "preview_only" | "draft" | "published" | undefined)
+  const rows = await getAdminProducts(
+    search,
+    statusFilter as
+      | "ready"
+      | "preview_only"
+      | "draft"
+      | "published"
+      | "rights_pending"
+      | "rights_rejected"
+      | "rights_missing_proof"
+      | undefined,
+  )
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
@@ -48,9 +70,6 @@ export default async function AdminProductsPage({
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" render={<Link href="/admin" />} nativeButton={false}>
             Back to control center
-          </Button>
-          <Button variant="outline" size="sm" render={<Link href="/admin/products/import-envato" />} nativeButton={false}>
-            Import from Envato
           </Button>
           <Button size="sm" render={<Link href="/admin/products/new" />} nativeButton={false}>
             <Plus className="size-3.5" aria-hidden="true" />
@@ -110,6 +129,12 @@ export default async function AdminProductsPage({
                 </Badge>
                 <Badge variant={product.status === "published" ? "secondary" : "outline"} className="shrink-0 capitalize">
                   {product.status}
+                </Badge>
+                <Badge
+                  variant={product.rightsStatus === "pending_verification" || product.rightsStatus === "rejected" ? "destructive" : "outline"}
+                  className="shrink-0"
+                >
+                  {RIGHTS_STATUS_LABEL[product.rightsStatus] ?? product.rightsStatus}
                 </Badge>
               </Link>
             ))

@@ -91,14 +91,7 @@ const bundles = [
 const licenseTiers = [
   { licenseType: "personal", mult: 1, description: "For personal, non-commercial projects." },
   { licenseType: "commercial", mult: 2.5, description: "For a single commercial project or client." },
-  { licenseType: "extended_commercial", mult: 5, description: "For unlimited commercial projects and resale-ready products." },
-]
-
-const reviewSeeds = [
-  { rating: 5, title: "Exactly what I needed", body: "The quality is way above what I expected for the price. Saved me hours of design work." },
-  { rating: 5, title: "Clean and professional", body: "Everything is well organized and easy to customize. Would buy from this store again." },
-  { rating: 4, title: "Great value", body: "Solid template, minor tweaks needed for my brand but overall very happy with it." },
-  { rating: 5, title: "Highly recommend", body: "This made my launch so much easier. The files are well documented and easy to edit." },
+  { licenseType: "extended_commercial", mult: 5, description: "For unlimited commercial projects and use across multiple end products. Does not grant resale or redistribution of the raw asset itself." },
 ]
 
 async function main() {
@@ -115,9 +108,6 @@ async function main() {
       categoryIdBySlug[c.slug] = r.rows[0].id
     }
     console.log("[v0] Inserted categories:", Object.keys(categoryIdBySlug).length)
-
-    let adminUserId = "seed-admin-user"
-    // Placeholder author id for reviews; not a real auth user, only used to satisfy NOT NULL userId column.
 
     let productCount = 0
     for (const p of products) {
@@ -161,15 +151,6 @@ async function main() {
         )
       }
 
-      // Seed 1-2 reviews per product for rating aggregates
-      const numReviews = isFeatured ? 2 : 1
-      for (let i = 0; i < numReviews; i++) {
-        const rv = reviewSeeds[(productId + i) % reviewSeeds.length]
-        await client.query(
-          `INSERT INTO reviews ("productId", "userId", rating, title, body) VALUES ($1,$2,$3,$4,$5)`,
-          [productId, adminUserId, rv.rating, rv.title, rv.body],
-        )
-      }
     }
     console.log("[v0] Inserted products:", productCount)
 
@@ -207,11 +188,6 @@ async function main() {
         }
       }
 
-      const rv = reviewSeeds[0]
-      await client.query(
-        `INSERT INTO reviews ("productId", "userId", rating, title, body) VALUES ($1,$2,$3,$4,$5)`,
-        [bundleProductId, adminUserId, rv.rating, rv.title, rv.body],
-      )
     }
     console.log("[v0] Inserted bundles:", bundles.length)
 

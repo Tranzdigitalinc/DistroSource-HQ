@@ -36,7 +36,7 @@ const faqGroups = [
       {
         question: "What payment methods do you accept?",
         answer:
-          "We accept PayPal and major debit and credit cards through PayPal Checkout, all processed through an encrypted, PCI-compliant checkout.",
+          "Checkout is temporarily under maintenance while we work on payment processing. We'll update this answer with accepted payment methods once it's back online.",
       },
       {
         question: "Why was my payment declined?",
@@ -56,7 +56,7 @@ const faqGroups = [
       {
         question: "What's the difference between the license tiers?",
         answer:
-          "Personal licenses cover non-commercial, personal projects. Commercial licenses cover use in a single business or client project. Extended Commercial and Agency tiers extend that to resale-adjacent or multi-client use. Each product page lists exactly what its tiers include.",
+          "Personal licenses cover non-commercial, personal projects. Commercial licenses cover use in a single business or client project. Extended Commercial and Agency tiers extend that to unlimited projects and multi-client use. None of our license tiers permit reselling or redistributing the underlying files themselves. Each product page lists exactly what its tiers include.",
       },
       {
         question: "Can I use a product across my whole team?",
@@ -66,7 +66,7 @@ const faqGroups = [
       {
         question: "Do I own the files after I buy them?",
         answer:
-          "You own a license to use the files under the terms you purchased — copyright and resale rights to the underlying design or code remain with DistroSource and its creators unless a listing says otherwise.",
+          "You own a license to use the files under the terms you purchased — copyright and resale rights to the underlying design or code remain with DistroSource unless a listing identifies a different rights holder.",
       },
     ],
   },

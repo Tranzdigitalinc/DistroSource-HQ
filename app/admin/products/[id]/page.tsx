@@ -58,6 +58,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         fileCount={files.length}
         licenseCount={licenses.length}
         description={product.description}
+        rightsStatus={product.rightsStatus}
       />
 
       <ProductForm

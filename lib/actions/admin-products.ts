@@ -58,7 +58,14 @@ async function ensureUniqueSlug(baseSlug: string, excludeId?: number): Promise<s
 
 export async function getAdminProducts(
   search?: string,
-  statusFilter?: "ready" | "preview_only" | "draft" | "published",
+  statusFilter?:
+    | "ready"
+    | "preview_only"
+    | "draft"
+    | "published"
+    | "rights_pending"
+    | "rights_rejected"
+    | "rights_missing_proof",
 ) {
   await requireAdmin()
 
@@ -70,6 +77,10 @@ export async function getAdminProducts(
   else if (statusFilter === "preview_only") conditions.push(eq(products.assetStatus, "preview_only"))
   else if (statusFilter === "draft") conditions.push(eq(products.status, "draft"))
   else if (statusFilter === "published") conditions.push(eq(products.status, "published"))
+  else if (statusFilter === "rights_pending") conditions.push(eq(products.rightsStatus, "pending_verification"))
+  else if (statusFilter === "rights_rejected") conditions.push(eq(products.rightsStatus, "rejected"))
+  else if (statusFilter === "rights_missing_proof")
+    conditions.push(sql`(${products.proofOfRights} is null or trim(${products.proofOfRights}) = '')`)
 
   const rows = await db
     .select({ product: products, category: categories })

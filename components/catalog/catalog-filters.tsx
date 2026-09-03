@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
-import { X } from "@/lib/storefront-icons"
+import { Star, X } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
 
 const priceOptions = [
@@ -12,7 +12,9 @@ const priceOptions = [
   { label: "Under $100", value: "100" },
 ]
 
-export function CatalogFilters() {
+const ratingOptions = [4, 3, 2]
+
+export function CatalogFilters({ formats = [] }: { formats?: { format: string; count: number }[] }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -26,7 +28,12 @@ export function CatalogFilters() {
   const activeMaxPrice = searchParams.get("maxPrice")
   const activeFree = searchParams.get("free")
   const activeBundle = searchParams.get("bundle")
-  const hasActiveFilters = Boolean(activeMaxPrice || activeFree || activeBundle)
+  const activeDeal = searchParams.get("deal")
+  const activeFormat = searchParams.get("format")
+  const activeMinRating = searchParams.get("minRating")
+  const hasActiveFilters = Boolean(
+    activeMaxPrice || activeFree || activeBundle || activeDeal || activeFormat || activeMinRating,
+  )
 
   return (
     <aside className="flex w-full flex-col gap-5 lg:w-64">
@@ -60,6 +67,34 @@ export function CatalogFilters() {
           <FilterGroup title="Type">
             <FilterLink href={buildHref("free", "true")} active={activeFree === "true"} label="Free resources" />
             <FilterLink href={buildHref("bundle", "true")} active={activeBundle === "true"} label="Premium bundles" />
+            <FilterLink href={buildHref("deal", "true")} active={activeDeal === "true"} label="On sale" />
+          </FilterGroup>
+
+          {formats.length > 0 && (
+            <FilterGroup title="Format">
+              <FilterLink href={buildHref("format", null)} active={!activeFormat} label="All formats" />
+              {formats.map((f) => (
+                <FilterLink
+                  key={f.format}
+                  href={buildHref("format", f.format)}
+                  active={activeFormat === f.format}
+                  label={f.format}
+                />
+              ))}
+            </FilterGroup>
+          )}
+
+          <FilterGroup title="Rating">
+            <FilterLink href={buildHref("minRating", null)} active={!activeMinRating} label="Any rating" />
+            {ratingOptions.map((stars) => (
+              <FilterLink
+                key={stars}
+                href={buildHref("minRating", String(stars))}
+                active={activeMinRating === String(stars)}
+                label={`${stars}+ stars`}
+                icon={<Star className="size-3.5 fill-current" />}
+              />
+            ))}
           </FilterGroup>
         </div>
       </div>

@@ -15,6 +15,9 @@ export default async function DealsPage({
     deal: true,
     categorySlug: sp.category,
     search: sp.q,
+    maxPrice: sp.maxPrice ? Number(sp.maxPrice) : undefined,
+    format: sp.format,
+    minRating: sp.minRating ? Number(sp.minRating) : undefined,
     sort: (sp.sort as any) ?? "featured",
   })
 

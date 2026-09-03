@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { createCategory, updateCategory, type CategoryFormInput } from "@/lib/actions/admin-categories"
 
 type ExistingCategory = {
@@ -21,9 +22,12 @@ type ExistingCategory = {
   sortOrder: number
   seoTitle: string | null
   seoDescription: string | null
+  parentId?: number | null
 }
 
-export function CategoryForm({ category }: { category?: ExistingCategory }) {
+type Department = { id: number; name: string }
+
+export function CategoryForm({ category, departments = [] }: { category?: ExistingCategory; departments?: Department[] }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -35,6 +39,11 @@ export function CategoryForm({ category }: { category?: ExistingCategory }) {
   const [sortOrder, setSortOrder] = useState(category ? String(category.sortOrder) : "0")
   const [seoTitle, setSeoTitle] = useState(category?.seoTitle ?? "")
   const [seoDescription, setSeoDescription] = useState(category?.seoDescription ?? "")
+  const [parentId, setParentId] = useState(category?.parentId != null ? String(category.parentId) : "")
+
+  // A department that already has subcategories under it can't itself be
+  // reassigned under another department (see resolveParentId server-side).
+  const availableDepartments = departments.filter((d) => d.id !== category?.id)
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -43,7 +52,7 @@ export function CategoryForm({ category }: { category?: ExistingCategory }) {
       return
     }
 
-    const input: CategoryFormInput = { name, slug, description, icon, heroImageUrl, sortOrder, seoTitle, seoDescription }
+    const input: CategoryFormInput = { name, slug, description, icon, heroImageUrl, sortOrder, seoTitle, seoDescription, parentId }
 
     startTransition(async () => {
       try {
@@ -87,6 +96,30 @@ export function CategoryForm({ category }: { category?: ExistingCategory }) {
           <div className="flex flex-col gap-2">
             <Label htmlFor="sortOrder">Sort order</Label>
             <Input id="sortOrder" type="number" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} />
+          </div>
+          <div className="flex flex-col gap-2 sm:col-span-2">
+            <Label htmlFor="parentId">Parent department</Label>
+            <Select value={parentId} onValueChange={(value) => setParentId(value ?? "")}>
+              <SelectTrigger id="parentId" className="w-full">
+                <SelectValue placeholder="None — this is a top-level department">
+                  {(value: string | null) =>
+                    value ? availableDepartments.find((d) => String(d.id) === value)?.name ?? "None — this is a top-level department" : "None — this is a top-level department"
+                  }
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">None — this is a top-level department</SelectItem>
+                {availableDepartments.map((d) => (
+                  <SelectItem key={d.id} value={String(d.id)}>
+                    {d.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Leave unset for a broad department (e.g. &quot;Web &amp; Development&quot;). Choose a department to make this a subcategory
+              underneath it. Products can only be assigned to subcategories.
+            </p>
           </div>
           <div className="flex flex-col gap-2 sm:col-span-2">
             <Label htmlFor="heroImageUrl">Hero image URL</Label>

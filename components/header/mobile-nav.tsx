@@ -12,15 +12,19 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { getCategoryIcon } from "@/lib/category-icons"
 
-interface Category {
+interface Subcategory {
   id: number
   slug: string
   name: string
 }
+interface Department extends Subcategory {
+  subcategories: Subcategory[]
+}
 
-export function MobileNav({ categories }: { categories: Category[] }) {
+export function MobileNav({ departments }: { departments: Department[] }) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -38,23 +42,45 @@ export function MobileNav({ categories }: { categories: Category[] }) {
         </SheetHeader>
         <div className="flex flex-col gap-1 overflow-y-auto px-3 py-5">
           <p className="px-3 pb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">Browse categories</p>
-          {categories.map((category) => {
-            const Icon = getCategoryIcon(category.slug)
-            return (
-              <Link
-                key={category.id}
-                href={`/categories/${category.slug}`}
-                onClick={() => setOpen(false)}
-                className="group flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-medium text-foreground/80 transition-all hover:bg-accent/10 hover:pl-4 hover:text-foreground"
-              >
-                <span className="flex size-9 items-center justify-center rounded-lg bg-secondary text-muted-foreground transition-colors group-hover:bg-accent/15 group-hover:text-accent">
-                  <Icon className="size-4" aria-hidden="true" />
-                </span>
-                <span className="flex-1">{category.name}</span>
-                <ArrowRight className="size-4 -translate-x-1 text-muted-foreground opacity-0 transition-all group-hover:translate-x-0 group-hover:text-accent group-hover:opacity-100" aria-hidden="true" />
-              </Link>
-            )
-          })}
+          <Accordion multiple className="flex flex-col gap-1">
+            {departments.map((department) => {
+              const DepartmentIcon = getCategoryIcon(department.slug)
+              return (
+                <AccordionItem key={department.id} value={String(department.id)} className="border-b-0">
+                  <AccordionTrigger className="min-h-12 rounded-xl px-3 py-0 text-sm font-medium text-foreground/80 hover:bg-accent/10 hover:no-underline">
+                    <span className="flex flex-1 items-center gap-3">
+                      <span className="flex size-9 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
+                        <DepartmentIcon className="size-4" aria-hidden="true" />
+                      </span>
+                      <span className="flex-1 text-left">{department.name}</span>
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="pl-12 pr-2">
+                    <div className="flex flex-col gap-0.5">
+                      {department.subcategories.map((subcategory) => (
+                        <Link
+                          key={subcategory.id}
+                          href={`/categories/${subcategory.slug}`}
+                          onClick={() => setOpen(false)}
+                          className="flex min-h-10 items-center justify-between rounded-lg px-2 text-sm text-foreground/70 transition-colors hover:bg-accent/10 hover:text-foreground"
+                        >
+                          {subcategory.name}
+                          <ArrowRight className="size-3.5 text-muted-foreground" aria-hidden="true" />
+                        </Link>
+                      ))}
+                      <Link
+                        href={`/categories/${department.slug}`}
+                        onClick={() => setOpen(false)}
+                        className="mt-1 min-h-9 px-2 text-xs font-semibold text-accent hover:underline"
+                      >
+                        View all {department.name}
+                      </Link>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )
+            })}
+          </Accordion>
           <div className="my-4 h-px bg-border/70" />
           <p className="px-3 pb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">More from DistroSource</p>
           <Link href="/products?free=true" onClick={() => setOpen(false)} className="group flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-medium text-foreground/80 transition-all hover:bg-accent/10 hover:pl-4 hover:text-foreground">

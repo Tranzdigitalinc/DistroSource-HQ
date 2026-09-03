@@ -1,13 +1,13 @@
-import { getCategories } from "@/lib/queries/catalog"
+import { getCategoryTree } from "@/lib/queries/catalog"
 import { SiteHeaderClient } from "@/components/header/site-header-client"
 
 export async function SiteHeader() {
-  let categories: Awaited<ReturnType<typeof getCategories>> = []
+  let departments: Awaited<ReturnType<typeof getCategoryTree>> = []
   try {
-    categories = await getCategories()
+    departments = await getCategoryTree()
   } catch {
     // DB unavailable at build time — nav renders without categories
   }
 
-  return <SiteHeaderClient categories={categories} />
+  return <SiteHeaderClient departments={departments} />
 }

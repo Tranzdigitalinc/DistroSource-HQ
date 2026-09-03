@@ -12,6 +12,16 @@ import {
 } from "@/lib/db/schema"
 import { and, asc, desc, eq, ilike, inArray, or, sql } from "drizzle-orm"
 
+// A product may be publicly listed/purchasable only when its distribution rights
+// have been approved. Anything pending_verification or rejected must never surface
+// on the storefront, even if status/assetStatus otherwise look "ready".
+const APPROVED_RIGHTS_STATUSES = ["original", "licensed_for_distribution", "supplier_verified"] as const
+const publiclyVisible = () =>
+  and(eq(products.status, "published"), eq(products.assetStatus, "ready"), inArray(products.rightsStatus, APPROVED_RIGHTS_STATUSES))!
+
+// Products only ever attach to a subcategory (parentId is not null), never
+// directly to a top-level department. Every list of "categories" for filter
+// pills, dropdowns, and sitemaps means subcategories unless noted otherwise.
 export async function getCategories() {
   return db
     .select({
@@ -22,15 +32,55 @@ export async function getCategories() {
       icon: categories.icon,
       heroImageUrl: categories.heroImageUrl,
       sortOrder: categories.sortOrder,
+      parentId: categories.parentId,
       productCount: sql<number>`cast(count(${products.id}) as int)`,
     })
     .from(categories)
-    .leftJoin(
-      products,
-      and(eq(products.categoryId, categories.id), eq(products.status, "published"), eq(products.assetStatus, "ready")),
-    )
+    .leftJoin(products, and(eq(products.categoryId, categories.id), publiclyVisible()))
+    .where(sql`${categories.parentId} is not null`)
     .groupBy(categories.id)
     .orderBy(asc(categories.sortOrder))
+}
+
+export type CategoryTreeNode = Awaited<ReturnType<typeof getCategoryTree>>[number]
+
+// Full 2-level hierarchy: top-level departments, each with its subcategories
+// nested underneath and a rolled-up product count for the whole department.
+export async function getCategoryTree() {
+  const rows = await db
+    .select({
+      id: categories.id,
+      slug: categories.slug,
+      name: categories.name,
+      description: categories.description,
+      icon: categories.icon,
+      heroImageUrl: categories.heroImageUrl,
+      sortOrder: categories.sortOrder,
+      parentId: categories.parentId,
+      productCount: sql<number>`cast(count(${products.id}) as int)`,
+    })
+    .from(categories)
+    .leftJoin(products, and(eq(products.categoryId, categories.id), publiclyVisible()))
+    .groupBy(categories.id)
+    .orderBy(asc(categories.sortOrder))
+
+  const departments = rows.filter((row) => row.parentId === null)
+  const subcategoriesByParent = new Map<number, typeof rows>()
+  for (const row of rows) {
+    if (row.parentId === null) continue
+    const list = subcategoriesByParent.get(row.parentId) ?? []
+    list.push(row)
+    subcategoriesByParent.set(row.parentId, list)
+  }
+
+  return departments.map((department) => {
+    const subcategories = subcategoriesByParent.get(department.id) ?? []
+    return {
+      ...department,
+      subcategories,
+      productCount: subcategories.reduce((sum, sub) => sum + sub.productCount, 0),
+    }
+  })
 }
 
 export async function getCategoryBySlug(slug: string) {
@@ -38,14 +88,87 @@ export async function getCategoryBySlug(slug: string) {
   return rows[0] ?? null
 }
 
+// For a category page's in-page nav: the department this category belongs
+// to (itself, if it already is one) plus that department's subcategories,
+// so the page can link to real sibling routes instead of a query param.
+export async function getCategoryNavContext(category: { id: number; parentId: number | null }) {
+  const departmentId = category.parentId ?? category.id
+  const [department] = await db.select({ id: categories.id, slug: categories.slug, name: categories.name }).from(categories).where(eq(categories.id, departmentId))
+  const subcategories = await db
+    .select({ id: categories.id, slug: categories.slug, name: categories.name })
+    .from(categories)
+    .where(eq(categories.parentId, departmentId))
+    .orderBy(asc(categories.sortOrder))
+
+  return { department: department ?? null, subcategories }
+}
+
+// Resolves a category slug to the set of category ids whose products should
+// be shown on that page: itself if it's a subcategory, or all of its
+// subcategories if it's a top-level department (departments never hold
+// products directly).
+async function getCategoryIdsForSlug(slug: string) {
+  const category = await getCategoryBySlug(slug)
+  if (!category) return { category: null, ids: [] as number[] }
+  if (category.parentId !== null) return { category, ids: [category.id] }
+
+  const children = await db.select({ id: categories.id }).from(categories).where(eq(categories.parentId, category.id))
+  return { category, ids: children.map((c) => c.id) }
+}
+
+// Every product's category is a subcategory (see note above), so cards and
+// list pages that want to show the full "Department / Subcategory" chain
+// need the parent department's name too. Looks it up in one extra query
+// against the (tiny) categories table rather than a self-join everywhere.
+async function attachDepartments<T extends { category: typeof categories.$inferSelect }>(
+  rows: T[],
+): Promise<(T & { department: { slug: string; name: string } | null })[]> {
+  const departmentIds = [...new Set(rows.map((r) => r.category.parentId).filter((id): id is number => id !== null))]
+  if (departmentIds.length === 0) return rows.map((r) => ({ ...r, department: null }))
+
+  const departmentRows = await db
+    .select({ id: categories.id, slug: categories.slug, name: categories.name })
+    .from(categories)
+    .where(inArray(categories.id, departmentIds))
+  const byId = new Map(departmentRows.map((d) => [d.id, { slug: d.slug, name: d.name }]))
+
+  return rows.map((r) => ({ ...r, department: r.category.parentId ? byId.get(r.category.parentId) ?? null : null }))
+}
+
+// Distinct file formats across the published catalog, ranked by how many
+// products carry each one — powers the "Format" catalog filter.
+export async function getAvailableFileFormats(limit = 14) {
+  const rows = await db.select({ fileFormats: products.fileFormats }).from(products).where(publiclyVisible())
+  const counts = new Map<string, number>()
+  for (const row of rows) {
+    for (const format of row.fileFormats) {
+      counts.set(format, (counts.get(format) ?? 0) + 1)
+    }
+  }
+  return [...counts.entries()]
+    .map(([format, count]) => ({ format, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit)
+}
+
 async function attachRelations(productRows: (typeof products.$inferSelect)[]) {
   if (productRows.length === 0) return []
   const ids = productRows.map((p) => p.id)
 
-  const [images, licenses] = await Promise.all([
+  const [images, licenses, reviewStatsRows] = await Promise.all([
     db.select().from(productImages).where(inArray(productImages.productId, ids)).orderBy(asc(productImages.sortOrder)),
     db.select().from(productLicenses).where(inArray(productLicenses.productId, ids)).orderBy(asc(productLicenses.sortOrder)),
+    db
+      .select({
+        productId: reviews.productId,
+        avgRating: sql<number>`avg(${reviews.rating})`,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(reviews)
+      .where(inArray(reviews.productId, ids))
+      .groupBy(reviews.productId),
   ])
+  const reviewStatsByProduct = new Map(reviewStatsRows.map((r) => [r.productId, { avgRating: Number(r.avgRating), count: r.count }]))
 
   const imagesByProduct = new Map<number, typeof images>()
   for (const img of images) {
@@ -65,11 +188,14 @@ async function attachRelations(productRows: (typeof products.$inferSelect)[]) {
     const startingPrice = productLicensesList.length
       ? Math.min(...productLicensesList.map((l) => Number.parseFloat(l.price)))
       : Number.parseFloat(product.basePrice)
+    const reviewStats = reviewStatsByProduct.get(product.id)
     return {
       product,
       images: imagesByProduct.get(product.id) ?? [],
       licenses: productLicensesList,
       startingPrice,
+      avgRating: reviewStats?.avgRating ?? 0,
+      reviewCount: reviewStats?.count ?? 0,
     }
   })
 }
@@ -137,31 +263,36 @@ interface ProductQueryOptions {
   free?: boolean
   bundle?: boolean
   deal?: boolean
+  format?: string
   maxPrice?: number
   minPrice?: number
+  minRating?: number
   sort?: "featured" | "price-asc" | "price-desc" | "newest" | "rating"
   limit?: number
+  offset?: number
   statusFilter?: "published" | "all"
 }
 
-export async function getProducts(options: ProductQueryOptions = {}) {
+function buildProductConditions(options: ProductQueryOptions) {
   // "preview_only" products can exist in the DB (visible in admin) but must never
   // appear as purchasable products on the public storefront.
-  const conditions =
-    options.statusFilter === "all" ? [] : [eq(products.status, "published"), eq(products.assetStatus, "ready")]
+  const conditions = options.statusFilter === "all" ? [] : [publiclyVisible()]
 
-  if (options.categorySlug) {
-    const cat = await getCategoryBySlug(options.categorySlug)
-    if (cat) conditions.push(eq(products.categoryId, cat.id))
-  }
   if (options.search) {
-    const term = `%${options.search.trim()}%`
+    const raw = options.search.trim()
+    const term = `%${raw}%`
     conditions.push(
       or(
         ilike(products.name, term),
         ilike(products.tagline, term),
         ilike(products.description, term),
         sql`exists (select 1 from unnest(${products.tags}) as tag where tag ilike ${term})`,
+        sql`exists (select 1 from unnest(${products.searchKeywords}) as kw where kw ilike ${term})`,
+        // word_similarity finds the best-matching word/phrase *within* the longer name or
+        // tagline, so typos like "tempalte" still surface "Annual Report Template" even
+        // though a plain-similarity comparison against the whole string would be diluted.
+        sql`word_similarity(${raw}, ${products.name}) > 0.4`,
+        sql`word_similarity(${raw}, coalesce(${products.tagline}, '')) > 0.4`,
       )!,
     )
   }
@@ -170,8 +301,56 @@ export async function getProducts(options: ProductQueryOptions = {}) {
   if (options.free) conditions.push(eq(products.isFree, true))
   if (options.bundle) conditions.push(eq(products.isBundle, true))
   if (options.deal) conditions.push(sql`${products.compareAtPrice} is not null and ${products.compareAtPrice} > ${products.basePrice}`)
+  if (options.format) {
+    conditions.push(sql`exists (select 1 from unnest(${products.fileFormats}) as fmt where fmt = ${options.format})`)
+  }
+  if (options.minRating) {
+    conditions.push(
+      sql`(select coalesce(avg(${reviews.rating}), 0) from ${reviews} where ${reviews.productId} = ${products.id}) >= ${options.minRating}`,
+    )
+  }
+
+  return conditions
+}
+
+export async function getProductsCount(options: ProductQueryOptions = {}) {
+  const conditions = buildProductConditions(options)
+  if (options.categorySlug) {
+    const { ids } = await getCategoryIdsForSlug(options.categorySlug)
+    conditions.push(ids.length ? inArray(products.categoryId, ids) : sql`false`)
+  }
+
+  const rows = await db
+    .select({ count: sql<number>`cast(count(*) as int)` })
+    .from(products)
+    .where(conditions.length ? and(...conditions) : undefined)
+
+  // minPrice/maxPrice are applied in-memory on getProducts (startingPrice is
+  // derived from license rows), so an exact count with those filters requires
+  // fetching all matching rows. Fall back to the unfiltered count in that case.
+  if (options.minPrice !== undefined || options.maxPrice !== undefined) {
+    const all = await getProducts({ ...options, limit: 5000, offset: 0 })
+    return all.length
+  }
+
+  return rows[0]?.count ?? 0
+}
+
+export async function getProducts(options: ProductQueryOptions = {}) {
+  const conditions = buildProductConditions(options)
+
+  if (options.categorySlug) {
+    const { ids } = await getCategoryIdsForSlug(options.categorySlug)
+    conditions.push(ids.length ? inArray(products.categoryId, ids) : sql`false`)
+  }
 
   const ratingAverage = sql<number>`coalesce((select avg(${reviews.rating}) from ${reviews} where ${reviews.productId} = ${products.id}), 0)`
+  // When the caller searched by keyword and didn't ask for an explicit sort,
+  // rank the closest name/tagline matches first instead of falling back to
+  // the generic "featured" ordering.
+  const searchRelevance = options.search
+    ? sql<number>`greatest(word_similarity(${options.search.trim()}, ${products.name}), word_similarity(${options.search.trim()}, coalesce(${products.tagline}, '')) * 0.6)`
+    : null
   const orderBy =
     options.sort === "newest"
       ? [desc(products.createdAt)]
@@ -179,7 +358,9 @@ export async function getProducts(options: ProductQueryOptions = {}) {
         ? [asc(products.basePrice)]
         : options.sort === "rating"
           ? [desc(ratingAverage), desc(products.isFeatured), desc(products.createdAt)]
-          : [desc(products.isFeatured), desc(products.createdAt)]
+          : searchRelevance
+            ? [desc(searchRelevance), desc(products.isFeatured), desc(products.createdAt)]
+            : [desc(products.isFeatured), desc(products.createdAt)]
 
   const rows = await db
     .select({ product: products, category: categories })
@@ -188,6 +369,7 @@ export async function getProducts(options: ProductQueryOptions = {}) {
     .where(conditions.length ? and(...conditions) : undefined)
     .orderBy(...orderBy)
     .limit(options.limit ?? 200)
+    .offset(options.offset ?? 0)
 
   const withRelations = await attachRelations(rows.map((r) => r.product))
   const categoryById = new Map(rows.map((r) => [r.product.id, r.category]))
@@ -200,7 +382,92 @@ export async function getProducts(options: ProductQueryOptions = {}) {
   if (options.sort === "price-asc") result = result.sort((a, b) => a.startingPrice - b.startingPrice)
   else if (options.sort === "price-desc") result = result.sort((a, b) => b.startingPrice - a.startingPrice)
 
-  return result
+  return attachDepartments(result)
+}
+
+// Powers the header's predictive search dropdown: a small, fast, typo-tolerant
+// lookup across both categories and products, categorized for display. Uses
+// pg_trgm word_similarity (see the products_name_trgm_idx / products_tagline_trgm_idx /
+// categories_name_trgm_idx indexes) so misspellings like "tempalte" still surface
+// "Templates" even when they're a substring of a longer name.
+export async function getSearchSuggestions(query: string, limit = 6) {
+  const raw = query.trim()
+  if (raw.length < 2) return { categories: [], products: [] }
+  const term = `%${raw}%`
+
+  const categoryRows = await db
+    .select({
+      id: categories.id,
+      slug: categories.slug,
+      name: categories.name,
+      parentId: categories.parentId,
+      relevance: sql<number>`word_similarity(${raw}, ${categories.name})`,
+    })
+    .from(categories)
+    .where(or(ilike(categories.name, term), sql`word_similarity(${raw}, ${categories.name}) > 0.4`)!)
+    .orderBy(desc(sql`word_similarity(${raw}, ${categories.name})`))
+    .limit(4)
+
+  const departmentIds = [...new Set(categoryRows.map((c) => c.parentId).filter((id): id is number => id !== null))]
+  const departmentNameById = departmentIds.length
+    ? new Map(
+        (
+          await db
+            .select({ id: categories.id, name: categories.name })
+            .from(categories)
+            .where(inArray(categories.id, departmentIds))
+        ).map((d) => [d.id, d.name]),
+      )
+    : new Map<number, string>()
+
+  const productRows = await db
+    .select({
+      id: products.id,
+      slug: products.slug,
+      name: products.name,
+      thumbnailUrl: products.thumbnailUrl,
+      coverImageUrl: products.coverImageUrl,
+      basePrice: products.basePrice,
+      compareAtPrice: products.compareAtPrice,
+      isFree: products.isFree,
+      categoryName: categories.name,
+      relevance: sql<number>`greatest(word_similarity(${raw}, ${products.name}), word_similarity(${raw}, coalesce(${products.tagline}, '')) * 0.6)`,
+    })
+    .from(products)
+    .innerJoin(categories, eq(products.categoryId, categories.id))
+    .where(
+      and(
+        publiclyVisible(),
+        or(
+          ilike(products.name, term),
+          ilike(products.tagline, term),
+          sql`word_similarity(${raw}, ${products.name}) > 0.4`,
+          sql`word_similarity(${raw}, coalesce(${products.tagline}, '')) > 0.4`,
+        )!,
+      )!,
+    )
+    .orderBy(desc(sql`greatest(word_similarity(${raw}, ${products.name}), word_similarity(${raw}, coalesce(${products.tagline}, '')) * 0.6)`))
+    .limit(limit)
+
+  return {
+    categories: categoryRows.map((c) => ({
+      id: c.id,
+      slug: c.slug,
+      name: c.name,
+      department: c.parentId ? departmentNameById.get(c.parentId) ?? null : null,
+      isDepartment: c.parentId === null,
+    })),
+    products: productRows.map((p) => ({
+      id: p.id,
+      slug: p.slug,
+      name: p.name,
+      image: p.thumbnailUrl ?? p.coverImageUrl ?? null,
+      categoryName: p.categoryName,
+      isFree: p.isFree,
+      price: p.basePrice,
+      compareAtPrice: p.compareAtPrice,
+    })),
+  }
 }
 
 export async function getProductsByIds(ids: number[]) {
@@ -212,7 +479,7 @@ export async function getProductsByIds(ids: number[]) {
     .where(inArray(products.id, ids))
   const withRelations = await attachRelations(rows.map((r) => r.product))
   const categoryById = new Map(rows.map((r) => [r.product.id, r.category]))
-  return withRelations.map((item) => ({ ...item, category: categoryById.get(item.product.id)! }))
+  return attachDepartments(withRelations.map((item) => ({ ...item, category: categoryById.get(item.product.id)! })))
 }
 
 export async function getRecommendedProducts(categoryId: number, excludeProductId: number, limit = 8) {
@@ -221,19 +488,14 @@ export async function getRecommendedProducts(categoryId: number, excludeProductI
     .from(products)
     .innerJoin(categories, eq(products.categoryId, categories.id))
     .where(
-      and(
-        eq(products.categoryId, categoryId),
-        eq(products.status, "published"),
-        eq(products.assetStatus, "ready"),
-        sql`${products.id} != ${excludeProductId}`,
-      ),
+      and(eq(products.categoryId, categoryId), publiclyVisible(), sql`${products.id} != ${excludeProductId}`),
     )
     .orderBy(desc(products.isFeatured), desc(products.createdAt))
     .limit(limit)
 
   const withRelations = await attachRelations(rows.map((r) => r.product))
   const categoryById = new Map(rows.map((r) => [r.product.id, r.category]))
-  return withRelations.map((item) => ({ ...item, category: categoryById.get(item.product.id)! }))
+  return attachDepartments(withRelations.map((item) => ({ ...item, category: categoryById.get(item.product.id)! })))
 }
 
 export const getRelatedProducts = getRecommendedProducts
@@ -267,8 +529,11 @@ export async function getCatalogStats() {
     db
       .select({ count: sql<number>`count(*)::int` })
       .from(products)
-      .where(and(eq(products.status, "published"), eq(products.assetStatus, "ready"))),
-    db.select({ count: sql<number>`count(*)::int` }).from(categories),
+      .where(publiclyVisible()),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(categories)
+      .where(sql`${categories.parentId} is not null`),
     db
       .select({ count: sql<number>`count(*)::int`, avgRating: sql<number>`coalesce(avg(${reviews.rating}), 0)` })
       .from(reviews),

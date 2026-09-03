@@ -69,8 +69,9 @@ export default function TermsOfServicePage() {
               Agency) selected at checkout. Your license grants you the right to use the files for the purposes
               described on the product page and in your account&apos;s{" "}
               <span className="font-medium text-foreground">Licenses</span> tab. Purchasing a product does not
-              transfer copyright or ownership of the underlying design, code, or content — DistroSource and its
-              contributing creators retain all intellectual property rights not expressly granted by your license.
+              transfer copyright or ownership of the underlying design, code, or content — DistroSource retains all
+              intellectual property rights not expressly granted by your license, except where a specific listing
+              identifies a different rights holder.
             </p>
           ),
         },

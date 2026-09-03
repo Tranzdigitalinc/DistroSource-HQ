@@ -22,8 +22,8 @@ const badges = [
   },
   {
     icon: Headphones,
-    title: "24/7 support",
-    body: "Real people review every ticket — order issues get a response, not a bot loop.",
+    title: "Real human support",
+    body: "Real people review every ticket and respond within one business day — order issues get a response, not a bot loop.",
   },
 ]
 

@@ -10,20 +10,21 @@ import { ThemeToggle } from "@/components/header/theme-toggle"
 import { TrustStrip } from "@/components/header/trust-strip"
 import { BrandLogo } from "@/components/brand-logo"
 
-type Category = { id: number; slug: string; name: string; description: string | null }
+type Subcategory = { id: number; slug: string; name: string; description: string | null; icon: string | null; productCount: number }
+type Department = Subcategory & { subcategories: Subcategory[] }
 
-export function SiteHeaderClient({ categories = [] }: { categories?: Category[] }) {
+export function SiteHeaderClient({ departments = [] }: { departments?: Department[] }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/98 backdrop-blur-sm supports-backdrop-filter:bg-background/90">
       <TrustStrip />
       <div className="mx-auto flex h-24 max-w-7xl items-center gap-4 px-4 sm:h-28 sm:px-6">
-        <MobileNav categories={categories} />
+        <MobileNav departments={departments} />
         <Link href="/" className="flex min-w-0 shrink items-center gap-2 transition-opacity hover:opacity-90"><BrandLogo href={null} heightClassName="h-16 sm:h-20" /></Link>
-        <DesktopNav categories={categories} />
-        <HeaderSearch className="mx-auto hidden max-w-md flex-1 md:block" categories={categories} />
+        <DesktopNav departments={departments} />
+        <HeaderSearch className="mx-auto hidden max-w-md flex-1 md:block" />
         <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1"><ThemeToggle /><CartTrigger /><AccountMenu /></div>
       </div>
-      <div className="border-t border-border/60 px-4 py-2 md:hidden"><HeaderSearch categories={categories} /></div>
+      <div className="border-t border-border/60 px-4 py-2 md:hidden"><HeaderSearch /></div>
     </header>
   )
 }

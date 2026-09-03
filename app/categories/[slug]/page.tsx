@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import { CatalogPage } from "@/components/catalog/catalog-page"
-import { getCategoryBySlug, getProducts } from "@/lib/queries/catalog"
+import { SubcategoryNav } from "@/components/catalog/subcategory-nav"
+import { getCategoryBySlug, getCategoryNavContext, getProducts } from "@/lib/queries/catalog"
 import { getCategoryIcon } from "@/lib/category-icons"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -25,12 +26,20 @@ export default async function CategoryDetailPage({
   const category = await getCategoryBySlug(slug)
   if (!category) notFound()
 
-  const products = await getProducts({
-    categorySlug: slug,
-    search: sp.q,
-    maxPrice: sp.maxPrice ? Number(sp.maxPrice) : undefined,
-    sort: (sp.sort as any) ?? "featured",
-  })
+  const [products, { department, subcategories }] = await Promise.all([
+    getProducts({
+      categorySlug: slug,
+      search: sp.q,
+      free: sp.free === "true",
+      bundle: sp.bundle === "true",
+      deal: sp.deal === "true",
+      maxPrice: sp.maxPrice ? Number(sp.maxPrice) : undefined,
+      format: sp.format,
+      minRating: sp.minRating ? Number(sp.minRating) : undefined,
+      sort: (sp.sort as any) ?? "featured",
+    }),
+    getCategoryNavContext(category),
+  ])
 
   return (
     <>
@@ -52,6 +61,9 @@ export default async function CategoryDetailPage({
         title={category.name}
         subtitle={category.description ?? undefined}
         products={products}
+        categoryPillBar={
+          department ? <SubcategoryNav department={department} subcategories={subcategories} activeSlug={slug} /> : null
+        }
         banner={
           <div className="relative flex w-full flex-col gap-4 border-b border-border bg-secondary/40 px-6 py-6 sm:px-10 sm:py-8">
             <div className="mx-auto flex w-full max-w-7xl items-center gap-5">

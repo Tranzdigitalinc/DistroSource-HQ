@@ -6,6 +6,7 @@ import { db } from "@/lib/db"
 import { entitlements, operationEvents, orderItems, orders } from "@/lib/db/schema"
 import { requireAdmin } from "@/lib/actions/operations"
 import { sendRefundConfirmationEmail } from "@/lib/email"
+import { refundPaypalCapture } from "@/lib/paypal"
 
 export async function searchOrders(query: string) {
   await requireAdmin()
@@ -34,15 +35,26 @@ export async function getOrderForAdmin(orderNumber: string) {
 }
 
 /**
- * Refunds an order: marks it refunded, voids each order item, and revokes
- * the entitlements it granted so the buyer immediately loses download
- * access and the products drop out of their library.
+ * Refunds an order: returns the money via the PayPal capture that was
+ * actually charged, then marks the order refunded, voids each order item,
+ * and revokes the entitlements it granted so the buyer immediately loses
+ * download access and the products drop out of their library.
+ *
+ * The PayPal refund call happens first and is not caught — if it fails
+ * (e.g. already refunded on PayPal's side, capture not found), the order
+ * is deliberately left untouched rather than marked "refunded" with no
+ * money actually returned.
  */
 export async function refundOrder(orderId: number, reason: string) {
   const userId = await requireAdmin()
   const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1)
   if (!order) throw new Error("Order not found.")
   if (order.status === "refunded") throw new Error("This order has already been refunded.")
+  if (!order.paypalCaptureId) {
+    throw new Error("This order has no recorded PayPal capture, so it cannot be refunded automatically.")
+  }
+
+  await refundPaypalCapture(order.paypalCaptureId, reason.trim() || "Refund issued by DistroSource support")
 
   await db.update(orders).set({ status: "refunded" }).where(eq(orders.id, orderId))
   await db.update(orderItems).set({ isVoided: true }).where(eq(orderItems.orderId, orderId))

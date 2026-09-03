@@ -7,18 +7,18 @@ import { ArrowUpRight } from "@/lib/storefront-icons"
 import { getCategoryIcon } from "@/lib/category-icons"
 import { RevealGroup, RevealItem } from "@/components/motion/reveal"
 import { cn } from "@/lib/utils"
-import type { getCategories } from "@/lib/queries/catalog"
+import type { getCategoryTree } from "@/lib/queries/catalog"
 
 const MotionLink = motion.create(Link)
 
-export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<typeof getCategories>> }) {
+export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<typeof getCategoryTree>> }) {
   return (
     <section className="mx-auto max-w-7xl px-6 py-16 sm:px-8">
       <div className="mb-8 flex items-end justify-between border-b border-border pb-6">
         <div>
           <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Browse the catalog</p>
-          <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">Shop by category</h2>
-          <p className="mt-1.5 text-sm text-muted-foreground">Find the right digital product for every project</p>
+          <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">Top categories</h2>
+          <p className="mt-1.5 text-sm text-muted-foreground">Every department in the catalog, one click away</p>
         </div>
         <Link
           href="/categories"

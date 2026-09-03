@@ -67,12 +67,18 @@ export const categories = pgTable("categories", {
   sortOrder: integer("sortOrder").notNull().default(0),
   seoTitle: text("seoTitle"),
   seoDescription: text("seoDescription"),
+  // Null for top-level departments (e.g. "Web & Development"). Set for
+  // subcategories, pointing at the department they belong to (e.g.
+  // "React / Next.js Templates" -> "Web & Development"). Products always
+  // attach to a subcategory, never directly to a department.
+  parentId: integer("parentId").references((): any => categories.id),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
+  sku: text("sku").unique(),
   name: text("name").notNull(),
   tagline: text("tagline"),
   description: text("description").notNull(),
@@ -104,6 +110,18 @@ export const products = pgTable("products", {
   features: text("features").array().notNull().default([]),
   searchKeywords: text("searchKeywords").array().notNull().default([]),
   releaseDate: timestamp("releaseDate").notNull().defaultNow(),
+  // --- Product rights / inventory compliance -------------------------------
+  // sourceType: distrosource_original | verified_creator | licensed_supplier | external_affiliate
+  sourceType: text("sourceType").notNull().default("distrosource_original"),
+  // rightsStatus: original | licensed_for_distribution | supplier_verified | pending_verification | rejected
+  // Only original | licensed_for_distribution | supplier_verified may be sold.
+  rightsStatus: text("rightsStatus").notNull().default("original"),
+  rightsOwner: text("rightsOwner"),
+  supplierName: text("supplierName"),
+  supplierReference: text("supplierReference"),
+  proofOfRights: text("proofOfRights"),
+  verificationDate: timestamp("verificationDate"),
+  verifiedBy: text("verifiedBy"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 })

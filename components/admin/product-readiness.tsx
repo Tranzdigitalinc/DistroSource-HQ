@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, FileCheck2, ImageIcon, PackageCheck } from "@/lib/admin-icons"
+import { AlertTriangle, CheckCircle2, FileCheck2, ImageIcon, PackageCheck, ShieldCheck } from "@/lib/admin-icons"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -15,6 +15,8 @@ function CheckRow({ complete, icon: Icon, label, detail }: { complete: boolean; 
   )
 }
 
+const APPROVED_RIGHTS_STATUSES = new Set(["original", "licensed_for_distribution", "supplier_verified"])
+
 export function ProductReadiness({
   status,
   thumbnailUrl,
@@ -23,6 +25,7 @@ export function ProductReadiness({
   fileCount,
   licenseCount,
   description,
+  rightsStatus,
 }: {
   status: string
   thumbnailUrl: string | null
@@ -31,12 +34,24 @@ export function ProductReadiness({
   fileCount: number
   licenseCount: number
   description: string | null
+  rightsStatus: string
 }) {
   const checks = [
     { complete: Boolean(thumbnailUrl && coverImageUrl), icon: ImageIcon, label: "Real product imagery", detail: "Add a verified thumbnail and cover image. Do not use generated or placeholder art." },
     { complete: fileCount > 0, icon: FileCheck2, label: "Downloadable files", detail: "Attach the actual customer deliverable and confirm it opens before publishing." },
     { complete: licenseCount > 0, icon: PackageCheck, label: "License and pricing", detail: "At least one license tier must be configured with a server-side price." },
     { complete: Boolean(description?.trim()), icon: CheckCircle2, label: "Accurate product description", detail: "Describe exactly what is included, compatible software, and any limitations." },
+    {
+      complete: APPROVED_RIGHTS_STATUSES.has(rightsStatus),
+      icon: ShieldCheck,
+      label: "Distribution rights approved",
+      detail:
+        rightsStatus === "pending_verification"
+          ? "Rights are pending verification. This product cannot be published or sold until approved."
+          : rightsStatus === "rejected"
+            ? "Rights were rejected. This product cannot be published or sold."
+            : "Rights status confirms DistroSource has verified permission to sell this asset.",
+    },
   ]
   const ready = checks.every((check) => check.complete)
 

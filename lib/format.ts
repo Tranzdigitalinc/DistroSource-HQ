@@ -29,6 +29,20 @@ export function generateOrderNumber(): string {
   return `DS-${ts}${rand}`
 }
 
+const SOURCE_TYPE_LABELS: Record<string, string> = {
+  distrosource_original: "DistroSource Original",
+  verified_creator: "Verified Creator",
+  licensed_supplier: "Licensed Supplier",
+  external_affiliate: "Affiliate Partner",
+}
+
+// The user-facing label for a product's sourceType — keep this the single
+// source of truth so the wording stays consistent everywhere it appears
+// (product cards, product page, cart, etc).
+export function getSourceTypeLabel(sourceType: string): string {
+  return SOURCE_TYPE_LABELS[sourceType] ?? "DistroSource Original"
+}
+
 export function formatLicenseType(licenseType: string): string {
   return licenseType
     .split("_")
