@@ -60,7 +60,6 @@ export default async function CheckoutPage({
             discountPercent={discountPercent}
             isGuest={!session?.user}
             orderItems={orderItems}
-            paypalClientId={(process.env.PAYPAL_ENVIRONMENT?.toLowerCase() === "sandbox" ? process.env.PAYPAL_SANDBOX_CLIENT_ID : process.env.PAYPAL_CLIENT_ID) ?? null}
           />
         </div>
       </main>

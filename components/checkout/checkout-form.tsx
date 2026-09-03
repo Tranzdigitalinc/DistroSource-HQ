@@ -4,14 +4,14 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
-import { Bitcoin, CreditCard, Loader2, Lock, Mail, ShieldCheck, Package } from "lucide-react"
+import { Loader2, Lock, Mail, ShieldCheck, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PriceDisplay } from "@/components/price-display"
 import { Reveal } from "@/components/motion/reveal"
-import { PaypalCheckoutButtons } from "@/components/checkout/paypal-checkout-buttons"
 import { saveAbandonedCart } from "@/lib/actions/recovery"
+import { createPolarCheckout } from "@/lib/actions/checkout"
 import { mergeGuestCartIntoAccount } from "@/lib/actions/cart"
 import { mergeGuestActivityIntoAccount } from "@/lib/actions/recently-viewed"
 import { authClient } from "@/lib/auth-client"
@@ -34,7 +34,6 @@ interface CheckoutFormProps {
   discountPercent: number
   isGuest: boolean
   orderItems: OrderItem[]
-  paypalClientId: string | null
 }
 
 const FORM_ID = "checkout-form"
@@ -64,7 +63,7 @@ const CARD_BRAND_LABEL: Record<string, string> = {
   amex: "Amex",
 }
 
-export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPercent, isGuest, orderItems, paypalClientId }: CheckoutFormProps) {
+export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPercent, isGuest, orderItems }: CheckoutFormProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const couponCode = searchParams.get("coupon") ?? undefined
@@ -76,7 +75,6 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const [cardNumber, setCardNumber] = useState("")
   const [expiry, setExpiry] = useState("")
   const [cvc, setCvc] = useState("")
-  const [paymentMethod, setPaymentMethod] = useState<"paypal" | "crypto" | "card">("paypal")
   const [isPending, startTransition] = useTransition()
   const [isPreparingAccount, setIsPreparingAccount] = useState(false)
 
@@ -133,13 +131,16 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (paymentMethod === "paypal") return
     startTransition(async () => {
       const ready = await prepareAccountForPayment()
       if (!ready) return
-      await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
-      toast.success("Your cart has been saved", { description: "We sent you a secure link to return to it anytime." })
-      toast.info("Payments are temporarily unavailable. Please check back soon.")
+      try {
+        const checkout = await createPolarCheckout({ billingEmail: email, billingName: name, couponCode })
+        window.location.assign(checkout.url)
+      } catch (error) {
+        await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
+        toast.error(error instanceof Error ? error.message : "Could not start Polar checkout.")
+      }
     })
   }
 
@@ -238,10 +239,13 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             <Lock className="size-4 text-muted-foreground" aria-hidden="true" />
             <h2 className="font-display text-lg font-bold">Payment</h2>
           </div>
-          <div className="rounded-lg border border-accent/40 bg-accent/10 p-4" role="status">
-            <p className="text-sm font-semibold text-foreground">Payments are temporarily under maintenance</p>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Checkout payments are paused while we make updates. Please check back soon.</p>
+          <div className="rounded-lg border border-primary/25 bg-primary/5 p-4" role="status">
+            <p className="text-sm font-semibold text-foreground">Pay securely with Polar</p>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">You&apos;ll be redirected to Polar&apos;s secure hosted checkout. Your digital products are delivered after payment is confirmed.</p>
           </div>
+          <Button type="submit" size="lg" disabled={isPending || isPreparingAccount} className="h-12 font-semibold">
+            {isPending || isPreparingAccount ? <span className="flex items-center gap-2"><Loader2 className="size-4 animate-spin" />Preparing secure checkout...</span> : `Pay ${formattedTotal} with Polar`}
+          </Button>
         </Reveal>
 
         {/*
@@ -396,26 +400,9 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             <span>Total</span>
             <PriceDisplay usdAmount={total} />
           </div>
-          {paymentMethod !== "paypal" && (
-            <Button
-              type="submit"
-              size="lg"
-              disabled={isPending}
-              className="mt-2 hidden h-12 font-semibold lg:flex"
-            >
-              {isPending ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="size-4 animate-spin" />
-                  Placing order...
-                </span>
-              ) : (
-                paymentMethod === "crypto" ? "Continue to crypto payment" : `Pay ${formattedTotal}`
-              )}
-            </Button>
-          )}
-          {paymentMethod === "paypal" && (
-            <p className="hidden text-center text-sm text-muted-foreground lg:block">Use the PayPal button above to complete your order.</p>
-          )}
+          <Button type="submit" size="lg" disabled={isPending || isPreparingAccount} className="mt-2 hidden h-12 font-semibold lg:flex">
+            {isPending || isPreparingAccount ? "Preparing secure checkout..." : `Pay ${formattedTotal} with Polar`}
+          </Button>
           <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
             <ShieldCheck className="size-3.5" aria-hidden="true" />
             Secured checkout — your details are protected
@@ -423,7 +410,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
         </Reveal>
       </form>
 
-      {paymentMethod !== "paypal" && (
+      {(
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-4 py-3 backdrop-blur-md lg:hidden">
           <div className="mx-auto flex max-w-2xl items-center justify-between gap-4">
             <div className="flex flex-col leading-tight">
@@ -433,14 +420,12 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               </span>
             </div>
             <Button type="submit" form={FORM_ID} size="lg" disabled={isPending} className="h-11 flex-1 font-semibold">
-              {isPending ? (
+              {isPending || isPreparingAccount ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="size-4 animate-spin" />
-                  Placing order...
+                  Preparing secure checkout...
                 </span>
-              ) : (
-                paymentMethod === "crypto" ? "Continue to crypto payment" : `Pay ${formattedTotal}`
-              )}
+              ) : `Pay ${formattedTotal} with Polar`}
             </Button>
           </div>
         </div>
