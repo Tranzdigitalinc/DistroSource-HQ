@@ -1,8 +1,12 @@
 "use server"
 
+import { put } from "@vercel/blob"
 import { requireAdmin } from "@/lib/actions/operations"
-import { createProduct, addProductImage } from "@/lib/actions/admin-products"
+import { createProduct, updateProduct, addProductImage, addProductFile, type ProductFormInput } from "@/lib/actions/admin-products"
 import { searchEnvatoItems, getEnvatoItemDetail, type EnvatoSite } from "@/lib/envato"
+import { mirrorUrlToBlob } from "@/lib/blob-mirror"
+import { htmlToPlainText } from "@/lib/html-to-text"
+import { createPlaceholderZip } from "@/lib/zip-placeholder"
 
 export async function searchEnvatoCatalog(term: string, sites: EnvatoSite[]) {
   await requireAdmin()
@@ -12,29 +16,58 @@ export async function searchEnvatoCatalog(term: string, sites: EnvatoSite[]) {
 export interface ImportEnvatoItemInput {
   envatoId: number
   categoryId: number
-  basePrice: string
   isFeatured: boolean
 }
 
+function slugifyName(name: string) {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+}
+
+// Imports a single Envato Market item as a fully live DistroSource product:
+// - Description is cleaned from raw HTML into plain text.
+// - Preview images are downloaded and re-uploaded to our own Blob storage, so
+//   the listing keeps working even if the Envato API key is revoked or the
+//   source item is later removed.
+// - Price matches Envato's listed price exactly.
+// - A placeholder .zip is attached as the downloadable file so the product
+//   can publish immediately and the full purchase -> entitlement -> download
+//   flow can be tested before the real package replaces it.
 export async function importEnvatoItem(input: ImportEnvatoItemInput) {
   await requireAdmin()
 
   const item = await getEnvatoItemDetail(input.envatoId)
   if (!item) throw new Error("Could not load this item from Envato. It may have been removed.")
 
-  const thumbnailUrl = item.thumbnailUrl || item.screenshots[0] || ""
+  const cleanDescription = htmlToPlainText(item.description) || item.summary || item.name
+  const tagline = cleanDescription.slice(0, 140).trim()
+  const basePrice = (item.priceCents / 100).toFixed(2)
 
-  const productId = await createProduct({
+  const sourceImageUrls = Array.from(
+    new Set([item.thumbnailUrl, ...item.screenshots].filter((url): url is string => Boolean(url))),
+  )
+  if (sourceImageUrls.length === 0) {
+    throw new Error("This Envato item has no preview images to import.")
+  }
+
+  const mirroredUrls = await Promise.all(sourceImageUrls.map((url) => mirrorUrlToBlob(url, "products/envato")))
+  const [thumbnailUrl, ...restImages] = mirroredUrls
+
+  const formInput: ProductFormInput = {
     name: item.name,
-    slug: "",
-    tagline: item.summary?.slice(0, 140) || "",
-    description: item.description || item.summary || item.name,
+    slug: slugifyName(item.name),
+    tagline,
+    description: cleanDescription,
     categoryId: input.categoryId,
     status: "draft",
-    basePrice: input.basePrice,
+    basePrice,
     compareAtPrice: "",
     thumbnailUrl,
-    coverImageUrl: item.screenshots[0] || thumbnailUrl,
+    coverImageUrl: restImages[0] || thumbnailUrl,
     fileFormats: "",
     fileSizeMb: "",
     softwareCompatibility: "",
@@ -47,16 +80,30 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
     isFree: false,
     isBundle: false,
     seoTitle: "",
-    seoDescription: "",
-  })
+    seoDescription: tagline,
+  }
 
-  const extraImages = item.screenshots.filter((url) => url !== thumbnailUrl)
-  for (const url of extraImages) {
+  const productId = await createProduct(formInput)
+
+  for (const url of mirroredUrls) {
     await addProductImage(productId, url, item.name)
   }
-  if (thumbnailUrl) {
-    await addProductImage(productId, thumbnailUrl, item.name)
-  }
+
+  const zipBuffer = createPlaceholderZip(item.name)
+  const zipBlob = await put(`products/${Date.now()}-${slugifyName(item.name)}-placeholder.zip`, zipBuffer, {
+    access: "public",
+    contentType: "application/zip",
+  })
+  await addProductFile(productId, {
+    fileName: `${slugifyName(item.name)}.zip`,
+    blobPathname: zipBlob.url,
+    fileSizeBytes: zipBuffer.length,
+    fileType: "application/zip",
+    licenseType: null,
+  })
+
+  // Now that it has images and a downloadable file, publish it live.
+  await updateProduct(productId, { ...formInput, status: "published" })
 
   return productId
 }

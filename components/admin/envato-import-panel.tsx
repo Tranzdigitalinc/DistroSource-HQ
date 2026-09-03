@@ -30,7 +30,6 @@ export function EnvatoImportPanel({ categories }: { categories: Category[] }) {
   const [isPending, startTransition] = useTransition()
 
   const [categoryId, setCategoryId] = useState(categories[0] ? String(categories[0].id) : "")
-  const [price, setPrice] = useState("29.00")
   const [isFeatured, setIsFeatured] = useState(false)
 
   function toggleSite(site: EnvatoSite) {
@@ -65,20 +64,15 @@ export function EnvatoImportPanel({ categories }: { categories: Category[] }) {
       toast.error("Choose a category before importing.")
       return
     }
-    if (!price.trim() || Number.isNaN(Number(price))) {
-      toast.error("Enter a valid price.")
-      return
-    }
     setImportingId(item.id)
     startTransition(async () => {
       try {
         const productId = await importEnvatoItem({
           envatoId: item.id,
           categoryId: Number(categoryId),
-          basePrice: price,
           isFeatured,
         })
-        toast.success(`Imported "${item.name}" as a draft product.`)
+        toast.success(`Imported "${item.name}" as a live product at its Envato price.`)
         router.push(`/admin/products/${productId}`)
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Import failed.")
@@ -121,7 +115,7 @@ export function EnvatoImportPanel({ categories }: { categories: Category[] }) {
             </div>
           </form>
 
-          <div className="grid gap-4 border-t border-border pt-4 sm:grid-cols-3">
+          <div className="grid gap-4 border-t border-border pt-4 sm:grid-cols-2">
             <div>
               <Label className="mb-1.5 block text-xs text-muted-foreground">Import into category</Label>
               <Select value={categoryId} onValueChange={(value) => setCategoryId(value ?? "")}>
@@ -139,12 +133,6 @@ export function EnvatoImportPanel({ categories }: { categories: Category[] }) {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label htmlFor="envato-price" className="mb-1.5 block text-xs text-muted-foreground">
-                Your price (USD)
-              </Label>
-              <Input id="envato-price" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="29.00" />
-            </div>
             <div className="flex items-center gap-2 pt-6">
               <Checkbox id="envato-featured" checked={isFeatured} onCheckedChange={(v) => setIsFeatured(Boolean(v))} />
               <Label htmlFor="envato-featured" className="text-sm font-normal text-foreground">
@@ -153,8 +141,10 @@ export function EnvatoImportPanel({ categories }: { categories: Category[] }) {
             </div>
           </div>
           <p className="text-xs leading-5 text-muted-foreground">
-            Imported items are created as drafts using your price and category. You must attach a downloadable file
-            and preview image before publishing — Envato does not provide the actual file.
+            Imports go live immediately at Envato&apos;s listed price. Preview images are copied into our own
+            storage so the listing keeps working even if Envato access is lost. A placeholder .zip is attached so
+            you can test checkout and download right away — replace it with the real package in the product editor
+            before announcing the item.
           </p>
         </CardContent>
       </Card>
@@ -187,6 +177,7 @@ export function EnvatoImportPanel({ categories }: { categories: Category[] }) {
                   </span>
                   <span>{item.numberOfSales.toLocaleString()} sales</span>
                 </div>
+                <p className="text-sm font-semibold text-foreground">${(item.priceCents / 100).toFixed(2)}</p>
                 <Button
                   size="sm"
                   onClick={() => handleImport(item)}
