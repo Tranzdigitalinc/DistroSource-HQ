@@ -10,7 +10,7 @@ export default function AcceptableUsePage() {
       title="Acceptable Use Policy"
       updatedAt="January 15, 2025"
       currentHref="/legal/acceptable-use"
-      intro="To keep DistroSource safe, legal, and fair for every customer and creator, we expect all users to follow these guidelines when using the marketplace."
+      intro="To keep DistroSource safe, legal, and fair for every customer, we expect all users to follow these guidelines when using the marketplace."
       sections={[
         {
           heading: "1. Prohibited activity",

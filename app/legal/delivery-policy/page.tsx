@@ -49,7 +49,7 @@ export default function DeliveryPolicyPage() {
           heading: "4. Product updates",
           body: (
             <p>
-              When a creator ships a new version of a product you own, you&apos;ll be notified under{" "}
+              When DistroSource ships a new version of a product you own, you&apos;ll be notified under{" "}
               <span className="font-medium text-foreground">Product Updates</span> in your account, and the updated
               files become available for download at no extra cost.
             </p>

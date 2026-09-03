@@ -66,7 +66,7 @@ const faqGroups = [
       {
         question: "Do I own the files after I buy them?",
         answer:
-          "You own a license to use the files under the terms you purchased — copyright and resale rights to the underlying design or code remain with DistroSource and its creators unless a listing says otherwise.",
+          "You own a license to use the files under the terms you purchased — copyright and resale rights to the underlying design or code remain with DistroSource unless a listing identifies a different rights holder.",
       },
     ],
   },
