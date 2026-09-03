@@ -17,10 +17,16 @@ export async function addToCart(productId: number, licenseId: number, quantity =
   const ownerId = await getOwnerId()
   const safeQuantity = clampQuantity(quantity)
 
-  // Preview-only products (asset not attached yet) must never become purchasable,
-  // even if a client bypasses the disabled button and calls this action directly.
-  const [product] = await db.select({ assetStatus: products.assetStatus }).from(products).where(eq(products.id, productId)).limit(1)
-  if (!product || product.assetStatus !== "ready") {
+  // Preview-only products (asset not attached yet) and products whose distribution
+  // rights are not yet approved (pending_verification / rejected) must never become
+  // purchasable, even if a client bypasses the disabled button and calls this action directly.
+  const [product] = await db
+    .select({ assetStatus: products.assetStatus, rightsStatus: products.rightsStatus })
+    .from(products)
+    .where(eq(products.id, productId))
+    .limit(1)
+  const approvedRightsStatuses = ["original", "licensed_for_distribution", "supplier_verified"]
+  if (!product || product.assetStatus !== "ready" || !approvedRightsStatuses.includes(product.rightsStatus)) {
     throw new Error("This product isn't available for purchase yet.")
   }
 

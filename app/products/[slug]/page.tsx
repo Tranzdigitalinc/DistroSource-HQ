@@ -180,7 +180,10 @@ export default async function ProductDetailPage({
                 productId={product.id}
                 licenses={licenses}
                 initialWishlisted={wishlistIds.includes(product.id)}
-                isPreviewOnly={product.assetStatus !== "ready"}
+                isPreviewOnly={
+                  product.assetStatus !== "ready" ||
+                  !["original", "licensed_for_distribution", "supplier_verified"].includes(product.rightsStatus)
+                }
               />
             </div>
           </Reveal>

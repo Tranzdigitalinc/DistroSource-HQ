@@ -12,6 +12,13 @@ import {
 } from "@/lib/db/schema"
 import { and, asc, desc, eq, ilike, inArray, or, sql } from "drizzle-orm"
 
+// A product may be publicly listed/purchasable only when its distribution rights
+// have been approved. Anything pending_verification or rejected must never surface
+// on the storefront, even if status/assetStatus otherwise look "ready".
+const APPROVED_RIGHTS_STATUSES = ["original", "licensed_for_distribution", "supplier_verified"] as const
+const publiclyVisible = () =>
+  and(eq(products.status, "published"), eq(products.assetStatus, "ready"), inArray(products.rightsStatus, APPROVED_RIGHTS_STATUSES))!
+
 export async function getCategories() {
   return db
     .select({
@@ -25,10 +32,7 @@ export async function getCategories() {
       productCount: sql<number>`cast(count(${products.id}) as int)`,
     })
     .from(categories)
-    .leftJoin(
-      products,
-      and(eq(products.categoryId, categories.id), eq(products.status, "published"), eq(products.assetStatus, "ready")),
-    )
+    .leftJoin(products, and(eq(products.categoryId, categories.id), publiclyVisible()))
     .groupBy(categories.id)
     .orderBy(asc(categories.sortOrder))
 }
@@ -148,8 +152,7 @@ interface ProductQueryOptions {
 function buildProductConditions(options: ProductQueryOptions) {
   // "preview_only" products can exist in the DB (visible in admin) but must never
   // appear as purchasable products on the public storefront.
-  const conditions =
-    options.statusFilter === "all" ? [] : [eq(products.status, "published"), eq(products.assetStatus, "ready")]
+  const conditions = options.statusFilter === "all" ? [] : [publiclyVisible()]
 
   if (options.search) {
     const term = `%${options.search.trim()}%`
@@ -253,12 +256,7 @@ export async function getRecommendedProducts(categoryId: number, excludeProductI
     .from(products)
     .innerJoin(categories, eq(products.categoryId, categories.id))
     .where(
-      and(
-        eq(products.categoryId, categoryId),
-        eq(products.status, "published"),
-        eq(products.assetStatus, "ready"),
-        sql`${products.id} != ${excludeProductId}`,
-      ),
+      and(eq(products.categoryId, categoryId), publiclyVisible(), sql`${products.id} != ${excludeProductId}`),
     )
     .orderBy(desc(products.isFeatured), desc(products.createdAt))
     .limit(limit)
@@ -299,7 +297,7 @@ export async function getCatalogStats() {
     db
       .select({ count: sql<number>`count(*)::int` })
       .from(products)
-      .where(and(eq(products.status, "published"), eq(products.assetStatus, "ready"))),
+      .where(publiclyVisible()),
     db.select({ count: sql<number>`count(*)::int` }).from(categories),
     db
       .select({ count: sql<number>`count(*)::int`, avgRating: sql<number>`coalesce(avg(${reviews.rating}), 0)` })
