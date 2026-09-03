@@ -20,7 +20,7 @@ import { generateOrderNumber } from "@/lib/format"
 import { sendOrderConfirmationEmail, sendReferralRewardEmail } from "@/lib/email"
 import { capturePaypalOrder, createPaypalOrder, refundPaypalCapture } from "@/lib/paypal"
 import { getOptionalOwnerId, getOwnerId, getSession } from "@/lib/session"
-import { getPolarClient, polarCheckoutUrl, polarAmountInCents } from "@/lib/polar"
+import { getPolarClient, polarCheckoutUrl } from "@/lib/polar"
 import { and, eq, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
@@ -451,8 +451,6 @@ export async function createPolarCheckout(input: {
 
   const checkout = await getPolarClient().checkouts.create({
     products: polarProductIds,
-    amount: polarAmountInCents(pricing.total),
-    currency: "usd",
     customerEmail: billingEmail,
     customerName: billingName,
     externalCustomerId: ownerId,
