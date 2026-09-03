@@ -38,7 +38,7 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
         </Button>
       </header>
 
-      <CategoryForm category={category} />
+      <CategoryForm category={category} departments={departments} />
     </main>
   )
 }

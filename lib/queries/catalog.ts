@@ -357,7 +357,10 @@ export async function getCatalogStats() {
       .select({ count: sql<number>`count(*)::int` })
       .from(products)
       .where(publiclyVisible()),
-    db.select({ count: sql<number>`count(*)::int` }).from(categories),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(categories)
+      .where(sql`${categories.parentId} is not null`),
     db
       .select({ count: sql<number>`count(*)::int`, avgRating: sql<number>`coalesce(avg(${reviews.rating}), 0)` })
       .from(reviews),

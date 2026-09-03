@@ -7,14 +7,19 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { MegaMenu } from "@/components/header/mega-menu"
 import { cn } from "@/lib/utils"
 
-interface Category {
+interface Subcategory {
   id: number
   slug: string
   name: string
   description: string | null
+  icon: string | null
+  productCount: number
+}
+interface Department extends Subcategory {
+  subcategories: Subcategory[]
 }
 
-export function DesktopNav({ categories }: { categories: Category[] }) {
+export function DesktopNav({ departments }: { departments: Department[] }) {
   const [open, setOpen] = useState(false)
 
   const linkClass =
@@ -39,9 +44,9 @@ export function DesktopNav({ categories }: { categories: Category[] }) {
           align="start"
           sideOffset={16}
           onMouseLeave={() => setOpen(false)}
-          className="w-[560px] max-w-[92vw] rounded-[4px] p-0"
+          className="w-[860px] max-w-[94vw] rounded-[4px] p-0"
         >
-          <MegaMenu categories={categories} />
+          <MegaMenu departments={departments} onNavigate={() => setOpen(false)} />
         </PopoverContent>
       </Popover>
 
