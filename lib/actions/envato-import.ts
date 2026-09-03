@@ -35,6 +35,28 @@ function slugifyName(name: string) {
     .replace(/-+/g, "-")
 }
 
+function createOwnedProductName(sourceName: string): string {
+  const cleaned = sourceName
+    .replace(/\b(envato|themeforest|codecanyon|videohive|graphicriver|photodune|3docean|activeden)\b/gi, "")
+    .replace(/\b(template|kit)\b/gi, "")
+    .replace(/[|:–—-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+
+  const words = cleaned.split(" ").filter(Boolean).slice(0, 8)
+  const core = words.length > 0 ? words.join(" ") : "Digital Product"
+  return `DistroSource ${core} Studio`
+}
+
+function removeExternalLinks(text: string): string {
+  return text
+    .replace(/https?:\/\/[^\s)]+/gi, "")
+    .replace(/www\.[^\s)]+/gi, "")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/\s{2,}/g, " ")
+    .trim()
+}
+
 // Imports a single Envato Market item as a fully live DistroSource product:
 // - Description is converted from raw HTML into a light markdown format
 //   (headings, bullets, bold kept) instead of one flat paragraph, and
@@ -56,10 +78,11 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
   const item = await getEnvatoItemDetail(input.envatoId)
   if (!item) throw new Error("Could not load this item from Envato. It may have been removed.")
 
-  let description = htmlToLiteMarkdown(item.description) || item.summary || item.name
-  if (item.liveDemoUrl) {
-    description += `\n\n## Live preview\n${item.liveDemoUrl}`
-  }
+  const ownedName = createOwnedProductName(item.name)
+  // Keep useful product copy, but remove every outbound URL before it is
+  // stored. Imported listings become DistroSource-owned catalog content;
+  // the source item's live demo and marketplace links must never be shown.
+  const description = removeExternalLinks(htmlToLiteMarkdown(item.description) || item.summary || ownedName)
   const tagline = stripLiteMarkdown(description).slice(0, 140).trim()
   const basePrice = (item.priceCents / 100).toFixed(2)
 
@@ -74,8 +97,8 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
   const [thumbnailUrl, ...restImages] = mirroredUrls
 
   const formInput: ProductFormInput = {
-    name: item.name,
-    slug: slugifyName(item.name),
+    name: ownedName,
+    slug: slugifyName(ownedName),
     tagline,
     description,
     categoryId: input.categoryId,
@@ -104,18 +127,18 @@ export async function importEnvatoItem(input: ImportEnvatoItemInput) {
   const productId = await createProduct(formInput)
 
   for (const url of mirroredUrls) {
-    await addProductImage(productId, url, item.name)
+    await addProductImage(productId, url, ownedName)
   }
 
-  const zipBuffer = createPlaceholderZip(item.name)
-  const zipBlob = await put(`products/${Date.now()}-${slugifyName(item.name)}-placeholder.zip`, zipBuffer, {
+  const zipBuffer = createPlaceholderZip(ownedName)
+  const zipBlob = await put(`products/${Date.now()}-${slugifyName(ownedName)}-placeholder.zip`, zipBuffer, {
     access: "private",
     contentType: "application/zip",
   })
   // Store the raw private-blob pathname, not a URL — /api/downloads/[fileId]
   // resolves this via get() after re-checking entitlement.
   await addProductFile(productId, {
-    fileName: `${slugifyName(item.name)}.zip`,
+    fileName: `${slugifyName(ownedName)}.zip`,
     blobPathname: zipBlob.pathname,
     fileSizeBytes: zipBuffer.length,
     fileType: "application/zip",
