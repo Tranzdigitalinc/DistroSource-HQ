@@ -20,6 +20,7 @@ import { generateOrderNumber } from "@/lib/format"
 import { sendOrderConfirmationEmail, sendReferralRewardEmail } from "@/lib/email"
 import { capturePaypalOrder, createPaypalOrder, refundPaypalCapture } from "@/lib/paypal"
 import { getOptionalOwnerId, getOwnerId, getSession } from "@/lib/session"
+import { getPolarClient, getPolarProductId, polarCheckoutUrl, polarAmountInCents } from "@/lib/polar"
 import { and, eq, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
@@ -108,7 +109,7 @@ interface OrderPricing {
  * provider, and again immediately before fulfilling, so a cart change
  * mid-checkout can never result in an under- or over-charge.
  */
-async function computeOrderPricing(
+export async function computeOrderPricing(
   ownerId: string,
   couponCode: string | undefined,
   session: Awaited<ReturnType<typeof getSession>>,
@@ -208,13 +209,14 @@ async function computeOrderPricing(
  * issues referral rewards. Shared by every payment method so each one only
  * has to price the cart and hand off the confirmed payment reference.
  */
-async function persistOrder(
+export async function persistOrder(
   pricing: OrderPricing,
   billingEmail: string,
   billingName: string,
   session: Awaited<ReturnType<typeof getSession>>,
   paymentMethod: string,
   paypalIds?: { paypalOrderId: string; paypalCaptureId: string },
+  polarIds?: { polarCheckoutId: string; polarOrderId?: string },
 ): Promise<{ orderNumber: string; id: number }> {
   const { ownerId, subtotal, discount, total, validatedItems, promotion, coupon, campaign, campaignValid, referral, affiliateCode } = pricing
   const orderNumber = generateOrderNumber()
@@ -237,6 +239,8 @@ async function persistOrder(
         paymentMethod,
         paypalOrderId: paypalIds?.paypalOrderId ?? null,
         paypalCaptureId: paypalIds?.paypalCaptureId ?? null,
+        polarCheckoutId: polarIds?.polarCheckoutId ?? null,
+        polarOrderId: polarIds?.polarOrderId ?? null,
       })
       .returning()
 
@@ -412,6 +416,50 @@ export async function checkout(input: {
 
 function referralCookieShouldClear(pricing: OrderPricing) {
   return Boolean(pricing.referral)
+}
+
+export async function createPolarCheckout(input: {
+  billingEmail: string
+  billingName: string
+  couponCode?: string
+}) {
+  const billingEmail = input.billingEmail.trim()
+  const billingName = input.billingName.trim()
+  if (!EMAIL_PATTERN.test(billingEmail)) throw new Error("Enter a valid email address for your order confirmation.")
+  if (!billingName) throw new Error("Enter the name on this order.")
+
+  const ownerId = await getOwnerId()
+  const session = await getSession()
+  const cookieStore = await cookies()
+  const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
+  if (pricing.total <= 0) throw new Error("Your order total is $0 after discounts — use the free checkout instead of Polar.")
+
+  await db.insert(operationEvents).values({
+    eventType: "checkout_started",
+    entityType: "cart",
+    entityId: ownerId,
+    status: "open",
+    payload: { itemCount: pricing.validatedItems.length, couponApplied: Boolean(input.couponCode), paymentMethod: "polar", totalUsd: pricing.total },
+    createdBy: ownerId,
+  })
+
+  const checkout = await getPolarClient().checkouts.create({
+    products: [getPolarProductId()],
+    amount: polarAmountInCents(pricing.total),
+    currency: "usd",
+    customerEmail: billingEmail,
+    customerName: billingName,
+    externalCustomerId: ownerId,
+    metadata: {
+      distrosource_owner_id: ownerId,
+      distrosource_coupon: pricing.promotion?.code ?? "",
+      distrosource_total_usd: pricing.total,
+    },
+    successUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/checkout/success?checkout_id={CHECKOUT_ID}`,
+    returnUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/checkout`,
+  })
+
+  return { url: polarCheckoutUrl(checkout), checkoutId: checkout.id }
 }
 
 const PAYPAL_MIN_USD = 0.5

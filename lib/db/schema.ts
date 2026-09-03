@@ -236,6 +236,8 @@ export const orders = pgTable("orders", {
   confirmationEmailSent: boolean("confirmationEmailSent").notNull().default(false),
   paypalOrderId: text("paypalOrderId"),
   paypalCaptureId: text("paypalCaptureId"),
+  polarCheckoutId: text("polarCheckoutId"),
+  polarOrderId: text("polarOrderId"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
