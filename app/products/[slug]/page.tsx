@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation"
-import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
-import { Star, ChevronRight, Download, ShieldCheck, RefreshCw, ImageOff } from "lucide-react"
+import { Star, ChevronRight, Download, ShieldCheck, RefreshCw } from "lucide-react"
 import { getProductBySlug, getRecommendedProducts } from "@/lib/queries/catalog"
 import { getWishlistProductIds } from "@/lib/actions/wishlist"
 import { stripLiteMarkdown } from "@/lib/html-to-text"
 import { PurchasePanel } from "@/components/product/purchase-panel"
+import { ProductGallery } from "@/components/product/product-gallery"
 import { LiteMarkdown } from "@/components/product/lite-markdown"
 import { ReviewList } from "@/components/product/review-list"
 import { ProductGrid } from "@/components/catalog/product-grid"
@@ -20,6 +20,10 @@ import { CompareButton } from "@/components/product/compare-button"
 import { RecentlyViewedTracker } from "@/components/product/recently-viewed-tracker"
 import { formatDate } from "@/lib/format"
 
+function resolveProductImageUrl(url: string): string {
+  return /^https?:\/\//i.test(url) ? `/api/external-image?url=${encodeURIComponent(url)}` : url
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -31,7 +35,8 @@ export async function generateMetadata({
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://distrosource.com"
   const canonical = `${siteUrl}/products/${data.product.slug}`
   const description = data.product.seoDescription ?? data.product.tagline ?? undefined
-  const image = data.product.coverImageUrl ?? data.product.thumbnailUrl ?? undefined
+  const image = data.product.coverImageUrl ?? data.product.thumbnailUrl
+  const resolvedImage = image ? resolveProductImageUrl(image) : undefined
   return {
     title: data.product.seoTitle ?? `${data.product.name} — DistroSource`,
     description,
@@ -41,9 +46,9 @@ export async function generateMetadata({
       description,
       url: canonical,
       type: "website",
-      images: image ? [{ url: image, alt: data.product.name }] : undefined,
+      images: resolvedImage ? [{ url: resolvedImage, alt: data.product.name }] : undefined,
     },
-    twitter: { card: "summary_large_image", title: data.product.name, description, images: image ? [image] : undefined },
+    twitter: { card: "summary_large_image", title: data.product.name, description, images: resolvedImage ? [resolvedImage] : undefined },
   }
 }
 
@@ -60,7 +65,19 @@ export default async function ProductDetailPage({
   const related = await getRecommendedProducts(category.id, product.id, 8)
   const wishlistIds = await getWishlistProductIds()
 
-  const gallery = images.length > 0 ? images.map((i) => i.url) : [product.coverImageUrl, product.thumbnailUrl].filter(Boolean) as string[]
+  // Cover art is the high-resolution hero; Envato's thumbnail is often a
+  // tiny icon intended for search cards, so never let it become the hero when
+  // a cover or gallery image exists. Legacy imports may still contain direct
+  // external URLs, so route those through our image proxy instead of relying
+  // on a third-party host to allow/serve them reliably.
+  const rawGallery = Array.from(
+    new Set([
+      product.coverImageUrl,
+      ...images.map((image) => image.url),
+      product.thumbnailUrl,
+    ].filter((url): url is string => Boolean(url))),
+  )
+  const gallery = rawGallery.map(resolveProductImageUrl)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://distrosource.com"
   const productSchema = {
     "@context": "https://schema.org",
@@ -102,36 +119,7 @@ export default async function ProductDetailPage({
 
           <Reveal className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-10">
             <div className="flex flex-col gap-4">
-              <div className="group relative aspect-[4/3] w-full overflow-hidden border border-border bg-secondary">
-                {gallery[0] ? (
-                  <Image
-                    src={gallery[0] || "/placeholder.svg"}
-                    alt={product.name}
-                    fill
-                    priority
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-muted-foreground/40">
-                    <ImageOff className="size-10" />
-                  </div>
-                )}
-                {product.isNewRelease && (
-                  <Badge className="absolute left-0 top-0 rounded-none border-none bg-navy font-mono text-[10px] font-semibold uppercase tracking-[0.04em] text-navy-foreground">
-                    New
-                  </Badge>
-                )}
-              </div>
-              {gallery.length > 1 && (
-                <div className="grid grid-cols-4 gap-2">
-                  {gallery.slice(1, 5).map((src) => (
-                    <div key={src} className="relative aspect-[4/3] overflow-hidden border border-border bg-secondary">
-                      <Image src={src || "/placeholder.svg"} alt="" fill className="object-cover" sizes="20vw" />
-                    </div>
-                  ))}
-                </div>
-              )}
+              <ProductGallery images={gallery} alt={product.name} />
 
               {reviewCount > 0 && (
                 <div className="flex flex-wrap items-center gap-3 border-y border-border py-3 text-sm">
