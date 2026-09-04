@@ -2,6 +2,7 @@
 # on it, so the script must be allowed or `drizzle-kit generate` cannot run.
 allowBuilds:
   esbuild: true
+  unrs-resolver: false
 minimumReleaseAgeExclude:
   - '@next/*'
   - next

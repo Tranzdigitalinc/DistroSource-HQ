@@ -1,5 +1,5 @@
 import { CatalogPage } from "@/components/catalog/catalog-page"
-import { getProducts } from "@/lib/queries/catalog"
+import { getProducts, parseProductSort } from "@/lib/queries/catalog"
 
 export const metadata = {
   title: "Today's deals — DistroSource",
@@ -18,7 +18,7 @@ export default async function DealsPage({
     maxPrice: sp.maxPrice ? Number(sp.maxPrice) : undefined,
     format: sp.format,
     minRating: sp.minRating ? Number(sp.minRating) : undefined,
-    sort: (sp.sort as any) ?? "featured",
+    sort: parseProductSort(sp.sort),
   })
 
   return (

@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useState, useTransition } from "react"
+import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { mutate } from "swr"
@@ -31,12 +31,16 @@ export function QuickPreviewDialog({ item, open, onOpenChange }: { item: Product
   const [isPending, startTransition] = useTransition()
   const [justAdded, setJustAdded] = useState(false)
 
-  useEffect(() => {
+  // Reset transient state each time the dialog opens — derived from the
+  // previous `open` value during render, not in an effect.
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open !== prevOpen) {
+    setPrevOpen(open)
     if (open) {
       setActive(0)
       setJustAdded(false)
     }
-  }, [open])
+  }
 
   const isFree = item.product.isFree || item.startingPrice === 0
   const href = `/products/${item.product.slug}`

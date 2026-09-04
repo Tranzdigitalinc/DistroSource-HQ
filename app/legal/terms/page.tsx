@@ -112,8 +112,8 @@ export default function TermsOfServicePage() {
           heading: "9. Changes to these terms",
           body: (
             <p>
-              We may update these terms from time to time. Material changes will be reflected by updating the "Last
-              updated" date above. Continued use of DistroSource after changes take effect constitutes acceptance of
+              We may update these terms from time to time. Material changes will be reflected by updating the &ldquo;Last
+              updated&rdquo; date above. Continued use of DistroSource after changes take effect constitutes acceptance of
               the revised terms.
             </p>
           ),

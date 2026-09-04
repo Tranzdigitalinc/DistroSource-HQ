@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, serial, integer, numeric, jsonb } from "drizzle-orm/pg-core"
+import { pgTable, text, timestamp, boolean, serial, integer, numeric, jsonb, type AnyPgColumn } from "drizzle-orm/pg-core"
 
 // --- Better Auth required tables -------------------------------------------
 // Column names are camelCase to match Better Auth's defaults. Do not rename.
@@ -71,7 +71,7 @@ export const categories = pgTable("categories", {
   // subcategories, pointing at the department they belong to (e.g.
   // "React / Next.js Templates" -> "Web & Development"). Products always
   // attach to a subcategory, never directly to a department.
-  parentId: integer("parentId").references((): any => categories.id),
+  parentId: integer("parentId").references((): AnyPgColumn => categories.id),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 

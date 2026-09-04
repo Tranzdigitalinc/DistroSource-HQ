@@ -19,7 +19,7 @@ export default function RefundPolicyPage() {
               Products that have <span className="font-medium text-foreground">not</span> been downloaded from your
               account are eligible for a full refund within 14 days of purchase. Once you download a file from{" "}
               <span className="font-medium text-foreground">My Library</span>, the order becomes final and
-              non-refundable, because the digital files cannot be "returned."
+              non-refundable, because the digital files cannot be &ldquo;returned.&rdquo;
             </p>
           ),
         },

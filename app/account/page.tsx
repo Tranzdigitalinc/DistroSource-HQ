@@ -4,6 +4,7 @@ import { getUserLibrary, getUserOrderItems } from "@/lib/actions/account"
 import { getWishlistItems } from "@/lib/actions/wishlist"
 import { getRecentlyViewed } from "@/lib/actions/recently-viewed"
 import { ProductGrid } from "@/components/catalog/product-grid"
+import type { ProductCardData } from "@/components/product/product-card"
 import { PriceDisplay } from "@/components/price-display"
 import { Button } from "@/components/ui/button"
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
@@ -108,7 +109,7 @@ export default async function AccountOverviewPage() {
       {recentlyViewed.length > 0 && (
         <Reveal className="border-t border-border pt-8">
           <div className="mb-4 flex items-center justify-between"><h2 className="font-display text-lg font-semibold">Recently viewed</h2><Button variant="ghost" size="sm" render={<Link href="/products" />} nativeButton={false}>Keep browsing</Button></div>
-          <ProductGrid items={recentlyViewed as any} />
+          <ProductGrid items={recentlyViewed as ProductCardData[]} />
         </Reveal>
       )}
 

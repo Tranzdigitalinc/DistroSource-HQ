@@ -1,4 +1,4 @@
-import { count, desc, eq, sql } from "drizzle-orm"
+import { count, eq, sql } from "drizzle-orm"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { db } from "@/lib/db"
 import { operationEvents, orders } from "@/lib/db/schema"

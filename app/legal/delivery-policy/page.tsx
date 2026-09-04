@@ -59,7 +59,7 @@ export default function DeliveryPolicyPage() {
           heading: "5. Delayed or failed delivery",
           body: (
             <p>
-              If an order shows as "Processing" for longer than 30 minutes, or a download link fails, open a ticket
+              If an order shows as &ldquo;Processing&rdquo; for longer than 30 minutes, or a download link fails, open a ticket
               through <span className="font-medium text-foreground">Order Help</span> with your order number. We
               monitor fulfillment around the clock and will resolve delayed orders or issue a refund if the product
               cannot be delivered.

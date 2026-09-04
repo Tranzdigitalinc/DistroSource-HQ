@@ -13,6 +13,7 @@ import {
   getCategories,
   getProducts,
   getProductsCount,
+  parseProductSort,
 } from "@/lib/queries/catalog"
 
 export const metadata = {
@@ -40,7 +41,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     source: params.source,
     license: params.license,
     minRating: params.minRating ? Number(params.minRating) : undefined,
-    sort: (params.sort as "featured" | "price-asc" | "price-desc" | "newest" | "rating" | undefined) ?? "featured",
+    sort: parseProductSort(params.sort),
   }
 
   const [categories, totalCount, formats, software, facets, stats] = await Promise.all([

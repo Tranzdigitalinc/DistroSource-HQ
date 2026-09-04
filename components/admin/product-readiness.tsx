@@ -21,7 +21,6 @@ export function ProductReadiness({
   status,
   thumbnailUrl,
   coverImageUrl,
-  imageCount,
   fileCount,
   licenseCount,
   description,

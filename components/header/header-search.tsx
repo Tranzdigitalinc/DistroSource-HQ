@@ -58,12 +58,12 @@ export function HeaderSearch({ className, size = "default" }: { className?: stri
   const [query, setQuery] = useState("")
   const [debounced, setDebounced] = useState("")
   const [open, setOpen] = useState(false)
-  const [activeIndex, setActiveIndex] = useState(-1)
+  // The highlighted row is scoped to the current query/open state: any
+  // change to either implicitly resets it, with no effect required.
+  const [active, setActive] = useState<{ key: string; index: number }>({ key: "", index: -1 })
   const [recent, setRecent] = useState<string[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => setRecent(readRecent()), [])
 
   useEffect(() => {
     const t = setTimeout(() => setDebounced(query.trim()), 200)
@@ -104,7 +104,16 @@ export function HeaderSearch({ className, size = "default" }: { className?: stri
       ]
     : [...recent.map((label) => ({ kind: "recent" as const, label })), ...QUICK_LINKS.map((q) => ({ kind: "quick" as const, ...q }))]
 
-  useEffect(() => setActiveIndex(-1), [debounced, open])
+  const activeKey = `${debounced}|${open ? 1 : 0}`
+  const activeIndex = active.key === activeKey ? active.index : -1
+  const setActiveIndex = useCallback(
+    (next: number | ((i: number) => number)) =>
+      setActive((prev) => {
+        const current = prev.key === activeKey ? prev.index : -1
+        return { key: activeKey, index: typeof next === "function" ? next(current) : next }
+      }),
+    [activeKey],
+  )
 
   const remember = useCallback(
     (term: string) => {
@@ -115,26 +124,35 @@ export function HeaderSearch({ className, size = "default" }: { className?: stri
     [recent],
   )
 
-  function submitSearch(term: string) {
-    const t = term.trim()
-    if (!t) return
-    remember(t)
-    router.push(`/products?q=${encodeURIComponent(t)}`)
-    setOpen(false)
-    inputRef.current?.blur()
-  }
+  // Memoised handlers must not capture `inputRef`: the React compiler lint
+  // treats a ref-capturing function passed around in JSX as a potential
+  // render-time ref read. Dropping focus via the active element avoids it.
+  const submitSearch = useCallback(
+    (term: string) => {
+      const t = term.trim()
+      if (!t) return
+      remember(t)
+      router.push(`/products?q=${encodeURIComponent(t)}`)
+      setOpen(false)
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+    },
+    [remember, router],
+  )
 
-  function activate(row: Row) {
-    setOpen(false)
-    if (row.kind === "recent") return submitSearch(row.label)
-    if (row.kind === "quick") return router.push(row.href)
-    if (row.kind === "category") return router.push(`/categories/${row.item.slug}`)
-    if (row.kind === "product") {
-      remember(query.trim() || row.item.name)
-      return router.push(`/products/${row.item.slug}`)
-    }
-    return submitSearch(query)
-  }
+  const activate = useCallback(
+    (row: Row) => {
+      setOpen(false)
+      if (row.kind === "recent") return submitSearch(row.label)
+      if (row.kind === "quick") return router.push(row.href)
+      if (row.kind === "category") return router.push(`/categories/${row.item.slug}`)
+      if (row.kind === "product") {
+        remember(query.trim() || row.item.name)
+        return router.push(`/products/${row.item.slug}`)
+      }
+      return submitSearch(query)
+    },
+    [query, remember, router, submitSearch],
+  )
 
   function onKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Escape") {
@@ -184,7 +202,12 @@ export function HeaderSearch({ className, size = "default" }: { className?: stri
           ref={inputRef}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => setOpen(true)}
+          onFocus={() => {
+            // Recents live in localStorage: read them when the panel is
+            // actually opened, in the event handler, not on mount.
+            setRecent(readRecent())
+            setOpen(true)
+          }}
           onKeyDown={onKeyDown}
           placeholder="Search templates, dashboards, UI kits, graphics…"
           aria-label="Search products"

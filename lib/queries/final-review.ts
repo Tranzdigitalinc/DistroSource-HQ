@@ -66,8 +66,6 @@ export interface FinalReviewRow {
 }
 
 export async function getFinalReviewRows(): Promise<FinalReviewRow[]> {
-  const parent = { ...categories }
-
   const rows = await db
     .select({
       id: products.id,

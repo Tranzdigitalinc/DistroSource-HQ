@@ -1,5 +1,9 @@
 "use client"
 
+/* eslint-disable @next/next/no-img-element -- images are served through the
+   storefront's own proxy with `images.unoptimized`; next/image would add cost
+   without benefit here (see component note below). */
+
 import { useCallback, useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel"

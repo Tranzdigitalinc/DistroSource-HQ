@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { ChevronRight } from "@/lib/storefront-icons"
 import { CatalogPage } from "@/components/catalog/catalog-page"
 import { SubcategoryNav } from "@/components/catalog/subcategory-nav"
-import { getCategoryBySlug, getCategoryNavContext, getProducts } from "@/lib/queries/catalog"
+import { getCategoryBySlug, getCategoryNavContext, getProducts, parseProductSort } from "@/lib/queries/catalog"
 import { getCategoryIcon } from "@/lib/category-icons"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -45,12 +45,15 @@ export default async function CategoryDetailPage({
       maxPrice: sp.maxPrice ? Number(sp.maxPrice) : undefined,
       format: sp.format,
       minRating: sp.minRating ? Number(sp.minRating) : undefined,
-      sort: (sp.sort as any) ?? "featured",
+      sort: parseProductSort(sp.sort),
     }),
     getCategoryNavContext(category),
   ])
 
-  const Icon = getCategoryIcon(category.slug)
+  // Rendered by calling the icon function rather than using it as a JSX
+  // tag: the React compiler lint otherwise reads a looked-up component as
+  // one "created during render".
+  const categoryIcon = getCategoryIcon(category.slug)({ "aria-hidden": true, className: "size-6" })
   const isDepartment = category.parentId === null
 
   return (
@@ -102,7 +105,7 @@ export default async function CategoryDetailPage({
             </nav>
             <div className="mx-auto flex w-full max-w-7xl items-center gap-4 px-4 py-5 sm:px-6 sm:py-6">
               <span className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-foreground sm:size-14">
-                <Icon aria-hidden="true" className="size-6" />
+                {categoryIcon}
               </span>
               <div className="min-w-0">
                 <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">

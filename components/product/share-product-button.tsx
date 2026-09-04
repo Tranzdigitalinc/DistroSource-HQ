@@ -1,13 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useSyncExternalStore } from "react"
 import { Check, Copy, Share2 } from "@/lib/storefront-icons"
 import { Button } from "@/components/ui/button"
 
+const noop = () => () => {}
+
 export function ShareProductButton({ name }: { name: string }) {
   const [copied, setCopied] = useState(false)
-  const [canShare, setCanShare] = useState(false)
-  useEffect(() => setCanShare(Boolean(navigator.share)), [])
+  // Web Share availability is a browser fact; read it without an effect.
+  const canShare = useSyncExternalStore(noop, () => typeof navigator !== "undefined" && Boolean(navigator.share), () => false)
   async function share() {
     const url = window.location.href
     if (navigator.share) {
@@ -18,5 +20,10 @@ export function ShareProductButton({ name }: { name: string }) {
     setCopied(true)
     window.setTimeout(() => setCopied(false), 1800)
   }
-  return <Button type="button" variant="outline" size="sm" onClick={share}>{copied ? <Check data-icon="inline-start" /> : canShare ? <Share2 data-icon="inline-start" /> : <Copy data-icon="inline-start" />}{copied ? "Link copied" : "Share"}</Button>
+  return (
+    <Button type="button" variant="outline" size="sm" onClick={share} className="gap-2 bg-transparent">
+      {copied ? <Check className="size-4" /> : canShare ? <Share2 className="size-4" /> : <Copy className="size-4" />}
+      {copied ? "Link copied" : "Share"}
+    </Button>
+  )
 }

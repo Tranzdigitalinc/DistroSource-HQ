@@ -305,6 +305,15 @@ export async function getProductBySlug(slug: string) {
   }
 }
 
+export type ProductSort = "featured" | "price-asc" | "price-desc" | "newest" | "rating"
+
+const PRODUCT_SORTS: readonly ProductSort[] = ["featured", "price-asc", "price-desc", "newest", "rating"]
+
+/** Narrow an arbitrary query-string value to a supported sort, defaulting to "featured". */
+export function parseProductSort(value: string | undefined): ProductSort {
+  return (PRODUCT_SORTS as readonly string[]).includes(value ?? "") ? (value as ProductSort) : "featured"
+}
+
 interface ProductQueryOptions {
   categorySlug?: string
   search?: string
@@ -323,7 +332,7 @@ interface ProductQueryOptions {
   maxPrice?: number
   minPrice?: number
   minRating?: number
-  sort?: "featured" | "price-asc" | "price-desc" | "newest" | "rating"
+  sort?: ProductSort
   limit?: number
   offset?: number
   statusFilter?: "published" | "all"

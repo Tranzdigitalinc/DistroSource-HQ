@@ -9,7 +9,7 @@ import "server-only"
  * route at app/api/cron/abandoned-cart-reminders/route.ts.
  */
 
-import { and, eq, isNull, lt, or } from "drizzle-orm"
+import { and, eq, isNull, lt } from "drizzle-orm"
 import { db } from "@/lib/db"
 import { abandonedCarts, notificationPreferences } from "@/lib/db/schema"
 import { sendAbandonedCartReminderEmail } from "@/lib/email"

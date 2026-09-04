@@ -9,10 +9,10 @@ const EASE = [0.16, 1, 0.3, 1] as const
  * Fades and lifts content into place the first time it scrolls into view.
  * Use `delay` to stagger a sequence of siblings (e.g. index * 0.06).
  */
+// `delay` and `y` remain in the props type for call-site compatibility; the
+// current reveal is a plain fade-in that ignores them.
 export function Reveal({
   children,
-  delay = 0,
-  y = 16,
   duration = 0.55,
   className,
   once = true,

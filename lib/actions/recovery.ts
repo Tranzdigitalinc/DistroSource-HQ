@@ -1,15 +1,15 @@
 "use server"
 
 import { randomUUID } from "node:crypto"
-import { and, eq, inArray, isNull, lt, or } from "drizzle-orm"
+import { and, eq, inArray } from "drizzle-orm"
 import { db } from "@/lib/db"
-import { abandonedCarts, notificationPreferences, productLicenses } from "@/lib/db/schema"
+import { abandonedCarts, productLicenses } from "@/lib/db/schema"
 import { getOptionalOwnerId, getOwnerId } from "@/lib/session"
 import { addToCart } from "@/lib/actions/cart"
-import { sendAbandonedCartEmail, sendAbandonedCartReminderEmail } from "@/lib/email"
+import { sendAbandonedCartEmail } from "@/lib/email"
 import { getAuthBaseUrl } from "@/lib/env"
 
-const REMINDER_DELAY_HOURS = 24
+// Reminder scheduling lives in lib/jobs/abandoned-cart.ts (cron-only).
 
 interface AbandonedCartItem {
   productId: number

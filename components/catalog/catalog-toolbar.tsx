@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Close, ICON_SIZE } from "@/lib/storefront-icons"
+import { Close } from "@/lib/storefront-icons"
 import { licenseLabel } from "@/lib/licenses"
 import { getSourceTypeLabel } from "@/lib/format"
 
