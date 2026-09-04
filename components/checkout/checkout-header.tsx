@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { BrandLogo } from "@/components/brand-logo"
+import { VerifyEmailBanner } from "@/components/verify-email-banner"
 import { ArrowLeft, Lock } from "@/lib/storefront-icons"
 import { ICON_SIZE } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
@@ -25,6 +26,8 @@ export function CheckoutHeader({ currentStep = "checkout" }: { currentStep?: Ste
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <VerifyEmailBanner />
+
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
         <BrandLogo href="/" heightClassName="h-9 sm:h-10" />
 

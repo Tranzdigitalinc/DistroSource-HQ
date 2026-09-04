@@ -17,7 +17,13 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
-    requireEmailVerification: true,
+    // Verification is nudged, not enforced: an unverified user can still
+    // sign in and complete checkout. requireEmailVerification: true also
+    // silently disables autoSignIn right after signup, which broke the
+    // account-creation step of checkout for brand-new guests. A persistent
+    // banner (components/verify-email-banner.tsx) prompts verification
+    // instead of blocking access.
+    requireEmailVerification: false,
     sendResetPassword: async ({ user, url }) => {
       await sendPasswordResetEmail(user.email, url)
     },
