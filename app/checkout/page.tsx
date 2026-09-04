@@ -3,7 +3,6 @@ import Link from "next/link"
 import { getCartItems } from "@/lib/actions/cart"
 import { applyCouponPreview } from "@/lib/actions/checkout"
 import { getSession } from "@/lib/session"
-import { restoreAbandonedCart } from "@/lib/actions/recovery"
 import { CheckoutForm } from "@/components/checkout/checkout-form"
 import { CheckoutHeader } from "@/components/checkout/checkout-header"
 
@@ -14,14 +13,13 @@ export const metadata = {
 export default async function CheckoutPage({
   searchParams,
 }: {
-  searchParams: Promise<{ coupon?: string; recovery?: string }>
+  searchParams: Promise<{ coupon?: string }>
 }) {
-  const { coupon, recovery } = await searchParams
+  const { coupon } = await searchParams
 
-  if (recovery) {
-    const restored = await restoreAbandonedCart(recovery)
-    if (restored.success) redirect("/checkout")
-  }
+  // Abandoned-cart recovery restores items via /api/cart/recover, a Route
+  // Handler — restoring here in the page's own render would try to create a
+  // guest cookie mid-render, which Next.js disallows and crashes the page.
 
   const items = await getCartItems()
   if (items.length === 0) redirect("/cart")

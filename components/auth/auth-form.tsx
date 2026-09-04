@@ -103,6 +103,13 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
 
     // A guest who added to cart, then signed in, keeps that cart.
     await Promise.all([mergeGuestCartIntoAccount(), mergeGuestActivityIntoAccount()])
+    // Route Handlers (e.g. /api/cart/recover) issue their own redirect once
+    // hit — a full navigation is required so the browser actually requests
+    // them, rather than the client router trying to soft-navigate to them.
+    if (redirectTo.startsWith("/api/")) {
+      window.location.href = redirectTo
+      return
+    }
     router.push(redirectTo)
     router.refresh()
   }
