@@ -2,10 +2,12 @@
 
 import { and, asc, desc, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
+import { headers } from "next/headers"
 import { db } from "@/lib/db"
 import { supportConversations, supportMessages } from "@/lib/db/schema"
 import { requireAdmin } from "@/lib/actions/operations"
 import { sendSupportReplyEmail } from "@/lib/email"
+import { auth } from "@/lib/auth"
 
 export async function getSupportConversations(filters: { status?: "open" | "closed"; page?: number } = {}) {
   await requireAdmin()
@@ -47,7 +49,16 @@ export async function replyToSupportConversation(conversationId: number, body: s
   const [conversation] = await db.select().from(supportConversations).where(eq(supportConversations.id, conversationId)).limit(1)
   if (!conversation) throw new Error("Conversation not found.")
 
-  const resendEmailId = await sendSupportReplyEmail(conversation.customerEmail, conversation.id, conversation.subject, text)
+  const session = await auth.api.getSession({ headers: await headers() })
+  const agentName = session?.user?.name?.split(" ")[0]
+
+  const resendEmailId = await sendSupportReplyEmail(
+    conversation.customerEmail,
+    conversation.id,
+    conversation.subject,
+    text,
+    agentName,
+  )
 
   await db.transaction(async (tx) => {
     await tx.insert(supportMessages).values({

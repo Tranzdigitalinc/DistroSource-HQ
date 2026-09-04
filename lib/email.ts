@@ -223,11 +223,20 @@ export async function sendSupportReplyEmail(
   conversationId: number,
   subject: string,
   body: string,
+  agentName?: string,
 ) {
-  const paragraphs = body
+  const paragraphsHtml = body
     .split(/\n{2,}/)
-    .map((p) => `<p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#1a1a1a;">${p.replace(/\n/g, "<br />")}</p>`)
+    .map(
+      (p) =>
+        `<p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#28384a;">${p
+          .split("\n")
+          .map((line) => line.trim())
+          .join("<br />")}</p>`,
+    )
     .join("")
+
+  const signOff = agentName ? `${agentName}, DistroSource Support` : "DistroSource Support"
 
   const { data, error } = await getResend().emails.send({
     from: FROM_EMAIL,
@@ -235,17 +244,28 @@ export async function sendSupportReplyEmail(
     replyTo: conversationReplyTo(conversationId),
     subject: subject.startsWith("Re:") ? subject : `Re: ${subject}`,
     html: `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
-        ${paragraphs}
-        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 24px 0 0;">
-          Reply to this email and it will be added directly to your support conversation.
-        </p>
-        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 16px 0 0;">
-          DistroSource &middot; support@distrosource.com
-        </p>
+      <div style="margin:0;padding:32px 12px;background:#eef4f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#0b1b31;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:560px;margin:0 auto;border-collapse:separate;">
+          <tr><td style="padding:0 0 18px;text-align:center;font-size:12px;letter-spacing:1.5px;color:#60758c;text-transform:uppercase;">Support conversation</td></tr>
+          <tr><td style="background:#081426;border-radius:20px 20px 0 0;padding:26px 28px 22px;text-align:center;">
+            <img src="${LOGO_URL}" alt="DistroSource — templates, tools, and digital assets" width="320" style="display:block;width:320px;max-width:100%;height:auto;margin:0 auto;" />
+          </td></tr>
+          <tr><td style="background:#ffffff;border-radius:0 0 20px 20px;padding:34px 32px 30px;border:1px solid #dce6ee;border-top:0;">
+            <p style="margin:0 0 4px;color:#168ba5;font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;">Re: ${subject}</p>
+            <h1 style="margin:0 0 20px;color:#0b1b31;font-size:22px;line-height:1.3;font-weight:750;letter-spacing:-.3px;">A reply from our support team</h1>
+            ${paragraphsHtml}
+            <p style="margin:22px 0 0;font-size:15px;line-height:1.6;color:#28384a;">${signOff}</p>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:26px;background:#f3f8fb;border:1px solid #e1edf2;border-radius:12px;">
+              <tr><td style="padding:14px 16px;color:#52677c;font-size:12.5px;line-height:1.55;">
+                Just reply to this email — your message goes straight back into this same support conversation.
+              </td></tr>
+            </table>
+          </td></tr>
+          <tr><td style="padding:22px 12px 0;text-align:center;color:#71859a;font-size:12px;line-height:1.7;">DistroSource.com<br /><a href="mailto:support@distrosource.com" style="color:#168ba5;text-decoration:none;">support@distrosource.com</a><br /><span style="font-size:11px;color:#91a1b0;">Digital products, delivered better.</span></td></tr>
+        </table>
       </div>
     `,
-    text: `${body}\n\nReply to this email and it will be added directly to your support conversation.\n\nDistroSource · support@distrosource.com`,
+    text: `Re: ${subject}\n\n${body}\n\n${signOff}\n\n---\nJust reply to this email — your message goes straight back into this same support conversation.\n\nDistroSource.com · support@distrosource.com`,
   })
 
   if (error) {
