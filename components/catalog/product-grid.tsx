@@ -10,8 +10,8 @@ export function ProductGrid({ items }: { items: ProductCardData[] }) {
           <PackageSearch className="size-6" />
         </div>
         <h3 className="font-display text-lg font-bold">No products found</h3>
-        <p className="max-w-sm text-sm text-muted-foreground">
-          Try adjusting your filters or search terms to find what you&apos;re looking for.
+        <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
+          Try removing a filter or broadening your search terms. Every published product includes its license and delivery details before you buy.
         </p>
       </Reveal>
     )

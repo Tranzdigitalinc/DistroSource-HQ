@@ -249,6 +249,17 @@ export default async function ProductDetailPage({
                         </div>
                       )}
                     </dl>
+                    <div className="grid gap-3 border-t border-border pt-5 sm:grid-cols-2">
+                      <div className="border border-border bg-secondary/40 p-4">
+                        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.06em] text-primary">Delivery</p>
+                        <p className="mt-1 text-sm leading-relaxed text-foreground">Instant digital access after payment confirmation. Find files anytime in My Library.</p>
+                      </div>
+                      <div className="border border-border bg-secondary/40 p-4">
+                        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.06em] text-primary">License</p>
+                        <p className="mt-1 text-sm leading-relaxed text-foreground">Choose the license that matches your project, then review its permitted use on the licenses page.</p>
+                        <Link href="/licenses" className="mt-2 inline-flex text-xs font-semibold text-primary underline-offset-4 hover:underline">Read license guidance</Link>
+                      </div>
+                    </div>
                     {product.documentation && (
                       <p className="text-sm leading-relaxed text-muted-foreground">{product.documentation}</p>
                     )}

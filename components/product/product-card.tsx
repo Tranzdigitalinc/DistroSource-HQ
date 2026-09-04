@@ -40,7 +40,7 @@ export function ProductCard({
     : null
   const hasMultipleLicenses = item.licenses.length > 1
   const href = `/products/${item.product.slug}`
-  const image = item.product.thumbnailUrl ?? item.product.coverImageUrl ?? item.images[0]?.url ?? null
+  const image = item.product.coverImageUrl ?? item.images[0]?.url ?? item.product.thumbnailUrl ?? null
   const isFree = item.product.isFree || item.startingPrice === 0
 
   useEffect(() => {
