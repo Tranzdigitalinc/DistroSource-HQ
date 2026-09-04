@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { CircleCheck as CheckCircle2, ArrowRight, Package, Mail, Clock3 } from "lucide-react"
+import { CircleCheck as CheckCircle2, ArrowRight, Package, Mail, Clock3, Undo2 } from "lucide-react"
 import { getOrderByCheckoutId, getOrderByNumber } from "@/lib/actions/account"
 import { OrderItemsList } from "@/components/order/order-items-list"
 import { CopyOrderNumber } from "@/components/order/copy-order-number"
@@ -27,6 +27,36 @@ export default async function CheckoutSuccessPage({
 
   const { order, items } = data
   const isPending = order.status === "pending_payment"
+  const isRefunded = order.status === "refunded" || order.status === "partially_refunded"
+
+  if (isRefunded) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <SiteHeader />
+        <main className="flex flex-1 items-center justify-center px-4 py-16">
+          <Reveal className="flex max-w-md flex-col items-center gap-5 text-center">
+            <div className="flex size-16 items-center justify-center rounded-full bg-muted">
+              <Undo2 className="size-8 text-muted-foreground" aria-hidden="true" />
+            </div>
+            <h1 className="font-display text-2xl font-bold md:text-3xl">
+              {order.status === "refunded" ? "This order was refunded" : "This order was partially refunded"}
+            </h1>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Order <CopyOrderNumber orderNumber={order.orderNumber} /> was refunded
+              {order.status === "refunded" ? " and any related product access has been revoked" : ""} per our refund
+              policy. See your order history for details.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Button render={<Link href="/account/orders" />} nativeButton={false}>
+                View orders
+              </Button>
+            </div>
+          </Reveal>
+        </main>
+        <SiteFooter />
+      </div>
+    )
+  }
 
   if (isPending) {
     return (
