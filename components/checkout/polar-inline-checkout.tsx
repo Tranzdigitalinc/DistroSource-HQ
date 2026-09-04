@@ -1,123 +1,88 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { AlertTriangle, Lock, Spinner, ICON_SIZE } from "@/lib/storefront-icons"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { useEffect, useRef } from "react"
+import { PolarEmbedCheckout } from "@polar-sh/checkout/embed"
 
 interface PolarInlineCheckoutProps {
   checkoutUrl: string
   onSuccess: (successUrl: string) => void
+  /**
+   * Called when the checkout overlay closes without a completed payment —
+   * either the buyer dismissed it, or it never managed to open in the first
+   * place. The caller should return the buyer to the review step so they
+   * are never left staring at a blank page.
+   */
+  onClose: (reason: "dismissed" | "failed") => void
 }
 
-const POLAR_ORIGINS = new Set(["https://polar.sh", "https://sandbox.polar.sh"])
-
-/** How long to wait for the iframe to load before offering a fallback. */
-const LOAD_TIMEOUT_MS = 15_000
-
 /**
- * Embeds Polar's hosted checkout. The success message from Polar only
- * *navigates* to the success page — it is never treated as payment
- * confirmation. Fulfilment happens exclusively from the verified
- * `order.paid` webhook.
+ * Opens Polar's official embedded checkout overlay (`@polar-sh/checkout`)
+ * directly on top of the current page — the buyer never navigates to
+ * polar.sh or a new tab. This uses Polar's own SDK rather than a hand-rolled
+ * iframe so the postMessage handshake, Apple Pay/Google Pay eligibility, and
+ * loading state all stay in sync with what Polar actually ships.
+ *
+ * IMPORTANT: this overlay only renders if the current origin is on the
+ * "Embedding" allow-list in the Polar dashboard (Settings → Preferences →
+ * Embedding). Without that, Polar refuses to load inside the iframe and
+ * `create()` never resolves.
+ *
+ * This component has no visual output of its own — Polar's SDK appends the
+ * overlay iframe straight to `document.body`.
  */
-export function PolarInlineCheckout({ checkoutUrl, onSuccess }: PolarInlineCheckoutProps) {
-  const mountRef = useRef<HTMLDivElement>(null)
-  const sectionRef = useRef<HTMLElement>(null)
-  const [status, setStatus] = useState<"loading" | "ready" | "timeout">("loading")
+export function PolarInlineCheckout({ checkoutUrl, onSuccess, onClose }: PolarInlineCheckoutProps) {
+  // Tracks whether the checkout already succeeded or was actively closed by
+  // the buyer, so cleanup (e.g. unmounting after a route change) doesn't
+  // also report a spurious "dismissed" close.
+  const settledRef = useRef(false)
 
   useEffect(() => {
-    const mount = mountRef.current
-    if (!mount) return
+    settledRef.current = false
+    let cancelled = false
+    let instance: Awaited<ReturnType<typeof PolarEmbedCheckout.create>> | null = null
 
-    // Bring the payment form into view when it replaces the details form.
-    sectionRef.current?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })
+    const theme = document.documentElement.classList.contains("dark") ? "dark" : "light"
 
-    const url = new URL(checkoutUrl)
-    url.searchParams.set("embed", "true")
-    url.searchParams.set("embed_origin", window.location.origin)
-    url.searchParams.set("theme", document.documentElement.classList.contains("dark") ? "dark" : "light")
+    PolarEmbedCheckout.create(checkoutUrl, { theme })
+      .then((checkout) => {
+        if (cancelled) {
+          checkout.close()
+          return
+        }
+        instance = checkout
 
-    const iframe = document.createElement("iframe")
-    iframe.src = url.toString()
-    iframe.title = "Secure payment by Polar"
-    iframe.allow = "payment *; publickey-credentials-get *"
-    // The frame owns its own height so the page never shows two scrollbars.
-    iframe.className = "block w-full border-0 bg-card"
-    iframe.style.minHeight = window.innerWidth < 640 ? "34rem" : "40rem"
-    iframe.addEventListener("load", () => setStatus("ready"), { once: true })
-    mount.appendChild(iframe)
+        checkout.addEventListener("success", (event) => {
+          settledRef.current = true
+          // We navigate ourselves (client-side, via the router) instead of
+          // letting Polar's SDK do a full-page redirect.
+          event.preventDefault()
+          onSuccess(event.detail.successURL)
+        })
 
-    const timer = window.setTimeout(() => {
-      setStatus((current) => (current === "loading" ? "timeout" : current))
-    }, LOAD_TIMEOUT_MS)
-
-    const handleMessage = (event: MessageEvent) => {
-      // Origin allow-list is the security boundary: never act on a
-      // postMessage from an unexpected origin.
-      if (!POLAR_ORIGINS.has(event.origin) || event.data?.type !== "POLAR_CHECKOUT") return
-      if (event.data.event === "success" && event.data.successURL) onSuccess(event.data.successURL)
-      // Polar reports its own content height so the frame can grow instead of scrolling inside itself.
-      if (event.data.event === "resize" && typeof event.data.height === "number" && event.data.height > 300) {
-        iframe.style.minHeight = `${Math.ceil(event.data.height)}px`
-      }
-    }
-    window.addEventListener("message", handleMessage)
+        checkout.addEventListener("close", () => {
+          if (settledRef.current) return
+          settledRef.current = true
+          onClose("dismissed")
+        })
+      })
+      .catch((error) => {
+        console.error("[v0] Failed to open Polar checkout overlay:", error)
+        if (cancelled || settledRef.current) return
+        settledRef.current = true
+        onClose("failed")
+      })
 
     return () => {
-      window.clearTimeout(timer)
-      window.removeEventListener("message", handleMessage)
-      iframe.remove()
+      cancelled = true
+      // Only force-close an overlay that's still open for an abandoned
+      // payment — never one that already succeeded or was dismissed, since
+      // Polar's own `close()` already removed itself in those cases.
+      if (instance && !settledRef.current) instance.close()
     }
-  }, [checkoutUrl, onSuccess])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onSuccess/onClose are recreated every render by the caller; only checkoutUrl should re-trigger this.
+  }, [checkoutUrl])
 
-  return (
-    <section ref={sectionRef} aria-labelledby="payment-heading" className="scroll-mt-20 overflow-hidden rounded-lg border border-border bg-card">
-      <div className="flex items-center gap-2 border-b border-border px-5 py-3.5">
-        <Lock size={ICON_SIZE.sm} className="text-muted-foreground" aria-hidden="true" />
-        <h2 id="payment-heading" className="text-sm font-semibold text-foreground">Payment</h2>
-        <span className="ml-auto text-xs text-muted-foreground">Secured by Polar</span>
-      </div>
-
-      <div className="relative">
-        <div
-          ref={mountRef}
-          className={cn("transition-opacity duration-300 motion-reduce:transition-none", status === "ready" ? "opacity-100" : "opacity-0")}
-        />
-        {status !== "ready" && (
-          <div
-            className="absolute inset-0 z-10 flex min-h-[34rem] flex-col items-center justify-center gap-3 bg-card px-6 text-center sm:min-h-[40rem]"
-            role="status"
-            aria-live="polite"
-          >
-            {status === "loading" ? (
-              <>
-                <Spinner size={ICON_SIZE.feature} className="animate-spin text-muted-foreground motion-reduce:animate-none" aria-hidden="true" />
-                <p className="text-sm font-medium text-foreground">Preparing secure checkout…</p>
-              </>
-            ) : (
-              <>
-                <AlertTriangle size={ICON_SIZE.feature} className="text-muted-foreground" aria-hidden="true" />
-                <p className="text-sm font-medium text-foreground">The payment form is taking longer than usual</p>
-                <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">
-                  Your cart is saved. You can open the secure payment page directly, or go back and try again.
-                </p>
-                <Button
-                  render={<a href={checkoutUrl} target="_blank" rel="noopener noreferrer" />}
-                  nativeButton={false}
-                  size="sm"
-                  variant="outline"
-                  className="mt-1 bg-transparent"
-                >
-                  Open secure payment page
-                </Button>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-    </section>
-  )
+  return null
 }
 
 export type { PolarInlineCheckoutProps }

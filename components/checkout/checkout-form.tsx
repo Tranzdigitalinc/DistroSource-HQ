@@ -352,12 +352,10 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
           )}
         </form>
 
-        {/* The order review stays visible next to the Polar frame so the buyer can always see what they are paying for. */}
+        {/* The order review stays visible behind the Polar overlay so the buyer can always see what they are paying for. The overlay itself renders directly into document.body — this component has no visual output of its own. */}
         {polarCheckoutUrl && (
           <>
-            <Section
-              title="Your products"
-            >
+            <Section title="Your products">
               <ul className="divide-y divide-border">
                 {orderItems.map((item) => (
                   <CheckoutLineItem key={`${item.productId}-${item.licenseId}`} item={item} />
@@ -369,6 +367,15 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               onSuccess={(successUrl) => {
                 const url = new URL(successUrl)
                 router.push(`${url.pathname}${url.search}`)
+              }}
+              onClose={(reason) => {
+                setPolarCheckoutUrl(null)
+                setStep(2)
+                if (reason === "failed") {
+                  toast.error(
+                    "We couldn't open secure payment. This can happen if this site isn't yet allow-listed in Polar's embedding settings — please try again in a moment.",
+                  )
+                }
               }}
             />
           </>
