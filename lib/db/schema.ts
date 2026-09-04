@@ -343,6 +343,34 @@ export const supportTickets = pgTable("support_tickets", {
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 })
 
+// Email-based support inbox for support@distrosource.com, backed by Resend
+// (send + inbound webhook). Distinct from `supportTickets` above, which is a
+// simpler logged-in-account ticket form. A conversation groups every inbound
+// and outbound message in one thread so replies land in context.
+export const supportConversations = pgTable("support_conversations", {
+  id: serial("id").primaryKey(),
+  subject: text("subject").notNull(),
+  customerEmail: text("customerEmail").notNull(),
+  customerName: text("customerName"),
+  userId: text("userId"),
+  status: text("status").notNull().default("open"), // open | closed
+  lastMessageAt: timestamp("lastMessageAt").notNull().defaultNow(),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
+export const supportMessages = pgTable("support_messages", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversationId")
+    .notNull()
+    .references(() => supportConversations.id, { onDelete: "cascade" }),
+  direction: text("direction").notNull(), // inbound | outbound
+  body: text("body").notNull(),
+  fromEmail: text("fromEmail").notNull(),
+  adminUserId: text("adminUserId"), // set on outbound replies sent by an admin
+  resendEmailId: text("resendEmailId"), // Resend's id for the sent/received email
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
 export const newsletterSubscribers = pgTable("newsletter_subscribers", {
   id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),

@@ -13,6 +13,7 @@ import {
   Receipt,
   ScrollText,
   ClipboardCheck,
+  Inbox,
 } from "lucide-react"
 import { OperationsPanel } from "@/components/admin/operations-panel"
 import { AnalyticsSummary } from "@/components/admin/analytics-summary"
@@ -37,6 +38,7 @@ const catalogSections = [
 ]
 
 const operationsSections = [
+  { href: "/admin/support", label: "Support inbox", description: "Reply to support@distrosource.com from one threaded inbox.", icon: Inbox },
   { href: "/admin/orders", label: "Orders", description: "Refunds, receipts, and fraud flags.", icon: Receipt },
   { href: "/admin/customers", label: "Customers", description: "Look up accounts and their purchase history.", icon: Users },
   { href: "/admin/reviews", label: "Reviews", description: "Moderate customer product reviews.", icon: Star },

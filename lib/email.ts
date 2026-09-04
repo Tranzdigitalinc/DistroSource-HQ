@@ -206,6 +206,55 @@ export async function sendRefundConfirmationEmail(to: string, orderNumber: strin
   return true
 }
 
+// The domain that receives inbound mail for the support inbox. Root domain
+// (distrosource.com) already has other mail on it, so inbound routing lives
+// on a delegated subdomain instead of taking over the root MX records.
+const SUPPORT_INBOUND_DOMAIN = process.env.RESEND_SUPPORT_INBOUND_DOMAIN ?? "mail.distrosource.com"
+
+// A conversation-scoped Reply-To (conversation+<id>@mail.distrosource.com)
+// is what lets a customer's plain "Reply" land back on the right thread —
+// the inbound webhook parses the id out of the recipient address.
+function conversationReplyTo(conversationId: number) {
+  return `DistroSource Support <conversation+${conversationId}@${SUPPORT_INBOUND_DOMAIN}>`
+}
+
+export async function sendSupportReplyEmail(
+  to: string,
+  conversationId: number,
+  subject: string,
+  body: string,
+) {
+  const paragraphs = body
+    .split(/\n{2,}/)
+    .map((p) => `<p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#1a1a1a;">${p.replace(/\n/g, "<br />")}</p>`)
+    .join("")
+
+  const { data, error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to,
+    replyTo: conversationReplyTo(conversationId),
+    subject: subject.startsWith("Re:") ? subject : `Re: ${subject}`,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
+        ${paragraphs}
+        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 24px 0 0;">
+          Reply to this email and it will be added directly to your support conversation.
+        </p>
+        <p style="font-size: 12px; line-height: 1.6; color: #8a8a8a; margin: 16px 0 0;">
+          DistroSource &middot; support@distrosource.com
+        </p>
+      </div>
+    `,
+    text: `${body}\n\nReply to this email and it will be added directly to your support conversation.\n\nDistroSource · support@distrosource.com`,
+  })
+
+  if (error) {
+    console.error("[v0] Failed to send support reply email:", error)
+    throw new Error("Could not send the reply. Please try again later.")
+  }
+  return data?.id ?? null
+}
+
 export async function sendReferralRewardEmail(to: string, couponCode: string, discountPercent: number) {
   const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
