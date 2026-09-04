@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import { authClient } from "@/lib/auth-client"
 import { mergeGuestActivityIntoAccount } from "@/lib/actions/recently-viewed"
 import { mergeGuestCartIntoAccount } from "@/lib/actions/cart"
+import { claimGuestPurchases } from "@/lib/actions/claim-order"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -102,8 +103,11 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
       toast.success("Account created", { description: `We sent a verification link to ${email.trim()}.` })
     }
 
-    // A guest who added to cart, then signed in, keeps that cart.
-    await Promise.all([mergeGuestCartIntoAccount(), mergeGuestActivityIntoAccount()])
+    // A guest who added to cart, then signed in, keeps that cart — and if
+    // they'd already paid as a guest (e.g. "sign in instead" from the claim
+    // card on checkout success), that order/entitlements move to this
+    // account too.
+    await Promise.all([mergeGuestCartIntoAccount(), mergeGuestActivityIntoAccount(), claimGuestPurchases()])
     // Route Handlers (e.g. /api/cart/recover) issue their own redirect once
     // hit — a full navigation is required so the browser actually requests
     // them, rather than the client router trying to soft-navigate to them.

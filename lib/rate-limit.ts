@@ -142,4 +142,6 @@ export const RATE_LIMITS = {
   download: { windowSeconds: 3600, max: 120 },
   /** Better Auth endpoints (sign-in, sign-up, reset, verification). */
   auth: { windowSeconds: 900, max: 20 },
+  /** Claiming a guest order into a new account after payment (checkout success). */
+  claimAccount: { windowSeconds: 3600, max: 10 },
 } as const satisfies Record<string, RateLimitRule>
