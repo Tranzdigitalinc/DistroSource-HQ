@@ -201,6 +201,32 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
         </Reveal>
 
         <Reveal delay={0.1} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
+          <div className="flex items-center gap-2">
+            <Lock className="size-4 text-muted-foreground" aria-hidden="true" />
+            <h2 className="font-display text-lg font-bold">Payment</h2>
+          </div>
+          {polarCheckoutUrl ? (
+            <PolarInlineCheckout
+              checkoutUrl={polarCheckoutUrl}
+              onSuccess={(successUrl) => {
+                const url = new URL(successUrl)
+                router.push(`${url.pathname}${url.search}`)
+              }}
+            />
+          ) : (
+            <>
+              <div className="rounded-lg border border-primary/25 bg-primary/5 p-4" role="status">
+                <p className="text-sm font-semibold text-foreground">Secure payment</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Complete your purchase securely without leaving DistroSource. Your digital products are delivered after payment is confirmed.</p>
+              </div>
+              <Button type="submit" size="lg" disabled={isPending || isPreparingAccount} className="h-12 font-semibold">
+                {isPending || isPreparingAccount ? <span className="flex items-center gap-2"><Loader2 className="size-4 animate-spin" />Preparing secure checkout...</span> : `Complete purchase · ${formattedTotal}`}
+              </Button>
+            </>
+          )}
+        </Reveal>
+
+        <Reveal delay={0.12} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
           <h2 className="font-display text-lg font-bold">Contact details</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
@@ -236,31 +262,6 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
           </Reveal>
         )}
 
-        <Reveal delay={0.15} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
-          <div className="flex items-center gap-2">
-            <Lock className="size-4 text-muted-foreground" aria-hidden="true" />
-            <h2 className="font-display text-lg font-bold">Payment</h2>
-          </div>
-          {polarCheckoutUrl ? (
-            <PolarInlineCheckout
-              checkoutUrl={polarCheckoutUrl}
-              onSuccess={(successUrl) => {
-                const url = new URL(successUrl)
-                router.push(`${url.pathname}${url.search}`)
-              }}
-            />
-          ) : (
-            <>
-              <div className="rounded-lg border border-primary/25 bg-primary/5 p-4" role="status">
-                <p className="text-sm font-semibold text-foreground">Secure payment</p>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Complete your purchase securely without leaving DistroSource. Your digital products are delivered after payment is confirmed.</p>
-              </div>
-              <Button type="submit" size="lg" disabled={isPending || isPreparingAccount} className="h-12 font-semibold">
-                {isPending || isPreparingAccount ? <span className="flex items-center gap-2"><Loader2 className="size-4 animate-spin" />Preparing secure checkout...</span> : `Complete purchase · ${formattedTotal}`}
-              </Button>
-            </>
-          )}
-        </Reveal>
 
         {/*
           <div className="flex items-center gap-2">
