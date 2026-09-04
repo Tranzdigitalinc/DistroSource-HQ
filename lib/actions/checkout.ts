@@ -127,6 +127,21 @@ export async function computeOrderPricing(
     throw new Error("Your cart is empty")
   }
 
+  // Compliance gate: a product may only be sold once its rights are
+  // verified, its assets are attached, and it has been published. This
+  // blocks checkout even if a stale cart item or client bypass slips past
+  // the storefront UI.
+  const SELLABLE_RIGHTS_STATUSES = new Set(["original", "licensed_for_distribution", "supplier_verified"])
+  const blockedItem = rows.find(
+    (r) =>
+      r.product.status !== "published" ||
+      r.product.assetStatus !== "ready" ||
+      !SELLABLE_RIGHTS_STATUSES.has(r.product.rightsStatus),
+  )
+  if (blockedItem) {
+    throw new Error(`"${blockedItem.product.name}" is not currently available for purchase. Please remove it from your cart.`)
+  }
+
   // Server-side validation: recompute prices from DB, enforce quantity caps
   let subtotal = 0
   const validatedItems = rows.map((r) => {
