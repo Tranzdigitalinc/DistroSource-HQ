@@ -20,7 +20,7 @@ import { generateOrderNumber } from "@/lib/format"
 import { sendOrderConfirmationEmail, sendReferralRewardEmail } from "@/lib/email"
 import { capturePaypalOrder, createPaypalOrder, refundPaypalCapture } from "@/lib/paypal"
 import { getOptionalOwnerId, getOwnerId, getSession } from "@/lib/session"
-import { getPolarClient, polarCheckoutUrl } from "@/lib/polar"
+import { getPolarClient, polarCheckoutUrl, requiredPolarProductId } from "@/lib/polar"
 import { and, eq, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
@@ -91,10 +91,10 @@ interface OrderPricing {
     productId: number
     licenseId: number
     productName: string
+    productVersion: string
     licenseType: string
     unitPriceUsd: number
     quantity: number
-    polarProductId: string | null
   }[]
   promotion: ValidatedCoupon | null
   coupon: ValidatedCoupon | null
@@ -150,9 +150,9 @@ export async function computeOrderPricing(
     subtotal += unitPrice * quantity
     return {
       productId: r.product.id,
-      polarProductId: r.product.polarProductId,
       licenseId: r.license.id,
       productName: r.product.name,
+      productVersion: r.product.currentVersion,
       licenseType: r.license.licenseType,
       unitPriceUsd: unitPrice,
       quantity,
@@ -272,6 +272,10 @@ export async function persistOrder(
           licenseType: item.licenseType,
           unitPriceUsd: item.unitPriceUsd.toFixed(2),
           quantity: item.quantity,
+          discountUsd: "0",
+          finalLineAmountUsd: (item.unitPriceUsd * item.quantity).toFixed(2),
+          productVersion: item.productVersion,
+          currency: "usd",
         })),
       )
       .returning()
@@ -450,35 +454,61 @@ export async function createPolarCheckout(input: {
   const cookieStore = await cookies()
   const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
   if (pricing.total <= 0) throw new Error("Your order total is $0 after discounts — use the free checkout instead of Polar.")
-  const polarProductIds = [...new Set(pricing.validatedItems.map((item) => item.polarProductId).filter((id): id is string => Boolean(id)))]
-  if (polarProductIds.length !== new Set(pricing.validatedItems.map((item) => item.productId)).size) {
-    throw new Error("One or more products in your cart are not activated for Polar checkout yet.")
-  }
 
-  await db.insert(operationEvents).values({
-    eventType: "checkout_started",
-    entityType: "cart",
-    entityId: ownerId,
-    status: "open",
-    payload: { itemCount: pricing.validatedItems.length, couponApplied: Boolean(input.couponCode), paymentMethod: "polar", totalUsd: pricing.total },
-    createdBy: ownerId,
+  const orderNumber = generateOrderNumber()
+  const [pendingOrder] = await db.transaction(async (tx) => {
+    const [order] = await tx.insert(orders).values({
+      orderNumber,
+      userId: ownerId,
+      status: "pending_payment",
+      subtotalUsd: pricing.subtotal.toFixed(2),
+      discountUsd: pricing.discount.toFixed(2),
+      totalUsd: pricing.total.toFixed(2),
+      currency: "usd",
+      couponCode: pricing.promotion?.code ?? null,
+      referralCode: pricing.referral?.code ?? null,
+      affiliateCode: pricing.affiliateCode,
+      billingEmail,
+      billingName,
+      paymentMethod: "polar",
+    }).returning()
+
+    await tx.insert(orderItems).values(pricing.validatedItems.map((item) => {
+      const gross = item.unitPriceUsd * item.quantity
+      const lineDiscount = pricing.subtotal > 0 ? Math.round((pricing.discount * gross / pricing.subtotal) * 100) / 100 : 0
+      return {
+        orderId: order.id,
+        productId: item.productId,
+        licenseId: item.licenseId,
+        productName: item.productName,
+        licenseType: item.licenseType,
+        unitPriceUsd: item.unitPriceUsd.toFixed(2),
+        quantity: item.quantity,
+        discountUsd: lineDiscount.toFixed(2),
+        finalLineAmountUsd: (gross - lineDiscount).toFixed(2),
+        productVersion: item.productVersion,
+        currency: "usd",
+      }
+    }))
+    await tx.delete(cartItems).where(eq(cartItems.userId, ownerId))
+    return [order]
   })
 
   const checkout = await getPolarClient().checkouts.create({
-    products: polarProductIds,
+    products: [requiredPolarProductId()],
+    prices: {
+      [requiredPolarProductId()]: [{ amountType: "fixed", priceAmount: Math.round(pricing.total * 100), priceCurrency: "usd", taxBehavior: "exclusive" }],
+    },
     customerEmail: billingEmail,
     customerName: billingName,
     externalCustomerId: ownerId,
-    metadata: {
-      distrosource_owner_id: ownerId,
-      distrosource_coupon: pricing.promotion?.code ?? "",
-      distrosource_total_usd: pricing.total,
-    },
+    metadata: { distrosourceOrderId: pendingOrder.id, customerId: ownerId, cartItemCount: pricing.validatedItems.length },
     successUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/checkout/success?checkout_id={CHECKOUT_ID}`,
     returnUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/checkout`,
     embedOrigin: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   })
 
+  await db.update(orders).set({ polarCheckoutId: checkout.id }).where(eq(orders.id, pendingOrder.id))
   return { url: polarCheckoutUrl(checkout), checkoutId: checkout.id }
 }
 

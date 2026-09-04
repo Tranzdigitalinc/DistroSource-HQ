@@ -109,7 +109,6 @@ export const products = pgTable("products", {
   subcategory: text("subcategory"),
   features: text("features").array().notNull().default([]),
   searchKeywords: text("searchKeywords").array().notNull().default([]),
-  polarProductId: text("polarProductId"),
   releaseDate: timestamp("releaseDate").notNull().defaultNow(),
   // --- Product rights / inventory compliance -------------------------------
   // sourceType: distrosource_original | verified_creator | licensed_supplier | external_affiliate
@@ -224,8 +223,9 @@ export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
   orderNumber: text("orderNumber").notNull().unique(),
   userId: text("userId").notNull(),
-  status: text("status").notNull().default("completed"), // completed | refunded | failed
+  status: text("status").notNull().default("completed"), // pending_payment | completed | refunded | failed | canceled | expired
   subtotalUsd: numeric("subtotalUsd", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").notNull().default("usd"),
   discountUsd: numeric("discountUsd", { precision: 10, scale: 2 }).notNull().default("0"),
   totalUsd: numeric("totalUsd", { precision: 10, scale: 2 }).notNull(),
   couponCode: text("couponCode"),
@@ -257,6 +257,10 @@ export const orderItems = pgTable("order_items", {
   licenseType: text("licenseType").notNull(),
   unitPriceUsd: numeric("unitPriceUsd", { precision: 10, scale: 2 }).notNull(),
   quantity: integer("quantity").notNull().default(1),
+  discountUsd: numeric("discountUsd", { precision: 10, scale: 2 }).notNull().default("0"),
+  finalLineAmountUsd: numeric("finalLineAmountUsd", { precision: 10, scale: 2 }).notNull().default("0"),
+  productVersion: text("productVersion"),
+  currency: text("currency").notNull().default("usd"),
   isVoided: boolean("isVoided").notNull().default(false),
 })
 

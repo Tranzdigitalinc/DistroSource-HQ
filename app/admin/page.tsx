@@ -67,6 +67,18 @@ export default async function AdminPage() {
       </header>
 
       <AnalyticsSummary />
+      <section aria-labelledby="polar-integration-title">
+        <Card>
+          <CardHeader>
+            <CardTitle id="polar-integration-title" className="text-base">Polar Integration</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 text-sm sm:grid-cols-3">
+            <div><p className="text-muted-foreground">Generic Polar Product</p><p className="font-semibold text-foreground">{process.env.POLAR_PRODUCT_ID ? "Connected" : "Missing"}</p></div>
+            <div><p className="text-muted-foreground">Webhook</p><p className="font-semibold text-foreground">{process.env.POLAR_WEBHOOK_SECRET ? "Configured" : "Missing"}</p></div>
+            <div><p className="text-muted-foreground">Server</p><p className="font-semibold text-foreground">{process.env.POLAR_SERVER === "production" ? "Production" : "Sandbox"}</p></div>
+          </CardContent>
+        </Card>
+      </section>
       <FraudQueuePanel />
 
       <section aria-labelledby="catalog-title" className="flex flex-col gap-4">

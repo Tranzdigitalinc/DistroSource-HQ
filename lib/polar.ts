@@ -19,6 +19,10 @@ export function getPolarWebhookSecret() {
   return required("POLAR_WEBHOOK_SECRET")
 }
 
+export function requiredPolarProductId() {
+  return required("POLAR_PRODUCT_ID")
+}
+
 export function getPolarWebhookHeaders(request: Request) {
   const headers: Record<string, string> = {}
   request.headers.forEach((value, key) => {

@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server"
 import { validateEvent } from "@polar-sh/sdk/webhooks"
 import { and, eq } from "drizzle-orm"
-import { cookies } from "next/headers"
 import { db } from "@/lib/db"
-import { operationEvents, orders, user } from "@/lib/db/schema"
-import { computeOrderPricing, persistOrder } from "@/lib/actions/checkout"
+import { entitlements, operationEvents, orderItems, orders } from "@/lib/db/schema"
 import { getPolarWebhookSecret } from "@/lib/polar"
-import { getSession } from "@/lib/session"
+import { sendOrderConfirmationEmail } from "@/lib/email"
 
 export async function POST(request: Request) {
   const body = await request.text()
@@ -18,32 +16,57 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid webhook signature" }, { status: 401 })
   }
 
-  if (event.type !== "order.paid") return NextResponse.json({ received: true })
-
-  const polarOrder = event.data
-  const checkoutId = polarOrder.checkoutId
-  if (!checkoutId || !polarOrder.paid) return NextResponse.json({ received: true })
-
-  const [existing] = await db.select({ id: orders.id }).from(orders).where(eq(orders.polarCheckoutId, checkoutId)).limit(1)
-  if (existing) return NextResponse.json({ received: true, duplicate: true })
-
-  const ownerId = String(polarOrder.metadata.distrosource_owner_id ?? "")
-  if (!ownerId) return NextResponse.json({ error: "Missing checkout owner" }, { status: 400 })
-
-  const [account] = await db.select({ email: user.email, name: user.name }).from(user).where(eq(user.id, ownerId)).limit(1)
-  if (!account) return NextResponse.json({ error: "Checkout owner not found" }, { status: 400 })
-
-  const pricing = await computeOrderPricing(
-    ownerId,
-    typeof polarOrder.metadata.distrosource_coupon === "string" ? polarOrder.metadata.distrosource_coupon || undefined : undefined,
-    await getSession(),
-    await cookies(),
-  )
-  if (pricing.total !== polarOrder.totalAmount / 100 || polarOrder.currency.toLowerCase() !== "usd") {
-    await db.insert(operationEvents).values({ eventType: "polar_amount_mismatch", entityType: "polar_order", entityId: polarOrder.id, status: "open", payload: { expected: pricing.total, received: polarOrder.totalAmount / 100, currency: polarOrder.currency }, createdBy: ownerId })
-    return NextResponse.json({ error: "Payment amount mismatch" }, { status: 400 })
+  if (event.type !== "order.paid" && event.type !== "checkout.expired") return NextResponse.json({ received: true })
+  const polarOrder = event.data as {
+    id: string
+    paid?: boolean
+    metadata?: Record<string, string | number | boolean>
+    currency: string
+    netAmount: number
+    totalAmount: number
+    checkoutId?: string | null
+  }
+  const metadata = polarOrder.metadata ?? {}
+  const internalOrderId = Number(metadata.distrosourceOrderId)
+  if (!Number.isInteger(internalOrderId) || internalOrderId <= 0) {
+    return NextResponse.json({ error: "Missing DistroSource order metadata" }, { status: 400 })
   }
 
-  const result = await persistOrder(pricing, account.email, polarOrder.billingName ?? account.name ?? "Customer", null, "polar", undefined, { polarCheckoutId: checkoutId, polarOrderId: polarOrder.id })
-  return NextResponse.json({ received: true, orderNumber: result.orderNumber })
+  if (event.type === "order.paid") {
+    if (!polarOrder.paid) return NextResponse.json({ received: true })
+    const [order] = await db.select().from(orders).where(eq(orders.id, internalOrderId)).limit(1)
+    if (!order) return NextResponse.json({ error: "Internal order not found" }, { status: 404 })
+    if (order.status === "completed") return NextResponse.json({ received: true, duplicate: true })
+    if (order.status !== "pending_payment") return NextResponse.json({ error: "Order is not payable" }, { status: 409 })
+    if (polarOrder.currency.toLowerCase() !== order.currency || polarOrder.netAmount !== Math.round(Number(order.totalUsd) * 100)) {
+      await db.insert(operationEvents).values({ eventType: "polar_amount_mismatch", entityType: "order", entityId: String(order.id), status: "open", payload: { expected: order.totalUsd, receivedNet: polarOrder.netAmount, receivedTotal: polarOrder.totalAmount, currency: polarOrder.currency }, createdBy: order.userId })
+      return NextResponse.json({ error: "Payment amount mismatch" }, { status: 400 })
+    }
+
+    const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id))
+    await db.transaction(async (tx) => {
+      await tx.update(orders).set({ status: "completed", polarOrderId: polarOrder.id, polarCheckoutId: polarOrder.checkoutId }).where(and(eq(orders.id, order.id), eq(orders.status, "pending_payment")))
+      for (const item of items) {
+        const [existing] = await tx.select({ id: entitlements.id }).from(entitlements).where(and(eq(entitlements.orderId, order.id), eq(entitlements.orderItemId, item.id))).limit(1)
+        if (!existing) await tx.insert(entitlements).values({ userId: order.userId, productId: item.productId, licenseId: item.licenseId, orderId: order.id, orderItemId: item.id })
+      }
+      await tx.insert(operationEvents).values({ eventType: "checkout_completed", entityType: "order", entityId: String(order.id), status: "resolved", payload: { paymentMethod: "polar", polarOrderId: polarOrder.id }, createdBy: order.userId, resolvedAt: new Date() })
+    })
+
+    let confirmationEmailSent = false
+    try {
+      confirmationEmailSent = await sendOrderConfirmationEmail(order.billingEmail, order.orderNumber, items.map((item) => ({ productName: item.productName, licenseType: item.licenseType, quantity: item.quantity })))
+    } catch (error) {
+      console.error("[v0] Polar confirmation email failed", error)
+    }
+    if (confirmationEmailSent) await db.update(orders).set({ confirmationEmailSent: true }).where(eq(orders.id, order.id))
+    return NextResponse.json({ received: true, orderNumber: order.orderNumber })
+  }
+
+  if (event.type === "checkout.expired") {
+    await db.update(orders).set({ status: "expired" }).where(and(eq(orders.id, internalOrderId), eq(orders.status, "pending_payment")))
+  }
+  return NextResponse.json({ received: true })
 }
+
+export const dynamic = "force-dynamic"
