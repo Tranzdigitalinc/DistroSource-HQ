@@ -127,6 +127,14 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
       if (!ready) return
       try {
         const checkout = await createPolarCheckout({ billingEmail: email.trim(), billingName: name.trim(), couponCode })
+        if ("error" in checkout) {
+          // The cart was never touched when this happens — createPolarCheckout
+          // only clears it after Polar accepts the checkout — so it's safe to
+          // just let the buyer retry.
+          await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
+          toast.error(checkout.error)
+          return
+        }
         setPolarCheckoutUrl(checkout.url)
       } catch (error) {
         await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })

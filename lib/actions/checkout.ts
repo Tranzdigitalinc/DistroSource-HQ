@@ -57,102 +57,155 @@ export async function applyCouponPreview(code: string, subtotal: number) {
   return { valid: true as const, discountPercent }
 }
 
+/**
+ * Pulls a buyer-safe message out of a Polar API error, without leaking the
+ * raw validation payload (which can include internal schema branch names
+ * like `function-after[...]`) to the checkout UI.
+ */
+function describePolarCheckoutError(error: unknown): string {
+  const rawBody = error && typeof error === "object" ? (error as { body$?: unknown }).body$ : undefined
+  if (typeof rawBody === "string") {
+    try {
+      const parsed = JSON.parse(rawBody) as { detail?: { msg?: string; loc?: unknown[]; type?: string }[] }
+      const emailIssue = parsed.detail?.find((d) => d.type === "value_error" && Array.isArray(d.loc) && d.loc.includes("customer_email"))
+      if (emailIssue) return "We couldn't verify that email address with our payment processor. Please double-check it and try again."
+    } catch {
+      // Not a JSON validation body — fall through to the generic message below.
+    }
+  }
+  return "We couldn't start secure checkout right now. Your cart is safe — please try again in a moment."
+}
+
+/**
+ * Server Actions have their thrown-error messages redacted in production
+ * (Next.js hides the real message behind a generic digest to avoid leaking
+ * server internals), so every expected, user-facing failure here is
+ * returned as `{ error }` instead of thrown. Only genuinely unexpected bugs
+ * should ever reach the outer catch and fall back to the generic message.
+ */
 export async function createPolarCheckout(input: {
   billingEmail: string
   billingName: string
   couponCode?: string
-}) {
-  const billingEmail = input.billingEmail.trim()
-  const billingName = input.billingName.trim()
-  if (!EMAIL_PATTERN.test(billingEmail)) throw new Error("Enter a valid email address for your order confirmation.")
-  if (!billingName) throw new Error("Enter the name on this order.")
+}): Promise<{ url: string; checkoutId: string } | { error: string }> {
+  try {
+    const billingEmail = input.billingEmail.trim()
+    const billingName = input.billingName.trim()
+    if (!EMAIL_PATTERN.test(billingEmail)) return { error: "Enter a valid email address for your order confirmation." }
+    if (!billingName) return { error: "Enter the name on this order." }
 
-  const ownerId = await getOwnerId()
-  // Scoped to the cart owner rather than IP: each call creates a real Polar
-  // checkout session and a pending order row.
-  await enforceRateLimit("checkout-create", RATE_LIMITS.checkoutCreate, ownerId)
+    const ownerId = await getOwnerId()
+    // Scoped to the cart owner rather than IP: each call creates a real Polar
+    // checkout session and a pending order row.
+    await enforceRateLimit("checkout-create", RATE_LIMITS.checkoutCreate, ownerId)
 
-  const session = await getSession()
-  const cookieStore = await cookies()
-  const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
-  if (pricing.total <= 0) throw new Error("Your order total is $0 after discounts — use the free checkout instead of Polar.")
+    const session = await getSession()
+    const cookieStore = await cookies()
+    const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
+    if (pricing.total <= 0) return { error: "Your order total is $0 after discounts — use the free checkout instead of Polar." }
 
-  // Resolve the public origin BEFORE writing the pending order or clearing
-  // the cart. getAppUrl() throws in production when the origin is missing or
-  // points at localhost; failing here costs the customer nothing, whereas
-  // failing after the cart is cleared would strand them with a pending order
-  // and a redirect to a machine that isn't theirs.
-  const appUrl = getAppUrl()
+    // Resolve the public origin BEFORE writing the pending order or touching
+    // the cart. getAppUrl() throws in production when the origin is missing
+    // or points at localhost; failing here costs the customer nothing.
+    const appUrl = getAppUrl()
 
-  const orderNumber = generateOrderNumber()
-  const [pendingOrder] = await db.transaction(async (tx) => {
-    const [order] = await tx.insert(orders).values({
-      orderNumber,
-      userId: ownerId,
-      status: "pending_payment",
-      subtotalUsd: pricing.subtotal.toFixed(2),
-      discountUsd: pricing.discount.toFixed(2),
-      totalUsd: pricing.total.toFixed(2),
-      currency: "usd",
-      couponCode: pricing.promotion?.code ?? null,
-      referralCode: pricing.referral?.code ?? null,
-      affiliateCode: pricing.affiliateCode,
-      billingEmail,
-      billingName,
-      paymentMethod: "polar",
-    }).returning()
+    const orderNumber = generateOrderNumber()
 
-    await tx.insert(orderItems).values(pricing.validatedItems.map((item) => {
-      const gross = item.unitPriceUsd * item.quantity
-      const lineDiscount = pricing.subtotal > 0 ? Math.round((pricing.discount * gross / pricing.subtotal) * 100) / 100 : 0
-      return {
-        orderId: order.id,
-        productId: item.productId,
-        licenseId: item.licenseId,
-        productName: item.productName,
-        licenseType: item.licenseType,
-        unitPriceUsd: item.unitPriceUsd.toFixed(2),
-        quantity: item.quantity,
-        discountUsd: lineDiscount.toFixed(2),
-        finalLineAmountUsd: (gross - lineDiscount).toFixed(2),
-        productVersion: item.productVersion,
+    // The pending order is written WITHOUT clearing the cart yet. Polar's
+    // checkout API needs distrosourceOrderId in its metadata before it can
+    // be created, so the order has to exist first — but the cart must stay
+    // intact until Polar actually accepts the checkout. If the Polar call
+    // below fails for any reason, this order is deleted again and the
+    // customer's cart is exactly as they left it.
+    const [pendingOrder] = await db.transaction(async (tx) => {
+      const [order] = await tx.insert(orders).values({
+        orderNumber,
+        userId: ownerId,
+        status: "pending_payment",
+        subtotalUsd: pricing.subtotal.toFixed(2),
+        discountUsd: pricing.discount.toFixed(2),
+        totalUsd: pricing.total.toFixed(2),
         currency: "usd",
-      }
-    }))
-    await tx.delete(cartItems).where(eq(cartItems.userId, ownerId))
-    return [order]
-  })
+        couponCode: pricing.promotion?.code ?? null,
+        referralCode: pricing.referral?.code ?? null,
+        affiliateCode: pricing.affiliateCode,
+        billingEmail,
+        billingName,
+        paymentMethod: "polar",
+      }).returning()
 
-  // externalCustomerId must be the authenticated DistroSource user id, never
-  // a guest cookie id. The checkout form always creates/signs in the account
-  // in prepareAccountForPayment() before calling this action, so session.user
-  // is expected to exist here — but we still gate on it explicitly rather
-  // than trusting ownerId (which falls back to a guest id if that ever
-  // changes) so a guest can never be attributed to a Polar customer record.
-  const externalCustomerId = session?.user?.id
+      await tx.insert(orderItems).values(pricing.validatedItems.map((item) => {
+        const gross = item.unitPriceUsd * item.quantity
+        const lineDiscount = pricing.subtotal > 0 ? Math.round((pricing.discount * gross / pricing.subtotal) * 100) / 100 : 0
+        return {
+          orderId: order.id,
+          productId: item.productId,
+          licenseId: item.licenseId,
+          productName: item.productName,
+          licenseType: item.licenseType,
+          unitPriceUsd: item.unitPriceUsd.toFixed(2),
+          quantity: item.quantity,
+          discountUsd: lineDiscount.toFixed(2),
+          finalLineAmountUsd: (gross - lineDiscount).toFixed(2),
+          productVersion: item.productVersion,
+          currency: "usd",
+        }
+      }))
+      return [order]
+    })
 
-  const clientIp = await getClientIpAddress()
+    // externalCustomerId must be the authenticated DistroSource user id, never
+    // a guest cookie id. The checkout form always creates/signs in the account
+    // in prepareAccountForPayment() before calling this action, so session.user
+    // is expected to exist here — but we still gate on it explicitly rather
+    // than trusting ownerId (which falls back to a guest id if that ever
+    // changes) so a guest can never be attributed to a Polar customer record.
+    const externalCustomerId = session?.user?.id
 
-  const checkout = await getPolarClient().checkouts.create({
-    products: [requiredPolarProductId()],
-    prices: {
-      [requiredPolarProductId()]: [{ amountType: "fixed", priceAmount: Math.round(pricing.total * 100), priceCurrency: "usd", taxBehavior: "exclusive" }],
-    },
-    customerEmail: billingEmail,
-    customerName: billingName,
-    ...(externalCustomerId ? { externalCustomerId } : {}),
-    // Lets Polar determine tax jurisdiction and currency/payment-method
-    // behavior from the buyer's real location instead of guessing from
-    // billing details alone.
-    customerIpAddress: clientIp,
-    metadata: { distrosourceOrderId: pendingOrder.id, customerId: ownerId, cartItemCount: pricing.validatedItems.length },
-    successUrl: `${appUrl}/checkout/success?checkout_id={CHECKOUT_ID}&order=${encodeURIComponent(pendingOrder.orderNumber)}`,
-    returnUrl: `${appUrl}/checkout`,
-    embedOrigin: appUrl,
-  })
+    const clientIp = await getClientIpAddress()
 
-  await db.update(orders).set({ polarCheckoutId: checkout.id }).where(eq(orders.id, pendingOrder.id))
-  return { url: polarCheckoutUrl(checkout), checkoutId: checkout.id }
+    let checkout: Awaited<ReturnType<ReturnType<typeof getPolarClient>["checkouts"]["create"]>>
+    try {
+      checkout = await getPolarClient().checkouts.create({
+        products: [requiredPolarProductId()],
+        prices: {
+          [requiredPolarProductId()]: [{ amountType: "fixed", priceAmount: Math.round(pricing.total * 100), priceCurrency: "usd", taxBehavior: "exclusive" }],
+        },
+        customerEmail: billingEmail,
+        customerName: billingName,
+        ...(externalCustomerId ? { externalCustomerId } : {}),
+        // Lets Polar determine tax jurisdiction and currency/payment-method
+        // behavior from the buyer's real location instead of guessing from
+        // billing details alone.
+        customerIpAddress: clientIp,
+        metadata: { distrosourceOrderId: pendingOrder.id, customerId: ownerId, cartItemCount: pricing.validatedItems.length },
+        successUrl: `${appUrl}/checkout/success?checkout_id={CHECKOUT_ID}&order=${encodeURIComponent(pendingOrder.orderNumber)}`,
+        returnUrl: `${appUrl}/checkout`,
+        embedOrigin: appUrl,
+      })
+    } catch (polarError) {
+      // No checkout was created, so nothing should be left behind: remove
+      // the orphaned pending order and leave the cart untouched.
+      await db.transaction(async (tx) => {
+        await tx.delete(orderItems).where(eq(orderItems.orderId, pendingOrder.id))
+        await tx.delete(orders).where(eq(orders.id, pendingOrder.id))
+      })
+      console.error("[v0] Polar checkout creation failed:", polarError)
+      return { error: describePolarCheckoutError(polarError) }
+    }
+
+    // Only now — after Polar has actually accepted the checkout — is the
+    // cart cleared.
+    await db.transaction(async (tx) => {
+      await tx.update(orders).set({ polarCheckoutId: checkout.id }).where(eq(orders.id, pendingOrder.id))
+      await tx.delete(cartItems).where(eq(cartItems.userId, ownerId))
+    })
+
+    return { url: polarCheckoutUrl(checkout), checkoutId: checkout.id }
+  } catch (error) {
+    console.error("[v0] createPolarCheckout failed:", error)
+    return { error: error instanceof Error ? error.message : "Could not start secure checkout. Please try again." }
+  }
 }
 
 const PAYPAL_MIN_USD = 0.5
