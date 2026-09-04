@@ -16,6 +16,7 @@ export {
   IconRotate as RotateCw,
   IconSearch as Search,
   IconStar as Star,
+  IconSend as Send,
 } from "@tabler/icons-react"
 
 export type { IconProps } from "@tabler/icons-react"

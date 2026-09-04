@@ -206,6 +206,75 @@ export async function sendRefundConfirmationEmail(to: string, orderNumber: strin
   return true
 }
 
+// The domain that receives inbound mail for the support inbox. Root domain
+// (distrosource.com) already has other mail on it, so inbound routing lives
+// on a delegated subdomain instead of taking over the root MX records.
+const SUPPORT_INBOUND_DOMAIN = process.env.RESEND_SUPPORT_INBOUND_DOMAIN ?? "mail.distrosource.com"
+
+// A conversation-scoped Reply-To (conversation+<id>@mail.distrosource.com)
+// is what lets a customer's plain "Reply" land back on the right thread —
+// the inbound webhook parses the id out of the recipient address.
+function conversationReplyTo(conversationId: number) {
+  return `DistroSource Support <conversation+${conversationId}@${SUPPORT_INBOUND_DOMAIN}>`
+}
+
+export async function sendSupportReplyEmail(
+  to: string,
+  conversationId: number,
+  subject: string,
+  body: string,
+  agentName?: string,
+) {
+  const paragraphsHtml = body
+    .split(/\n{2,}/)
+    .map(
+      (p) =>
+        `<p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#28384a;">${p
+          .split("\n")
+          .map((line) => line.trim())
+          .join("<br />")}</p>`,
+    )
+    .join("")
+
+  const signOff = agentName ? `${agentName}, DistroSource Support` : "DistroSource Support"
+
+  const { data, error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to,
+    replyTo: conversationReplyTo(conversationId),
+    subject: subject.startsWith("Re:") ? subject : `Re: ${subject}`,
+    html: `
+      <div style="margin:0;padding:32px 12px;background:#eef4f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#0b1b31;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:560px;margin:0 auto;border-collapse:separate;">
+          <tr><td style="padding:0 0 18px;text-align:center;font-size:12px;letter-spacing:1.5px;color:#60758c;text-transform:uppercase;">Support conversation</td></tr>
+          <tr><td style="background:#081426;border-radius:20px 20px 0 0;padding:26px 28px 22px;text-align:center;">
+            <img src="${LOGO_URL}" alt="DistroSource — templates, tools, and digital assets" width="320" style="display:block;width:320px;max-width:100%;height:auto;margin:0 auto;" />
+          </td></tr>
+          <tr><td style="background:#ffffff;border-radius:0 0 20px 20px;padding:34px 32px 30px;border:1px solid #dce6ee;border-top:0;">
+            <p style="margin:0 0 4px;color:#168ba5;font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;">Re: ${subject}</p>
+            <h1 style="margin:0 0 20px;color:#0b1b31;font-size:22px;line-height:1.3;font-weight:750;letter-spacing:-.3px;">A reply from our support team</h1>
+            ${paragraphsHtml}
+            <p style="margin:22px 0 0;font-size:15px;line-height:1.6;color:#28384a;">${signOff}</p>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:26px;background:#f3f8fb;border:1px solid #e1edf2;border-radius:12px;">
+              <tr><td style="padding:14px 16px;color:#52677c;font-size:12.5px;line-height:1.55;">
+                Just reply to this email — your message goes straight back into this same support conversation.
+              </td></tr>
+            </table>
+          </td></tr>
+          <tr><td style="padding:22px 12px 0;text-align:center;color:#71859a;font-size:12px;line-height:1.7;">DistroSource.com<br /><a href="mailto:support@distrosource.com" style="color:#168ba5;text-decoration:none;">support@distrosource.com</a><br /><span style="font-size:11px;color:#91a1b0;">Digital products, delivered better.</span></td></tr>
+        </table>
+      </div>
+    `,
+    text: `Re: ${subject}\n\n${body}\n\n${signOff}\n\n---\nJust reply to this email — your message goes straight back into this same support conversation.\n\nDistroSource.com · support@distrosource.com`,
+  })
+
+  if (error) {
+    console.error("[v0] Failed to send support reply email:", error)
+    throw new Error("Could not send the reply. Please try again later.")
+  }
+  return data?.id ?? null
+}
+
 export async function sendReferralRewardEmail(to: string, couponCode: string, discountPercent: number) {
   const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
