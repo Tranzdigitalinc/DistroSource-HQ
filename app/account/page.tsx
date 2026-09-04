@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Package, Library, Heart, LifeBuoy, ArrowRight } from "lucide-react"
+import { Package, Library, Heart, LifeBuoy, ArrowRight } from "@/lib/storefront-icons"
 import { getUserLibrary, getUserOrderItems } from "@/lib/actions/account"
 import { getWishlistItems } from "@/lib/actions/wishlist"
 import { getRecentlyViewed } from "@/lib/actions/recently-viewed"

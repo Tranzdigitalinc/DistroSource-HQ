@@ -9,7 +9,7 @@ import {
   PayPalCVVField,
   usePayPalCardFields,
 } from "@paypal/react-paypal-js"
-import { Loader2, Lock } from "lucide-react"
+import { Loader2, Lock } from "@/lib/storefront-icons"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { createPaypalCheckoutOrder, capturePaypalCheckoutOrder } from "@/lib/actions/checkout"

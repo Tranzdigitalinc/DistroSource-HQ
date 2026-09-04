@@ -33,8 +33,16 @@ export default async function HomePage() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <Hero stats={stats} />
-        <CategoryGrid categories={departments} />
+        <Hero
+          stats={stats}
+          products={featured.slice(0, 3).map((item) => ({
+            slug: item.product.slug,
+            name: item.product.name,
+            imageUrl: item.product.coverImageUrl ?? item.images[0]?.url ?? item.product.thumbnailUrl ?? null,
+          }))}
+        />
+        {/* Departments with nothing published are not advertised on the home page. */}
+        <CategoryGrid categories={departments.filter((d) => d.productCount > 0)} />
         <ProductRail title="Featured products" href="/products" items={featured} />
         <ProductRail
           title="New releases"
@@ -42,7 +50,6 @@ export default async function HomePage() {
           href="/products?sort=newest"
           items={newArrivals}
         />
-        <ShopByGoal />
         <ProductRail
           title="Business essentials"
           subtitle="Documents, spreadsheets, and systems that make the everyday work lighter"
@@ -61,6 +68,7 @@ export default async function HomePage() {
           href="/categories/design-resources"
           items={designProducts}
         />
+        <ShopByGoal />
         <ProductRail
           title="Digital bundles"
           subtitle="Curated collections that cost less than buying each file on its own"

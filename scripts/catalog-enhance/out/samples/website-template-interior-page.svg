@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" font-family="Archivo, Inter, 'Helvetica Neue', Arial, sans-serif">
+<rect width="1200" height="900" fill="#F7F3EC"/><rect x="40" y="40" width="1120" height="820" rx="12" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<path d="M40 76 h1120" stroke="#E2DCD3" stroke-width="1"/>
+<circle cx="66" cy="58" r="5" fill="#E2DCD3"/><circle cx="84" cy="58" r="5" fill="#E2DCD3"/><circle cx="102" cy="58" r="5" fill="#E2DCD3"/>
+<text x="126" y="63" font-size="12" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">harborline.example</text>
+<rect x="40" y="77" width="1120" height="66" rx="0" fill="#FFFDFA" stroke="none" stroke-width="1"/>
+<text x="76" y="118" font-size="17" fill="#2A2521" font-weight="800" text-anchor="start" opacity="1">Harborline</text>
+<text x="360" y="118" font-size="12.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Home</text><text x="468" y="118" font-size="12.5" fill="#2A2521" font-weight="600" text-anchor="start" opacity="1">Services</text><text x="576" y="118" font-size="12.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Work</text><text x="684" y="118" font-size="12.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">About</text><text x="792" y="118" font-size="12.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Contact</text>
+<rect x="1010" y="100" width="130" height="36" rx="6" fill="#E0721F" stroke="none" stroke-width="1"/>
+<text x="1075" y="123" font-size="12" fill="#fff" font-weight="600" text-anchor="middle" opacity="1">Enquire</text>
+<path d="M40 143 h1120" stroke="#E2DCD3"/>
+<text x="76" y="200" font-size="30" fill="#2A2521" font-weight="800" text-anchor="start" opacity="1">Services</text>
+<text x="76" y="232" font-size="13.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">What we do for agency website.</text>
+<rect x="76" y="264" width="340" height="170" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="100" y="288" width="44" height="44" rx="8" fill="#FBEADC" stroke="none" stroke-width="1"/>
+<text x="100" y="360" font-size="15" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Consultation</text>
+<text x="100" y="384" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Short explanatory sentence about</text>
+<text x="100" y="402" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">this service and who it suits.</text><rect x="440" y="264" width="340" height="170" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="464" y="288" width="44" height="44" rx="8" fill="#FBEADC" stroke="none" stroke-width="1"/>
+<text x="464" y="360" font-size="15" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Delivery</text>
+<text x="464" y="384" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Short explanatory sentence about</text>
+<text x="464" y="402" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">this service and who it suits.</text><rect x="804" y="264" width="340" height="170" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="828" y="288" width="44" height="44" rx="8" fill="#FBEADC" stroke="none" stroke-width="1"/>
+<text x="828" y="360" font-size="15" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Support</text>
+<text x="828" y="384" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Short explanatory sentence about</text>
+<text x="828" y="402" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">this service and who it suits.</text><rect x="76" y="454" width="340" height="170" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="100" y="478" width="44" height="44" rx="8" fill="#FBEADC" stroke="none" stroke-width="1"/>
+<text x="100" y="550" font-size="15" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Strategy</text>
+<text x="100" y="574" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Short explanatory sentence about</text>
+<text x="100" y="592" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">this service and who it suits.</text><rect x="440" y="454" width="340" height="170" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="464" y="478" width="44" height="44" rx="8" fill="#FBEADC" stroke="none" stroke-width="1"/>
+<text x="464" y="550" font-size="15" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Maintenance</text>
+<text x="464" y="574" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Short explanatory sentence about</text>
+<text x="464" y="592" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">this service and who it suits.</text><rect x="804" y="454" width="340" height="170" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="828" y="478" width="44" height="44" rx="8" fill="#FBEADC" stroke="none" stroke-width="1"/>
+<text x="828" y="550" font-size="15" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Training</text>
+<text x="828" y="574" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Short explanatory sentence about</text>
+<text x="828" y="592" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">this service and who it suits.</text></svg>

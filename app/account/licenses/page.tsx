@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ShieldCheck } from "lucide-react"
+import { ShieldCheck } from "@/lib/storefront-icons"
 import { getUserLicenses } from "@/lib/actions/account"
 import { formatLicenseType, formatDate } from "@/lib/format"
 import { PriceDisplay } from "@/components/price-display"

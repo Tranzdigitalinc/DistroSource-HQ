@@ -1,4 +1,4 @@
-import { Building2, Users, ShieldCheck, FileCheck2 } from "lucide-react"
+import { Building2, Users, ShieldCheck, FileCheck2 } from "@/lib/storefront-icons"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { TeamLicensingForm } from "@/components/team-licensing/team-licensing-form"
@@ -16,8 +16,8 @@ const perks = [
   },
   {
     icon: ShieldCheck,
-    title: "Agency-grade terms",
-    description: "Use assets across unlimited client projects under our agency license tier.",
+    title: "Studio-grade terms",
+    description: "Use assets across multiple client projects under our Agency license tier, up to the limits stated on each product.",
   },
   {
     icon: FileCheck2,

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Download } from "lucide-react"
+import { Download } from "@/lib/storefront-icons"
 import { getUserDownloadHistory } from "@/lib/actions/account"
 import { formatDateTime } from "@/lib/format"
 import { Button } from "@/components/ui/button"

@@ -12,6 +12,7 @@ import {
   Users2,
   Receipt,
   ScrollText,
+  ClipboardCheck,
 } from "lucide-react"
 import { OperationsPanel } from "@/components/admin/operations-panel"
 import { AnalyticsSummary } from "@/components/admin/analytics-summary"
@@ -29,6 +30,7 @@ export const metadata = {
 
 const catalogSections = [
   { href: "/admin/products", label: "Products", description: "Create and edit digital products, files, and pricing.", icon: Package },
+  { href: "/admin/final-review", label: "Final catalog review", description: "Launch gate: blockers, files, rights, imagery and licensing per product.", icon: ClipboardCheck },
   { href: "/admin/categories", label: "Categories", description: "Organize the catalog into browsable categories.", icon: FolderTree },
   { href: "/admin/collections", label: "Collections", description: "Bundle related products together.", icon: Layers },
   { href: "/admin/homepage", label: "Homepage", description: "Manage featured rails and merchandising.", icon: LayoutTemplate },

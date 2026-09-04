@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { PayPalButtons, PayPalScriptProvider, usePayPalScriptReducer } from "@paypal/react-paypal-js"
-import { Loader2 } from "lucide-react"
+import { Loader2 } from "@/lib/storefront-icons"
 import { createPaypalCheckoutOrder, capturePaypalCheckoutOrder } from "@/lib/actions/checkout"
 import { PaypalInlineCardFields } from "@/components/checkout/paypal-inline-card-fields"
 

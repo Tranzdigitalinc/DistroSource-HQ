@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from "lucide-react";
+import { ArrowRightIcon } from "@/lib/storefront-icons";
 
 import { cn } from "@/lib/utils";
 

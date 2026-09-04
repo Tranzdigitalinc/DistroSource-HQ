@@ -7,6 +7,7 @@ import { abandonedCarts, notificationPreferences, productLicenses } from "@/lib/
 import { getOptionalOwnerId, getOwnerId } from "@/lib/session"
 import { addToCart } from "@/lib/actions/cart"
 import { sendAbandonedCartEmail, sendAbandonedCartReminderEmail } from "@/lib/email"
+import { getAuthBaseUrl } from "@/lib/env"
 
 const REMINDER_DELAY_HOURS = 24
 
@@ -17,7 +18,7 @@ interface AbandonedCartItem {
 }
 
 function getRecoveryBaseUrl() {
-  return process.env.BETTER_AUTH_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
+  return getAuthBaseUrl()
 }
 
 export async function saveAbandonedCart(input: { email: string; subtotalUsd: number; items: unknown[] }) {
@@ -70,34 +71,3 @@ export async function restoreAbandonedCart(token: string) {
   return { success: restoredCount > 0, reason: restoredCount > 0 ? ("restored" as const) : ("unavailable" as const) }
 }
 
-export async function sendAbandonedCartReminders() {
-  const cutoff = new Date(Date.now() - REMINDER_DELAY_HOURS * 60 * 60 * 1000)
-  const eligibleCarts = await db
-    .select()
-    .from(abandonedCarts)
-    .where(and(eq(abandonedCarts.status, "open"), lt(abandonedCarts.createdAt, cutoff), isNull(abandonedCarts.lastRemindedAt)))
-    .limit(100)
-
-  let sentCount = 0
-  let skippedCount = 0
-
-  for (const cart of eligibleCarts) {
-    if (cart.userId) {
-      const [prefs] = await db.select().from(notificationPreferences).where(eq(notificationPreferences.userId, cart.userId)).limit(1)
-      if (prefs && !prefs.promotions) {
-        skippedCount += 1
-        continue
-      }
-    }
-
-    const sent = await sendAbandonedCartReminderEmail(
-      cart.email,
-      `${getRecoveryBaseUrl()}/recover-cart/${cart.recoveryToken}`,
-      Number.parseFloat(cart.subtotalUsd),
-    )
-    await db.update(abandonedCarts).set({ lastRemindedAt: new Date() }).where(eq(abandonedCarts.id, cart.id))
-    if (sent) sentCount += 1
-  }
-
-  return { sentCount, skippedCount, eligible: eligibleCarts.length }
-}

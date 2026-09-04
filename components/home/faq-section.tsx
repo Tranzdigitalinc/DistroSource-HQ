@@ -14,7 +14,7 @@ const faqs = [
   {
     question: "What license should I choose?",
     answer:
-      "Personal licenses cover your own projects, Commercial licenses cover client and business use, and Extended/Agency licenses cover unlimited projects or large-team use. No license tier permits reselling or redistributing the underlying files. Each product page explains what's included.",
+      "Personal licenses cover your own non-commercial projects, Commercial licenses cover a single commercial or client project, and Agency licenses cover multiple client projects up to the limits stated on the product. No license tier permits reselling or redistributing the underlying files. Each product page explains what's included.",
   },
   {
     question: "What payment methods do you accept?",

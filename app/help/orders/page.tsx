@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { PackageSearch, Download, KeyRound, RefreshCcw, ArrowRight } from "lucide-react"
+import { PackageSearch, Download, FileText, RefreshCcw, ArrowRight } from "@/lib/storefront-icons"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { Reveal } from "@/components/motion/reveal"
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 
 export const metadata = {
   title: "Order Help — DistroSource",
-  description: "Track your order, re-download a purchase, or get help with a license key.",
+  description: "Track your order, re-download a purchase, or get help with a license or download issue.",
 }
 
 const steps = [
@@ -18,9 +18,9 @@ const steps = [
     description: "Sign in and go to Account → My Orders to see every purchase and its delivery status.",
   },
   {
-    icon: KeyRound,
-    title: "2. Get your license key",
-    description: "Open the order and click \"View license\" to see your key, seat count, and activation instructions.",
+    icon: FileText,
+    title: "2. Check your license",
+    description: "Open the order to see which license tier each item was bought under and what that tier permits.",
   },
   {
     icon: Download,
@@ -30,7 +30,7 @@ const steps = [
   {
     icon: RefreshCcw,
     title: "4. Request help if needed",
-    description: "If a download fails, a key won't activate, or a file arrived corrupted, open a support ticket with your order number.",
+    description: "If a download fails or a file arrived corrupted, open a support ticket with your order number.",
   },
 ]
 
@@ -41,9 +41,9 @@ const faqs = [
       "Yes, briefly. Most orders complete within seconds, but a small number are held for a minute or two of automated fraud review. If it's still processing after 30 minutes, contact support with your order number.",
   },
   {
-    question: "I can't find my license key — where is it?",
+    question: "Where do I find what my license covers?",
     answer:
-      "Your key is always available in Account → My Orders and Account → My Licenses, even after it's been activated. A copy is also emailed to your account address at checkout.",
+      "DistroSource products are downloadable files — there are no license keys or activation codes to enter. The license tier you bought is shown on the order in Account → My Orders and in Account → My Licenses, and the full terms for each tier are on the Licenses page.",
   },
   {
     question: "I downloaded a file but it won't open or looks corrupted.",
@@ -53,12 +53,12 @@ const faqs = [
   {
     question: "Can I move my purchase to a different account?",
     answer:
-      "License keys are tied to the account that made the purchase and generally can't be transferred. If you bought the wrong account by mistake, contact support as soon as possible and we'll see what we can do.",
+      "Purchases are tied to the account that made them and generally can't be transferred. If you bought on the wrong account by mistake, contact support as soon as possible with your order number.",
   },
   {
     question: "How do I get a refund on an order?",
     answer:
-      "Refund eligibility depends on whether the files have been downloaded or the license activated. See our Refund Policy for full details, or open a ticket from your order page to start a request.",
+      "Refund eligibility depends on whether the files have been downloaded. See our Refund Policy for full details, or open a ticket from your order page to start a request.",
   },
 ]
 
@@ -74,8 +74,8 @@ export default function OrderHelpPage() {
               Order and delivery help
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Everything you need to track a purchase, find a license key, or resolve a download issue — most
-              orders sort themselves out in under a minute.
+              Everything you need to track a purchase, check what your license covers, or resolve a download
+              issue.
             </p>
           </Reveal>
 

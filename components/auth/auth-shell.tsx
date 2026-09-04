@@ -1,74 +1,57 @@
-import { Check, LockKeyhole, Zap } from "@/lib/storefront-icons"
-import { SiteHeaderClient } from "@/components/header/site-header-client"
-import { SiteFooter } from "@/components/footer/site-footer"
-import { getCatalogStats } from "@/lib/queries/catalog"
+import Link from "next/link"
+import { ArrowLeft, ICON_SIZE } from "@/lib/storefront-icons"
+import { BrandLogo } from "@/components/brand-logo"
 
-export async function AuthShell({
+/**
+ * Focused layout for sign-in / sign-up: brand bar, one centred card, slim
+ * legal footer. No storefront navigation, no marketing panel, no statistics —
+ * the only job of these pages is the form.
+ */
+export function AuthShell({
   title,
   subtitle,
   children,
+  aside,
 }: {
   title: string
   subtitle: string
   children: React.ReactNode
+  /** Optional short line under the card (e.g. "Already registered?"). */
+  aside?: React.ReactNode
 }) {
-  const stats = await getCatalogStats()
-
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeaderClient />
-      <div className="grid flex-1 lg:grid-cols-2">
-        <div className="flex flex-col justify-center px-5 py-8 sm:px-10 sm:py-16 lg:px-16">
-          <div className="mx-auto w-full max-w-sm">
-            <div className="mb-7 flex items-center gap-3 lg:hidden">
-              <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20"><LockKeyhole className="size-5" /></span>
-              <div><p className="text-sm font-semibold">DistroSource account</p><p className="text-xs text-muted-foreground">Your digital asset library</p></div>
-            </div>
-            <h1 className="font-display text-2xl font-bold tracking-tight text-balance">{title}</h1>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{subtitle}</p>
-            <div className="mt-7 border border-border/70 bg-card/80 p-4 shadow-sm backdrop-blur-sm sm:p-6">{children}</div>
-            <div className="mt-6 grid grid-cols-3 gap-2 text-center text-[11px] text-muted-foreground">
-              <div className="rounded-xl bg-secondary/60 px-2 py-3"><Zap className="mx-auto mb-1 size-4 text-primary" />Fast delivery</div>
-              <div className="rounded-xl bg-secondary/60 px-2 py-3"><LockKeyhole className="mx-auto mb-1 size-4 text-primary" />Protected</div>
-              <div className="rounded-xl bg-secondary/60 px-2 py-3"><Check className="mx-auto mb-1 size-4 text-primary" />Trusted</div>
-            </div>
-          </div>
+    <div className="flex min-h-screen flex-col bg-secondary/30">
+      <header className="border-b border-border bg-background">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+          <BrandLogo heightClassName="h-7" />
+          <Link href="/" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+            <ArrowLeft size={ICON_SIZE.sm} aria-hidden="true" />
+            Back to store
+          </Link>
         </div>
-        <div className="relative hidden overflow-hidden border-l border-border bg-hero lg:block">
-          <div className="relative flex h-full flex-col justify-center p-12 xl:p-16">
-            <div className="mx-auto flex w-full max-w-lg flex-col gap-8">
-              <div className="flex items-center gap-3 text-sm font-semibold tracking-wide text-hero-foreground/70">
-                <span className="h-px w-10 bg-primary" />
-                EVERYTHING DIGITAL. ONE SOURCE.
-              </div>
-              <div className="flex flex-col gap-5">
-                <h2 className="max-w-xl text-4xl font-semibold leading-tight tracking-tight text-hero-foreground xl:text-5xl text-balance">
-                  Every asset you need, unlocked instantly.
-                </h2>
-                <p className="max-w-md text-base leading-relaxed text-hero-foreground/70">
-                  Templates, fonts, UI kits, and Notion systems — yours the moment you buy.
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-hero-foreground/10 bg-hero-foreground/[0.04] p-4">
-                  <p className="text-2xl font-semibold text-hero-foreground">{stats.productCount}+</p>
-                  <p className="mt-1 text-xs text-hero-foreground/60">Digital products</p>
-                </div>
-                <div className="rounded-2xl border border-hero-foreground/10 bg-hero-foreground/[0.04] p-4">
-                  <p className="text-2xl font-semibold text-hero-foreground">{stats.categoryCount}+</p>
-                  <p className="mt-1 text-xs text-hero-foreground/60">Categories</p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 text-xs text-hero-foreground/70">
-                {['Templates', 'Fonts', 'UI kits', 'Notion systems'].map((category) => (
-                  <span key={category} className="rounded-full border border-hero-foreground/10 px-3 py-2">{category}</span>
-                ))}
-              </div>
-            </div>
+      </header>
+
+      <main className="flex flex-1 items-start justify-center px-4 py-10 sm:px-6 sm:py-16">
+        <div className="w-full max-w-[26rem]">
+          <div className="mb-6 text-center">
+            <h1 className="font-display text-2xl font-bold tracking-tight text-balance sm:text-[1.75rem]">{title}</h1>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground text-pretty">{subtitle}</p>
           </div>
+          <div className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow-e1)] sm:p-7">{children}</div>
+          {aside && <div className="mt-5 text-center text-sm text-muted-foreground">{aside}</div>}
         </div>
-      </div>
-      <SiteFooter />
+      </main>
+
+      <footer className="border-t border-border bg-background">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-4 text-xs text-muted-foreground sm:px-6">
+          <span>© {new Date().getFullYear()} DistroSource</span>
+          <nav aria-label="Legal" className="flex gap-4">
+            <Link href="/legal/terms" className="hover:text-foreground">Terms</Link>
+            <Link href="/legal/privacy" className="hover:text-foreground">Privacy</Link>
+            <Link href="/help" className="hover:text-foreground">Help</Link>
+          </nav>
+        </div>
+      </footer>
     </div>
   )
 }

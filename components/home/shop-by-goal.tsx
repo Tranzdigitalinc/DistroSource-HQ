@@ -1,58 +1,67 @@
 import Link from "next/link"
-import { ArrowUpRight, BriefcaseBusiness, Compass, LayoutTemplate, WandSparkles } from "@/lib/storefront-icons"
-import { FlipWords } from "@/components/velora/flip-words"
-import { BlurFade } from "@/components/velora/blur-fade"
-import { GridPattern } from "@/components/velora/grid-pattern"
+import { ArrowRight, BriefcaseBusiness, LayoutTemplate, PaintBoard, SourceCode, ICON_SIZE } from "@/lib/storefront-icons"
+import { RevealGroup, RevealItem } from "@/components/motion/reveal"
 
-const goals = [
-  { title: "Launch something new", description: "Polished templates and brand building blocks for a confident first release.", href: "/products?q=launch", icon: LayoutTemplate },
-  { title: "Run the business", description: "Systems, documents, and spreadsheets that make the everyday work lighter.", href: "/products?q=business", icon: BriefcaseBusiness },
-  { title: "Make it feel designed", description: "Fonts, graphics, mockups, and presentation assets with a point of view.", href: "/products?q=design", icon: WandSparkles },
-  { title: "Find a useful starting point", description: "Browse the complete catalog when you know the outcome, not the format.", href: "/products", icon: Compass },
+/**
+ * Curated entry points. Every href is a real department or category route
+ * that returns products today — not a keyword search that may come back
+ * empty. Update the list when the catalog's departments change.
+ */
+const collections = [
+  {
+    title: "Run the business",
+    description: "Spreadsheets, documents, planners and Notion systems for everyday operations.",
+    href: "/categories/business-office",
+    icon: BriefcaseBusiness,
+  },
+  {
+    title: "Ship a website",
+    description: "Site templates, admin dashboards, landing pages and React / Next.js starters.",
+    href: "/categories/web-development",
+    icon: SourceCode,
+  },
+  {
+    title: "Make it look designed",
+    description: "Graphics, icons, mockups and brand assets with a point of view.",
+    href: "/categories/design-resources",
+    icon: PaintBoard,
+  },
+  {
+    title: "Present with confidence",
+    description: "Presentation decks and pitch templates for PowerPoint and Keynote.",
+    href: "/categories/presentation-templates",
+    icon: LayoutTemplate,
+  },
 ]
 
 export function ShopByGoal() {
   return (
-    <section className="relative border-y border-border bg-surface-soft">
-      <GridPattern
-        width={48}
-        height={48}
-        className="fill-transparent stroke-border/50 [mask-image:radial-gradient(60%_60%_at_0%_0%,black,transparent)]"
-      />
-      <div className="relative mx-auto max-w-7xl px-6 py-14 sm:px-8">
+    <section className="border-y border-border bg-secondary/30">
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
         <div className="mb-8 max-w-xl">
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Start with the outcome</p>
-          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Shop by purpose</h2>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            A faster route to <FlipWords words={["launch", "sell", "design", "organize"]} className="font-semibold text-foreground" /> the thing you are trying to make.
-          </p>
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Collections</p>
+          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Start with what you need to do</h2>
         </div>
-        <div className="grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
-          {goals.map(({ title, description, href, icon: Icon }, i) => (
-            <BlurFade key={title} delay={i * 0.08} className="h-full">
+        <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" stagger={0.05}>
+          {collections.map(({ title, description, href, icon: Icon }) => (
+            <RevealItem key={title} className="h-full">
               <Link
                 href={href}
-                className="group relative flex h-full min-h-48 flex-col justify-between bg-card p-5 transition-colors hover:bg-background"
+                className="group flex h-full flex-col rounded-lg border border-border bg-card p-5 transition-colors hover:border-border-strong hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <span className="flex size-11 items-center justify-center rounded-[4px] bg-secondary text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                    <Icon className="size-5" />
-                  </span>
-                  <span className="font-mono text-[10px] font-semibold text-muted-foreground/60">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="flex items-center gap-1.5 font-display font-bold tracking-tight">
-                    {title}
-                    <ArrowUpRight className="size-3.5 text-muted-foreground/60 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary" />
-                  </h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{description}</p>
-                </div>
+                <span className="flex size-10 items-center justify-center rounded-md bg-secondary text-foreground">
+                  <Icon size={ICON_SIZE.feature} aria-hidden="true" />
+                </span>
+                <h3 className="mt-4 font-display text-base font-bold tracking-tight text-foreground">{title}</h3>
+                <p className="mt-1.5 flex-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
+                <span className="mt-4 flex items-center gap-1 text-xs font-semibold text-foreground">
+                  Browse
+                  <ArrowRight size={ICON_SIZE.sm} className="transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden="true" />
+                </span>
               </Link>
-            </BlurFade>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
       </div>
     </section>
   )

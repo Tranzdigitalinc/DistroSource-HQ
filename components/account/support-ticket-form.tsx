@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, Send } from "lucide-react"
+import { Loader2, Send } from "@/lib/storefront-icons"
 
 const categories = [
   { value: "order", label: "Order issue" },
@@ -42,7 +42,7 @@ export function SupportTicketForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5 rounded-xl border border-border bg-card p-6">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5 rounded-lg border border-border bg-card p-6">
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <Label htmlFor="subject">Subject</Label>
@@ -50,8 +50,9 @@ export function SupportTicketForm() {
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="category">Category</Label>
-          <Select value={category} onValueChange={(value) => setCategory(value ?? "general")}>
-            <SelectTrigger id="category" className="w-full">
+          {/* `items` lets Base UI show the label rather than the raw value in the trigger. */}
+          <Select items={categories} value={category} onValueChange={(value) => setCategory(value ?? "general")}>
+            <SelectTrigger id="category" className="h-9 w-full rounded-md">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
@@ -67,7 +68,7 @@ export function SupportTicketForm() {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="order-number">Order number (optional)</Label>
-        <Input id="order-number" value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder="RC-XXXXXXXX" className="font-mono" />
+        <Input id="order-number" value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder="DS-XXXXXXXXXX" className="font-mono" />
       </div>
 
       <div className="flex flex-col gap-2">

@@ -1,34 +1,22 @@
 import Link from "next/link"
-import { Mail, MessageCircle, Building2, ArrowRight } from "lucide-react"
+import { ArrowRight, BriefcaseBusiness, CircleHelp, Library, RefreshCw, ICON_SIZE } from "@/lib/storefront-icons"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { Reveal } from "@/components/motion/reveal"
 import { ContactForm } from "@/components/contact/contact-form"
 
 export const metadata = {
-  title: "Contact Us — DistroSource",
+  title: "Contact — DistroSource",
   description: "Get in touch with the DistroSource team for order support, licensing questions, or business inquiries.",
 }
 
-const channels = [
-  {
-    icon: MessageCircle,
-    title: "Order & account support",
-    description: "For download issues, licensing questions, or account access — the fastest way to reach us.",
-    action: { label: "Visit the Help Center", href: "/help" },
-  },
-  {
-    icon: Mail,
-    title: "General inquiries",
-    description: "Press, partnerships, or anything that doesn't fit elsewhere.",
-    action: { label: "hello@distrosource.com", href: "mailto:hello@distrosource.com" },
-  },
-  {
-    icon: Building2,
-    title: "Business & team licensing",
-    description: "Volume seats, agency use, and team licensing programs.",
-    action: { label: "business@distrosource.com", href: "mailto:business@distrosource.com?subject=Team%20licensing%20inquiry" },
-  },
+// Self-serve routes that resolve the most common tickets without waiting on
+// a reply. Nothing here promises a channel that isn't actually staffed.
+const shortcuts = [
+  { icon: Library, title: "Re-download a purchase", description: "Every paid product stays in your library.", href: "/account/library", label: "Open My Library" },
+  { icon: RefreshCw, title: "Request a refund", description: "Check eligibility and how refunds are processed.", href: "/legal/refund-policy", label: "Refund policy" },
+  { icon: CircleHelp, title: "Browse the Help Center", description: "Orders, downloads, licensing, payments and accounts.", href: "/help", label: "Help Center" },
+  { icon: BriefcaseBusiness, title: "Team licensing", description: "Multi-seat and agency licensing for businesses.", href: "/team-licensing", label: "Team licensing" },
 ]
 
 export default function ContactPage() {
@@ -38,38 +26,44 @@ export default function ContactPage() {
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 md:py-14">
           <Reveal className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-wide text-primary">Contact</p>
-            <h1 className="mt-2 font-display text-3xl font-bold tracking-tight text-balance md:text-4xl">
-              We&apos;re here to help
-            </h1>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Whether it&apos;s an order question, a billing concern, or a partnership idea, send us a message and our
-              team will respond within one business day.
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Contact</p>
+            <h1 className="mt-2 font-display text-3xl font-bold tracking-tight text-balance md:text-4xl">Talk to the team</h1>
+            <p className="mt-3 text-base leading-relaxed text-muted-foreground text-pretty">
+              Order questions, download problems, licensing, billing — send a message and we&apos;ll reply by email.
+              Typical response within 1 business day.
             </p>
           </Reveal>
 
-          <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1.4fr]">
-            <Reveal className="flex flex-col gap-4">
-              {channels.map((channel) => (
-                <div key={channel.title} className="rounded-xl border border-border bg-card p-5">
-                  <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <channel.icon className="size-4.5" />
-                  </span>
-                  <h3 className="mt-3 text-sm font-semibold text-foreground">{channel.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{channel.description}</p>
-                  <Link
-                    href={channel.action.href}
-                    className="mt-3 flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-                  >
-                    {channel.action.label}
-                    <ArrowRight className="size-3.5" />
-                  </Link>
-                </div>
-              ))}
-            </Reveal>
-
+          <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
             <Reveal>
               <ContactForm />
+            </Reveal>
+
+            <Reveal className="flex flex-col gap-3">
+              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Faster than a ticket</p>
+              {shortcuts.map((s) => (
+                <Link
+                  key={s.href}
+                  href={s.href}
+                  className="group flex items-start gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-border-strong hover:bg-secondary/40"
+                >
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-secondary text-muted-foreground group-hover:text-foreground">
+                    <s.icon size={ICON_SIZE.base} aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold text-foreground">{s.title}</span>
+                    <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">{s.description}</span>
+                    <span className="mt-1.5 flex items-center gap-1 text-xs font-medium text-foreground">
+                      {s.label}
+                      <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                    </span>
+                  </span>
+                </Link>
+              ))}
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                Signed-in customers can follow up on open requests under{" "}
+                <Link href="/account/support" className="font-medium text-foreground hover:underline">Account → Support</Link>.
+              </p>
             </Reveal>
           </div>
         </div>

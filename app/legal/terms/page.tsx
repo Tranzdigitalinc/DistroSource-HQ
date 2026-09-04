@@ -65,8 +65,8 @@ export default function TermsOfServicePage() {
           heading: "5. Licensing",
           body: (
             <p>
-              Every product is sold under a specific license tier (Personal, Commercial, Extended Commercial, or
-              Agency) selected at checkout. Your license grants you the right to use the files for the purposes
+              Every product is sold under a specific license tier (Personal, Commercial, or Agency) selected at
+              checkout. Your license grants you the right to use the files for the purposes
               described on the product page and in your account&apos;s{" "}
               <span className="font-medium text-foreground">Licenses</span> tab. Purchasing a product does not
               transfer copyright or ownership of the underlying design, code, or content — DistroSource retains all

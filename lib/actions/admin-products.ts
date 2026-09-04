@@ -167,6 +167,18 @@ async function assertPublishable(id: number, status: string) {
   // Without a license row, the purchase panel has nothing to sell and
   // renders nothing — a live product with no way to buy it.
   if ((licenseCount?.count ?? 0) < 1) throw new Error("Add at least one license/pricing plan before publishing.")
+
+  // --- Final catalog review gate ------------------------------------------
+  // A product may only go live once it has no outstanding blockers. The same
+  // derivation backs /admin/final-review, so the admin screen and this guard
+  // can never disagree.
+  const { getFinalReviewRows } = await import("@/lib/queries/final-review")
+  const row = (await getFinalReviewRows()).find((r) => r.id === id)
+  if (row && row.blockers.length > 0) {
+    throw new Error(
+      `Final review not passed — resolve these first: ${row.blockers.join("; ")}. See Admin → Final Catalog Review.`,
+    )
+  }
 }
 
 export async function createProduct(input: ProductFormInput) {

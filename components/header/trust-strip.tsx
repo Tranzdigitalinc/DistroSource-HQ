@@ -1,22 +1,20 @@
-import { Zap, ShieldCheck, Globe2, HeadphonesIcon } from "@/lib/storefront-icons"
+import { Download, Lock, RefreshCw, ICON_SIZE } from "@/lib/storefront-icons"
 
+// Three statements the storefront can back today. No response-time
+// guarantees, no "worldwide" claims that depend on Polar's country list.
 const items = [
-  { icon: Zap, label: "Instant download access" },
-  { icon: ShieldCheck, label: "Encrypted, secure checkout" },
-  { icon: Globe2, label: "Available worldwide" },
-  { icon: HeadphonesIcon, label: "Support within 1 business day" },
+  { icon: Download, label: "Instant delivery after payment" },
+  { icon: Lock, label: "Checkout by Polar, Merchant of Record" },
+  { icon: RefreshCw, label: "Re-download anytime from My Library" },
 ]
 
 export function TrustStrip() {
   return (
     <div className="hidden bg-navy lg:block">
-      <div className="mx-auto flex h-9 max-w-7xl items-center justify-center divide-x divide-navy-foreground/15 px-6">
+      <div className="mx-auto flex h-9 max-w-7xl items-center justify-center gap-8 px-6">
         {items.map((item) => (
-          <span
-            key={item.label}
-            className="flex items-center gap-1.5 px-5 font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-navy-foreground/70 first:pl-0 last:pr-0"
-          >
-            <item.icon className="size-3.5 text-primary" aria-hidden="true" />
+          <span key={item.label} className="flex items-center gap-2 text-xs font-medium text-navy-foreground/75">
+            <item.icon size={ICON_SIZE.sm} className="text-primary" aria-hidden="true" />
             {item.label}
           </span>
         ))}

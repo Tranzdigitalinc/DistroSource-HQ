@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { User, Package, Heart, Settings, LifeBuoy, LogOut, LogIn } from "@/lib/storefront-icons"
+import { User, Package, Heart, Library, Settings, LifeBuoy, LogOut, ICON_SIZE } from "@/lib/storefront-icons"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,28 +12,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
 import { useSession, signOut } from "@/lib/auth-client"
+
+const triggerClass =
+  "flex h-10 items-center gap-2 rounded-md px-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
 export function AccountMenu() {
   const { data: session, isPending } = useSession()
   const router = useRouter()
 
   if (isPending) {
-    return <div className="size-10 animate-pulse rounded-full bg-secondary" />
+    return <div className="h-10 w-10 animate-pulse rounded-md bg-secondary xl:w-24" aria-hidden="true" />
   }
 
   if (!session?.user) {
     return (
-      <Button
-        variant="ghost"
-        size="icon"
-        className="group size-10 rounded-full border border-transparent transition-all hover:border-accent/30 hover:bg-accent/10 hover:text-accent"
-        nativeButton={false}
-        render={<Link href="/sign-in" aria-label="Sign in" />}
-      >
-        <LogIn className="transition-transform duration-200 group-hover:scale-110" />
-      </Button>
+      <Link href="/sign-in" className={triggerClass}>
+        <User size={ICON_SIZE.nav} aria-hidden="true" />
+        <span className="hidden xl:inline">Sign in</span>
+      </Link>
     )
   }
 
@@ -54,21 +51,16 @@ export function AccountMenu() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <button
-            type="button"
-            aria-label="Open account menu"
-            className="flex size-10 items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-bold text-primary-foreground shadow-md shadow-primary/25 ring-1 ring-primary/35 transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/30"
-          />
-        }
-      >
-        {initials}
+      <DropdownMenuTrigger render={<button type="button" aria-label="Account menu" className={triggerClass} />}>
+        <span className="flex size-7 items-center justify-center rounded-full bg-navy font-mono text-[11px] font-bold text-navy-foreground" aria-hidden="true">
+          {initials}
+        </span>
+        <span className="hidden xl:inline">Account</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-60 rounded-lg">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="px-2 py-1.5">
-            <p className="text-sm font-medium text-foreground">{session.user.name}</p>
+            <p className="text-sm font-semibold text-foreground">{session.user.name}</p>
             <p className="truncate text-xs text-muted-foreground">{session.user.email}</p>
           </DropdownMenuLabel>
         </DropdownMenuGroup>
@@ -76,11 +68,15 @@ export function AccountMenu() {
         <DropdownMenuGroup>
           <DropdownMenuItem render={<Link href="/account" />}>
             <User data-icon="inline-start" />
-            Account overview
+            Overview
+          </DropdownMenuItem>
+          <DropdownMenuItem render={<Link href="/account/library" />}>
+            <Library data-icon="inline-start" />
+            My Library
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link href="/account/orders" />}>
             <Package data-icon="inline-start" />
-            My orders
+            Orders
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link href="/account/wishlist" />}>
             <Heart data-icon="inline-start" />

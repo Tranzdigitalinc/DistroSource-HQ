@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" font-family="Archivo, Inter, 'Helvetica Neue', Arial, sans-serif">
+<rect width="1200" height="900" fill="#F7F3EC"/><rect x="300" y="60" width="600" height="780" rx="3" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="300" y="60" width="600" height="12" rx="0" fill="#E0721F" stroke="none" stroke-width="1"/>
+<text x="360" y="220" font-size="12" fill="#6B6259" font-weight="700" text-anchor="start" opacity="1">INVOICE</text>
+<text x="360" y="300" font-size="32" fill="#2A2521" font-weight="800" text-anchor="start" opacity="1">Invoice and Proposal</text>
+<path d="M360 336 h140" stroke="#E0721F" stroke-width="3"/>
+<text x="360" y="392" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Prepared for</text>
+<text x="360" y="414" font-size="15" fill="#2A2521" font-weight="600" text-anchor="start" opacity="1">Maple Row</text>
+<text x="360" y="464" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Prepared by</text>
+<text x="360" y="486" font-size="15" fill="#2A2521" font-weight="600" text-anchor="start" opacity="1">L. Moreau</text>
+<text x="360" y="770" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Apr 2024</text></svg>

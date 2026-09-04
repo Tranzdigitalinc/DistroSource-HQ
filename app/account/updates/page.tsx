@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Sparkles, RefreshCw } from "lucide-react"
+import { Sparkles, RefreshCw } from "@/lib/storefront-icons"
 import { getUserProductUpdates } from "@/lib/actions/account"
 import { formatDate } from "@/lib/format"
 import { Badge } from "@/components/ui/badge"

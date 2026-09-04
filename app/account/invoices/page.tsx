@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { FileText, ChevronRight } from "lucide-react"
+import { FileText, ChevronRight } from "@/lib/storefront-icons"
 import { getUserInvoices } from "@/lib/actions/account"
 import { formatDate } from "@/lib/format"
 import { PriceDisplay } from "@/components/price-display"

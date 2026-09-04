@@ -1,13 +1,13 @@
 import Link from "next/link"
-import { Download, Library } from "lucide-react"
+import { ArrowRight, Library, ICON_SIZE } from "@/lib/storefront-icons"
 import { getUserLibrary } from "@/lib/actions/account"
-import { formatLicenseType } from "@/lib/format"
+import { getCategoryNamesByIds } from "@/lib/queries/catalog"
+import { LibraryGrid, type LibraryItem } from "@/components/account/library-grid"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
+import { Reveal } from "@/components/motion/reveal"
 
 export const metadata = {
-  title: "My library — DistroSource",
+  title: "My Library — DistroSource",
 }
 
 export default async function AccountLibraryPage() {
@@ -15,45 +15,50 @@ export default async function AccountLibraryPage() {
 
   if (library.length === 0) {
     return (
-      <Reveal className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-secondary/30 py-16 text-center">
-        <Library className="size-8 text-muted-foreground" aria-hidden="true" />
-        <p className="text-sm text-muted-foreground">You don&apos;t own any products yet.</p>
-        <Button size="sm" render={<Link href="/products" />} nativeButton={false}>
+      <Reveal className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-lg border border-border bg-card px-6 py-16 text-center">
+        <span className="flex size-14 items-center justify-center rounded-full bg-secondary text-muted-foreground">
+          <Library size={ICON_SIZE.feature} aria-hidden="true" />
+        </span>
+        <div>
+          <h2 className="font-display text-lg font-bold">Your library is empty</h2>
+          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">Products you buy appear here, ready to download whenever you need them.</p>
+        </div>
+        <Button render={<Link href="/products" />} nativeButton={false} className="font-semibold">
           Browse products
+          <ArrowRight size={ICON_SIZE.base} aria-hidden="true" />
         </Button>
       </Reveal>
     )
   }
 
+  const categoryNames = await getCategoryNamesByIds(library.map((r) => r.product.categoryId))
+
+  const items: LibraryItem[] = library.map((row) => ({
+    entitlementId: row.entitlement.id,
+    purchasedAt: new Date(row.entitlement.createdAt).toISOString(),
+    product: {
+      id: row.product.id,
+      slug: row.product.slug,
+      name: row.product.name,
+      imageUrl: row.product.thumbnailUrl ?? row.product.coverImageUrl ?? null,
+      categoryName: categoryNames.get(row.product.categoryId) ?? null,
+      version: row.product.currentVersion,
+      fileFormats: row.product.fileFormats,
+      hasDocumentation: Boolean(row.product.documentation),
+    },
+    licenseType: row.license.licenseType,
+    files: row.files.map((f) => ({ id: f.id, name: f.fileName })),
+  }))
+
   return (
-    <RevealGroup className="flex flex-col gap-4" stagger={0.05}>
-      {library.map((row) => (
-        <RevealItem key={row.entitlement.id}>
-          <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <p className="truncate text-sm font-semibold">{row.product.name}</p>
-                <Badge variant="secondary">{formatLicenseType(row.license.licenseType)}</Badge>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Purchased {new Date(row.entitlement.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {row.files.length === 0 ? (
-                <span className="text-xs text-muted-foreground">No files available yet</span>
-              ) : (
-                row.files.map((file) => (
-                  <Button key={file.id} size="sm" variant="outline" className="bg-transparent" render={<a href={`/api/downloads/${file.id}`} />} nativeButton={false}>
-                    <Download className="size-3.5" />
-                    {file.fileName}
-                  </Button>
-                ))
-              )}
-            </div>
-          </div>
-        </RevealItem>
-      ))}
-    </RevealGroup>
+    <div className="flex flex-col gap-5">
+      <div>
+        <h2 className="font-display text-xl font-bold tracking-tight">My Library</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {items.length} {items.length === 1 ? "product" : "products"} you own. Re-download any time.
+        </p>
+      </div>
+      <LibraryGrid items={items} />
+    </div>
   )
 }

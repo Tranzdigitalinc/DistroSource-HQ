@@ -1,4 +1,5 @@
 import { Resend } from "resend"
+import { getAuthBaseUrl } from "@/lib/env"
 
 function getResend() {
   const apiKey = process.env.RESEND_API_KEY
@@ -88,7 +89,10 @@ function formatLicenseLabel(licenseType: string) {
 }
 
 function getSiteUrl() {
-  return process.env.BETTER_AUTH_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
+  // Centralized so an emailed link can never point a real customer at
+  // localhost. getAuthBaseUrl() throws in production rather than sending a
+  // password-reset or cart-recovery link nobody can open.
+  return getAuthBaseUrl()
 }
 
 export async function sendAbandonedCartEmail(to: string, recoveryUrl: string, subtotalUsd: number) {

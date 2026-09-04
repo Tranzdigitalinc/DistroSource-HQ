@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" font-family="Archivo, Inter, 'Helvetica Neue', Arial, sans-serif">
+<rect width="1200" height="900" fill="#F7F3EC"/><text x="60" y="66" font-size="20" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Slide overview</text>
+<rect x="60" y="96" width="258" height="242" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="60" y="96" width="258" height="34" rx="8" fill="#F7F3EC" stroke="none" stroke-width="1"/>
+<text x="74" y="118" font-size="10.5" fill="#6B6259" font-weight="600" text-anchor="start" opacity="1">1. Title</text>
+<text x="74" y="196" font-size="17" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Headline</text><text x="74" y="218" font-size="10" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Supporting line</text><rect x="338" y="96" width="258" height="242" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="338" y="96" width="258" height="34" rx="8" fill="#F7F3EC" stroke="none" stroke-width="1"/>
+<text x="352" y="118" font-size="10.5" fill="#6B6259" font-weight="600" text-anchor="start" opacity="1">2. Agenda</text>
+<rect x="352" y="152" width="230" height="34" rx="4" fill="#F7F3EC" stroke="none" stroke-width="1"/><rect x="352" y="196" width="230" height="34" rx="4" fill="#F7F3EC" stroke="none" stroke-width="1"/><rect x="352" y="240" width="230" height="34" rx="4" fill="#F7F3EC" stroke="none" stroke-width="1"/><rect x="616" y="96" width="258" height="242" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="616" y="96" width="258" height="34" rx="8" fill="#F7F3EC" stroke="none" stroke-width="1"/>
+<text x="630" y="118" font-size="10.5" fill="#6B6259" font-weight="600" text-anchor="start" opacity="1">3. Problem</text>
+<rect x="638" y="250" width="40" height="32" rx="3" fill="#D9CFC2"/><rect x="694" y="265" width="40" height="64" rx="3" fill="#D9CFC2"/><rect x="750" y="257" width="40" height="48" rx="3" fill="#D9CFC2"/><rect x="806" y="172" width="40" height="21" rx="3" fill="#E0721F"/><rect x="894" y="96" width="258" height="242" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="894" y="96" width="258" height="34" rx="8" fill="#F7F3EC" stroke="none" stroke-width="1"/>
+<text x="908" y="118" font-size="10.5" fill="#6B6259" font-weight="600" text-anchor="start" opacity="1">4. Solution</text>
+<text x="908" y="196" font-size="17" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Headline</text><text x="908" y="218" font-size="10" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Supporting line</text><rect x="60" y="358" width="258" height="242" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="60" y="358" width="258" height="34" rx="8" fill="#F7F3EC" stroke="none" stroke-width="1"/>
+<text x="74" y="380" font-size="10.5" fill="#6B6259" font-weight="600" text-anchor="start" opacity="1">5. Market</text>
+<rect x="74" y="414" width="230" height="34" rx="4" fill="#F7F3EC" stroke="none" stroke-width="1"/><rect x="74" y="458" width="230" height="34" rx="4" fill="#F7F3EC" stroke="none" stroke-width="1"/><rect x="74" y="502" width="230" height="34" rx="4" fill="#F7F3EC" stroke="none" stroke-width="1"/><rect x="338" y="358" width="258" height="242" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="338" y="358" width="258" height="34" rx="8" fill="#F7F3EC" stroke="none" stroke-width="1"/>
+<text x="352" y="380" font-size="10.5" fill="#6B6259" font-weight="600" text-anchor="start" opacity="1">6. Product</text>
+<rect x="360" y="470" width="40" height="73" rx="3" fill="#D9CFC2"/><rect x="416" y="502" width="40" height="99" rx="3" fill="#D9CFC2"/><rect x="472" y="439" width="40" height="92" rx="3" fill="#D9CFC2"/><rect x="528" y="506" width="40" height="36" rx="3" fill="#E0721F"/><rect x="616" y="358" width="258" height="242" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="616" y="358" width="258" height="34" rx="8" fill="#F7F3EC" stroke="none" stroke-width="1"/>
+<text x="630" y="380" font-size="10.5" fill="#6B6259" font-weight="600" text-anchor="start" opacity="1">7. Traction</text>
+<text x="630" y="458" font-size="17" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Headline</text><text x="630" y="480" font-size="10" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Supporting line</text><rect x="894" y="358" width="258" height="242" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="894" y="358" width="258" height="34" rx="8" fill="#F7F3EC" stroke="none" stroke-width="1"/>
+<text x="908" y="380" font-size="10.5" fill="#6B6259" font-weight="600" text-anchor="start" opacity="1">8. Model</text>
+<rect x="908" y="414" width="230" height="34" rx="4" fill="#F7F3EC" stroke="none" stroke-width="1"/><rect x="908" y="458" width="230" height="34" rx="4" fill="#F7F3EC" stroke="none" stroke-width="1"/><rect x="908" y="502" width="230" height="34" rx="4" fill="#F7F3EC" stroke="none" stroke-width="1"/><rect x="60" y="620" width="258" height="242" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="60" y="620" width="258" height="34" rx="8" fill="#F7F3EC" stroke="none" stroke-width="1"/>
+<text x="74" y="642" font-size="10.5" fill="#6B6259" font-weight="600" text-anchor="start" opacity="1">9. Team</text>
+<rect x="82" y="755" width="40" height="52" rx="3" fill="#D9CFC2"/><rect x="138" y="691" width="40" height="99" rx="3" fill="#D9CFC2"/><rect x="194" y="738" width="40" height="86" rx="3" fill="#D9CFC2"/><rect x="250" y="725" width="40" height="105" rx="3" fill="#E0721F"/><rect x="338" y="620" width="258" height="242" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="338" y="620" width="258" height="34" rx="8" fill="#F7F3EC" stroke="none" stroke-width="1"/>
+<text x="352" y="642" font-size="10.5" fill="#6B6259" font-weight="600" text-anchor="start" opacity="1">10. Roadmap</text>
+<text x="352" y="720" font-size="17" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Headline</text><text x="352" y="742" font-size="10" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Supporting line</text><rect x="616" y="620" width="258" height="242" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="616" y="620" width="258" height="34" rx="8" fill="#F7F3EC" stroke="none" stroke-width="1"/>
+<text x="630" y="642" font-size="10.5" fill="#6B6259" font-weight="600" text-anchor="start" opacity="1">11. Financials</text>
+<rect x="630" y="676" width="230" height="34" rx="4" fill="#F7F3EC" stroke="none" stroke-width="1"/><rect x="630" y="720" width="230" height="34" rx="4" fill="#F7F3EC" stroke="none" stroke-width="1"/><rect x="630" y="764" width="230" height="34" rx="4" fill="#F7F3EC" stroke="none" stroke-width="1"/><rect x="894" y="620" width="258" height="242" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="894" y="620" width="258" height="34" rx="8" fill="#F7F3EC" stroke="none" stroke-width="1"/>
+<text x="908" y="642" font-size="10.5" fill="#6B6259" font-weight="600" text-anchor="start" opacity="1">12. Close</text>
+<rect x="916" y="766" width="40" height="36" rx="3" fill="#D9CFC2"/><rect x="972" y="741" width="40" height="48" rx="3" fill="#D9CFC2"/><rect x="1028" y="708" width="40" height="50" rx="3" fill="#D9CFC2"/><rect x="1084" y="737" width="40" height="91" rx="3" fill="#E0721F"/></svg>

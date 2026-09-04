@@ -5,6 +5,16 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Elevation scale — borders define cards, shadow is for floating surfaces only.
+     e1 hairline lift (cards, sticky summary)
+     e2 raised control (buttons on hover, popovers)
+     e3 floating panel (dropdowns, mega menu, quick preview)
+     e4 modal / dialog */
+  --shadow-e1: 0 1px 2px 0 oklch(0 0 0 / 0.04);
+  --shadow-e2: 0 1px 3px 0 oklch(0 0 0 / 0.06), 0 1px 2px -1px oklch(0 0 0 / 0.04);
+  --shadow-e3: 0 8px 24px -6px oklch(0 0 0 / 0.10), 0 2px 6px -2px oklch(0 0 0 / 0.05);
+  --shadow-e4: 0 24px 48px -12px oklch(0 0 0 / 0.18), 0 4px 12px -4px oklch(0 0 0 / 0.06);
+
   --font-sans: var(--font-archivo), 'Archivo Fallback', sans-serif;
   --font-display: var(--font-archivo), 'Archivo Fallback', sans-serif;
   --font-mono: var(--font-jetbrains), 'JetBrains Mono Fallback', ui-monospace, monospace;
@@ -192,7 +202,7 @@
   --chart-3: oklch(0.769 0.188 70.08); /* lighter amber */
   --chart-4: oklch(0.6 0.13 145); /* green */
   --chart-5: oklch(0.55 0.01 55); /* mid gray */
-  --radius: 0.3rem;
+  --radius: 0.5rem;
   --sidebar: oklch(0.99 0.002 75);
   --sidebar-foreground: oklch(0.17 0.006 55);
   --sidebar-primary: oklch(0.666 0.179 58.318);

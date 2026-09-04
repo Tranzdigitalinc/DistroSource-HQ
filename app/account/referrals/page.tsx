@@ -1,5 +1,5 @@
 import { headers } from "next/headers"
-import { Gift, Users } from "lucide-react"
+import { Gift, Users } from "@/lib/storefront-icons"
 import { getOrCreateMyReferralCode, getMyReferralStats } from "@/lib/actions/referrals"
 import { CopyReferralLink } from "@/components/account/copy-referral-link"
 import { Badge } from "@/components/ui/badge"

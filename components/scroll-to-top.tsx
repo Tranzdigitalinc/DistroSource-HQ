@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
-import { ArrowUp } from "lucide-react"
+import { ArrowUp } from "@/lib/storefront-icons"
 
 export function ScrollToTop() {
   const [visible, setVisible] = useState(false)

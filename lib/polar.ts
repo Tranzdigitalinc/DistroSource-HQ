@@ -1,17 +1,16 @@
 import "server-only"
 
 import { Polar } from "@polar-sh/sdk"
+import { getPolarServer, requireEnv } from "@/lib/env"
 
-function required(name: string) {
-  const value = process.env[name]
-  if (!value) throw new Error(`${name} is not configured.`)
-  return value
-}
+const required = requireEnv
 
 export function getPolarClient() {
   return new Polar({
     accessToken: required("POLAR_ACCESS_TOKEN"),
-    server: process.env.POLAR_SERVER === "production" ? "production" : "sandbox",
+    // Defaults to sandbox: a missing/typo'd POLAR_SERVER must never silently
+    // move real money.
+    server: getPolarServer(),
   })
 }
 

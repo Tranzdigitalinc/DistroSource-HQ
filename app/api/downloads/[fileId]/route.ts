@@ -2,6 +2,7 @@ import { get } from "@vercel/blob"
 import { type NextRequest, NextResponse } from "next/server"
 import { authorizeDownload } from "@/lib/downloads"
 import { getOptionalUserId } from "@/lib/session"
+import { RATE_LIMITS, RateLimitError, enforceRateLimit } from "@/lib/rate-limit"
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ fileId: string }> }) {
   const { fileId } = await params
@@ -13,6 +14,20 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const userId = await getOptionalUserId()
   if (!userId) {
     return NextResponse.json({ error: "Sign in required" }, { status: 401 })
+  }
+
+  // Per-user, not per-IP: this guards against one account bulk-scraping the
+  // library it has access to, which an IP key would not catch behind CGNAT.
+  try {
+    await enforceRateLimit("download", RATE_LIMITS.download, userId)
+  } catch (error) {
+    if (error instanceof RateLimitError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 429, headers: { "Retry-After": String(error.retryAfter) } },
+      )
+    }
+    throw error
   }
 
   const ipAddress = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null

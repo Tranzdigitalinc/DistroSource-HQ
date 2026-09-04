@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { toast } from "sonner"
-import { Loader2, CheckCircle2 } from "lucide-react"
+import { Loader2, CheckCircle2 } from "@/lib/storefront-icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -39,7 +39,7 @@ export function TeamLicensingForm() {
         })
         setSubmitted(true)
         form.reset()
-        toast.success("Request sent", { description: "Our team will follow up within one business day." })
+        toast.success("Request sent", { description: "We'll follow up by email. Typical response within 1 business day." })
       } catch {
         toast.error("Something went wrong. Please try again.")
       }
@@ -48,12 +48,12 @@ export function TeamLicensingForm() {
 
   if (submitted) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-10 text-center">
-        <CheckCircle2 className="size-10 text-primary" />
-        <h2 className="font-display text-xl font-semibold">Request received</h2>
-        <p className="max-w-sm text-sm text-muted-foreground">
-          Thanks for reaching out. A member of our team will contact you within one business day to discuss agency
-          and team licensing.
+      <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card p-10 text-center">
+        <CheckCircle2 className="size-10 text-success" />
+        <h2 className="font-display text-xl font-bold">Request received</h2>
+        <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
+          Thanks for reaching out. We&apos;ll reply by email to discuss agency and team licensing. Typical response
+          within 1 business day.
         </p>
       </div>
     )

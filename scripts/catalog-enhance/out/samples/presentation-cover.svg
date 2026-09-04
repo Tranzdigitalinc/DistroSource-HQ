@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" font-family="Archivo, Inter, 'Helvetica Neue', Arial, sans-serif">
+<rect width="1200" height="900" fill="#F7F3EC"/><rect x="60" y="60" width="1080" height="780" rx="10" fill="#2A2521" stroke="none" stroke-width="1"/>
+<text x="120" y="380" font-size="15" fill="#E0721F" font-weight="700" text-anchor="start" opacity="1">Pitchdeck</text>
+<text x="120" y="452" font-size="46" fill="#FFFDFA" font-weight="800" text-anchor="start" opacity="1">Investor Pitch</text>
+<text x="120" y="494" font-size="16" fill="#C9BFB2" font-weight="400" text-anchor="start" opacity="1">A cover layout with room for a real title and subtitle.</text>
+<path d="M120 540 h180" stroke="#E0721F" stroke-width="3"/>
+<text x="120" y="780" font-size="12.5" fill="#9B9186" font-weight="400" text-anchor="start" opacity="1">D. Castellanos · Feb 2025</text></svg>

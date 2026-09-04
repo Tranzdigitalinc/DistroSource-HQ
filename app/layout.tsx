@@ -8,7 +8,6 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion/motion-provider'
 import { ScrollToTop } from '@/components/scroll-to-top'
 import { ResizeObserverErrorGuard } from '@/components/resize-observer-error-guard'
-import { BrowserVerificationGate } from '@/components/security/browser-verification-gate'
 import { VisitorTracker } from '@/components/analytics/visitor-tracker'
 import { ScrollProgress } from '@/components/velora/scroll-progress'
 import './globals.css'
@@ -78,9 +77,7 @@ export default async function RootLayout({
         <ScrollProgress />
         <MotionProvider>
           <ThemeProvider>
-            <BrowserVerificationGate>
-              <TooltipProvider>{children}</TooltipProvider>
-            </BrowserVerificationGate>
+            <TooltipProvider>{children}</TooltipProvider>
             <Toaster position="bottom-right" richColors />
             <ScrollToTop />
           </ThemeProvider>

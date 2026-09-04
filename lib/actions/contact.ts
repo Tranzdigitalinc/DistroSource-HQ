@@ -1,6 +1,7 @@
 "use server"
 
 import { Resend } from "resend"
+import { RATE_LIMITS, enforceRateLimit } from "@/lib/rate-limit"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "DistroSource <support@distrosource.com>"
@@ -9,12 +10,17 @@ const SUPPORT_INBOX = "support@distrosource.com"
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const TOPIC_LABELS: Record<string, string> = {
-  order: "Order or download issue",
-  billing: "Billing or payment",
-  account: "Account access",
+  order: "Order",
+  download: "Download",
+  licensing: "Licensing",
+  billing: "Billing",
+  refund: "Refund",
+  account: "Account",
+  product: "Product question",
+  technical: "Technical issue",
   business: "Business & team licensing",
   partnership: "Partnership",
-  other: "Something else",
+  other: "Other",
 }
 
 export async function submitContactMessage(input: {
@@ -23,6 +29,9 @@ export async function submitContactMessage(input: {
   topic: string
   message: string
 }) {
+  // Public, unauthenticated, and sends mail — the classic spam relay target.
+  await enforceRateLimit("contact", RATE_LIMITS.contact)
+
   const name = input.name.trim()
   const email = input.email.trim()
   const message = input.message.trim()

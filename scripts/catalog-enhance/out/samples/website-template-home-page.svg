@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" font-family="Archivo, Inter, 'Helvetica Neue', Arial, sans-serif">
+<rect width="1200" height="900" fill="#F7F3EC"/><rect x="40" y="40" width="1120" height="820" rx="12" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<path d="M40 76 h1120" stroke="#E2DCD3" stroke-width="1"/>
+<circle cx="66" cy="58" r="5" fill="#E2DCD3"/><circle cx="84" cy="58" r="5" fill="#E2DCD3"/><circle cx="102" cy="58" r="5" fill="#E2DCD3"/>
+<text x="126" y="63" font-size="12" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">harborline.example</text>
+<rect x="40" y="77" width="1120" height="66" rx="0" fill="#FFFDFA" stroke="none" stroke-width="1"/>
+<text x="76" y="118" font-size="17" fill="#2A2521" font-weight="800" text-anchor="start" opacity="1">Harborline</text>
+<text x="360" y="118" font-size="12.5" fill="#2A2521" font-weight="600" text-anchor="start" opacity="1">Home</text><text x="468" y="118" font-size="12.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Services</text><text x="576" y="118" font-size="12.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Work</text><text x="684" y="118" font-size="12.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">About</text><text x="792" y="118" font-size="12.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Contact</text>
+<rect x="1010" y="100" width="130" height="36" rx="6" fill="#E0721F" stroke="none" stroke-width="1"/>
+<text x="1075" y="123" font-size="12" fill="#fff" font-weight="600" text-anchor="middle" opacity="1">Enquire</text>
+<path d="M40 143 h1120" stroke="#E2DCD3"/>
+<rect x="76" y="176" width="1048" height="300" rx="10" fill="#F7F3EC" stroke="#E2DCD3" stroke-width="1"/>
+<text x="120" y="268" font-size="40" fill="#2A2521" font-weight="800" text-anchor="start" opacity="1">Agency Website</text>
+<text x="120" y="306" font-size="15" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">A clear headline, a supporting sentence, and one obvious next step.</text>
+<rect x="120" y="332" width="168" height="46" rx="8" fill="#E0721F" stroke="none" stroke-width="1"/>
+<text x="204" y="361" font-size="13.5" fill="#fff" font-weight="600" text-anchor="middle" opacity="1">Get started</text>
+<rect x="304" y="332" width="150" height="46" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<text x="379" y="361" font-size="13.5" fill="#2A2521" font-weight="600" text-anchor="middle" opacity="1">Learn more</text>
+<rect x="76" y="504" width="332" height="150" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="100" y="528" width="40" height="40" rx="8" fill="#FBEADC" stroke="none" stroke-width="1"/>
+<text x="100" y="596" font-size="15" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Built to adapt</text>
+<text x="100" y="620" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">One line describing the benefit.</text><rect x="432" y="504" width="332" height="150" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="456" y="528" width="40" height="40" rx="8" fill="#FBEADC" stroke="none" stroke-width="1"/>
+<text x="456" y="596" font-size="15" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Readable code</text>
+<text x="456" y="620" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">One line describing the benefit.</text><rect x="788" y="504" width="332" height="150" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="812" y="528" width="40" height="40" rx="8" fill="#FBEADC" stroke="none" stroke-width="1"/>
+<text x="812" y="596" font-size="15" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Fast to deploy</text>
+<text x="812" y="620" font-size="11.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">One line describing the benefit.</text>
+<rect x="76" y="678" width="1048" height="142" rx="10" fill="#2A2521" stroke="none" stroke-width="1"/>
+<text x="600" y="738" font-size="22" fill="#FFFDFA" font-weight="700" text-anchor="middle" opacity="1">Ready to start?</text>
+<text x="600" y="766" font-size="13" fill="#D9CFC2" font-weight="400" text-anchor="middle" opacity="1">A single closing call to action.</text></svg>

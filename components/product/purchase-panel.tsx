@@ -4,20 +4,22 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "motion/react"
-import { Heart, Minus, Plus, ShoppingCart, Check, Download } from "@/lib/storefront-icons"
+import { Check, Download, FileText, Heart, Loader2, Lock, ShoppingCart, ICON_SIZE } from "@/lib/storefront-icons"
 import { Button } from "@/components/ui/button"
 import { PriceDisplay } from "@/components/price-display"
+import { LicenseSelector, type LicenseOption } from "@/components/product/license-selector"
 import { addToCart } from "@/lib/actions/cart"
 import { toggleWishlist } from "@/lib/actions/wishlist"
-import { formatLicenseType } from "@/lib/format"
+import { licenseLabel } from "@/lib/licenses"
 import { mutate } from "swr"
 import { cn } from "@/lib/utils"
 
-interface License {
-  id: number
-  licenseType: string
-  price: string
-  description: string | null
+export interface PurchaseMeta {
+  formats?: string[]
+  software?: string[]
+  version?: string
+  updatedAt?: string
+  hasDocumentation?: boolean
 }
 
 export function PurchasePanel({
@@ -25,173 +27,165 @@ export function PurchasePanel({
   licenses,
   initialWishlisted,
   isPreviewOnly = false,
+  meta,
 }: {
   productId: number
-  licenses: License[]
+  licenses: LicenseOption[]
   initialWishlisted: boolean
   isPreviewOnly?: boolean
+  meta?: PurchaseMeta
 }) {
   const router = useRouter()
   const [selectedId, setSelectedId] = useState(licenses[0]?.id)
-  const [quantity, setQuantity] = useState(1)
   const [wishlisted, setWishlisted] = useState(initialWishlisted)
-  const [isPending, startTransition] = useTransition()
+  const [isAdding, startAdd] = useTransition()
+  const [isBuying, startBuy] = useTransition()
+  const [isSaving, startSaving] = useTransition()
   const [justAdded, setJustAdded] = useState(false)
 
   const selected = licenses.find((l) => l.id === selectedId) ?? licenses[0]
 
+  async function add() {
+    await addToCart(productId, selected.id, 1)
+    await mutate("/api/cart/summary")
+    await mutate("cart-count")
+  }
+
   function handleAddToCart() {
-    startTransition(async () => {
+    startAdd(async () => {
       try {
-        await addToCart(productId, selected.id, quantity)
-        await mutate("/api/cart/summary")
+        await add()
         router.refresh()
         setJustAdded(true)
-        toast.success("Added to cart", {
-          description: `${formatLicenseType(selected.licenseType)} license x${quantity}`,
-        })
+        toast.success("Added to cart", { description: `${licenseLabel(selected.licenseType)} licence` })
         setTimeout(() => setJustAdded(false), 2000)
-      } catch {
-        toast.error("Couldn't add this to your cart. Please try again.")
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Couldn't add this to your cart. Please try again.")
+      }
+    })
+  }
+
+  /** Add the selected licence, then go straight to the cart review before payment. */
+  function handleBuyNow() {
+    startBuy(async () => {
+      try {
+        await add()
+        router.push("/checkout")
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Couldn't start checkout. Please try again.")
       }
     })
   }
 
   function handleWishlist() {
-    startTransition(async () => {
+    startSaving(async () => {
       try {
         const result = await toggleWishlist(productId)
         setWishlisted(result.wishlisted)
-        toast.success(result.wishlisted ? "Added to wishlist" : "Removed from wishlist")
+        toast.success(result.wishlisted ? "Saved to wishlist" : "Removed from wishlist")
       } catch {
-        toast.error("Please sign in to use your wishlist")
+        toast.error("Sign in to use your wishlist")
         router.push("/sign-in")
       }
     })
   }
 
   if (!selected) return null
+  const busy = isAdding || isBuying
+
+  const facts = [
+    meta?.formats?.length ? ["Formats", meta.formats.map((f) => f.toUpperCase()).join(", ")] : null,
+    meta?.software?.length ? ["Compatibility", meta.software.join(", ")] : null,
+    meta?.version ? ["Version", `v${meta.version}`] : null,
+    meta?.updatedAt ? ["Last updated", meta.updatedAt] : null,
+  ].filter((r): r is [string, string] => Boolean(r))
 
   return (
-    <div className="flex flex-col gap-6 border border-border bg-card p-6">
-      <div>
-        <p className="mb-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-          Choose a license
-        </p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {licenses.map((license) => (
-            <motion.button
-              key={license.id}
-              type="button"
-              onClick={() => { setSelectedId(license.id); setQuantity(1) }}
-              whileTap={{ scale: 0.98 }}
-              className={cn(
-                "relative flex flex-col items-start gap-0.5 border px-3 py-2.5 text-left transition-colors",
-                selectedId === license.id
-                  ? "border-primary bg-primary/5"
-                  : "border-border hover:border-primary/40",
-              )}
-            >
-              <span className="text-sm font-semibold">{formatLicenseType(license.licenseType)}</span>
-              <span className="font-mono text-xs text-muted-foreground">
-                <PriceDisplay usdAmount={Number.parseFloat(license.price)} />
-              </span>
-              {license.description && (
-                <span className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{license.description}</span>
-              )}
-            </motion.button>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between border border-dashed border-border bg-secondary/50 px-4 py-3">
-        <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-          Total
-        </span>
+    <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-e1)]">
+      <div className="border-b border-border px-5 py-4">
         <AnimatePresence mode="popLayout" initial={false}>
-          <motion.span
-            key={`${selected.id}-${quantity}`}
-            initial={{ opacity: 0, y: -6 }}
+          <motion.div
+            key={selected.id}
+            initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 6 }}
-            transition={{ duration: 0.18 }}
-            className="font-mono text-2xl font-bold"
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.16 }}
+            className="flex items-baseline gap-2"
           >
-            <PriceDisplay usdAmount={Number.parseFloat(selected.price) * quantity} />
-          </motion.span>
+            <span className="font-display text-3xl font-bold tabular-nums tracking-tight text-foreground">
+              <PriceDisplay usdAmount={Number.parseFloat(selected.price)} />
+            </span>
+            <span className="font-mono text-xs font-medium uppercase text-muted-foreground">USD</span>
+          </motion.div>
         </AnimatePresence>
+        <p className="mt-0.5 text-xs text-muted-foreground">{licenseLabel(selected.licenseType)} licence · one-time payment</p>
       </div>
 
-      <div className="flex items-center gap-3">
-        <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Qty</p>
-        <div className="flex items-center border border-border">
-          <motion.button
-            type="button"
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
-            disabled={quantity <= 1}
-            aria-label="Decrease quantity"
-          >
-            <Minus className="size-3.5" />
-          </motion.button>
-          <span className="w-8 text-center font-mono text-sm font-medium">{quantity}</span>
-          <motion.button
-            type="button"
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-            className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
-            disabled={quantity >= 10}
-            aria-label="Increase quantity"
-          >
-            <Plus className="size-3.5" />
-          </motion.button>
-        </div>
+      <div className="border-b border-border px-5 py-4">
+        <LicenseSelector licenses={licenses} value={selected.id} onChange={setSelectedId} />
       </div>
 
-      {isPreviewOnly && (
-        <p className="border border-dashed border-border bg-secondary/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
-          This product's downloadable asset is still being prepared and isn&apos;t purchasable yet.
-        </p>
+      {facts.length > 0 && (
+        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 border-b border-border px-5 py-3.5 text-xs">
+          {facts.map(([k, v]) => (
+            <div key={k} className="contents">
+              <dt className="text-muted-foreground">{k}</dt>
+              <dd className="min-w-0 truncate text-foreground">{v}</dd>
+            </div>
+          ))}
+        </dl>
       )}
 
-      <div className="flex items-center gap-2">
-        <Button
-          onClick={handleAddToCart}
-          disabled={isPending || justAdded || isPreviewOnly}
-          className={cn(
-            "h-11 flex-1 rounded-[3px] font-mono text-sm font-semibold uppercase tracking-[0.02em] transition-colors",
-            justAdded && "bg-success hover:bg-success",
-          )}
-        >
-          {justAdded ? (
-            <>
-              <Check className="size-4" />
-              Added!
-            </>
-          ) : (
-            <>
-              <ShoppingCart className="size-4" />
-              {isPreviewOnly ? "Not yet available" : "Add to cart"}
-            </>
-          )}
-        </Button>
-        <Button
-          onClick={handleWishlist}
-          disabled={isPending}
-          variant="outline"
-          size="icon"
-          className="size-11 shrink-0 rounded-[3px] bg-transparent"
-          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-        >
-          <Heart className={cn("size-4.5 transition-all", wishlisted && "fill-destructive text-destructive scale-110")} />
-        </Button>
+      <div className="flex flex-col gap-2.5 px-5 py-4">
+        {isPreviewOnly && (
+          <p className="rounded-md border border-dashed border-border bg-secondary/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+            This product&apos;s downloadable files are still being prepared, so it isn&apos;t purchasable yet.
+          </p>
+        )}
+
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleAddToCart}
+            disabled={busy || justAdded || isPreviewOnly}
+            size="lg"
+            className={cn("h-11 flex-1 font-semibold", justAdded && "bg-success hover:bg-success")}
+          >
+            {isAdding ? <Loader2 size={ICON_SIZE.base} className="animate-spin" aria-hidden="true" /> : justAdded ? <Check size={ICON_SIZE.base} aria-hidden="true" /> : <ShoppingCart size={ICON_SIZE.base} aria-hidden="true" />}
+            {justAdded ? "Added to cart" : isPreviewOnly ? "Not yet available" : "Add to cart"}
+          </Button>
+          <Button
+            onClick={handleWishlist}
+            disabled={isSaving}
+            variant="outline"
+            size="icon"
+            className="size-11 shrink-0 bg-transparent"
+            aria-label={wishlisted ? "Remove from wishlist" : "Save to wishlist"}
+            aria-pressed={wishlisted}
+          >
+            <Heart size={ICON_SIZE.nav} className={cn("transition-transform", wishlisted && "scale-110 fill-destructive text-destructive")} aria-hidden="true" />
+          </Button>
+        </div>
+        {!isPreviewOnly && (
+          <Button onClick={handleBuyNow} disabled={busy} variant="outline" size="lg" className="h-11 w-full bg-transparent font-semibold">
+            {isBuying ? <Loader2 size={ICON_SIZE.base} className="animate-spin" aria-hidden="true" /> : <Lock size={ICON_SIZE.sm} aria-hidden="true" />}
+            Buy now
+          </Button>
+        )}
       </div>
 
-      <div className="flex items-center gap-1.5 font-mono text-[11px] font-medium text-muted-foreground">
-        <Download className="size-3 text-primary" />
-        Instant access — download from My Library right after purchase
-      </div>
+      {/* Reassurance: only statements true for this product. */}
+      <ul className="flex flex-col gap-1.5 border-t border-border bg-secondary/30 px-5 py-3.5">
+        {[
+          { icon: Download, text: "Digital delivery to My Library after payment" },
+          ...(meta?.hasDocumentation ? [{ icon: FileText, text: "Documentation included" }] : []),
+          { icon: Lock, text: "Secure checkout by Polar" },
+        ].map(({ icon: Icon, text }) => (
+          <li key={text} className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Icon size={ICON_SIZE.sm} className="shrink-0 text-success" aria-hidden="true" />
+            {text}
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

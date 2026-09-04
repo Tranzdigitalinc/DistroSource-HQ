@@ -19,6 +19,7 @@ import { getUserId, getOptionalUserId, getOptionalOwnerId, getSession } from "@/
 import { and, desc, eq, inArray } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { sendOrderConfirmationEmail } from "@/lib/email"
+import { requireAdmin } from "@/lib/actions/operations"
 
 const NOTIFICATION_DEFAULTS = {
   productUpdates: true,
@@ -63,13 +64,27 @@ export async function getUserOrders() {
   return db.select().from(orders).where(eq(orders.userId, userId)).orderBy(desc(orders.createdAt))
 }
 
+/**
+ * Order lines plus the product's current slug and thumbnail, so confirmation
+ * and order pages can show a picture and link back to the listing. Read-only;
+ * download access is still decided by entitlements in the library.
+ */
+async function getOrderItemsWithProduct(orderId: number) {
+  const rows = await db
+    .select({ item: orderItems, productSlug: products.slug, thumbnailUrl: products.thumbnailUrl })
+    .from(orderItems)
+    .leftJoin(products, eq(orderItems.productId, products.id))
+    .where(eq(orderItems.orderId, orderId))
+  return rows.map((r) => ({ ...r.item, productSlug: r.productSlug ?? null, imageUrl: r.thumbnailUrl ?? null }))
+}
+
 export async function getOrderByCheckoutId(checkoutId: string) {
   const ownerId = await getOptionalOwnerId()
   if (!ownerId || !checkoutId || checkoutId.length > 100) return null
 
   const [order] = await db.select().from(orders).where(and(eq(orders.polarCheckoutId, checkoutId), eq(orders.userId, ownerId))).limit(1)
   if (!order) return null
-  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id))
+  const items = await getOrderItemsWithProduct(order.id)
   return { order, items }
 }
 
@@ -86,7 +101,7 @@ export async function getOrderByNumber(orderNumber: string) {
   const order = rows[0]
   if (!order || order.userId !== ownerId) return null
 
-  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id))
+  const items = await getOrderItemsWithProduct(order.id)
   return { order, items }
 }
 
@@ -125,6 +140,13 @@ export async function resendOrderConfirmationEmail(orderNumber: string) {
 // customer. Callers MUST gate this behind their own admin check — it is not
 // exported to any customer-facing surface.
 export async function resendOrderConfirmationEmailForAdmin(orderNumber: string) {
+  // Was completely unauthenticated. As a "use server" export this is a public
+  // endpoint, so anyone could resend any order's contents to its billing
+  // address by guessing an order number — order enumeration plus an email
+  // trigger. The customer-facing equivalent is resendOrderConfirmationEmail(),
+  // which is scoped to the caller's own orders.
+  await requireAdmin()
+
   const [order] = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber)).limit(1)
   if (!order) throw new Error("Order not found.")
 
