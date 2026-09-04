@@ -63,6 +63,16 @@ export async function getUserOrders() {
   return db.select().from(orders).where(eq(orders.userId, userId)).orderBy(desc(orders.createdAt))
 }
 
+export async function getOrderByCheckoutId(checkoutId: string) {
+  const ownerId = await getOptionalOwnerId()
+  if (!ownerId || !checkoutId || checkoutId.length > 100) return null
+
+  const [order] = await db.select().from(orders).where(and(eq(orders.polarCheckoutId, checkoutId), eq(orders.userId, ownerId))).limit(1)
+  if (!order) return null
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id))
+  return { order, items }
+}
+
 export async function getOrderByNumber(orderNumber: string) {
   const ownerId = await getOptionalOwnerId()
   if (!ownerId) return null
