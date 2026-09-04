@@ -10,7 +10,7 @@ export default function AcceptableUsePage() {
       title="Acceptable Use Policy"
       updatedAt="January 15, 2025"
       currentHref="/legal/acceptable-use"
-      intro="To keep DistroSource safe, legal, and fair for every customer, we expect all users to follow these guidelines when using the marketplace."
+      intro="To keep DistroSource safe, legal, and fair for every customer, we expect all users to follow these guidelines when using the DistroSource store."
       sections={[
         {
           heading: "1. Prohibited activity",
@@ -18,7 +18,7 @@ export default function AcceptableUsePage() {
             <p>
               You may not use stolen or fraudulent payment methods, exploit promotional codes or referral programs
               outside their intended terms, or automate account creation, purchasing, or scraping of catalog data
-              without written permission. DistroSource is a marketplace for licensed digital products only — we do
+              without written permission. DistroSource sells licensed digital products directly — we do
               not sell and will never list gift cards, stored-value instruments, cryptocurrency, gambling products,
               pirated or cracked software, account sales, malware, adult content, or counterfeit or unauthorized
               intellectual property.

@@ -10,7 +10,7 @@ export default function CookiePolicyPage() {
       title="Cookie Policy"
       updatedAt="January 15, 2025"
       currentHref="/legal/cookie-policy"
-      intro="DistroSource uses cookies and similar technologies to keep you signed in, remember your cart, and understand how the marketplace is used. This page explains the categories of cookies we use."
+      intro="DistroSource uses cookies and similar technologies to keep you signed in, remember your cart, and understand how the DistroSource store is used. This page explains the categories of cookies we use."
       sections={[
         {
           heading: "1. Essential cookies",
@@ -46,7 +46,7 @@ export default function CookiePolicyPage() {
           body: (
             <p>
               To protect against fraudulent orders and account takeover, we use cookies that help detect unusual
-              sign-in or checkout patterns. These are considered essential to keeping the marketplace safe for all
+              sign-in or checkout patterns. These are considered essential to keeping the DistroSource store safe for all
               customers.
             </p>
           ),

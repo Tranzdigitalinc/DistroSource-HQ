@@ -10,13 +10,13 @@ export default function TermsOfServicePage() {
       title="Terms of Service"
       updatedAt="January 15, 2025"
       currentHref="/legal/terms"
-      intro="These Terms of Service govern your access to and use of DistroSource, a digital marketplace for website templates, business systems, creative assets, developer resources, and other downloadable digital products. By creating an account or placing an order, you agree to these terms."
+      intro="These Terms of Service govern your access to and use of DistroSource, a first-party digital products store for website templates, business systems, creative assets, developer resources, and other downloadable products. By creating an account or placing an order, you agree to these terms."
       sections={[
         {
           heading: "1. Who we are",
           body: (
             <p>
-              DistroSource operates an online marketplace that lets customers purchase and download digital
+              DistroSource operates a first-party digital products store that lets customers purchase and download
               products — including templates, design assets, fonts, presentations, Notion systems, spreadsheets,
               3D/STL models, and software boilerplates — created and sold directly by DistroSource. Products are
               fulfilled instantly through your DistroSource account.
