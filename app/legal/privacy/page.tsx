@@ -10,7 +10,7 @@ export default function PrivacyPolicyPage() {
       title="Privacy Policy"
       updatedAt="January 15, 2025"
       currentHref="/legal/privacy"
-      intro="This Privacy Policy explains what information DistroSource collects, how we use it, and the choices you have. We collect only what is needed to process orders, secure your account, and improve the marketplace."
+      intro="This Privacy Policy explains what information DistroSource collects, how we use it, and the choices you have. We collect only what is needed to process orders, secure your account, and improve the DistroSource store."
       sections={[
         {
           heading: "1. Information we collect",

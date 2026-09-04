@@ -15,7 +15,7 @@ export default async function SignInPage({
   if (session?.user) redirect(redirectTo)
 
   return (
-    <AuthShell title="Welcome back" subtitle="Sign in to view your orders, codes, and wishlist.">
+    <AuthShell title="Welcome back" subtitle="Sign in to view your orders, downloads, licenses, and wishlist.">
       <AuthForm mode="sign-in" redirectTo={redirectTo} />
     </AuthShell>
   )

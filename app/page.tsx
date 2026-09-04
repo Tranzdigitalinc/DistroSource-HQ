@@ -10,7 +10,7 @@ import {
   getCategoryTree,
   getFeaturedProducts,
   getProducts,
-  getMarketplaceStats,
+  getStorefrontStats,
 } from "@/lib/queries/catalog"
 import { ShopByGoal } from "@/components/home/shop-by-goal"
 
@@ -26,7 +26,7 @@ export default async function HomePage() {
       cache(() => getProducts({ categorySlug: "web-development", sort: "featured", limit: 8 }), "web-development")(),
       cache(() => getProducts({ categorySlug: "design-resources", sort: "featured", limit: 8 }), "design-resources")(),
       cache(() => getProducts({ categorySlug: "product-bundles", sort: "featured", limit: 8 }), "product-bundles")(),
-      cache(getMarketplaceStats, "stats")(),
+      cache(getStorefrontStats, "stats")(),
     ])
 
   return (

@@ -547,7 +547,7 @@ export async function getCatalogStats() {
   }
 }
 
-export const getMarketplaceStats = getCatalogStats
+export const getStorefrontStats = getCatalogStats
 
 export async function getTopReviews(limit = 8) {
   const rows = await db

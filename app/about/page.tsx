@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { Button } from "@/components/ui/button"
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
-import { getMarketplaceStats } from "@/lib/queries/catalog"
+import { getStorefrontStats } from "@/lib/queries/catalog"
 
 export const metadata = {
   title: "About Us — DistroSource",
@@ -61,7 +61,7 @@ const standards = [
 ]
 
 export default async function AboutPage() {
-  const stats = await getMarketplaceStats()
+  const stats = await getStorefrontStats()
 
   const statCards = [
     { label: "Products in catalog", value: `${stats.productCount.toLocaleString()}+` },

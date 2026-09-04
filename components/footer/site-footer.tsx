@@ -45,6 +45,7 @@ const footerColumns = [
     title: "Company",
     links: [
       { label: "About Us", href: "/about" },
+      { label: "Licenses", href: "/licenses" },
       { label: "Team Licensing", href: "/team-licensing" },
       { label: "Compare Products", href: "/compare" },
     ],
@@ -145,8 +146,7 @@ export function SiteFooter() {
             <div className="max-w-sm">
               <BrandLogo heightClassName="h-28 sm:h-32" />
               <p className="mt-4 text-sm leading-relaxed text-navy-foreground/60">
-                Your one-stop marketplace for website templates, fonts, presentations, Notion systems, and every
-                other digital asset — with instant access to every download.
+                Your source for website templates, fonts, presentations, Notion systems, and other digital products — with instant access to every download.
               </p>
               <div className="mt-5 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.04em] text-navy-foreground/50">
                 <ShieldCheck className="size-4 text-primary" />

@@ -14,7 +14,7 @@ const channels = [
   {
     icon: MessageCircle,
     title: "Order & account support",
-    description: "For download issues, license activation, or account access — fastest way to reach us.",
+    description: "For download issues, licensing questions, or account access — the fastest way to reach us.",
     action: { label: "Visit the Help Center", href: "/help" },
   },
   {
