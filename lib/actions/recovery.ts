@@ -52,8 +52,18 @@ export async function restoreAbandonedCart(token: string) {
   let restoredCount = 0
   for (const item of restorable) {
     if (!availableIds.has(item.licenseId)) continue
-    await addToCart(item.productId, item.licenseId, item.quantity)
-    restoredCount += 1
+    // A snapshotted product can become unpurchasable between abandonment and
+    // recovery (e.g. an admin pauses/unpublishes it or its rights status
+    // changes) — addToCart throws in that case. This runs directly during
+    // the checkout page's Server Component render, so an uncaught throw here
+    // would crash the whole page. Skip items that are no longer eligible
+    // instead of failing the entire restore.
+    try {
+      await addToCart(item.productId, item.licenseId, item.quantity)
+      restoredCount += 1
+    } catch (error) {
+      console.error("[v0] Skipped restoring unavailable cart item:", item.productId, error)
+    }
   }
 
   await db
