@@ -155,11 +155,12 @@ export async function createPolarCheckout(input: {
     })
 
     // externalCustomerId must be the authenticated DistroSource user id, never
-    // a guest cookie id. The checkout form always creates/signs in the account
-    // in prepareAccountForPayment() before calling this action, so session.user
-    // is expected to exist here — but we still gate on it explicitly rather
-    // than trusting ownerId (which falls back to a guest id if that ever
-    // changes) so a guest can never be attributed to a Polar customer record.
+    // a guest cookie id. Checkout no longer requires an account up front — a
+    // guest can pay with just a name and email, and only creates a password
+    // (claiming the resulting order) afterward on the success page — so
+    // session.user is routinely absent here. Gate on it explicitly rather
+    // than trusting ownerId (which falls back to a guest id) so a guest is
+    // never attributed to a Polar customer record.
     const externalCustomerId = session?.user?.id
 
     const clientIp = await getClientIpAddress()

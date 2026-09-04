@@ -12,10 +12,7 @@ import { CheckoutLineItem, type CheckoutItem } from "@/components/checkout/check
 import { OrderSummary } from "@/components/checkout/order-summary"
 import { saveAbandonedCart } from "@/lib/actions/recovery"
 import { createPolarCheckout } from "@/lib/actions/checkout"
-import { mergeGuestCartIntoAccount } from "@/lib/actions/cart"
-import { mergeGuestActivityIntoAccount } from "@/lib/actions/recently-viewed"
-import { authClient } from "@/lib/auth-client"
-import { Download, Eye, EyeOff, Lock, ICON_SIZE } from "@/lib/storefront-icons"
+import { Download, Lock, ICON_SIZE } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
 
 interface CheckoutFormProps {
@@ -113,72 +110,38 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const couponCode = searchParams.get("coupon") ?? undefined
   const [email, setEmail] = useState(defaultEmail)
   const [name, setName] = useState(defaultName)
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [fieldError, setFieldError] = useState<{ name?: string; email?: string; password?: string; confirm?: string }>({})
+  const [fieldError, setFieldError] = useState<{ name?: string; email?: string }>({})
   const [isPending, startTransition] = useTransition()
-  const [isPreparingAccount, setIsPreparingAccount] = useState(false)
   const [polarCheckoutUrl, setPolarCheckoutUrl] = useState<string | null>(null)
   // Signed-in shoppers already have an account, so they start on Review
-  // (step 2). Guests must create/confirm an account first (step 1) before
-  // anything else in checkout is reachable.
+  // (step 2). Guests confirm the name/email their order and receipt go to
+  // first (step 1) — no account or password is required to pay. Guests get
+  // a chance to turn this into a real account afterward, on the success page.
   const [step, setStep] = useState<WizardStep>(isGuest ? 1 : 2)
 
   const discount = Math.round(subtotal * (discountPercent / 100) * 100) / 100
   const total = Math.max(0, subtotal - discount)
   const itemCount = orderItems.reduce((n, i) => n + i.quantity, 0)
-  const isBusy = isPending || isPreparingAccount
-  // The account step is only ever shown to a guest; once the account exists
-  // (or the shopper was already signed in) it collapses into a summary row
-  // on the Review step instead of disappearing entirely.
+  const isBusy = isPending
+  // The account step is only ever shown to a guest; once contact details are
+  // confirmed (or the shopper was already signed in) it collapses into a
+  // summary row on the Review step instead of disappearing entirely.
   const accountConfirmed = step > 1
 
-  /**
-   * Validates contact fields and, for guests, creates the account before any
-   * money moves. Returns false (with field errors shown) instead of throwing.
-   */
-  async function prepareAccountForPayment(): Promise<boolean> {
+  /** Validates the contact fields. Returns false (with field errors shown) instead of throwing. */
+  function validateAccountStep(): boolean {
     const errors: typeof fieldError = {}
     if (!name.trim()) errors.name = "Enter the name for this order."
     if (!EMAIL.test(email.trim())) errors.email = "Enter a valid email address."
-    if (isGuest) {
-      if (password.length < 8) errors.password = "Use at least 8 characters."
-      if (password !== confirmPassword) errors.confirm = "Passwords don't match."
-    }
     setFieldError(errors)
-    if (Object.keys(errors).length) return false
-
-    if (isGuest) {
-      setIsPreparingAccount(true)
-      try {
-        const account = await authClient.signUp.email({ email: email.trim(), password, name: name.trim() })
-        if (account.error) {
-          throw new Error(
-            account.error.code === "USER_ALREADY_EXISTS"
-              ? "An account with this email already exists. Sign in to continue."
-              : (account.error.message ?? "Could not create your account."),
-          )
-        }
-        await Promise.all([mergeGuestCartIntoAccount(), mergeGuestActivityIntoAccount()])
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Could not create your account.")
-        return false
-      } finally {
-        setIsPreparingAccount(false)
-      }
-    }
-    return true
+    return Object.keys(errors).length === 0
   }
 
-  /** Step 1 (Account) → Step 2 (Review). Creates the account for guests. */
+  /** Step 1 (Account) → Step 2 (Review). No account is created here. */
   function handleContinueFromAccount(e: React.FormEvent) {
     e.preventDefault()
-    startTransition(async () => {
-      const ready = await prepareAccountForPayment()
-      if (!ready) return
-      setStep(2)
-    })
+    if (!validateAccountStep()) return
+    setStep(2)
   }
 
   /** Step 2 (Review) → Step 3 (Payment). Creates the Polar checkout session. */
@@ -266,36 +229,9 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               </div>
 
               {isGuest && (
-                <div className="mt-5 border-t border-border pt-4">
-                  <p className="text-sm font-semibold text-foreground">Create a password</p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                    Your purchases live in My Library, so an account is created with this order.
-                  </p>
-                  <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="flex flex-col gap-1.5">
-                      <Label htmlFor="checkout-password">Password</Label>
-                      <div className="relative">
-                        <Input id="checkout-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" aria-invalid={!!fieldError.password} className={cn(inputClass, "pr-11")} />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword((v) => !v)}
-                          aria-label={showPassword ? "Hide password" : "Show password"}
-                          className="absolute right-1.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        >
-                          {showPassword ? <EyeOff size={ICON_SIZE.sm} aria-hidden="true" /> : <Eye size={ICON_SIZE.sm} aria-hidden="true" />}
-                        </button>
-                      </div>
-                      <p className={cn("text-xs", fieldError.password ? "text-destructive" : "text-muted-foreground")} role={fieldError.password ? "alert" : undefined}>
-                        {fieldError.password ?? "At least 8 characters."}
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <Label htmlFor="checkout-confirm-password">Confirm password</Label>
-                      <Input id="checkout-confirm-password" type={showPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" aria-invalid={!!fieldError.confirm} className={inputClass} />
-                      {fieldError.confirm && <p className="text-xs text-destructive" role="alert">{fieldError.confirm}</p>}
-                    </div>
-                  </div>
-                </div>
+                <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+                  No account or password needed to check out — you can save this order to an account afterward.
+                </p>
               )}
             </Section>
           ) : (
@@ -344,7 +280,8 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 <div>
                   <p className="text-sm font-semibold text-foreground">Digital delivery</p>
                   <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
-                    Products are added to My Library after confirmed payment. A receipt is emailed to {email.trim() || "your address"}.
+                    A receipt is emailed to {email.trim() || "your address"}. Once payment is confirmed, you can create a
+                    password to save this order to My Library — or download straight from the confirmation page.
                   </p>
                 </div>
               </div>

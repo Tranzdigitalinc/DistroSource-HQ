@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getOrderByCheckoutId, getOrderByNumber } from "@/lib/actions/account"
+import { getSession } from "@/lib/session"
 import { OrderItemsList } from "@/components/order/order-items-list"
 import { OrderStatusBadge } from "@/components/order/order-status-badge"
 import { OrderStatusPoller } from "@/components/order/order-status-poller"
@@ -8,6 +9,7 @@ import { CopyOrderNumber } from "@/components/order/copy-order-number"
 import { PriceDisplay } from "@/components/price-display"
 import { Button } from "@/components/ui/button"
 import { CheckoutHeader } from "@/components/checkout/checkout-header"
+import { ClaimAccountCard } from "@/components/checkout/claim-account-card"
 import { Reveal } from "@/components/motion/reveal"
 import { ResendConfirmationButton } from "@/components/order/resend-confirmation-button"
 import { ArrowRight, CheckCircle, Clock, Library, Mail, Undo, ICON_SIZE } from "@/lib/storefront-icons"
@@ -81,6 +83,11 @@ export default async function CheckoutSuccessPage({
   if (!data) notFound()
 
   const { order, items } = data
+  // Checkout never requires an account, so a guest can land here having
+  // just paid with nothing but a name and email. The claim card below is
+  // their one chance, right after paying, to turn that into a real account.
+  const session = await getSession()
+  const isGuest = !session?.user
   const isPending = order.status === "pending_payment"
   const isRefunded = order.status === "refunded" || order.status === "partially_refunded"
   const isFailed = order.status === "failed" || order.status === "canceled" || order.status === "expired"
@@ -208,6 +215,12 @@ export default async function CheckoutSuccessPage({
               </div>
             )}
           </Reveal>
+
+          {isGuest && (
+            <Reveal delay={0.18}>
+              <ClaimAccountCard email={order.billingEmail} name={order.billingName} />
+            </Reveal>
+          )}
 
           <Reveal delay={0.2} className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button size="lg" render={<Link href="/account/library" />} nativeButton={false} className="h-12 px-6 font-semibold">
