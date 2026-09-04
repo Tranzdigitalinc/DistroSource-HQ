@@ -4,29 +4,19 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
-import { Loader2, Lock, Mail, ShieldCheck, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { PriceDisplay } from "@/components/price-display"
 import { PolarInlineCheckout } from "@/components/checkout/polar-inline-checkout"
-import { Reveal } from "@/components/motion/reveal"
+import { CheckoutLineItem, type CheckoutItem } from "@/components/checkout/checkout-line-item"
+import { OrderSummary } from "@/components/checkout/order-summary"
 import { saveAbandonedCart } from "@/lib/actions/recovery"
 import { createPolarCheckout } from "@/lib/actions/checkout"
 import { mergeGuestCartIntoAccount } from "@/lib/actions/cart"
 import { mergeGuestActivityIntoAccount } from "@/lib/actions/recently-viewed"
 import { authClient } from "@/lib/auth-client"
-import { formatLicenseType } from "@/lib/format"
+import { Download, Eye, EyeOff, Lock, ICON_SIZE } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
-
-interface OrderItem {
-  productId: number
-  licenseId: number
-  name: string
-  licenseType: string
-  quantity: number
-  unitPriceUsd: string
-}
 
 interface CheckoutFormProps {
   defaultEmail: string
@@ -34,34 +24,44 @@ interface CheckoutFormProps {
   subtotal: number
   discountPercent: number
   isGuest: boolean
-  orderItems: OrderItem[]
+  orderItems: CheckoutItem[]
 }
 
 const FORM_ID = "checkout-form"
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-function detectCardBrand(digits: string): "visa" | "mastercard" | "amex" | null {
-  if (/^4/.test(digits)) return "visa"
-  if (/^5[1-5]/.test(digits)) return "mastercard"
-  if (/^3[47]/.test(digits)) return "amex"
-  return null
-}
-
-function formatCardNumber(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 16)
-  const groups = digits.match(/.{1,4}/g) ?? []
-  return groups.join(" ")
-}
-
-function formatExpiry(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 4)
-  if (digits.length <= 2) return digits
-  return `${digits.slice(0, 2)}/${digits.slice(2)}`
-}
-
-const CARD_BRAND_LABEL: Record<string, string> = {
-  visa: "Visa",
-  mastercard: "Mastercard",
-  amex: "Amex",
+function Section({
+  step,
+  title,
+  description,
+  aside,
+  children,
+}: {
+  step?: number
+  title: string
+  description?: string
+  aside?: React.ReactNode
+  children: React.ReactNode
+}) {
+  return (
+    <section className="rounded-lg border border-border bg-card">
+      <div className="flex flex-col gap-2 border-b border-border px-5 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div className="flex items-start gap-3">
+          {step !== undefined && (
+            <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-foreground font-mono text-[11px] font-bold text-background" aria-hidden="true">
+              {step}
+            </span>
+          )}
+          <div>
+            <h2 className="font-display text-base font-bold text-foreground">{title}</h2>
+            {description && <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">{description}</p>}
+          </div>
+        </div>
+        {aside}
+      </div>
+      <div className="px-5 py-4">{children}</div>
+    </section>
+  )
 }
 
 export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPercent, isGuest, orderItems }: CheckoutFormProps) {
@@ -72,51 +72,44 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const [name, setName] = useState(defaultName)
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [accountError, setAccountError] = useState<string | null>(null)
-  const [cardNumber, setCardNumber] = useState("")
-  const [expiry, setExpiry] = useState("")
-  const [cvc, setCvc] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [fieldError, setFieldError] = useState<{ name?: string; email?: string; password?: string; confirm?: string }>({})
   const [isPending, startTransition] = useTransition()
   const [isPreparingAccount, setIsPreparingAccount] = useState(false)
   const [polarCheckoutUrl, setPolarCheckoutUrl] = useState<string | null>(null)
 
   const discount = Math.round(subtotal * (discountPercent / 100) * 100) / 100
   const total = Math.max(0, subtotal - discount)
-  const cardBrand = detectCardBrand(cardNumber.replace(/\D/g, ""))
-  const formattedTotal = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(total)
+  const itemCount = orderItems.reduce((n, i) => n + i.quantity, 0)
+  const isBusy = isPending || isPreparingAccount
 
   /**
-   * Shared by every payment method: creates the guest's account (if needed)
-   * before any money moves, and validates the contact fields. Returns false
-   * (and surfaces the error) instead of throwing so callers can decide what
-   * to do next, e.g. keep a PayPal popup from opening.
+   * Validates contact fields and, for guests, creates the account before any
+   * money moves. Returns false (with field errors shown) instead of throwing.
    */
   async function prepareAccountForPayment(): Promise<boolean> {
-    if (!name.trim()) {
-      toast.error("Enter the name on this order.")
-      return false
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Enter a valid email address for your order confirmation.")
-      return false
-    }
+    const errors: typeof fieldError = {}
+    if (!name.trim()) errors.name = "Enter the name for this order."
+    if (!EMAIL.test(email.trim())) errors.email = "Enter a valid email address."
     if (isGuest) {
-      if (password.length < 8) {
-        setAccountError("Create a password with at least 8 characters.")
-        return false
-      }
-      if (password !== confirmPassword) {
-        setAccountError("Your passwords do not match.")
-        return false
-      }
-      setAccountError(null)
+      if (password.length < 8) errors.password = "Use at least 8 characters."
+      if (password !== confirmPassword) errors.confirm = "Passwords don't match."
+    }
+    setFieldError(errors)
+    if (Object.keys(errors).length) return false
+
+    if (isGuest) {
       setIsPreparingAccount(true)
       try {
-        const account = await authClient.signUp.email({ email, password, name })
-        if (account.error) throw new Error(account.error.message ?? "Could not create your account.")
-        await mergeGuestCartIntoAccount()
-        await mergeGuestActivityIntoAccount()
-        toast.success("Account created", { description: "Your cart is now saved to your DistroSource account." })
+        const account = await authClient.signUp.email({ email: email.trim(), password, name: name.trim() })
+        if (account.error) {
+          throw new Error(
+            account.error.code === "USER_ALREADY_EXISTS"
+              ? "An account with this email already exists. Sign in to continue."
+              : (account.error.message ?? "Could not create your account."),
+          )
+        }
+        await Promise.all([mergeGuestCartIntoAccount(), mergeGuestActivityIntoAccount()])
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Could not create your account.")
         return false
@@ -127,121 +120,41 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
     return true
   }
 
-  function handleOrderPlaced(orderNumber: string) {
-    router.push(`/checkout/success?order=${orderNumber}`)
-  }
-
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     startTransition(async () => {
       const ready = await prepareAccountForPayment()
       if (!ready) return
       try {
-        const checkout = await createPolarCheckout({ billingEmail: email, billingName: name, couponCode })
+        const checkout = await createPolarCheckout({ billingEmail: email.trim(), billingName: name.trim(), couponCode })
         setPolarCheckoutUrl(checkout.url)
       } catch (error) {
         await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
-        toast.error(error instanceof Error ? error.message : "Could not start Polar checkout.")
+        toast.error(error instanceof Error ? error.message : "Could not start secure checkout.")
       }
     })
   }
 
+  const inputClass = "h-11"
+
   return (
-    <div className="flex flex-col gap-8 pb-24 lg:pb-0">
-      <ol className="grid grid-cols-3 gap-2" aria-label="Checkout progress">
-        {["Review", "Details", "Complete"].map((step, index) => (
-          <li key={step} className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-            <span className={cn("flex size-7 items-center justify-center rounded-full border", index < 2 ? "border-accent bg-accent text-accent-foreground" : "border-border bg-card")}>{index + 1}</span>
-            <span className="hidden sm:inline">{step}</span>
-          </li>
-        ))}
-      </ol>
-      <form id={FORM_ID} onSubmit={handleSubmit} className="flex flex-col gap-8">
-        {isGuest && (
-          <Reveal className="flex items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
-            <span className="flex items-center gap-2 text-foreground/80">
-              <Mail className="size-4 shrink-0 text-primary" aria-hidden="true" />
-              Checking out as a guest — your order confirmation goes to the email below.
-            </span>
-            <Link href="/sign-in?redirect=/checkout" className="shrink-0 font-semibold text-primary hover:underline">
-              Sign in
-            </Link>
-          </Reveal>
-        )}
-
-        <Reveal delay={0.05} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
-          <div className="flex items-center gap-2">
-            <Package className="size-4 text-muted-foreground" aria-hidden="true" />
-            <h2 className="font-display text-lg font-bold">Your items</h2>
-          </div>
-          <div className="flex flex-col divide-y divide-border">
-            {orderItems.map((item, i) => (
-              <div key={i} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-foreground">{item.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatLicenseType(item.licenseType)} license &times; {item.quantity}
-                  </p>
-                </div>
-                <span className="shrink-0 text-sm font-semibold">
-                  <PriceDisplay usdAmount={Number.parseFloat(item.unitPriceUsd) * item.quantity} />
-                </span>
-              </div>
-            ))}
-          </div>
-          <div className="flex items-center justify-between border-t border-border pt-4 text-sm">
-            <span className="text-muted-foreground">Order total</span>
-            <span className="font-display text-lg font-bold"><PriceDisplay usdAmount={total} /></span>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5"><Package className="size-3.5 text-success" aria-hidden="true" />Instant digital delivery</span>
-            <span className="flex items-center gap-1.5"><ShieldCheck className="size-3.5 text-success" aria-hidden="true" />Secure checkout</span>
-          </div>
-          <Link href="/products" className="inline-flex items-center justify-center rounded-lg border border-border px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-secondary">Add more items</Link>
-        </Reveal>
-
-        <Reveal delay={0.12} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
-          <h2 className="font-display text-lg font-bold">Contact details</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="name">Full name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-8">
+      <form id={FORM_ID} onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+        {polarCheckoutUrl ? (
+          <>
+            <div className="flex items-center justify-between rounded-lg border border-border bg-secondary/40 px-4 py-3 text-sm">
+              <p className="min-w-0 truncate">
+                <span className="text-muted-foreground">Paying as </span>
+                <span className="font-medium text-foreground">{email.trim()}</span>
+              </p>
+              <button
+                type="button"
+                onClick={() => setPolarCheckoutUrl(null)}
+                className="shrink-0 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                Edit details
+              </button>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="email">Email — your order confirmation is sent here</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                required
-              />
-            </div>
-          </div>
-        </Reveal>
-
-        {isGuest && (
-          <Reveal delay={0.12} className="flex flex-col gap-4 rounded-xl border border-primary/25 bg-primary/5 p-6">
-            <div>
-              <h2 className="font-display text-lg font-bold">Create your DistroSource account</h2>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">Required to save your order, access your library, and keep your cart ready across devices.</p>
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-1.5"><Label htmlFor="checkout-password">Create password</Label><Input id="checkout-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} autoComplete="new-password" placeholder="At least 8 characters" required /></div>
-              <div className="flex flex-col gap-1.5"><Label htmlFor="checkout-confirm-password">Confirm password</Label><Input id="checkout-confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} minLength={8} autoComplete="new-password" placeholder="Repeat your password" required /></div>
-            </div>
-            {accountError && <p role="alert" className="text-sm font-medium text-destructive">{accountError}</p>}
-            <p className="text-xs leading-relaxed text-muted-foreground">We&apos;ll send a verification link to your checkout email before your account is activated.</p>
-          </Reveal>
-        )}
-
-        <Reveal delay={0.18} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
-          <div className="flex items-center gap-2">
-            <Lock className="size-4 text-muted-foreground" aria-hidden="true" />
-            <h2 className="font-display text-lg font-bold">Payment</h2>
-          </div>
-          {polarCheckoutUrl ? (
             <PolarInlineCheckout
               checkoutUrl={polarCheckoutUrl}
               onSuccess={(successUrl) => {
@@ -249,199 +162,125 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 router.push(`${url.pathname}${url.search}`)
               }}
             />
-          ) : (
-            <>
-              <div className="rounded-lg border border-primary/25 bg-primary/5 p-4" role="status">
-                <p className="text-sm font-semibold text-foreground">Secure payment</p>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Your payment is processed securely by Polar. Digital products are delivered after payment is confirmed.</p>
+          </>
+        ) : (
+          <>
+            <Section
+              step={1}
+              title="Customer"
+              description="Your receipt and download access are tied to this email."
+              aside={
+                isGuest ? (
+                  <Link href={`/sign-in?next=${encodeURIComponent("/checkout")}`} className="shrink-0 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+                    Have an account? Sign in
+                  </Link>
+                ) : undefined
+              }
+            >
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="checkout-name">Full name</Label>
+                  <Input id="checkout-name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" aria-invalid={!!fieldError.name} className={inputClass} />
+                  {fieldError.name && <p className="text-xs text-destructive" role="alert">{fieldError.name}</p>}
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="checkout-email">Email</Label>
+                  <Input id="checkout-email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" aria-invalid={!!fieldError.email} className={inputClass} readOnly={!isGuest && !!defaultEmail} />
+                  {fieldError.email && <p className="text-xs text-destructive" role="alert">{fieldError.email}</p>}
+                </div>
               </div>
-              <Button type="submit" size="lg" disabled={isPending || isPreparingAccount} className="h-12 font-semibold">
-                {isPending || isPreparingAccount ? <span className="flex items-center gap-2"><Loader2 className="size-4 animate-spin" />Preparing secure checkout...</span> : `Continue to secure payment · ${formattedTotal}`}
-              </Button>
-            </>
-          )}
-        </Reveal>
 
-        {/*
-          <div className="flex items-center gap-2">
-            <Lock className="size-4 text-muted-foreground" aria-hidden="true" />
-            <h2 className="font-display text-lg font-bold">Payment</h2>
-          </div>
-          <p className="text-xs text-muted-foreground">Choose how you&apos;d like to pay.</p>
-          <div className="grid grid-cols-3 gap-3" role="radiogroup" aria-label="Payment method">
-            <button
-              type="button"
-              role="radio"
-              aria-checked={paymentMethod === "paypal"}
-              onClick={() => setPaymentMethod("paypal")}
-              className={cn(
-                "flex min-h-20 flex-col items-start justify-between rounded-xl border p-3 text-left transition-colors",
-                paymentMethod === "paypal"
-                  ? "border-accent bg-accent/10 text-foreground ring-1 ring-accent"
-                  : "border-border bg-background hover:border-accent/50",
+              {isGuest && (
+                <div className="mt-5 border-t border-border pt-4">
+                  <p className="text-sm font-semibold text-foreground">Create a password</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                    Your purchases live in My Library, so an account is created with this order.
+                  </p>
+                  <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="checkout-password">Password</Label>
+                      <div className="relative">
+                        <Input id="checkout-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" aria-invalid={!!fieldError.password} className={cn(inputClass, "pr-11")} />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((v) => !v)}
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                          className="absolute right-1.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          {showPassword ? <EyeOff size={ICON_SIZE.sm} aria-hidden="true" /> : <Eye size={ICON_SIZE.sm} aria-hidden="true" />}
+                        </button>
+                      </div>
+                      <p className={cn("text-xs", fieldError.password ? "text-destructive" : "text-muted-foreground")} role={fieldError.password ? "alert" : undefined}>
+                        {fieldError.password ?? "At least 8 characters."}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="checkout-confirm-password">Confirm password</Label>
+                      <Input id="checkout-confirm-password" type={showPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" aria-invalid={!!fieldError.confirm} className={inputClass} />
+                      {fieldError.confirm && <p className="text-xs text-destructive" role="alert">{fieldError.confirm}</p>}
+                    </div>
+                  </div>
+                </div>
               )}
-            >
-              <span className="flex items-center gap-2 text-sm font-semibold">
-                <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true" fill="currentColor">
-                  <path d="M7.5 19.5 9 5.3c.1-.7.7-1.3 1.5-1.3h4.9c2.6 0 4.3 1.6 4 4-.4 3.4-2.9 5.2-6.2 5.2h-2l-.9 6.3H7.5Zm3.7-8.3h1.7c1.6 0 2.7-.8 3-2.5.2-1.4-.5-2.1-1.9-2.1h-1.8l-1 4.6Z" />
-                </svg>
-                PayPal
-              </span>
-              <span className="text-[11px] text-muted-foreground">Recommended</span>
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={paymentMethod === "crypto"}
-              onClick={() => setPaymentMethod("crypto")}
-              disabled
-              className={cn(
-                "flex min-h-20 flex-col items-start justify-between rounded-xl border p-3 text-left opacity-60 transition-colors disabled:cursor-not-allowed",
-                paymentMethod === "crypto"
-                  ? "border-accent bg-accent/10 text-foreground ring-1 ring-accent"
-                  : "border-border bg-background hover:border-accent/50",
-              )}
-            >
-              <span className="flex items-center gap-2 text-sm font-semibold"><Bitcoin className="size-4 text-accent" /> Crypto</span>
-              <span className="text-[11px] text-muted-foreground">Coming soon</span>
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={paymentMethod === "card"}
-              onClick={() => setPaymentMethod("card")}
-              disabled
-              className={cn(
-                "flex min-h-20 flex-col items-start justify-between rounded-xl border p-3 text-left opacity-60 transition-colors disabled:cursor-not-allowed",
-                paymentMethod === "card"
-                  ? "border-accent bg-accent/10 text-foreground ring-1 ring-accent"
-                  : "border-border bg-background hover:border-accent/50",
-              )}
-            >
-              <span className="flex items-center gap-2 text-sm font-semibold"><CreditCard className="size-4" /> Card</span>
-              <span className="text-[11px] text-muted-foreground">Coming soon</span>
-            </button>
-          </div>
-          {paymentMethod === "paypal" && (
-            paypalClientId ? (
-              <PaypalCheckoutButtons
-                clientId={paypalClientId}
-                billingEmail={email}
-                billingName={name}
-                couponCode={couponCode}
-                disabled={isPreparingAccount || isPending}
-                disabledReason={isPreparingAccount ? "Setting up your account..." : undefined}
-                onBeforeCreateOrder={prepareAccountForPayment}
-                onSuccess={handleOrderPlaced}
-                onFailure={(message) => toast.error(message)}
-              />
-            ) : (
-              <div className="rounded-lg border border-border bg-secondary/50 p-3 text-xs leading-relaxed text-muted-foreground">
-                PayPal checkout is not configured yet.
-              </div>
-            )
-          )}
-          {(paymentMethod === "crypto" || paymentMethod === "card") && (
-            <div className="rounded-lg border border-border bg-secondary/50 p-3 text-xs leading-relaxed text-muted-foreground">
-              Crypto and card payments are coming soon. Your cart is saved, and you can pay with PayPal above right now.
-            </div>
-          )}
-          {false && (
-            <>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="card">Card number</Label>
-            <div className="relative">
-              <Input
-                id="card"
-                value={cardNumber}
-                onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                placeholder="1234 1234 1234 1234"
-                autoComplete="cc-number"
-                inputMode="numeric"
-                className={cn(cardBrand && "pr-16")}
-                required
-              />
-              {cardBrand && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-border bg-secondary px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  {CARD_BRAND_LABEL[cardBrand ?? ""]}
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="expiry">Expiry</Label>
-              <Input
-                id="expiry"
-                value={expiry}
-                onChange={(e) => setExpiry(formatExpiry(e.target.value))}
-                placeholder="MM/YY"
-                autoComplete="cc-exp"
-                inputMode="numeric"
-                required
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="cvc">CVC</Label>
-              <Input
-                id="cvc"
-                value={cvc}
-                onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                placeholder="123"
-                autoComplete="cc-csc"
-                inputMode="numeric"
-                required
-              />
-            </div>
-          </div>
-            </>
-        */}
+            </Section>
+          </>
+        )}
 
-        <Reveal delay={0.2} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-6">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Subtotal</span>
-            <PriceDisplay usdAmount={subtotal} />
+        {/* The order review stays visible next to the Polar frame so the buyer can always see what they are paying for. */}
+        <Section
+          step={polarCheckoutUrl ? undefined : 2}
+          title="Your products"
+          aside={
+            !polarCheckoutUrl ? (
+              <Link href="/cart" className="shrink-0 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+                Edit cart
+              </Link>
+            ) : undefined
+          }
+        >
+          <ul className="divide-y divide-border">
+            {orderItems.map((item) => (
+              <CheckoutLineItem key={`${item.productId}-${item.licenseId}`} item={item} />
+            ))}
+          </ul>
+        </Section>
+
+        <div className="flex items-start gap-3 rounded-lg border border-border bg-secondary/30 px-5 py-4">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-card text-foreground">
+            <Download size={ICON_SIZE.sm} aria-hidden="true" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold text-foreground">Digital delivery</p>
+            <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
+              Products are added to My Library after confirmed payment. A receipt is emailed to {email.trim() || "your address"}.
+            </p>
           </div>
-          {discountPercent > 0 && (
-            <div className="flex justify-between text-sm text-success">
-              <span>Discount ({discountPercent}%)</span>
-              <span>
-                -<PriceDisplay usdAmount={discount} />
-              </span>
-            </div>
-          )}
-          <div className="flex justify-between border-t border-border pt-3 font-display text-lg font-bold">
-            <span>Total</span>
-            <PriceDisplay usdAmount={total} />
-          </div>
-          {!polarCheckoutUrl && (
-            <Button type="submit" size="lg" disabled={isPending || isPreparingAccount} className="mt-2 hidden h-12 font-semibold lg:flex">
-              {isPending || isPreparingAccount ? "Preparing secure checkout..." : `Complete purchase · ${formattedTotal}`}
-            </Button>
-          )}
-          <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-            <ShieldCheck className="size-3.5" aria-hidden="true" />
-            Secured checkout — your details are protected
-          </p>
-        </Reveal>
+        </div>
       </form>
 
+      <div className="lg:sticky lg:top-24">
+        <OrderSummary
+          subtotal={subtotal}
+          discount={discount}
+          discountPercent={discountPercent}
+          total={total}
+          itemCount={itemCount}
+          isSubmitting={isBusy}
+          hideAction={Boolean(polarCheckoutUrl)}
+          formId={FORM_ID}
+        />
+      </div>
+
       {!polarCheckoutUrl && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-4 py-3 backdrop-blur-md lg:hidden">
-          <div className="mx-auto flex max-w-2xl items-center justify-between gap-4">
-            <div className="flex flex-col leading-tight">
-              <span className="text-[11px] text-muted-foreground">Total</span>
-              <span className="font-display text-base font-bold">
-                <PriceDisplay usdAmount={total} />
-              </span>
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 shadow-[var(--shadow-e3)] backdrop-blur supports-[backdrop-filter]:bg-background/90 lg:hidden">
+          <div className="mx-auto flex max-w-lg items-center gap-4">
+            <div className="min-w-0">
+              <p className="text-[11px] uppercase tracking-[0.06em] text-muted-foreground">Total</p>
+              <p className="font-display text-lg font-bold tabular-nums leading-tight">${total.toFixed(2)}</p>
             </div>
-            <Button type="submit" form={FORM_ID} size="lg" disabled={isPending || isPreparingAccount} className="h-11 flex-1 font-semibold">
-              {isPending || isPreparingAccount ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="size-4 animate-spin" />
-                  Preparing secure checkout...
-                </span>
-              ) : `Complete purchase · ${formattedTotal}`}
+            <Button type="submit" form={FORM_ID} size="lg" disabled={isBusy} aria-busy={isBusy} className="h-12 flex-1 font-semibold">
+              <Lock size={ICON_SIZE.sm} aria-hidden="true" />
+              {isBusy ? "Preparing…" : "Continue to secure payment"}
             </Button>
           </div>
         </div>

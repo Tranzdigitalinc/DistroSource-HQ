@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeft } from "@/lib/storefront-icons"
 import { getInvoiceByOrderNumber } from "@/lib/actions/account"
 import { formatLicenseType, formatDate } from "@/lib/format"
 import { PriceDisplay } from "@/components/price-display"

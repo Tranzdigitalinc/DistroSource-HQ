@@ -56,7 +56,7 @@ const faqGroups = [
       {
         question: "What's the difference between the license tiers?",
         answer:
-          "Personal licenses cover non-commercial, personal projects. Commercial licenses cover use in a single business or client project. Extended Commercial and Agency tiers extend that to unlimited projects and multi-client use. None of our license tiers permit reselling or redistributing the underlying files themselves. Each product page lists exactly what its tiers include.",
+          "Personal licenses cover non-commercial, personal projects. Commercial licenses cover use in a single business or client project. Agency licenses cover multiple client projects, up to the limits stated on the product page. No license tier permits reselling or redistributing the underlying files themselves, and none grants resale of source files. Each product page lists exactly what its tiers include.",
       },
       {
         question: "Can I use a product across my whole team?",

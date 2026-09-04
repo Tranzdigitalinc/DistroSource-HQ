@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, serial, integer, numeric, jsonb } from "drizzle-orm/pg-core"
+import { pgTable, text, timestamp, boolean, serial, integer, numeric, jsonb, type AnyPgColumn } from "drizzle-orm/pg-core"
 
 // --- Better Auth required tables -------------------------------------------
 // Column names are camelCase to match Better Auth's defaults. Do not rename.
@@ -71,7 +71,7 @@ export const categories = pgTable("categories", {
   // subcategories, pointing at the department they belong to (e.g.
   // "React / Next.js Templates" -> "Web & Development"). Products always
   // attach to a subcategory, never directly to a department.
-  parentId: integer("parentId").references((): any => categories.id),
+  parentId: integer("parentId").references((): AnyPgColumn => categories.id),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
@@ -141,7 +141,7 @@ export const productLicenses = pgTable("product_licenses", {
   productId: integer("productId")
     .notNull()
     .references(() => products.id, { onDelete: "cascade" }),
-  licenseType: text("licenseType").notNull(), // personal | commercial | extended_commercial | agency
+  licenseType: text("licenseType").notNull(), // personal | commercial | agency (regular_license is legacy, draft products only)
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
   description: text("description"),
   sortOrder: integer("sortOrder").notNull().default(0),
@@ -472,4 +472,16 @@ export const teamLicenseRequests = pgTable("team_license_requests", {
   message: text("message"),
   status: text("status").notNull().default("pending"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
+// Shared rate-limit counters. Must be shared state rather than per-instance
+// memory: Vercel runs many function instances, so an in-process counter limits
+// nothing. One row per bucket+identifier, incremented atomically.
+//
+// NOT YET PRESENT IN PRODUCTION — created by the baseline migration. Until
+// then lib/rate-limit.ts fails open and logs. See docs/DATABASE-MIGRATIONS.md.
+export const rateLimits = pgTable("rate_limits", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull().default(0),
+  windowStart: timestamp("windowStart").notNull().defaultNow(),
 })

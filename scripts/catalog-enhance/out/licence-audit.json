@@ -1,0 +1,11 @@
+{
+  "problems": {
+    "duplicate": [],
+    "progression": [],
+    "extreme": [],
+    "zeroPaid": [],
+    "freeMultiTier": []
+  },
+  "renames": 343,
+  "priceFixes": []
+}

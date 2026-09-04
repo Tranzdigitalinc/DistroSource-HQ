@@ -2,75 +2,56 @@
 
 import { useState, useTransition } from "react"
 import Link from "next/link"
-import Image from "next/image"
-import { ShieldCheck, Send, ArrowRight } from "@/lib/storefront-icons"
 import { toast } from "sonner"
-import { Reveal } from "@/components/motion/reveal"
+import { ArrowRight, Check, ShieldCheck, ICON_SIZE } from "@/lib/storefront-icons"
 import { BrandLogo } from "@/components/brand-logo"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { subscribeToNewsletter } from "@/lib/actions/newsletter"
 
-const footerColumns = [
+// "Bundles" is absent on purpose: every bundle is a draft, so the listing
+// is empty. Add it back when the first bundle publishes.
+const columns = [
   {
     title: "Shop",
     links: [
-      { label: "All Products", href: "/products" },
-      { label: "Today's Deals", href: "/deals" },
-      { label: "All Categories", href: "/categories" },
-      { label: "Bundles", href: "/products?bundle=true" },
-      { label: "Free Resources", href: "/products?free=true" },
+      { label: "Departments", href: "/categories" },
+      { label: "Products", href: "/products" },
+      { label: "Deals", href: "/deals" },
+      { label: "New arrivals", href: "/products?sort=newest" },
     ],
   },
   {
-    title: "Account",
-    links: [
-      { label: "Sign In", href: "/sign-in" },
-      { label: "Sign Up", href: "/sign-up" },
-      { label: "My Orders", href: "/account/orders" },
-      { label: "My Library", href: "/account/library" },
-      { label: "Profile", href: "/account/settings" },
-    ],
-  },
-  {
-    title: "Support",
+    title: "Resources",
     links: [
       { label: "Help Center", href: "/help" },
-      { label: "Contact Us", href: "/contact" },
-      { label: "Order Help", href: "/help/orders" },
-      { label: "FAQs", href: "/faq" },
+      { label: "Licensing", href: "/licenses" },
+      { label: "Team licensing", href: "/team-licensing" },
+      { label: "Contact", href: "/contact" },
     ],
   },
   {
     title: "Company",
     links: [
-      { label: "About Us", href: "/about" },
-      { label: "Licenses", href: "/licenses" },
-      { label: "Team Licensing", href: "/team-licensing" },
-      { label: "Compare Products", href: "/compare" },
+      { label: "About", href: "/about" },
+      { label: "Terms", href: "/legal/terms" },
+      { label: "Privacy", href: "/legal/privacy" },
+      { label: "Refund Policy", href: "/legal/refund-policy" },
     ],
   },
   {
-    title: "Legal",
+    title: "Account",
     links: [
-      { label: "Terms of Service", href: "/legal/terms" },
-      { label: "Privacy Policy", href: "/legal/privacy" },
-      { label: "Refund Policy", href: "/legal/refund-policy" },
-      { label: "Delivery Policy", href: "/legal/delivery-policy" },
-      { label: "Cookie Policy", href: "/legal/cookie-policy" },
-      { label: "Acceptable Use", href: "/legal/acceptable-use" },
-      { label: "Payment Terms", href: "/legal/payment-terms" },
+      { label: "Orders", href: "/account/orders" },
+      { label: "Downloads", href: "/account/library" },
+      { label: "Wishlist", href: "/account/wishlist" },
     ],
   },
 ]
 
-const paymentIcons = [
-  { file: "visa.svg", label: "Visa" },
-  { file: "mastercard.svg", label: "Mastercard" },
-  { file: "american-express.svg", label: "American Express" },
-  { file: "paypal.svg", label: "PayPal" },
-  { file: "apple-pay.svg", label: "Apple Pay" },
-  { file: "google-pay.svg", label: "Google Pay" },
+const legalLinks = [
+  { label: "Cookie Policy", href: "/legal/cookie-policy" },
+  { label: "Acceptable Use", href: "/legal/acceptable-use" },
+  { label: "Payment Terms", href: "/legal/payment-terms" },
 ]
 
 function NewsletterForm() {
@@ -85,7 +66,6 @@ function NewsletterForm() {
       try {
         await subscribeToNewsletter(email)
         setSubmitted(true)
-        toast.success("You're on the list! Watch your inbox for exclusive deals.")
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Could not subscribe. Please try again.")
       }
@@ -94,31 +74,31 @@ function NewsletterForm() {
 
   if (submitted) {
     return (
-      <p className="flex items-center gap-2 font-mono text-sm font-medium text-primary">
-        <Send className="size-4" />
-        Thanks! You&apos;ll hear from us soon.
+      <p className="flex items-center gap-2 text-sm text-navy-foreground/80" role="status">
+        <Check size={ICON_SIZE.sm} className="text-primary" aria-hidden="true" />
+        You&apos;re subscribed. Watch your inbox.
       </p>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
-      <Input
+    <form onSubmit={handleSubmit} className="flex w-full max-w-sm gap-2">
+      <label htmlFor="footer-email" className="sr-only">
+        Email address
+      </label>
+      <input
+        id="footer-email"
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="you@example.com"
+        autoComplete="email"
         required
-        className="h-10 max-w-[220px] rounded-[4px] border-navy-foreground/20 bg-navy-foreground/5 text-sm text-navy-foreground placeholder:text-navy-foreground/40"
+        className="h-10 min-w-0 flex-1 rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-3 text-sm text-navy-foreground placeholder:text-navy-foreground/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
       />
-      <Button
-        type="submit"
-        size="sm"
-        disabled={isPending}
-        className="h-10 rounded-[4px] bg-primary px-4 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary-foreground hover:bg-primary/90"
-      >
+      <Button type="submit" size="sm" disabled={isPending} className="h-10 shrink-0 px-4 font-semibold">
         Subscribe
-        <ArrowRight className="size-3.5" />
+        <ArrowRight size={ICON_SIZE.sm} aria-hidden="true" />
       </Button>
     </form>
   )
@@ -128,82 +108,52 @@ export function SiteFooter() {
   return (
     <footer className="bg-navy text-navy-foreground">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-        <Reveal className="mb-12 flex flex-col gap-5 border-b border-navy-foreground/15 pb-10 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
-              Newsletter
-            </span>
-            <h3 className="mt-1 font-display text-xl font-bold tracking-tight text-navy-foreground">
-              Get deals in your inbox
-            </h3>
-            <p className="mt-1 text-sm text-navy-foreground/60">Exclusive discounts and new brand drops, weekly.</p>
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,2fr)]">
+          <div className="flex max-w-sm flex-col gap-5">
+            <BrandLogo heightClassName="h-10" />
+            <p className="text-sm leading-relaxed text-navy-foreground/65">
+              Professional downloadable digital products for business, design, development and everyday work.
+            </p>
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-navy-foreground/50">Newsletter</p>
+              <NewsletterForm />
+            </div>
           </div>
-          <NewsletterForm />
-        </Reveal>
 
-        <Reveal className="pb-10">
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_2fr]">
-            <div className="max-w-sm">
-              <BrandLogo heightClassName="h-28 sm:h-32" />
-              <p className="mt-4 text-sm leading-relaxed text-navy-foreground/60">
-                Your source for website templates, fonts, presentations, Notion systems, and other digital products — with instant access to every download.
-              </p>
-              <div className="mt-5 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.04em] text-navy-foreground/50">
-                <ShieldCheck className="size-4 text-primary" />
-                Encrypted checkout on every order
+          <nav aria-label="Footer" className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+            {columns.map((column) => (
+              <div key={column.title}>
+                <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-navy-foreground/50">{column.title}</h3>
+                <ul className="mt-4 flex flex-col gap-2.5">
+                  {column.links.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href} className="text-sm text-navy-foreground/75 transition-colors hover:text-navy-foreground">
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
+            ))}
+          </nav>
+        </div>
 
-            <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
-              {footerColumns.map((column, i) => (
-                <div key={column.title}>
-                  <h3 className="flex items-baseline gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-navy-foreground/50">
-                    <span className="text-primary">{String(i + 1).padStart(2, "0")}</span>
-                    {column.title}
-                  </h3>
-                  <ul className="mt-4 flex flex-col gap-2.5">
-                    {column.links.map((link) => (
-                      <li key={link.label}>
-                        <Link
-                          href={link.href}
-                          className="text-sm text-navy-foreground/70 transition-colors hover:text-navy-foreground"
-                        >
-                          {link.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Reveal>
-
-        <div className="flex flex-col gap-4 border-t border-navy-foreground/15 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-mono text-xs text-navy-foreground/50">
-            &copy; {new Date().getFullYear()} DistroSource. All rights reserved.
-          </p>
-          <div className="flex items-center gap-2">
-            {paymentIcons.map((icon) => (
-              <span
-                key={icon.file}
-                className="flex h-7 w-11 shrink-0 items-center justify-center rounded-[3px] border border-navy-foreground/10 bg-navy-foreground/95"
-                title={icon.label}
-              >
-                <Image
-                  src={`/payment-icons/${icon.file}`}
-                  alt={icon.label}
-                  width={28}
-                  height={18}
-                  className="h-4 w-auto object-contain"
-                />
-              </span>
+        <div className="mt-12 flex flex-col gap-4 border-t border-navy-foreground/15 pt-6 text-xs text-navy-foreground/55 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <span>&copy; {new Date().getFullYear()} DistroSource</span>
+            {legalLinks.map((l) => (
+              <Link key={l.href} href={l.href} className="transition-colors hover:text-navy-foreground">
+                {l.label}
+              </Link>
             ))}
           </div>
+          {/* Text disclosure only — no card or wallet logos. Which methods
+              Polar exposes is configured in Polar, not knowable here. */}
+          <p className="flex items-center gap-1.5">
+            <ShieldCheck size={ICON_SIZE.sm} className="shrink-0 text-primary" aria-hidden="true" />
+            Payments processed securely by Polar, our Merchant of Record.
+          </p>
         </div>
-        <p className="mt-4 text-center font-mono text-[11px] uppercase tracking-[0.04em] text-navy-foreground/40 sm:text-left">
-          Every purchase unlocks instantly in your library — no shipping, ever.
-        </p>
       </div>
     </footer>
   )

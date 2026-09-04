@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation"
+import Link from "next/link"
 import { getCartItems } from "@/lib/actions/cart"
 import { applyCouponPreview } from "@/lib/actions/checkout"
 import { getSession } from "@/lib/session"
 import { restoreAbandonedCart } from "@/lib/actions/recovery"
 import { CheckoutForm } from "@/components/checkout/checkout-form"
-import { SiteHeader } from "@/components/header/site-header"
-import { SiteFooter } from "@/components/footer/site-footer"
+import { CheckoutHeader } from "@/components/checkout/checkout-header"
 
 export const metadata = {
   title: "Checkout — DistroSource",
@@ -27,8 +27,7 @@ export default async function CheckoutPage({
   if (items.length === 0) redirect("/cart")
 
   const subtotal =
-    Math.round(items.reduce((sum, i) => sum + Number.parseFloat(i.license.price) * i.cartItem.quantity, 0) * 100) /
-    100
+    Math.round(items.reduce((sum, i) => sum + Number.parseFloat(i.license.price) * i.cartItem.quantity, 0) * 100) / 100
 
   let discountPercent = 0
   if (coupon) {
@@ -42,17 +41,26 @@ export default async function CheckoutPage({
     productId: item.product.id,
     licenseId: item.license.id,
     name: item.product.name,
+    tagline: item.product.tagline,
     licenseType: item.license.licenseType,
     quantity: item.cartItem.quantity,
     unitPriceUsd: item.license.price,
+    imageUrl: item.imageUrl,
+    fileFormats: item.product.fileFormats,
+    software: item.product.softwareCompatibility,
+    categoryName: item.categoryName,
   }))
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
+    // Minimal checkout chrome: no site header, no mega menu, no footer, no
+    // product recommendations. The only exits are "back to cart" and the
+    // legal links below.
+    <div className="flex min-h-screen flex-col bg-background">
+      <CheckoutHeader currentStep="checkout" />
+
       <main className="flex-1">
-        <div className="mx-auto max-w-2xl px-4 py-8 md:px-6">
-          <h1 className="mb-6 font-display text-2xl font-bold md:text-3xl">Checkout</h1>
+        <div className="mx-auto max-w-6xl px-4 py-8 pb-28 sm:px-6 lg:pb-12">
+          <h1 className="sr-only">Checkout</h1>
           <CheckoutForm
             defaultEmail={session?.user?.email ?? ""}
             defaultName={session?.user?.name ?? ""}
@@ -63,7 +71,24 @@ export default async function CheckoutPage({
           />
         </div>
       </main>
-      <SiteFooter />
+
+      <footer className="border-t border-border py-6">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-5 gap-y-2 px-4 text-xs text-muted-foreground sm:px-6">
+          <span>© {new Date().getFullYear()} DistroSource</span>
+          <Link href="/legal/terms" className="transition-colors hover:text-foreground">
+            Terms
+          </Link>
+          <Link href="/legal/privacy" className="transition-colors hover:text-foreground">
+            Privacy
+          </Link>
+          <Link href="/legal/refund-policy" className="transition-colors hover:text-foreground">
+            Refund Policy
+          </Link>
+          <Link href="/account/support" className="transition-colors hover:text-foreground">
+            Support
+          </Link>
+        </div>
+      </footer>
     </div>
   )
 }

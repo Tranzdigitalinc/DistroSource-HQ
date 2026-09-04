@@ -1,7 +1,7 @@
 "use client"
 
 import { useTransition } from "react"
-import { Mail, Loader2 } from "lucide-react"
+import { Mail, Loader2 } from "@/lib/storefront-icons"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { resendOrderConfirmationEmail } from "@/lib/actions/account"

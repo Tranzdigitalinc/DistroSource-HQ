@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Check, Copy } from "lucide-react"
+import { Check, Copy } from "@/lib/storefront-icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 

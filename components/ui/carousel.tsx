@@ -88,6 +88,8 @@ function Carousel({
     [scrollPrev, scrollNext]
   )
 
+  // Vendored shadcn/ui carousel: the Embla API is an external system and
+  // these effects publish its state to React, which is the intended use.
   React.useEffect(() => {
     if (!api || !setApi) return
     setApi(api)
@@ -95,6 +97,7 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     onSelect(api)
     api.on("reInit", onSelect)
     api.on("select", onSelect)

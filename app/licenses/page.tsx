@@ -19,6 +19,9 @@ const tiers = [
     details: "Use the product in a single business or client project. A separate license is required for additional projects, clients, or materially different uses.",
   },
   {
+    // Matches the licenseType sold in the catalog ("agency"). The tier was
+    // briefly named "Extended Commercial", which reads as extended *rights*
+    // (resale, redistribution) that DistroSource does not grant.
     name: "Agency",
     description: "For multiple client projects within the product limits.",
     details: "Use the product across multiple client projects according to the limits stated on the product page and in your purchase record.",

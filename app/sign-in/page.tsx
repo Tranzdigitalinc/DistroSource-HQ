@@ -4,6 +4,10 @@ import { headers } from "next/headers"
 import { AuthForm } from "@/components/auth/auth-form"
 import { AuthShell } from "@/components/auth/auth-shell"
 
+export const metadata = {
+  title: "Sign in — DistroSource",
+}
+
 export default async function SignInPage({
   searchParams,
 }: {
@@ -15,7 +19,7 @@ export default async function SignInPage({
   if (session?.user) redirect(redirectTo)
 
   return (
-    <AuthShell title="Welcome back" subtitle="Sign in to view your orders, downloads, licenses, and wishlist.">
+    <AuthShell title="Welcome back" subtitle="Access your orders, downloads, licences and wishlist.">
       <AuthForm mode="sign-in" redirectTo={redirectTo} />
     </AuthShell>
   )

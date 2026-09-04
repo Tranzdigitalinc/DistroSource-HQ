@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" font-family="Archivo, Inter, 'Helvetica Neue', Arial, sans-serif">
+<rect width="1200" height="900" fill="#F7F3EC"/><rect x="40" y="40" width="1120" height="820" rx="12" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<path d="M40 76 h1120" stroke="#E2DCD3" stroke-width="1"/>
+<circle cx="66" cy="58" r="5" fill="#E2DCD3"/><circle cx="84" cy="58" r="5" fill="#E2DCD3"/><circle cx="102" cy="58" r="5" fill="#E2DCD3"/>
+<text x="126" y="63" font-size="12" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Trailmap — Components</text>
+<text x="72" y="124" font-size="22" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Component overview</text>
+<text x="72" y="148" font-size="12" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Reusable pieces the screens are assembled from.</text>
+<rect x="72" y="176" width="250" height="270" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<text x="92" y="208" font-size="13" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Buttons</text>
+<rect x="92" y="228" width="210" height="46" rx="6" fill="#FBEADC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="108" y="256" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Default</text><rect x="92" y="290" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="108" y="318" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Hover</text><rect x="92" y="352" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="108" y="380" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Disabled</text>
+<text x="92" y="426" font-size="10.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">7 variants</text><rect x="344" y="176" width="250" height="270" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<text x="364" y="208" font-size="13" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Inputs</text>
+<rect x="364" y="228" width="210" height="46" rx="6" fill="#FBEADC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="380" y="256" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Default</text><rect x="364" y="290" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="380" y="318" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Hover</text><rect x="364" y="352" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="380" y="380" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Disabled</text>
+<text x="364" y="426" font-size="10.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">5 variants</text><rect x="616" y="176" width="250" height="270" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<text x="636" y="208" font-size="13" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Cards</text>
+<rect x="636" y="228" width="210" height="46" rx="6" fill="#FBEADC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="652" y="256" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Default</text><rect x="636" y="290" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="652" y="318" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Hover</text><rect x="636" y="352" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="652" y="380" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Disabled</text>
+<text x="636" y="426" font-size="10.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">6 variants</text><rect x="888" y="176" width="250" height="270" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<text x="908" y="208" font-size="13" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Navigation</text>
+<rect x="908" y="228" width="210" height="46" rx="6" fill="#FBEADC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="924" y="256" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Default</text><rect x="908" y="290" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="924" y="318" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Hover</text><rect x="908" y="352" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="924" y="380" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Disabled</text>
+<text x="908" y="426" font-size="10.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">6 variants</text><rect x="72" y="476" width="250" height="270" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<text x="92" y="508" font-size="13" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Tables</text>
+<rect x="92" y="528" width="210" height="46" rx="6" fill="#FBEADC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="108" y="556" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Default</text><rect x="92" y="590" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="108" y="618" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Hover</text><rect x="92" y="652" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="108" y="680" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Disabled</text>
+<text x="92" y="726" font-size="10.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">7 variants</text><rect x="344" y="476" width="250" height="270" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<text x="364" y="508" font-size="13" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Badges</text>
+<rect x="364" y="528" width="210" height="46" rx="6" fill="#FBEADC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="380" y="556" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Default</text><rect x="364" y="590" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="380" y="618" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Hover</text><rect x="364" y="652" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="380" y="680" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Disabled</text>
+<text x="364" y="726" font-size="10.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">6 variants</text><rect x="616" y="476" width="250" height="270" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<text x="636" y="508" font-size="13" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Modals</text>
+<rect x="636" y="528" width="210" height="46" rx="6" fill="#FBEADC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="652" y="556" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Default</text><rect x="636" y="590" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="652" y="618" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Hover</text><rect x="636" y="652" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="652" y="680" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Disabled</text>
+<text x="636" y="726" font-size="10.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">3 variants</text><rect x="888" y="476" width="250" height="270" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<text x="908" y="508" font-size="13" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Charts</text>
+<rect x="908" y="528" width="210" height="46" rx="6" fill="#FBEADC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="924" y="556" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Default</text><rect x="908" y="590" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="924" y="618" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Hover</text><rect x="908" y="652" width="210" height="46" rx="6" fill="#F7F3EC" stroke="#F0EBE4" stroke-width="1"/>
+<text x="924" y="680" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Disabled</text>
+<text x="908" y="726" font-size="10.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">6 variants</text></svg>

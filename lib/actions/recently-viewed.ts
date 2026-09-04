@@ -11,6 +11,8 @@ import { getOptionalOwnerId, getOwnerId, getSession } from "@/lib/session"
  * account once they sign in, so anonymous browsing carries over instead of
  * resetting personalized recommendations to zero.
  */
+const APPROVED_RIGHTS_STATUSES = ["original", "licensed_for_distribution", "supplier_verified"]
+
 export async function mergeGuestActivityIntoAccount() {
   const session = await getSession()
   const guestId = await getGuestId()
@@ -74,7 +76,9 @@ export async function getRecentlyViewed(limit = 6) {
     .select({ product: products, category: categories })
     .from(products)
     .innerJoin(categories, eq(products.categoryId, categories.id))
-    .where(inArray(products.id, ids))
+    // A product viewed before it was unpublished must drop out of the rail
+    // rather than remain visible to that visitor indefinitely.
+    .where(and(inArray(products.id, ids), eq(products.status, "published"), eq(products.assetStatus, "ready"), inArray(products.rightsStatus, APPROVED_RIGHTS_STATUSES)))
 
   const [images, licenses] = await Promise.all([
     db.select().from(productImages).where(inArray(productImages.productId, ids)).orderBy(asc(productImages.sortOrder)),

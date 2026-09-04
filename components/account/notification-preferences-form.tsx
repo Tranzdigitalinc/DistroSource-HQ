@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
-import { Bell, Tag, Package, Sparkles } from "lucide-react"
+import { Bell, Tag, Package, Sparkles } from "@/lib/storefront-icons"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { updateNotificationPreference } from "@/lib/actions/account"

@@ -9,7 +9,7 @@ import {
   PayPalCVVField,
   usePayPalCardFields,
 } from "@paypal/react-paypal-js"
-import { Loader2, Lock } from "lucide-react"
+import { Loader2, Lock } from "@/lib/storefront-icons"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { createPaypalCheckoutOrder, capturePaypalCheckoutOrder } from "@/lib/actions/checkout"
@@ -60,15 +60,7 @@ interface PaypalInlineCardFieldsProps {
   onFailure: (message: string) => void
 }
 
-function SubmitButton({
-  billingEmail,
-  billingName,
-  couponCode,
-  disabled,
-  onBeforeSubmit,
-  onSuccess,
-  onFailure,
-}: PaypalInlineCardFieldsProps) {
+function SubmitButton({ billingName, disabled, onBeforeSubmit, onFailure }: PaypalInlineCardFieldsProps) {
   const { cardFieldsForm } = usePayPalCardFields()
   const [isProcessing, setIsProcessing] = useState(false)
 
@@ -124,7 +116,7 @@ function SubmitButton({
  * in place yet.
  */
 export function PaypalInlineCardFields(props: PaypalInlineCardFieldsProps) {
-  const { billingEmail, billingName, couponCode, disabled, onSuccess, onFailure } = props
+  const { billingEmail, billingName, couponCode, onSuccess, onFailure } = props
 
   return (
     <div className="flex flex-col gap-3">

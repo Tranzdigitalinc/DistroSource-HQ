@@ -1,6 +1,6 @@
 "use client"
 
-import { Printer } from "lucide-react"
+import { Printer } from "@/lib/storefront-icons"
 import { Button } from "@/components/ui/button"
 
 export function PrintInvoiceButton() {

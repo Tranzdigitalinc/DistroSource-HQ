@@ -1,84 +1,70 @@
 "use client"
 
-import { Zap, ShieldCheck, Headphones, RefreshCcw } from "lucide-react"
+import { Zap, ShieldCheck, Headphones, Library, ICON_SIZE } from "@/lib/storefront-icons"
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 import { cn } from "@/lib/utils"
 
+// Every line here is something a reviewer can verify on the live site. No
+// "real sample file" promises (downloads are still being finalised) and no
+// response-time guarantee — "typical" is the honest word.
 const badges = [
   {
     icon: Zap,
     title: "Instant access",
-    body: "Every purchase unlocks in My Library the moment payment clears — no waiting, no queues.",
+    body: "Paid products unlock in My Library the moment Polar confirms the payment. No shipping, no waiting.",
   },
   {
     icon: ShieldCheck,
     title: "Secure checkout",
-    body: "Every order is encrypted end-to-end and download links are gated to your account only.",
+    body: "Payments are handled by Polar as merchant of record. DistroSource never sees or stores your card details.",
   },
   {
-    icon: RefreshCcw,
-    title: "Real, working files",
-    body: "Nothing goes live until it has real preview images and a real sample file to download.",
+    icon: Library,
+    title: "Re-download anytime",
+    body: "Purchases stay in your library. Lost a file or switched machines? Download it again from your account.",
   },
   {
     icon: Headphones,
-    title: "Real human support",
-    body: "Real people review every ticket and respond within one business day — order issues get a response, not a bot loop.",
+    title: "Support by email",
+    body: "Order, download and licensing questions are answered by a person. Typical response within 1 business day.",
   },
 ]
 
 export function TrustBadges() {
   return (
-    <section className="border-t border-border/60 bg-secondary/30">
-      <div className="mx-auto max-w-7xl px-6 py-16 sm:px-8">
-        <Reveal className="mb-10 max-w-2xl">
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Why it works</p>
+    <section className="border-t border-border bg-secondary/30">
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-16">
+        <Reveal className="mb-8 max-w-2xl">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">How buying works</p>
           <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Why shoppers trust DistroSource
+            Straightforward, from checkout to download
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            No guesswork, no delivery delays — just a straightforward department store built around getting the
-            right file into your hands correctly, the first time.
-          </p>
         </Reveal>
-        <RevealGroup className="grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-4" stagger={0.08}>
+        <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" stagger={0.06}>
           {badges.map((badge, i) => {
             const highlighted = i === 0
             return (
-              <RevealItem key={badge.title}>
+              <RevealItem key={badge.title} className="h-full">
                 <div
                   className={cn(
-                    "flex h-full flex-col gap-4 p-6",
-                    highlighted ? "bg-primary text-primary-foreground" : "bg-card",
+                    "flex h-full flex-col gap-4 rounded-lg border p-6",
+                    highlighted ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card",
                   )}
                 >
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={cn(
-                        "flex size-10 items-center justify-center rounded-[4px]",
-                        highlighted ? "bg-primary-foreground/15 text-primary-foreground" : "bg-primary/10 text-primary",
-                      )}
-                    >
-                      <badge.icon className="size-5" />
-                    </span>
-                    <span
-                      className={cn(
-                        "font-mono text-[10px] font-semibold",
-                        highlighted ? "text-primary-foreground/60" : "text-muted-foreground/60",
-                      )}
-                    >
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                  </div>
-                  <h3 className="font-display text-base font-bold">{badge.title}</h3>
-                  <p
+                  <span
                     className={cn(
-                      "text-sm leading-relaxed",
-                      highlighted ? "text-primary-foreground/85" : "text-muted-foreground",
+                      "flex size-10 items-center justify-center rounded-md",
+                      highlighted ? "bg-primary-foreground/15 text-primary-foreground" : "bg-secondary text-foreground",
                     )}
                   >
-                    {badge.body}
-                  </p>
+                    <badge.icon size={ICON_SIZE.feature} aria-hidden="true" />
+                  </span>
+                  <div>
+                    <h3 className="font-display text-base font-bold">{badge.title}</h3>
+                    <p className={cn("mt-1.5 text-sm leading-relaxed", highlighted ? "text-primary-foreground/85" : "text-muted-foreground")}>
+                      {badge.body}
+                    </p>
+                  </div>
                 </div>
               </RevealItem>
             )

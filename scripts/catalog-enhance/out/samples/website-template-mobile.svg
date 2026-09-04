@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" font-family="Archivo, Inter, 'Helvetica Neue', Arial, sans-serif">
+<rect width="1200" height="900" fill="#F7F3EC"/><rect x="430" y="60" width="340" height="780" rx="28" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="430" y="60" width="340" height="74" rx="28" fill="#2A2521" stroke="none" stroke-width="1"/>
+<text x="462" y="104" font-size="15" fill="#FFFDFA" font-weight="700" text-anchor="start" opacity="1">Harborline</text>
+<rect x="454" y="152" width="292" height="168" rx="8" fill="#F7F3EC" stroke="#E2DCD3" stroke-width="1"/>
+<text x="470" y="200" font-size="17" fill="#2A2521" font-weight="700" text-anchor="start" opacity="1">Agency Website</text>
+<text x="470" y="224" font-size="11" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Clear structure on small screens.</text>
+<rect x="470" y="244" width="120" height="34" rx="6" fill="#E0721F" stroke="none" stroke-width="1"/>
+<text x="530" y="266" font-size="11" fill="#fff" font-weight="600" text-anchor="middle" opacity="1">Get started</text>
+<rect x="454" y="340" width="292" height="104" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="470" y="356" width="60" height="60" rx="6" fill="#FBEADC" stroke="none" stroke-width="1"/>
+<text x="546" y="384" font-size="13" fill="#2A2521" font-weight="600" text-anchor="start" opacity="1">Services</text>
+<text x="546" y="404" font-size="10.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Supporting detail line</text><rect x="454" y="460" width="292" height="104" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="470" y="476" width="60" height="60" rx="6" fill="#FBEADC" stroke="none" stroke-width="1"/>
+<text x="546" y="504" font-size="13" fill="#2A2521" font-weight="600" text-anchor="start" opacity="1">About</text>
+<text x="546" y="524" font-size="10.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Supporting detail line</text><rect x="454" y="580" width="292" height="104" rx="8" fill="#FFFDFA" stroke="#E2DCD3" stroke-width="1"/>
+<rect x="470" y="596" width="60" height="60" rx="6" fill="#FBEADC" stroke="none" stroke-width="1"/>
+<text x="546" y="624" font-size="13" fill="#2A2521" font-weight="600" text-anchor="start" opacity="1">Contact</text>
+<text x="546" y="644" font-size="10.5" fill="#6B6259" font-weight="400" text-anchor="start" opacity="1">Supporting detail line</text>
+<text x="600" y="872" font-size="12" fill="#6B6259" font-weight="400" text-anchor="middle" opacity="1">Mobile layout</text></svg>

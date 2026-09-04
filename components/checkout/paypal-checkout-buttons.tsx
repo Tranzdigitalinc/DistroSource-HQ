@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { PayPalButtons, PayPalScriptProvider, usePayPalScriptReducer } from "@paypal/react-paypal-js"
-import { Loader2 } from "lucide-react"
+import { Loader2 } from "@/lib/storefront-icons"
 import { createPaypalCheckoutOrder, capturePaypalCheckoutOrder } from "@/lib/actions/checkout"
 import { PaypalInlineCardFields } from "@/components/checkout/paypal-inline-card-fields"
 
@@ -112,6 +112,9 @@ function PaypalPaymentMethod(props: Omit<PaypalCheckoutButtonsProps, "clientId" 
 
   useEffect(() => {
     if (!isResolved) return
+    // The probe reads the PayPal SDK (an external system) once it has
+    // loaded; publishing its answer into state is the purpose of the effect.
+    /* eslint-disable react-hooks/set-state-in-effect */
     try {
       const CardFields = (window.paypal as { CardFields?: CardFieldsFactory } | undefined)?.CardFields
       if (!CardFields) {
@@ -124,6 +127,7 @@ function PaypalPaymentMethod(props: Omit<PaypalCheckoutButtonsProps, "clientId" 
       console.error("[v0] PayPal card fields eligibility check failed:", error)
       setCardFieldsEligible(false)
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [isResolved])
 
   if (!isResolved || cardFieldsEligible === null) {

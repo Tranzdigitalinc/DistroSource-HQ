@@ -1,0 +1,14 @@
+<!doctype html><meta charset="utf-8"><title>Preview samples</title>
+<style>body{font:14px system-ui;background:#F7F3EC;margin:0;padding:24px}
+h2{font:600 13px system-ui;margin:28px 0 10px;text-transform:uppercase;letter-spacing:.06em;color:#6B6259}
+.g{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+figure{margin:0;background:#fff;border:1px solid #E2DCD3;border-radius:8px;overflow:hidden}
+img{display:block;width:100%}figcaption{font:11px system-ui;color:#6B6259;padding:8px 10px;border-top:1px solid #F0EBE4}</style>
+<div id=r></div>
+<script>
+const files=["document-cover.svg","document-interior-page.svg","document-spread.svg","document-tables.svg","font-character-set.svg","font-paragraph-setting.svg","font-size-waterfall.svg","font-specimen.svg","icon-pack-construction.svg","icon-pack-in-use.svg","icon-pack-set-overview.svg","icon-pack-sizes.svg","presentation-content-slides.svg","presentation-cover.svg","presentation-data-slide.svg","presentation-slide-overview.svg","spreadsheet-dashboard.svg","spreadsheet-data-entry.svg","spreadsheet-report.svg","spreadsheet-settings.svg","ui-kit-dashboard-screen.svg","ui-kit-design-system.svg","ui-kit-mobile-screens.svg","ui-kit-screen-overview.svg","website-template-components.svg","website-template-home-page.svg","website-template-interior-page.svg","website-template-mobile.svg"];
+const groups={};
+for(const f of files){const k=f.split('-')[0]==='icon'?'icon-pack':f.replace(/-[^-]+\.svg$/,'');(groups[k]=groups[k]||[]).push(f)}
+document.getElementById('r').innerHTML=Object.entries(groups).map(([k,v])=>
+`<h2>${k}</h2><div class=g>${v.map(f=>`<figure><img src="${f}"><figcaption>${f}</figcaption></figure>`).join('')}</div>`).join('');
+</script>

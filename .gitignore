@@ -14,3 +14,14 @@ node_modules
 .next/
 .DS_Store
 .env
+scripts/catalog-enhance/backups/
+scripts/audit/out/
+dev.log
+dev3400.log
+start3500.log
+
+# Local Claude Code tooling
+.claude/
+
+# TypeScript incremental build cache (was tracked; made tsc a no-op)
+tsconfig.tsbuildinfo

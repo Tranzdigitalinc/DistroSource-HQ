@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Check, Copy } from "lucide-react"
+import { Check, Copy } from "@/lib/storefront-icons"
 
 export function CopyOrderNumber({ orderNumber }: { orderNumber: string }) {
   const [copied, setCopied] = useState(false)

@@ -5,6 +5,7 @@ import { Loader2 } from "@/lib/admin-icons"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Dialog,
@@ -20,16 +21,36 @@ import { refundOrder } from "@/lib/actions/order-management"
 
 export function RefundOrderButton({ orderId, orderNumber, totalUsd }: { orderId: number; orderNumber: string; totalUsd: string }) {
   const [reason, setReason] = useState("")
+  const [amount, setAmount] = useState("")
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   function handleConfirm() {
     startTransition(async () => {
       try {
-        await refundOrder(orderId, reason)
-        toast.success("Order refunded", { description: `Order ${orderNumber} marked as refunded and download access revoked.` })
+        // Blank amount means a full refund of the remaining balance. The
+        // server re-validates against the order either way.
+        const trimmedAmount = amount.trim()
+        const parsedAmount = trimmedAmount ? Number.parseFloat(trimmedAmount) : undefined
+        if (trimmedAmount && (!Number.isFinite(parsedAmount) || parsedAmount! <= 0)) {
+          toast.error("Enter a valid refund amount, or leave it blank to refund in full.")
+          return
+        }
+
+        const result = await refundOrder(orderId, reason, parsedAmount === undefined ? undefined : { amountUsd: parsedAmount })
+
+        if (result.pendingWebhookConfirmation) {
+          toast.success("Refund requested with Polar", {
+            description: `$${result.amountUsd} refund submitted for ${orderNumber}. The order updates and the customer is emailed once Polar confirms it.`,
+          })
+        } else {
+          toast.success("Order refunded", {
+            description: `$${result.amountUsd} refunded on ${orderNumber}.`,
+          })
+        }
         setOpen(false)
         setReason("")
+        setAmount("")
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Could not refund this order.")
       }
@@ -45,9 +66,22 @@ export function RefundOrderButton({ orderId, orderNumber, totalUsd }: { orderId:
         <DialogHeader>
           <DialogTitle>Refund order {orderNumber}</DialogTitle>
           <DialogDescription>
-            This refunds the ${totalUsd} payment through PayPal, revokes the customer&apos;s download access to every item in the order, and emails a refund confirmation. This cannot be undone.
+            Refunds through whichever provider took the payment. Leave the amount blank to refund the full
+            ${totalUsd}. A full refund revokes the customer&apos;s download access to every item and emails a
+            confirmation; a partial refund leaves their access intact. For Polar orders the order updates once
+            Polar confirms the refund. This cannot be undone.
           </DialogDescription>
         </DialogHeader>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="refund-amount">Amount in USD (blank = full refund)</Label>
+          <Input
+            id="refund-amount"
+            inputMode="decimal"
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+            placeholder={totalUsd}
+          />
+        </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="refund-reason">Reason (optional)</Label>
           <Textarea id="refund-reason" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="e.g. Customer requested cancellation" />

@@ -43,7 +43,9 @@ type IconProps = Omit<ComponentProps<typeof HugeiconsIcon>, "icon">
 export type IconComponent = (props: IconProps) => ReactNode
 
 function createIcon(icon: Parameters<typeof HugeiconsIcon>[0]["icon"]): IconComponent {
-  return (props) => <HugeiconsIcon icon={icon} {...props} />
+  const Icon: IconComponent & { displayName?: string } = (props) => <HugeiconsIcon icon={icon} {...props} />
+  Icon.displayName = "CategoryIcon"
+  return Icon
 }
 
 // Top-level department icons.

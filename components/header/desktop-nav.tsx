@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { ChevronDown } from "@/lib/storefront-icons"
+import { ChevronDown, Grid, ICON_SIZE } from "@/lib/storefront-icons"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { MegaMenu } from "@/components/header/mega-menu"
 import { cn } from "@/lib/utils"
@@ -19,46 +20,52 @@ interface Department extends Subcategory {
   subcategories: Subcategory[]
 }
 
+// "Bundles" is intentionally absent: every bundle is a draft today, so the
+// link would open an empty grid. Add it back when the first bundle publishes.
+const NAV_LINKS = [
+  { href: "/products", label: "Products" },
+  { href: "/deals", label: "Deals" },
+  { href: "/licenses", label: "Licensing" },
+]
+
 export function DesktopNav({ departments }: { departments: Department[] }) {
   const [open, setOpen] = useState(false)
+  const pathname = usePathname()
 
   const linkClass =
-    "relative flex items-center gap-1 px-3 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.06em] text-foreground/70 transition-colors after:absolute after:inset-x-3 after:-bottom-px after:h-[2px] after:origin-left after:scale-x-0 after:bg-primary after:transition-transform hover:text-foreground hover:after:scale-x-100"
+    "relative flex h-9 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
   return (
-    <nav className="hidden items-center lg:flex">
+    <nav aria-label="Main" className="hidden items-center gap-0.5 lg:flex">
+      {/* Click/keyboard to open (not hover): hover fought the trigger's own
+          toggle, is unusable on touch and awkward with a keyboard. Base UI
+          handles focus trapping and Escape. */}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
-          render={
-            <button
-              type="button"
-              onMouseEnter={() => setOpen(true)}
-              className={cn(linkClass, open && "text-foreground after:scale-x-100")}
-            />
-          }
+          render={<button type="button" aria-expanded={open} aria-haspopup="true" className={cn(linkClass, "text-foreground", open && "bg-secondary")} />}
         >
-          Browse
-          <ChevronDown className={cn("size-3.5 opacity-60 transition-transform", open && "rotate-180")} />
+          <Grid size={ICON_SIZE.sm} aria-hidden="true" />
+          Departments
+          <ChevronDown
+            size={ICON_SIZE.sm}
+            className={cn("opacity-60 transition-transform duration-200 motion-reduce:transition-none", open && "rotate-180")}
+            aria-hidden="true"
+          />
         </PopoverTrigger>
-        <PopoverContent
-          align="start"
-          sideOffset={16}
-          onMouseLeave={() => setOpen(false)}
-          className="w-[860px] max-w-[94vw] rounded-[4px] p-0"
-        >
+
+        <PopoverContent align="start" sideOffset={8} className="w-[60rem] max-w-[94vw] overflow-hidden rounded-lg border-border p-0 shadow-[var(--shadow-e3)]">
           <MegaMenu departments={departments} onNavigate={() => setOpen(false)} />
         </PopoverContent>
       </Popover>
 
-      <Link href="/products?free=true" className={linkClass}>
-        Free
-      </Link>
-      <Link href="/products?bundle=true" className={linkClass}>
-        Bundles
-      </Link>
-      <Link href="/team-licensing" className={linkClass}>
-        Team licensing
-      </Link>
+      {NAV_LINKS.map((link) => {
+        const active = pathname === link.href
+        return (
+          <Link key={link.href} href={link.href} aria-current={active ? "page" : undefined} className={cn(linkClass, active && "text-foreground")}>
+            {link.label}
+          </Link>
+        )
+      })}
     </nav>
   )
 }

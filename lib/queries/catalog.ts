@@ -83,6 +83,14 @@ export async function getCategoryTree() {
   })
 }
 
+/** id → name for a set of category ids (library, order pages). */
+export async function getCategoryNamesByIds(ids: number[]) {
+  const unique = [...new Set(ids)]
+  if (unique.length === 0) return new Map<number, string>()
+  const rows = await db.select({ id: categories.id, name: categories.name }).from(categories).where(inArray(categories.id, unique))
+  return new Map(rows.map((r) => [r.id, r.name]))
+}
+
 export async function getCategoryBySlug(slug: string) {
   const rows = await db.select().from(categories).where(eq(categories.slug, slug)).limit(1)
   return rows[0] ?? null
@@ -94,10 +102,19 @@ export async function getCategoryBySlug(slug: string) {
 export async function getCategoryNavContext(category: { id: number; parentId: number | null }) {
   const departmentId = category.parentId ?? category.id
   const [department] = await db.select({ id: categories.id, slug: categories.slug, name: categories.name }).from(categories).where(eq(categories.id, departmentId))
+  // productCount lets the nav skip empty siblings instead of linking to a
+  // page that renders "0 products".
   const subcategories = await db
-    .select({ id: categories.id, slug: categories.slug, name: categories.name })
+    .select({
+      id: categories.id,
+      slug: categories.slug,
+      name: categories.name,
+      productCount: sql<number>`cast(count(${products.id}) as int)`,
+    })
     .from(categories)
+    .leftJoin(products, and(eq(products.categoryId, categories.id), publiclyVisible()))
     .where(eq(categories.parentId, departmentId))
+    .groupBy(categories.id)
     .orderBy(asc(categories.sortOrder))
 
   return { department: department ?? null, subcategories }
@@ -149,6 +166,35 @@ export async function getAvailableFileFormats(limit = 14) {
     .map(([format, count]) => ({ format, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, limit)
+}
+
+/** Software names with visible-product counts, for the catalog filter. */
+export async function getAvailableSoftware(limit = 12) {
+  const rows = await db.select({ software: products.softwareCompatibility }).from(products).where(publiclyVisible())
+  const counts = new Map<string, number>()
+  for (const row of rows) for (const name of row.software) counts.set(name, (counts.get(name) ?? 0) + 1)
+  return [...counts.entries()]
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit)
+}
+
+/** Source types and licence tiers actually present on visible products. */
+export async function getCatalogFacets() {
+  const [sources, licenses] = await Promise.all([
+    db
+      .select({ value: products.sourceType, count: sql<number>`count(*)::int` })
+      .from(products)
+      .where(publiclyVisible())
+      .groupBy(products.sourceType),
+    db
+      .select({ value: productLicenses.licenseType, count: sql<number>`count(distinct ${products.id})::int` })
+      .from(productLicenses)
+      .innerJoin(products, eq(productLicenses.productId, products.id))
+      .where(publiclyVisible())
+      .groupBy(productLicenses.licenseType),
+  ])
+  return { sources, licenses }
 }
 
 async function attachRelations(productRows: (typeof products.$inferSelect)[]) {
@@ -207,7 +253,11 @@ export async function getProductBySlug(slug: string) {
     .select({ product: products, category: categories })
     .from(products)
     .innerJoin(categories, eq(products.categoryId, categories.id))
-    .where(eq(products.slug, slug))
+    // Gated: without this, a draft / rights-rejected / preview-only product
+    // stays fully readable at its public slug URL. The product page only
+    // disabled the buy button for these, which hides the purchase path but
+    // not the listing itself.
+    .where(and(eq(products.slug, slug), publiclyVisible()))
     .limit(1)
 
   if (!rows[0]) return null
@@ -255,6 +305,15 @@ export async function getProductBySlug(slug: string) {
   }
 }
 
+export type ProductSort = "featured" | "price-asc" | "price-desc" | "newest" | "rating"
+
+const PRODUCT_SORTS: readonly ProductSort[] = ["featured", "price-asc", "price-desc", "newest", "rating"]
+
+/** Narrow an arbitrary query-string value to a supported sort, defaulting to "featured". */
+export function parseProductSort(value: string | undefined): ProductSort {
+  return (PRODUCT_SORTS as readonly string[]).includes(value ?? "") ? (value as ProductSort) : "featured"
+}
+
 interface ProductQueryOptions {
   categorySlug?: string
   search?: string
@@ -264,10 +323,16 @@ interface ProductQueryOptions {
   bundle?: boolean
   deal?: boolean
   format?: string
+  /** Exact match against products.softwareCompatibility, e.g. "Figma". */
+  software?: string
+  /** products.sourceType, e.g. "distrosource_original". */
+  source?: string
+  /** A licence tier the product offers, e.g. "commercial". */
+  license?: string
   maxPrice?: number
   minPrice?: number
   minRating?: number
-  sort?: "featured" | "price-asc" | "price-desc" | "newest" | "rating"
+  sort?: ProductSort
   limit?: number
   offset?: number
   statusFilter?: "published" | "all"
@@ -303,6 +368,15 @@ function buildProductConditions(options: ProductQueryOptions) {
   if (options.deal) conditions.push(sql`${products.compareAtPrice} is not null and ${products.compareAtPrice} > ${products.basePrice}`)
   if (options.format) {
     conditions.push(sql`exists (select 1 from unnest(${products.fileFormats}) as fmt where fmt = ${options.format})`)
+  }
+  if (options.software) {
+    conditions.push(sql`exists (select 1 from unnest(${products.softwareCompatibility}) as sw where sw = ${options.software})`)
+  }
+  if (options.source) conditions.push(eq(products.sourceType, options.source))
+  if (options.license) {
+    conditions.push(
+      sql`exists (select 1 from ${productLicenses} where ${productLicenses.productId} = ${products.id} and ${productLicenses.licenseType} = ${options.license})`,
+    )
   }
   if (options.minRating) {
     conditions.push(
@@ -430,6 +504,7 @@ export async function getSearchSuggestions(query: string, limit = 6) {
       basePrice: products.basePrice,
       compareAtPrice: products.compareAtPrice,
       isFree: products.isFree,
+      fileFormats: products.fileFormats,
       categoryName: categories.name,
       relevance: sql<number>`greatest(word_similarity(${raw}, ${products.name}), word_similarity(${raw}, coalesce(${products.tagline}, '')) * 0.6)`,
     })
@@ -476,7 +551,11 @@ export async function getProductsByIds(ids: number[]) {
     .select({ product: products, category: categories })
     .from(products)
     .innerJoin(categories, eq(products.categoryId, categories.id))
-    .where(inArray(products.id, ids))
+    // Gated: ids arrive straight from the query string on /compare and from
+    // wishlist rows, either of which can reference a product that has since
+    // been unpublished, had its rights revoked, or lost its assets. Without
+    // this filter those products stay publicly viewable by direct id.
+    .where(and(inArray(products.id, ids), publiclyVisible()))
   const withRelations = await attachRelations(rows.map((r) => r.product))
   const categoryById = new Map(rows.map((r) => [r.product.id, r.category]))
   return attachDepartments(withRelations.map((item) => ({ ...item, category: categoryById.get(item.product.id)! })))
@@ -526,14 +605,23 @@ export async function getDealProducts(limit = 12) {
 
 export async function getCatalogStats() {
   const [[productCount], [categoryCount], [reviewStats]] = await Promise.all([
+    // Per-type counts use the same predicates as getProducts()' free/bundle/
+    // deal options, so a filter is offered only when it would return rows.
     db
-      .select({ count: sql<number>`count(*)::int` })
+      .select({
+        count: sql<number>`count(*)::int`,
+        freeCount: sql<number>`count(*) filter (where ${products.isFree})::int`,
+        bundleCount: sql<number>`count(*) filter (where ${products.isBundle})::int`,
+        dealCount: sql<number>`count(*) filter (where ${products.compareAtPrice} is not null and ${products.compareAtPrice} > ${products.basePrice})::int`,
+      })
       .from(products)
       .where(publiclyVisible()),
+    // Only categories that actually hold a publicly visible product. Counting
+    // every subcategory row would advertise shelves that are still empty.
     db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(categories)
-      .where(sql`${categories.parentId} is not null`),
+      .select({ count: sql<number>`count(distinct ${products.categoryId})::int` })
+      .from(products)
+      .where(publiclyVisible()),
     db
       .select({ count: sql<number>`count(*)::int`, avgRating: sql<number>`coalesce(avg(${reviews.rating}), 0)` })
       .from(reviews),
@@ -541,6 +629,9 @@ export async function getCatalogStats() {
 
   return {
     productCount: productCount?.count ?? 0,
+    freeCount: productCount?.freeCount ?? 0,
+    bundleCount: productCount?.bundleCount ?? 0,
+    dealCount: productCount?.dealCount ?? 0,
     categoryCount: categoryCount?.count ?? 0,
     reviewCount: reviewStats?.count ?? 0,
     avgRating: Number(reviewStats?.avgRating ?? 0),
@@ -555,7 +646,9 @@ export async function getTopReviews(limit = 8) {
     .from(reviews)
     .innerJoin(products, eq(reviews.productId, products.id))
     .innerJoin(user, eq(reviews.userId, user.id))
-    .where(and(sql`${reviews.rating} >= 4`, sql`length(coalesce(${reviews.body}, '')) > 40`))
+    // Reviews may only be surfaced for products that are themselves publicly
+    // visible — otherwise a testimonial can outlive the listing it describes.
+    .where(and(sql`${reviews.rating} >= 4`, sql`length(coalesce(${reviews.body}, '')) > 40`, publiclyVisible()))
     .orderBy(desc(reviews.rating), desc(reviews.createdAt))
     .limit(limit)
 

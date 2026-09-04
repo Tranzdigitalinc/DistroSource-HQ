@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ShoppingBag, ArrowRight, Tag, Sparkles } from "@/lib/storefront-icons"
+import { ArrowRight, ShoppingBag, ICON_SIZE } from "@/lib/storefront-icons"
 import { getCartItems } from "@/lib/actions/cart"
 import { CartItemsList } from "@/components/cart/cart-items-list"
 import { CartSummary } from "@/components/cart/cart-summary"
@@ -9,7 +9,7 @@ import { SiteFooter } from "@/components/footer/site-footer"
 import { Reveal } from "@/components/motion/reveal"
 
 export const metadata = {
-  title: "Your Cart — DistroSource",
+  title: "Cart — DistroSource",
 }
 
 export default async function CartPage() {
@@ -21,64 +21,60 @@ export default async function CartPage() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <div className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
-          <div className="mb-8 flex flex-col gap-3 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="mb-2 flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-                <Sparkles className="size-3.5" aria-hidden="true" /> Ready when you are
-              </p>
-              <h1 className="font-display text-3xl font-bold tracking-tight md:text-4xl">Your cart</h1>
-            </div>
+        <div className="mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 md:pb-14 md:pt-10">
+          <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+            <h1 className="font-display text-2xl font-bold tracking-tight md:text-3xl">Cart</h1>
             {items.length > 0 && (
-              <span className="border border-primary/30 bg-primary/10 px-2.5 py-0.5 font-mono text-xs font-semibold text-primary">
+              <p className="text-sm text-muted-foreground">
                 {totalItems} {totalItems === 1 ? "item" : "items"}
-              </span>
+              </p>
             )}
           </div>
 
           {items.length === 0 ? (
-            <Reveal className="flex flex-col items-center gap-5 border border-dashed border-border bg-card px-6 py-20 text-center shadow-sm">
-              <div className="flex size-16 items-center justify-center border border-border bg-secondary">
-                <ShoppingBag className="size-7 text-muted-foreground" aria-hidden="true" />
-              </div>
+            <Reveal className="mx-auto flex max-w-md flex-col items-center gap-5 py-16 text-center">
+              <span className="flex size-14 items-center justify-center rounded-full bg-secondary text-muted-foreground">
+                <ShoppingBag size={ICON_SIZE.feature} aria-hidden="true" />
+              </span>
               <div>
-                <p className="font-display text-lg font-semibold">Your cart is empty</p>
-                <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                  Browse our catalog to find templates, fonts, presentations, and other digital products.
-                </p>
+                <h2 className="font-display text-xl font-bold text-foreground">Your cart is empty.</h2>
+                <p className="mt-1.5 text-sm text-muted-foreground">Anything you add will be kept here until checkout.</p>
               </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <Button render={<Link href="/products" />} nativeButton={false} className="rounded-[3px]">
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <Button render={<Link href="/products" />} nativeButton={false} className="font-semibold">
                   Browse products
-                  <ArrowRight className="size-4" />
+                  <ArrowRight size={ICON_SIZE.base} aria-hidden="true" />
                 </Button>
-                <Button
-                  variant="outline"
-                  render={<Link href="/products?free=true" />}
-                  nativeButton={false}
-                  className="rounded-[3px]"
-                >
-                  <Tag className="size-4" />
-                  Free resources
+                <Button variant="outline" render={<Link href="/categories" />} nativeButton={false} className="bg-transparent font-semibold">
+                  Explore departments
                 </Button>
               </div>
             </Reveal>
           ) : (
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px] lg:gap-8">
-              <div className="border border-border bg-card px-5">
+            <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,65fr)_minmax(0,35fr)] lg:gap-10">
+              <div className="rounded-lg border border-border bg-card px-5 sm:px-6">
                 <CartItemsList
                   items={items.map((item) => ({
                     cartItemId: item.cartItem.id,
+                    productId: item.product.id,
                     productSlug: item.product.slug,
                     productName: item.product.name,
+                    tagline: item.product.tagline,
+                    categoryName: item.categoryName,
+                    sourceType: item.product.sourceType,
+                    licenseId: item.license.id,
                     licenseType: item.license.licenseType,
+                    licenseOptions: item.licenseOptions,
                     imageUrl: item.imageUrl,
+                    fileFormats: item.product.fileFormats,
+                    software: item.product.softwareCompatibility,
                     unitPriceUsd: item.license.price,
                     quantity: item.cartItem.quantity,
                   }))}
                 />
               </div>
-              <div className="lg:sticky lg:top-36 lg:self-start">
+
+              <div className="lg:sticky lg:top-24 lg:self-start">
                 <CartSummary subtotal={Math.round(subtotal * 100) / 100} itemCount={totalItems} />
               </div>
             </div>

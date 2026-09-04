@@ -11,6 +11,8 @@ export default function Loading() {
             className="absolute inset-0 animate-spin rounded-3xl border-2 border-accent/20 border-t-accent"
             aria-hidden="true"
           />
+          {/* Static local logo on a transient loading screen: no optimisation benefit from next/image. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/loading-icon.png"
             alt="DistroSource"

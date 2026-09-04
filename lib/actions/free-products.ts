@@ -6,6 +6,7 @@ import { getSession } from "@/lib/session"
 import { generateOrderNumber } from "@/lib/format"
 import { and, asc, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
+import { RATE_LIMITS, enforceRateLimit } from "@/lib/rate-limit"
 
 const APPROVED_RIGHTS_STATUSES = ["original", "licensed_for_distribution", "supplier_verified"]
 
@@ -22,6 +23,7 @@ export async function claimFreeProduct(productId: number) {
     return { success: false as const, requiresSignIn: true as const }
   }
   const userId = session.user.id
+  await enforceRateLimit("free-claim", RATE_LIMITS.freeClaim, userId)
 
   const [product] = await db.select().from(products).where(eq(products.id, productId)).limit(1)
   if (
@@ -33,13 +35,18 @@ export async function claimFreeProduct(productId: number) {
     throw new Error("This product isn't available to claim right now.")
   }
 
+  // Pick the cheapest tier, then require it to actually cost nothing. Without
+  // this check a product flagged isFree whose licence tiers are still priced
+  // would hand out a paid licence for free — a paid entitlement with no
+  // payment behind it. Fail closed instead: a mispriced "free" product is not
+  // claimable until an admin fixes the tier.
   const [license] = await db
     .select()
     .from(productLicenses)
     .where(eq(productLicenses.productId, productId))
-    .orderBy(asc(productLicenses.sortOrder))
+    .orderBy(asc(productLicenses.price), asc(productLicenses.sortOrder))
     .limit(1)
-  if (!license) {
+  if (!license || Number.parseFloat(license.price) !== 0) {
     throw new Error("This product isn't available to claim right now.")
   }
 
