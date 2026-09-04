@@ -82,11 +82,11 @@ export function OrderSummary({
           <Button
             type={formId ? "submit" : "button"}
             form={formId}
-            size="lg"
+            size="xl"
             onClick={onSubmit}
             disabled={isSubmitting}
             aria-busy={isSubmitting}
-            className="h-12 w-full font-semibold"
+            className="w-full font-semibold"
           >
             <span className="relative flex items-center justify-center">
               <span className={cn("flex items-center gap-2 transition-opacity", isSubmitting && "opacity-0")}>

@@ -128,7 +128,7 @@ export function ContactForm({ defaultTopic = "order" }: { defaultTopic?: string 
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs text-muted-foreground">Typical response within 1 business day.</p>
-        <Button type="submit" size="lg" disabled={isPending} className="h-11 px-6 font-semibold">
+        <Button type="submit" size="lg" disabled={isPending} className="px-6 font-semibold">
           {isPending && <Loader2 size={ICON_SIZE.sm} className="animate-spin" aria-hidden="true" />}
           {isPending ? "Sending…" : "Send message"}
         </Button>

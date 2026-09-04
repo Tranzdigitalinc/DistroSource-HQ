@@ -137,7 +137,7 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
             autoComplete="name"
             aria-invalid={!!show("name")}
             aria-describedby={show("name") ? `${uid}-name-err` : undefined}
-            className="h-11"
+            inputSize="lg"
           />
           <FieldError id={`${uid}-name-err`} message={show("name")} />
         </div>
@@ -155,7 +155,7 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
           autoComplete="email"
           aria-invalid={!!show("email")}
           aria-describedby={show("email") ? `${uid}-email-err` : undefined}
-          className="h-11"
+          inputSize="lg"
         />
         <FieldError id={`${uid}-email-err`} message={show("email")} />
       </div>
@@ -179,7 +179,8 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
             autoComplete={isSignUp ? "new-password" : "current-password"}
             aria-invalid={!!show("password")}
             aria-describedby={isSignUp ? `${uid}-pw-help` : show("password") ? `${uid}-pw-err` : undefined}
-            className="h-11 pr-11"
+            inputSize="lg"
+            className="pr-11"
           />
           <button
             type="button"
@@ -227,7 +228,7 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
             autoComplete="new-password"
             aria-invalid={!!show("confirm")}
             aria-describedby={show("confirm") ? `${uid}-confirm-err` : undefined}
-            className="h-11"
+            inputSize="lg"
           />
           <FieldError id={`${uid}-confirm-err`} message={show("confirm")} />
         </div>
@@ -263,7 +264,7 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
       )}
 
       {/* Fixed height + inline spinner: the button never changes size while loading. */}
-      <Button type="submit" disabled={loading} aria-busy={loading} className="mt-1 h-11 font-semibold">
+      <Button type="submit" size="lg" disabled={loading} aria-busy={loading} className="mt-1 font-semibold">
         <span className="relative flex items-center justify-center">
           <span className={cn("flex items-center gap-2 transition-opacity", loading && "opacity-0")}>
             {isSignUp ? "Create account" : "Sign in"}

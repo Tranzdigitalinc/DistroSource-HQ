@@ -80,7 +80,7 @@ export function Hero({ stats, products = [] }: { stats: HeroStats; products?: He
             transition={{ duration: 0.35, ease: EASE }}
             className="flex flex-wrap items-center gap-3"
           >
-            <Button size="lg" render={<Link href="/products" />} nativeButton={false} className="h-11 font-semibold">
+            <Button size="lg" render={<Link href="/products" />} nativeButton={false} className="font-semibold">
               Explore products
               <ArrowRight size={ICON_SIZE.base} aria-hidden="true" />
             </Button>
@@ -89,7 +89,7 @@ export function Hero({ stats, products = [] }: { stats: HeroStats; products?: He
               variant="outline"
               render={<Link href="/categories" />}
               nativeButton={false}
-              className="h-11 bg-transparent font-semibold"
+              className="bg-transparent font-semibold"
             >
               <Grid size={ICON_SIZE.base} aria-hidden="true" />
               Browse departments

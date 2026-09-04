@@ -61,8 +61,8 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
 
   const cta = (
     <Button
-      size="lg"
-      className="h-12 w-full font-semibold"
+      size="xl"
+      className="w-full font-semibold"
       onClick={handleCheckout}
       disabled={subtotal <= 0 || isNavigating}
       aria-busy={isNavigating}

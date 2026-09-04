@@ -13,7 +13,7 @@ const MotionLink = motion.create(Link)
 
 export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<typeof getCategoryTree>> }) {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-16 sm:px-8">
+    <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
       <div className="mb-8 flex items-end justify-between border-b border-border pb-6">
         <div>
           <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Browse the catalog</p>

@@ -54,7 +54,9 @@ export default async function CheckoutPage({
     // product recommendations. The only exits are "back to cart" and the
     // legal links below.
     <div className="flex min-h-screen flex-col bg-background">
-      <CheckoutHeader currentStep="checkout" />
+      {/* The wizard below owns progress (Account → Review → Payment), so the
+          header does not show a second, coarser one. */}
+      <CheckoutHeader currentStep="checkout" showSteps={false} showVerifyBanner={false} />
 
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-4 py-8 pb-28 sm:px-6 lg:pb-12">

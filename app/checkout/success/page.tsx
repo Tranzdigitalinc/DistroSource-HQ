@@ -210,11 +210,11 @@ export default async function CheckoutSuccessPage({
           </Reveal>
 
           <Reveal delay={0.2} className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button size="lg" render={<Link href="/account/library" />} nativeButton={false} className="h-12 px-6 font-semibold">
+            <Button size="xl" render={<Link href="/account/library" />} nativeButton={false} className="px-6 font-semibold">
               <Library size={ICON_SIZE.base} aria-hidden="true" />
               Go to My Library
             </Button>
-            <Button size="lg" variant="outline" className="h-12 bg-transparent px-6 font-semibold" render={<Link href="/products" />} nativeButton={false}>
+            <Button size="xl" variant="outline" className="bg-transparent px-6 font-semibold" render={<Link href="/products" />} nativeButton={false}>
               Continue shopping
               <ArrowRight size={ICON_SIZE.base} aria-hidden="true" />
             </Button>

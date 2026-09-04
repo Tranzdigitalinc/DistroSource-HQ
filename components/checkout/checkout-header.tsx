@@ -21,16 +21,36 @@ const STEPS: { id: Step; label: string }[] = [
  *
  * Server component — no interactivity, so it costs no client JS.
  */
-export function CheckoutHeader({ currentStep = "checkout" }: { currentStep?: Step }) {
+export function CheckoutHeader({
+  currentStep = "checkout",
+  showSteps = true,
+  showVerifyBanner = true,
+}: {
+  currentStep?: Step
+  /**
+   * The checkout page runs its own Account → Review → Payment wizard, so it
+   * turns this off: two progress indicators on one screen disagree about
+   * where the customer is. The confirmation page keeps it, where it is the
+   * only progress shown.
+   */
+  showSteps?: boolean
+  /**
+   * Also off during payment. The banner is useful everywhere else, but an
+   * unverified customer can pay, and a "verify your email" prompt beside a
+   * payment form reads as a blocker that must be cleared first.
+   */
+  showVerifyBanner?: boolean
+}) {
   const currentIndex = STEPS.findIndex((s) => s.id === currentStep)
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <VerifyEmailBanner />
+      {showVerifyBanner && <VerifyEmailBanner />}
 
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
         <BrandLogo href="/" heightClassName="h-9 sm:h-10" />
 
+        {showSteps && (
         <nav aria-label="Checkout progress" className="mx-auto hidden sm:block">
           <ol className="flex items-center gap-1">
             {STEPS.map((step, index) => {
@@ -55,6 +75,7 @@ export function CheckoutHeader({ currentStep = "checkout" }: { currentStep?: Ste
             })}
           </ol>
         </nav>
+        )}
 
         <div className="ml-auto flex items-center gap-3 sm:ml-0">
           <span className="hidden items-center gap-1.5 text-xs font-medium text-muted-foreground md:flex">

@@ -32,8 +32,8 @@ const badges = [
 
 export function TrustBadges() {
   return (
-    <section className="border-t border-border bg-secondary/30">
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-16">
+    <section className="border-y border-border bg-secondary/30">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
         <Reveal className="mb-8 max-w-2xl">
           <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">How buying works</p>
           <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
