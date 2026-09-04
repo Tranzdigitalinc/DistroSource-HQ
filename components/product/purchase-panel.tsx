@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "motion/react"
@@ -24,12 +24,14 @@ export interface PurchaseMeta {
 
 export function PurchasePanel({
   productId,
+  productName,
   licenses,
   initialWishlisted,
   isPreviewOnly = false,
   meta,
 }: {
   productId: number
+  productName?: string
   licenses: LicenseOption[]
   initialWishlisted: boolean
   isPreviewOnly?: boolean
@@ -42,6 +44,18 @@ export function PurchasePanel({
   const [isBuying, startBuy] = useTransition()
   const [isSaving, startSaving] = useTransition()
   const [justAdded, setJustAdded] = useState(false)
+
+  // Mobile: once the real actions scroll out of view, a compact bar keeps the
+  // price and Add to cart within thumb reach instead of forcing a scroll back.
+  const actionsRef = useRef<HTMLDivElement>(null)
+  const [actionsVisible, setActionsVisible] = useState(true)
+  useEffect(() => {
+    const el = actionsRef.current
+    if (!el || typeof IntersectionObserver === "undefined") return
+    const io = new IntersectionObserver(([entry]) => setActionsVisible(entry.isIntersecting), { rootMargin: "-8px 0px 0px 0px" })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
 
   const selected = licenses.find((l) => l.id === selectedId) ?? licenses[0]
 
@@ -65,7 +79,7 @@ export function PurchasePanel({
     })
   }
 
-  /** Add the selected licence, then go straight to the cart review before payment. */
+  /** Add the selected licence, then go straight to checkout. */
   function handleBuyNow() {
     startBuy(async () => {
       try {
@@ -101,91 +115,129 @@ export function PurchasePanel({
   ].filter((r): r is [string, string] => Boolean(r))
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-e1)]">
-      <div className="border-b border-border px-5 py-4">
-        <AnimatePresence mode="popLayout" initial={false}>
-          <motion.div
-            key={selected.id}
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 4 }}
-            transition={{ duration: 0.16 }}
-            className="flex items-baseline gap-2"
-          >
-            <span className="font-display text-3xl font-bold tabular-nums tracking-tight text-foreground">
-              <PriceDisplay usdAmount={Number.parseFloat(selected.price)} />
-            </span>
-            <span className="font-mono text-xs font-medium uppercase text-muted-foreground">USD</span>
-          </motion.div>
-        </AnimatePresence>
-        <p className="mt-0.5 text-xs text-muted-foreground">{licenseLabel(selected.licenseType)} licence · one-time payment</p>
-      </div>
-
-      <div className="border-b border-border px-5 py-4">
-        <LicenseSelector licenses={licenses} value={selected.id} onChange={setSelectedId} />
-      </div>
-
-      {facts.length > 0 && (
-        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 border-b border-border px-5 py-3.5 text-xs">
-          {facts.map(([k, v]) => (
-            <div key={k} className="contents">
-              <dt className="text-muted-foreground">{k}</dt>
-              <dd className="min-w-0 truncate text-foreground">{v}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
-
-      <div className="flex flex-col gap-2.5 px-5 py-4">
-        {isPreviewOnly && (
-          <p className="rounded-md border border-dashed border-border bg-secondary/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
-            This product&apos;s downloadable files are still being prepared, so it isn&apos;t purchasable yet.
-          </p>
-        )}
-
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={handleAddToCart}
-            disabled={busy || justAdded || isPreviewOnly}
-            size="lg"
-            className={cn("h-11 flex-1 font-semibold", justAdded && "bg-success hover:bg-success")}
-          >
-            {isAdding ? <Loader2 size={ICON_SIZE.base} className="animate-spin" aria-hidden="true" /> : justAdded ? <Check size={ICON_SIZE.base} aria-hidden="true" /> : <ShoppingCart size={ICON_SIZE.base} aria-hidden="true" />}
-            {justAdded ? "Added to cart" : isPreviewOnly ? "Not yet available" : "Add to cart"}
-          </Button>
-          <Button
-            onClick={handleWishlist}
-            disabled={isSaving}
-            variant="outline"
-            size="icon"
-            className="size-11 shrink-0 bg-transparent"
-            aria-label={wishlisted ? "Remove from wishlist" : "Save to wishlist"}
-            aria-pressed={wishlisted}
-          >
-            <Heart size={ICON_SIZE.nav} className={cn("transition-transform", wishlisted && "scale-110 fill-destructive text-destructive")} aria-hidden="true" />
-          </Button>
+    <>
+      <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-e1)]">
+        <div className="border-b border-border px-5 py-4">
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.div
+              key={selected.id}
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 4 }}
+              transition={{ duration: 0.16 }}
+              className="flex items-baseline gap-2"
+            >
+              <span className="font-display text-3xl font-bold tabular-nums tracking-tight text-foreground">
+                <PriceDisplay usdAmount={Number.parseFloat(selected.price)} />
+              </span>
+              <span className="font-mono text-xs font-medium uppercase text-muted-foreground">USD</span>
+            </motion.div>
+          </AnimatePresence>
+          <p className="mt-0.5 text-xs text-muted-foreground">{licenseLabel(selected.licenseType)} licence · one-time payment</p>
         </div>
-        {!isPreviewOnly && (
-          <Button onClick={handleBuyNow} disabled={busy} variant="outline" size="lg" className="h-11 w-full bg-transparent font-semibold">
-            {isBuying ? <Loader2 size={ICON_SIZE.base} className="animate-spin" aria-hidden="true" /> : <Lock size={ICON_SIZE.sm} aria-hidden="true" />}
-            Buy now
-          </Button>
+
+        <div className="border-b border-border px-5 py-4">
+          <LicenseSelector licenses={licenses} value={selected.id} onChange={setSelectedId} />
+        </div>
+
+        {facts.length > 0 && (
+          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 border-b border-border px-5 py-3.5 text-xs">
+            {facts.map(([k, v]) => (
+              <div key={k} className="contents">
+                <dt className="text-muted-foreground">{k}</dt>
+                <dd className="min-w-0 truncate text-foreground">{v}</dd>
+              </div>
+            ))}
+          </dl>
         )}
+
+        <div ref={actionsRef} className="flex flex-col gap-2.5 px-5 py-4">
+          {isPreviewOnly && (
+            <p className="rounded-md border border-dashed border-border bg-secondary/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+              This product&apos;s downloadable files are still being prepared, so it isn&apos;t purchasable yet.
+            </p>
+          )}
+
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleAddToCart}
+              disabled={busy || justAdded || isPreviewOnly}
+              size="lg"
+              className={cn("flex-1 font-semibold", justAdded && "bg-success hover:bg-success")}
+            >
+              {isAdding ? <Loader2 className="animate-spin" aria-hidden="true" /> : justAdded ? <Check aria-hidden="true" /> : <ShoppingCart aria-hidden="true" />}
+              {justAdded ? "Added to cart" : isPreviewOnly ? "Not yet available" : "Add to cart"}
+            </Button>
+            <Button
+              onClick={handleWishlist}
+              disabled={isSaving}
+              variant="outline"
+              size="icon-lg"
+              className="shrink-0 bg-transparent"
+              aria-label={wishlisted ? "Remove from wishlist" : "Save to wishlist"}
+              aria-pressed={wishlisted}
+            >
+              <Heart
+                size={ICON_SIZE.nav}
+                className={cn("transition-transform", wishlisted && "scale-110 fill-destructive text-destructive")}
+                aria-hidden="true"
+              />
+            </Button>
+          </div>
+          {!isPreviewOnly && (
+            <Button onClick={handleBuyNow} disabled={busy} variant="outline" size="lg" className="w-full bg-transparent font-semibold">
+              {isBuying ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Lock aria-hidden="true" />}
+              Buy now
+            </Button>
+          )}
+        </div>
+
+        {/* Reassurance: only statements true for this product. */}
+        <ul className="flex flex-col gap-1.5 border-t border-border bg-secondary/30 px-5 py-3.5">
+          {[
+            { icon: Download, text: "Digital delivery to My Library after payment" },
+            ...(meta?.hasDocumentation ? [{ icon: FileText, text: "Documentation included" }] : []),
+            { icon: Lock, text: "Secure checkout by Polar" },
+          ].map(({ icon: Icon, text }) => (
+            <li key={text} className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Icon size={ICON_SIZE.sm} className="shrink-0 text-success" aria-hidden="true" />
+              {text}
+            </li>
+          ))}
+        </ul>
       </div>
 
-      {/* Reassurance: only statements true for this product. */}
-      <ul className="flex flex-col gap-1.5 border-t border-border bg-secondary/30 px-5 py-3.5">
-        {[
-          { icon: Download, text: "Digital delivery to My Library after payment" },
-          ...(meta?.hasDocumentation ? [{ icon: FileText, text: "Documentation included" }] : []),
-          { icon: Lock, text: "Secure checkout by Polar" },
-        ].map(({ icon: Icon, text }) => (
-          <li key={text} className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Icon size={ICON_SIZE.sm} className="shrink-0 text-success" aria-hidden="true" />
-            {text}
-          </li>
-        ))}
-      </ul>
-    </div>
+      {/* ---- Mobile sticky buy bar ---- */}
+      <AnimatePresence>
+        {!actionsVisible && !isPreviewOnly && (
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 shadow-[var(--shadow-e3)] backdrop-blur supports-[backdrop-filter]:bg-background/90 lg:hidden"
+          >
+            <div className="mx-auto flex max-w-lg items-center gap-3">
+              <div className="min-w-0">
+                <p className="font-display text-lg font-bold leading-tight tabular-nums">
+                  <PriceDisplay usdAmount={Number.parseFloat(selected.price)} />
+                </p>
+                <p className="truncate text-[11px] text-muted-foreground">{licenseLabel(selected.licenseType)} licence</p>
+              </div>
+              <Button
+                onClick={handleAddToCart}
+                disabled={busy || justAdded}
+                size="lg"
+                className={cn("flex-1 font-semibold", justAdded && "bg-success hover:bg-success")}
+                aria-label={productName ? `Add ${productName} to cart` : "Add to cart"}
+              >
+                {isAdding ? <Loader2 className="animate-spin" aria-hidden="true" /> : justAdded ? <Check aria-hidden="true" /> : <ShoppingCart aria-hidden="true" />}
+                {justAdded ? "Added" : "Add to cart"}
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   )
 }
