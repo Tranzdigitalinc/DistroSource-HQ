@@ -8,7 +8,18 @@ function getResend() {
 }
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "DistroSource <support@distrosource.com>"
-const LOGO_URL = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%20Aug%2031%2C%202026%2C%2008_01_39%20PM-qRhA04nZH0DW0ucjzMDiU2ILGL1e2U.png"
+
+// Email clients fetch images over the public internet, so this must be an
+// absolute URL — never a bare "/images/..." path. Resolved lazily (not at
+// module load) since getAuthBaseUrl() can throw if misconfigured, and that
+// must only surface when an email actually sends, not on import. Uses the
+// real DistroSource logo (white "Distro" wordmark) shipped in /public, sized
+// for the dark header used in these templates. Do not point this at any
+// other brand's asset — it was previously (incorrectly) pointing at a
+// RedeemCove logo.
+function getLogoUrl() {
+  return `${getAuthBaseUrl()}/images/distro-source-logo-dark.png`
+}
 
 export async function sendVerificationEmail(to: string, verificationUrl: string) {
   const { error } = await getResend().emails.send({
@@ -20,7 +31,7 @@ export async function sendVerificationEmail(to: string, verificationUrl: string)
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:620px;margin:0 auto;border-collapse:separate;">
           <tr><td style="padding:0 0 18px;text-align:center;font-size:12px;letter-spacing:1.5px;color:#60758c;text-transform:uppercase;">Digital products, licensed and delivered instantly</td></tr>
           <tr><td style="background:#081426;border-radius:20px 20px 0 0;padding:28px 28px 24px;text-align:center;">
-            <img src="${LOGO_URL}" alt="DistroSource — templates, tools, and digital assets" width="360" style="display:block;width:360px;max-width:100%;height:auto;margin:0 auto;" />
+            <img src="${getLogoUrl()}" alt="DistroSource — templates, tools, and digital assets" width="360" style="display:block;width:360px;max-width:100%;height:auto;margin:0 auto;" />
           </td></tr>
           <tr><td style="background:#ffffff;border-radius:0 0 20px 20px;padding:38px 34px 32px;border:1px solid #dce6ee;border-top:0;">
             <p style="margin:0 0 10px;text-align:center;color:#168ba5;font-size:12px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;">Welcome aboard</p>
@@ -248,7 +259,7 @@ export async function sendSupportReplyEmail(
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:560px;margin:0 auto;border-collapse:separate;">
           <tr><td style="padding:0 0 18px;text-align:center;font-size:12px;letter-spacing:1.5px;color:#60758c;text-transform:uppercase;">Support conversation</td></tr>
           <tr><td style="background:#081426;border-radius:20px 20px 0 0;padding:26px 28px 22px;text-align:center;">
-            <img src="${LOGO_URL}" alt="DistroSource — templates, tools, and digital assets" width="320" style="display:block;width:320px;max-width:100%;height:auto;margin:0 auto;" />
+            <img src="${getLogoUrl()}" alt="DistroSource — templates, tools, and digital assets" width="320" style="display:block;width:320px;max-width:100%;height:auto;margin:0 auto;" />
           </td></tr>
           <tr><td style="background:#ffffff;border-radius:0 0 20px 20px;padding:34px 32px 30px;border:1px solid #dce6ee;border-top:0;">
             <p style="margin:0 0 4px;color:#168ba5;font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;">Re: ${subject}</p>
