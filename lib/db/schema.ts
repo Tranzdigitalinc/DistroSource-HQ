@@ -223,7 +223,7 @@ export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
   orderNumber: text("orderNumber").notNull().unique(),
   userId: text("userId").notNull(),
-  status: text("status").notNull().default("completed"), // pending_payment | completed | refunded | failed | canceled | expired
+  status: text("status").notNull().default("completed"), // pending_payment | completed | refunded | partially_refunded | failed | canceled | expired
   subtotalUsd: numeric("subtotalUsd", { precision: 10, scale: 2 }).notNull(),
   currency: text("currency").notNull().default("usd"),
   discountUsd: numeric("discountUsd", { precision: 10, scale: 2 }).notNull().default("0"),
@@ -239,7 +239,30 @@ export const orders = pgTable("orders", {
   paypalCaptureId: text("paypalCaptureId"),
   polarCheckoutId: text("polarCheckoutId"),
   polarOrderId: text("polarOrderId"),
+  // Polar customer this order was billed to (maps to our userId via
+  // externalCustomerId at checkout creation time).
+  polarCustomerId: text("polarCustomerId"),
+  // Actual amount Polar reports as paid (post discount + tax), captured from
+  // the order.paid webhook. May differ from totalUsd once tax is applied by
+  // Polar, so this is the authoritative "what the customer was charged" figure.
+  polarPaidAmount: numeric("polarPaidAmount", { precision: 10, scale: 2 }),
+  polarPaidCurrency: text("polarPaidCurrency"),
+  polarPaidAt: timestamp("polarPaidAt"),
+  polarRefundedAmount: numeric("polarRefundedAmount", { precision: 10, scale: 2 }),
+  polarRefundedAt: timestamp("polarRefundedAt"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
+// Records every processed Polar webhook delivery by its "webhook-id" header
+// (standardwebhooks/svix delivery id). Retried deliveries reuse the same id,
+// so inserting here first and skipping on conflict makes webhook processing
+// idempotent across order.paid, order.refunded, and any future event types.
+export const polarWebhookEvents = pgTable("polar_webhook_events", {
+  id: text("id").primaryKey(),
+  eventType: text("eventType").notNull(),
+  orderId: integer("orderId").references(() => orders.id),
+  payload: jsonb("payload"),
+  processedAt: timestamp("processedAt").notNull().defaultNow(),
 })
 
 export const orderItems = pgTable("order_items", {
