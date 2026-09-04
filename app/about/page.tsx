@@ -162,11 +162,11 @@ export default async function AboutPage() {
             <h2 className="mt-4 font-display text-2xl font-bold tracking-tight">Buying for a team?</h2>
             <p className="mt-2 text-sm text-muted-foreground">Multi-seat and agency licensing for businesses, with invoicing on request.</p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Button size="lg" className="h-11 px-6 font-semibold" nativeButton={false} render={<Link href="/team-licensing" />}>
+              <Button size="lg" className="px-6 font-semibold" nativeButton={false} render={<Link href="/team-licensing" />}>
                 Team licensing
                 <ArrowRight size={ICON_SIZE.base} aria-hidden="true" />
               </Button>
-              <Button size="lg" variant="outline" className="h-11 px-6 font-semibold" nativeButton={false} render={<Link href="/contact" />}>
+              <Button size="lg" variant="outline" className="px-6 font-semibold" nativeButton={false} render={<Link href="/contact" />}>
                 Contact us
               </Button>
             </div>

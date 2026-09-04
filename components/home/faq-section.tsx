@@ -35,7 +35,7 @@ const faqs = [
 
 export function FAQSection() {
   return (
-    <section className="mx-auto max-w-4xl px-6 py-16 sm:px-8">
+    <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6 md:py-16">
       <Reveal className="mb-10 border-b border-border pb-6 text-center">
         <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Reference</p>
         <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">Frequently asked questions</h2>

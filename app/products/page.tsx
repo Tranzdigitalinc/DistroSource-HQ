@@ -89,6 +89,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
               licenses={facets.licenses}
               reviewCount={stats.reviewCount}
               typeCounts={{ free: stats.freeCount, bundle: stats.bundleCount, deal: stats.dealCount }}
+              resultCount={totalCount}
             />
             <div className="min-w-0 flex-1">
               <CatalogToolbar resultCount={totalCount} />

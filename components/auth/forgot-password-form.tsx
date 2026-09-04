@@ -62,7 +62,7 @@ export function ForgotPasswordForm() {
           placeholder="you@example.com"
         />
       </div>
-      <Button type="submit" disabled={loading} className="h-11 font-semibold">
+      <Button type="submit" size="lg" disabled={loading} className="font-semibold">
         {loading && <Loader2 className="size-4 animate-spin" />}
         Send reset link
       </Button>

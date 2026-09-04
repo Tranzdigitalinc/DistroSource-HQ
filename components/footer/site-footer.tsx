@@ -96,7 +96,7 @@ function NewsletterForm() {
         required
         className="h-10 min-w-0 flex-1 rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-3 text-sm text-navy-foreground placeholder:text-navy-foreground/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
       />
-      <Button type="submit" size="sm" disabled={isPending} className="h-10 shrink-0 px-4 font-semibold">
+      <Button type="submit" disabled={isPending} className="shrink-0 px-4 font-semibold">
         Subscribe
         <ArrowRight size={ICON_SIZE.sm} aria-hidden="true" />
       </Button>

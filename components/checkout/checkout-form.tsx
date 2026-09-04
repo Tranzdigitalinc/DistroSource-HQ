@@ -204,7 +204,6 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
     })
   }
 
-  const inputClass = "h-11"
 
   // Step 1 submits its own form to create/confirm the account; step 2 submits
   // its own form to create the Polar checkout session. Only one is ever
@@ -255,12 +254,12 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="checkout-name">Full name</Label>
-                  <Input id="checkout-name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" aria-invalid={!!fieldError.name} className={inputClass} />
+                  <Input id="checkout-name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" aria-invalid={!!fieldError.name} inputSize="lg" />
                   {fieldError.name && <p className="text-xs text-destructive" role="alert">{fieldError.name}</p>}
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="checkout-email">Email</Label>
-                  <Input id="checkout-email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" aria-invalid={!!fieldError.email} className={inputClass} readOnly={!isGuest && !!defaultEmail} />
+                  <Input id="checkout-email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" aria-invalid={!!fieldError.email} inputSize="lg" readOnly={!isGuest && !!defaultEmail} />
                   {fieldError.email && <p className="text-xs text-destructive" role="alert">{fieldError.email}</p>}
                 </div>
               </div>
@@ -275,7 +274,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                     <div className="flex flex-col gap-1.5">
                       <Label htmlFor="checkout-password">Password</Label>
                       <div className="relative">
-                        <Input id="checkout-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" aria-invalid={!!fieldError.password} className={cn(inputClass, "pr-11")} />
+                        <Input id="checkout-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" aria-invalid={!!fieldError.password} inputSize="lg" className="pr-11" />
                         <button
                           type="button"
                           onClick={() => setShowPassword((v) => !v)}
@@ -291,7 +290,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <Label htmlFor="checkout-confirm-password">Confirm password</Label>
-                      <Input id="checkout-confirm-password" type={showPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" aria-invalid={!!fieldError.confirm} className={inputClass} />
+                      <Input id="checkout-confirm-password" type={showPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" aria-invalid={!!fieldError.confirm} inputSize="lg" />
                       {fieldError.confirm && <p className="text-xs text-destructive" role="alert">{fieldError.confirm}</p>}
                     </div>
                   </div>
@@ -396,7 +395,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               <p className="text-[11px] uppercase tracking-[0.06em] text-muted-foreground">Total</p>
               <p className="font-display text-lg font-bold tabular-nums leading-tight">${total.toFixed(2)}</p>
             </div>
-            <Button type="submit" form={FORM_ID} size="lg" disabled={isBusy} aria-busy={isBusy} className="h-12 flex-1 font-semibold">
+            <Button type="submit" form={FORM_ID} size="xl" disabled={isBusy} aria-busy={isBusy} className="flex-1 font-semibold">
               <Lock size={ICON_SIZE.sm} aria-hidden="true" />
               {isBusy ? "Preparing…" : ctaLabel}
             </Button>

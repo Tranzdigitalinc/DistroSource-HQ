@@ -55,6 +55,7 @@ export async function CatalogPage({
               formats={formats}
               reviewCount={stats.reviewCount}
               typeCounts={{ free: stats.freeCount, bundle: stats.bundleCount, deal: stats.dealCount }}
+              resultCount={products.length}
             />
             <div className="min-w-0 flex-1">
               <CatalogToolbar resultCount={products.length} />

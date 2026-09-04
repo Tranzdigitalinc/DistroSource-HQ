@@ -229,6 +229,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
               <PurchasePanel
                 productId={product.id}
+                productName={product.name}
                 licenses={licenses}
                 initialWishlisted={wishlistIds.includes(product.id)}
                 isPreviewOnly={product.assetStatus !== "ready" || !APPROVED_RIGHTS.includes(product.rightsStatus)}

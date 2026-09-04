@@ -37,7 +37,7 @@ const collections = [
 export function ShopByGoal() {
   return (
     <section className="border-y border-border bg-secondary/30">
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
         <div className="mb-8 max-w-xl">
           <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Collections</p>
           <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Start with what you need to do</h2>
