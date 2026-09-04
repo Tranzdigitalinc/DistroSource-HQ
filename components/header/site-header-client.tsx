@@ -10,6 +10,7 @@ import { AccountMenu } from "@/components/header/account-menu"
 import { ThemeToggle } from "@/components/header/theme-toggle"
 import { TrustStrip } from "@/components/header/trust-strip"
 import { BrandLogo } from "@/components/brand-logo"
+import { VerifyEmailBanner } from "@/components/verify-email-banner"
 import { Heart, ICON_SIZE } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
 
@@ -41,6 +42,8 @@ export function SiteHeaderClient({ departments = [] }: { departments?: Departmen
 
   return (
     <header className={cn("sticky top-0 z-40 border-b border-border bg-background", scrolled && "shadow-[var(--shadow-e1)]")}>
+      <VerifyEmailBanner />
+
       <div
         className={cn("overflow-hidden transition-all duration-300 ease-out motion-reduce:transition-none", scrolled ? "max-h-0 opacity-0" : "max-h-10 opacity-100")}
         aria-hidden={scrolled}
