@@ -3,6 +3,7 @@
 import { useId, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { toast } from "sonner"
 import { authClient } from "@/lib/auth-client"
 import { mergeGuestActivityIntoAccount } from "@/lib/actions/recently-viewed"
 import { mergeGuestCartIntoAccount } from "@/lib/actions/cart"
@@ -10,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { AlertCircle, Check, Eye, EyeOff, Loader2, MailCheck, ICON_SIZE } from "@/lib/storefront-icons"
+import { AlertCircle, Eye, EyeOff, Loader2, ICON_SIZE } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
 
 const MIN_PASSWORD = 8
@@ -55,10 +56,7 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
   const [showPassword, setShowPassword] = useState(false)
   const [touched, setTouched] = useState<Partial<Record<Field, boolean>>>({})
   const [formError, setFormError] = useState<string | null>(null)
-  const [verificationSent, setVerificationSent] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [resending, setResending] = useState(false)
-  const [resent, setResent] = useState(false)
 
   const errors: Partial<Record<Field, string>> = {}
   if (isSignUp && name.trim().length < 2) errors.name = "Enter your full name."
@@ -95,10 +93,13 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
       return
     }
 
+    // Auto-login on signup: the server already created a session for this
+    // account (autoSignIn + requireEmailVerification: false), so a brand-new
+    // user continues straight into the app instead of hitting a "confirm
+    // your email" wall. The site-wide VerifyEmailBanner keeps nudging them
+    // to verify without blocking anything.
     if (isSignUp) {
-      setLoading(false)
-      setVerificationSent(true)
-      return
+      toast.success("Account created", { description: `We sent a verification link to ${email.trim()}.` })
     }
 
     // A guest who added to cart, then signed in, keeps that cart.
@@ -112,46 +113,6 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
     }
     router.push(redirectTo)
     router.refresh()
-  }
-
-  async function resendVerification() {
-    setResending(true)
-    setFormError(null)
-    const result = await authClient.sendVerificationEmail({ email: email.trim(), callbackURL: redirectTo })
-    setResending(false)
-    if (result.error) setFormError("We couldn't resend the email just now. Please try again shortly.")
-    else setResent(true)
-  }
-
-  if (verificationSent && isSignUp) {
-    return (
-      <div className="flex flex-col items-center gap-5 text-center">
-        <span className="flex size-14 items-center justify-center rounded-full bg-success/10 text-success">
-          <MailCheck size={ICON_SIZE.feature} aria-hidden="true" />
-        </span>
-        <div>
-          <h2 className="font-display text-lg font-bold">Confirm your email</h2>
-          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-            We sent a verification link to <strong className="font-semibold text-foreground">{email.trim()}</strong>. Open it to activate your account — the link expires after a short while.
-          </p>
-        </div>
-        {formError && (
-          <p className="w-full rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
-            {formError}
-          </p>
-        )}
-        <div className="flex w-full flex-col gap-2">
-          <Button type="button" variant="outline" onClick={resendVerification} disabled={resending || resent} className="h-10 w-full bg-transparent font-semibold">
-            {resending ? <Loader2 size={ICON_SIZE.sm} className="animate-spin" aria-hidden="true" /> : resent ? <Check size={ICON_SIZE.sm} aria-hidden="true" /> : null}
-            {resent ? "Email sent again" : resending ? "Sending…" : "Resend email"}
-          </Button>
-          <p className="text-xs text-muted-foreground">Not in your inbox? Check spam, or make sure the address above is right.</p>
-        </div>
-        <Link href="/sign-in" className="text-sm font-medium text-foreground underline-offset-4 hover:underline">
-          Back to sign in
-        </Link>
-      </div>
-    )
   }
 
   const pwStrength = strength(password)
