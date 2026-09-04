@@ -20,6 +20,7 @@ import { generateOrderNumber } from "@/lib/format"
 import { sendOrderConfirmationEmail, sendReferralRewardEmail } from "@/lib/email"
 import { capturePaypalOrder, createPaypalOrder, refundPaypalCapture } from "@/lib/paypal"
 import { getOptionalOwnerId, getOwnerId, getSession } from "@/lib/session"
+import { getClientIpAddress } from "@/lib/request-ip"
 import { getPolarClient, polarCheckoutUrl, requiredPolarProductId } from "@/lib/polar"
 import { and, eq, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
@@ -494,6 +495,16 @@ export async function createPolarCheckout(input: {
     return [order]
   })
 
+  // externalCustomerId must be the authenticated DistroSource user id, never
+  // a guest cookie id. The checkout form always creates/signs in the account
+  // in prepareAccountForPayment() before calling this action, so session.user
+  // is expected to exist here — but we still gate on it explicitly rather
+  // than trusting ownerId (which falls back to a guest id if that ever
+  // changes) so a guest can never be attributed to a Polar customer record.
+  const externalCustomerId = session?.user?.id
+
+  const clientIp = await getClientIpAddress()
+
   const checkout = await getPolarClient().checkouts.create({
     products: [requiredPolarProductId()],
     prices: {
@@ -501,7 +512,11 @@ export async function createPolarCheckout(input: {
     },
     customerEmail: billingEmail,
     customerName: billingName,
-    externalCustomerId: ownerId,
+    ...(externalCustomerId ? { externalCustomerId } : {}),
+    // Lets Polar determine tax jurisdiction and currency/payment-method
+    // behavior from the buyer's real location instead of guessing from
+    // billing details alone.
+    customerIpAddress: clientIp,
     metadata: { distrosourceOrderId: pendingOrder.id, customerId: ownerId, cartItemCount: pricing.validatedItems.length },
     successUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/checkout/success?checkout_id={CHECKOUT_ID}&order=${encodeURIComponent(pendingOrder.orderNumber)}`,
     returnUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/checkout`,

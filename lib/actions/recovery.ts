@@ -27,7 +27,13 @@ export async function saveAbandonedCart(input: { email: string; subtotalUsd: num
   const userId = await getOptionalOwnerId()
   const recoveryToken = randomUUID()
   await db.insert(abandonedCarts).values({ userId, email, subtotalUsd: input.subtotalUsd.toFixed(2), cartSnapshot: input.items, recoveryToken })
-  await sendAbandonedCartEmail(email, `${getRecoveryBaseUrl()}/recover-cart/${recoveryToken}`, input.subtotalUsd)
+  // Best-effort only: a recovery email failure (e.g. email provider not
+  // configured) must never block the checkout flow that triggered this save.
+  try {
+    await sendAbandonedCartEmail(email, `${getRecoveryBaseUrl()}/recover-cart/${recoveryToken}`, input.subtotalUsd)
+  } catch (error) {
+    console.error("[v0] Failed to send abandoned cart email:", error)
+  }
   return { recoveryToken }
 }
 
