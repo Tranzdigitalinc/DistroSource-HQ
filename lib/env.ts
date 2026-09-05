@@ -175,6 +175,21 @@ export function getPolarServer(): "production" | "sandbox" {
   return process.env.POLAR_SERVER?.trim() === "production" ? "production" : "sandbox"
 }
 
+export function getWhopApiKey(): string {
+  return requireEnv("WHOP_API_KEY")
+}
+
+/**
+ * Whop webhook signing secret. Optional for now — the webhook route
+ * (app/api/webhooks/whop/route.ts) is a stub that skips signature
+ * verification and logs a warning until this is set. Once Whop's signing
+ * secret is available, set WHOP_WEBHOOK_SECRET and verification activates
+ * automatically.
+ */
+export function getWhopWebhookSecret(): string | null {
+  return process.env.WHOP_WEBHOOK_SECRET?.trim() || null
+}
+
 /**
  * Variables that must be present for a production deployment to be able to
  * take and fulfil an order. Returns the list of problems rather than throwing,
@@ -188,6 +203,7 @@ export function collectConfigProblems(): string[] {
     ["POLAR_ACCESS_TOKEN", "checkout sessions cannot be created"],
     ["POLAR_WEBHOOK_SECRET", "paid orders can never be fulfilled"],
     ["POLAR_PRODUCT_ID", "checkout sessions cannot be created"],
+    ["WHOP_API_KEY", "Whop checkout configurations cannot be created"],
     ["RESEND_API_KEY", "verification, reset and order emails cannot be sent"],
     [
       "BETTER_AUTH_SECRET",

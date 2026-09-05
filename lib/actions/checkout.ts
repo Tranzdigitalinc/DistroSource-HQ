@@ -27,6 +27,7 @@ import { getOwnerId, getSession } from "@/lib/session"
 import { getClientIpAddress } from "@/lib/request-ip"
 import { getPolarClient, polarCheckoutUrl, requiredPolarProductId } from "@/lib/polar"
 import { createTampayPaymentLink, getTampayLinkStatus, type TampayPaymentMethod } from "@/lib/tampay"
+import { createWhopCheckout as createWhopCheckoutConfiguration, whopPurchaseUrl } from "@/lib/whop"
 import { getAppUrl } from "@/lib/env"
 import {
   EMAIL_PATTERN,
@@ -399,6 +400,139 @@ export async function confirmTampayPayment(
   // guard makes this safe against concurrent polls double-fulfilling.
   await fulfillPendingOrder(order, { tampayPaidAt: new Date() })
   return { status: "paid", orderNumber: order.orderNumber }
+}
+
+const WHOP_MIN_USD = 0.5
+
+/**
+ * Creates a Whop checkout configuration and a matching pending order (same
+ * pattern as `createPolarCheckout`/`createTampayCheckout`: order + items
+ * are written before the checkout exists, then rolled back if Whop rejects
+ * the request). The cart is never touched here — it's only cleared once
+ * payment is actually confirmed by the verified `payment.succeeded` webhook
+ * (app/api/webhooks/whop/route.ts), so an abandoned or declined attempt
+ * always leaves something to retry.
+ *
+ * Unlike TamPay, the caller does NOT poll — Whop's webhook is the single
+ * source of truth for fulfilment, same as Polar's `order.paid`. The buyer
+ * opens `url` in a new tab; the original tab shows a waiting screen with no
+ * polling loop (see components/checkout/whop-waiting.tsx).
+ */
+export async function createWhopCheckout(input: {
+  billingEmail: string
+  billingName: string
+  couponCode?: string
+}): Promise<{ url: string; orderNumber: string } | { error: string }> {
+  try {
+    const billingEmail = input.billingEmail.trim()
+    const billingName = input.billingName.trim()
+    if (!EMAIL_PATTERN.test(billingEmail)) return { error: "Enter a valid email address for your order confirmation." }
+    if (!billingName) return { error: "Enter the name on this order." }
+
+    const ownerId = await getOwnerId()
+    await enforceRateLimit("whop-checkout-create", RATE_LIMITS.whopCheckoutCreate, ownerId)
+
+    const session = await getSession()
+    const cookieStore = await cookies()
+    const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
+    if (pricing.total < WHOP_MIN_USD) {
+      return {
+        error:
+          pricing.total <= 0
+            ? "Your order total is $0 after discounts — use the free checkout instead of Whop."
+            : `Whop requires a minimum order of $${WHOP_MIN_USD.toFixed(2)}.`,
+      }
+    }
+
+    // Resolve the public origin BEFORE writing the pending order — getAppUrl()
+    // throws in production when it's missing or points at localhost, and
+    // failing here costs the customer nothing.
+    const appUrl = getAppUrl()
+
+    const orderNumber = generateOrderNumber()
+
+    // Written pending, exactly like the Polar/TamPay paths: the cart is
+    // never touched here, so if the Whop API call below fails, this order
+    // and its items are simply deleted again and nothing else changes.
+    const [pendingOrder] = await db.transaction(async (tx) => {
+      const [order] = await tx
+        .insert(orders)
+        .values({
+          orderNumber,
+          userId: ownerId,
+          status: "pending_payment",
+          subtotalUsd: pricing.subtotal.toFixed(2),
+          discountUsd: pricing.discount.toFixed(2),
+          totalUsd: pricing.total.toFixed(2),
+          currency: "usd",
+          couponCode: pricing.promotion?.code ?? null,
+          referralCode: pricing.referral?.code ?? null,
+          affiliateCode: pricing.affiliateCode,
+          billingEmail,
+          billingName,
+          paymentMethod: "whop",
+        })
+        .returning()
+
+      await tx.insert(orderItems).values(
+        pricing.validatedItems.map((item) => {
+          const gross = item.unitPriceUsd * item.quantity
+          const lineDiscount = pricing.subtotal > 0 ? Math.round((pricing.discount * gross / pricing.subtotal) * 100) / 100 : 0
+          return {
+            orderId: order.id,
+            productId: item.productId,
+            licenseId: item.licenseId,
+            productName: item.productName,
+            licenseType: item.licenseType,
+            unitPriceUsd: item.unitPriceUsd.toFixed(2),
+            quantity: item.quantity,
+            discountUsd: lineDiscount.toFixed(2),
+            finalLineAmountUsd: (gross - lineDiscount).toFixed(2),
+            productVersion: item.productVersion,
+            currency: "usd",
+          }
+        }),
+      )
+      return [order]
+    })
+
+    let checkout: Awaited<ReturnType<typeof createWhopCheckoutConfiguration>>
+    try {
+      checkout = await createWhopCheckoutConfiguration({
+        // Whop plan titles are capped at 30 characters — keep this short
+        // rather than truncating orderNumber unpredictably.
+        title: `Order ${orderNumber}`,
+        amountUsd: pricing.total,
+        redirectUrl: `${appUrl}/checkout/success?order=${encodeURIComponent(pendingOrder.orderNumber)}`,
+        metadata: { distrosourceOrderId: pendingOrder.id, customerId: ownerId },
+      })
+    } catch (whopError) {
+      // No checkout was created, so nothing should be left behind: remove
+      // the orphaned pending order and leave the cart untouched.
+      await db.transaction(async (tx) => {
+        await tx.delete(orderItems).where(eq(orderItems.orderId, pendingOrder.id))
+        await tx.delete(orders).where(eq(orders.id, pendingOrder.id))
+      })
+      console.error("[v0] Whop checkout creation failed:", whopError)
+      return {
+        error:
+          whopError instanceof Error
+            ? whopError.message
+            : "We couldn't start Whop checkout right now. Your cart is safe — please try again in a moment.",
+      }
+    }
+
+    // Cart is deliberately left intact — see the comment on
+    // createPolarCheckout above for why. It's only cleared once the
+    // payment.succeeded webhook actually verifies payment and calls
+    // fulfillPendingOrder.
+    await db.update(orders).set({ whopCheckoutId: checkout.id }).where(eq(orders.id, pendingOrder.id))
+
+    return { url: whopPurchaseUrl(checkout), orderNumber: pendingOrder.orderNumber }
+  } catch (error) {
+    console.error("[v0] createWhopCheckout failed:", error)
+    return { error: error instanceof Error ? error.message : "Could not start Whop checkout. Please try again." }
+  }
 }
 
 const PAYPAL_MIN_USD = 0.5

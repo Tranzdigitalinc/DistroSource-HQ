@@ -137,6 +137,8 @@ export const RATE_LIMITS = {
   checkoutCreate: { windowSeconds: 600, max: 10 },
   /** Creates a TamPay payment link — a real API call to the provider. */
   tampayCheckoutCreate: { windowSeconds: 600, max: 10 },
+  /** Creates a Whop checkout configuration — a real API call to the provider. */
+  whopCheckoutCreate: { windowSeconds: 600, max: 10 },
   /** Client polls this every few seconds while a TamPay tab is open, so the window is generous. */
   tampayPoll: { windowSeconds: 300, max: 90 },
   /** Otherwise allows unlimited coupon-code enumeration. */
