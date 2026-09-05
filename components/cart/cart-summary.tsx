@@ -182,7 +182,7 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
           {cta}
           <p className="text-center text-xs text-muted-foreground">Instant digital delivery after confirmed payment.</p>
           <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-            Pay by card via Polar or with TamPay at checkout.
+            Card payments run through Polar, our Merchant of Record. Whop and TamPay are also available at checkout.
           </p>
         </div>
       </section>

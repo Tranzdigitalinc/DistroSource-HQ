@@ -7,7 +7,14 @@ import { supportConversations, supportMessages } from "@/lib/db/schema"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Constructed lazily: the Resend SDK throws when the key is absent, and a
+// module-scope client made that throw at import time — which is when Next
+// collects route config, so any build without RESEND_API_KEY failed here
+// rather than at the request that actually needs mail. Mirrors the
+// getPolarClient() factory in lib/polar.ts.
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY)
+}
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "DistroSource <support@distrosource.com>"
 const SUPPORT_INBOX = "support@distrosource.com"
 
@@ -47,7 +54,7 @@ export async function submitContactMessage(input: {
 
   const subject = `${topicLabel} — ${name}`
 
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
     to: SUPPORT_INBOX,
     replyTo: email,

@@ -12,6 +12,8 @@ import { TampayWaiting } from "@/components/checkout/tampay-waiting"
 import { WhopWaiting } from "@/components/checkout/whop-waiting"
 import { CheckoutLineItem, type CheckoutItem } from "@/components/checkout/checkout-line-item"
 import { OrderSummary } from "@/components/checkout/order-summary"
+import { RadioCardGroup } from "@/components/checkout/radio-card-group"
+import { PriceDisplay } from "@/components/price-display"
 import { saveAbandonedCart } from "@/lib/actions/recovery"
 import { createPolarCheckout, createTampayCheckout, createWhopCheckout } from "@/lib/actions/checkout"
 import { Download, Lock, CreditCard, Wallet, Zap, ICON_SIZE } from "@/lib/storefront-icons"
@@ -270,7 +272,6 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
     setStep(2)
   }
 
-  const inputClass = "h-11"
   // True once any provider has actually accepted a checkout attempt —
   // drives the shared "payment in progress" chrome (hides the step
   // indicator/CTA, shows the "Paying as" bar) regardless of which one.
@@ -281,7 +282,11 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   // mounted at a time, so both can safely reuse FORM_ID for the mobile sticky
   // CTA and the OrderSummary's submit button to target.
   const activeStepSubmit = step === 1 ? handleContinueFromAccount : handleContinueFromReview
-  const ctaLabel = step === 1 ? "Continue to review" : "Continue to secure payment"
+  // Name the destination: a buyer who picked Whop or TamPay is not going to
+  // a Polar payment sheet, and a generic label hides that.
+  const payLabel =
+    paymentProvider === "whop" ? "Continue to Whop" : paymentProvider === "tampay" ? "Continue to TamPay" : "Continue to secure payment"
+  const ctaLabel = step === 1 ? "Continue to review" : payLabel
 
   return (
     <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-8">
@@ -325,12 +330,12 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="checkout-name">Full name</Label>
-                  <Input id="checkout-name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" aria-invalid={!!fieldError.name} className={inputClass} />
+                  <Input id="checkout-name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" aria-invalid={!!fieldError.name} inputSize="lg" />
                   {fieldError.name && <p className="text-xs text-destructive" role="alert">{fieldError.name}</p>}
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="checkout-email">Email</Label>
-                  <Input id="checkout-email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" aria-invalid={!!fieldError.email} className={inputClass} readOnly={!isGuest && !!defaultEmail} />
+                  <Input id="checkout-email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" aria-invalid={!!fieldError.email} inputSize="lg" readOnly={!isGuest && !!defaultEmail} />
                   {fieldError.email && <p className="text-xs text-destructive" role="alert">{fieldError.email}</p>}
                 </div>
               </div>
@@ -382,77 +387,26 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
 
               {(TAMPAY_ENABLED || WHOP_ENABLED) && (
               <Section title="Payment method">
-                <div className={cn("grid grid-cols-1 gap-3 sm:grid-cols-2", WHOP_ENABLED && TAMPAY_ENABLED && "lg:grid-cols-3")}>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentProvider("polar")}
-                    aria-pressed={paymentProvider === "polar"}
-                    className={cn(
-                      "flex items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors",
-                      paymentProvider === "polar" ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
-                    )}
-                  >
-                    <CreditCard size={ICON_SIZE.base} className="mt-0.5 shrink-0 text-foreground" aria-hidden="true" />
-                    <span>
-                      <span className="block text-sm font-semibold text-foreground">Card</span>
-                      <span className="block text-xs text-muted-foreground">Apple Pay, Google Pay & cards via Polar</span>
-                    </span>
-                  </button>
-                  {WHOP_ENABLED && (
-                    <button
-                      type="button"
-                      onClick={() => setPaymentProvider("whop")}
-                      aria-pressed={paymentProvider === "whop"}
-                      className={cn(
-                        "flex items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors",
-                        paymentProvider === "whop" ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
-                      )}
-                    >
-                      <Zap size={ICON_SIZE.base} className="mt-0.5 shrink-0 text-foreground" aria-hidden="true" />
-                      <span>
-                        <span className="block text-sm font-semibold text-foreground">Whop</span>
-                        <span className="block text-xs text-muted-foreground">Pay with Whop&apos;s hosted checkout</span>
-                      </span>
-                    </button>
-                  )}
-                  {TAMPAY_ENABLED && (
-                    <button
-                      type="button"
-                      onClick={() => setPaymentProvider("tampay")}
-                      aria-pressed={paymentProvider === "tampay"}
-                      className={cn(
-                        "flex items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors",
-                        paymentProvider === "tampay" ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
-                      )}
-                    >
-                      <Wallet size={ICON_SIZE.base} className="mt-0.5 shrink-0 text-foreground" aria-hidden="true" />
-                      <span>
-                        <span className="block text-sm font-semibold text-foreground">TamPay</span>
-                        <span className="block text-xs text-muted-foreground">Regional cards & wallets</span>
-                      </span>
-                    </button>
-                  )}
-                </div>
-
+                <RadioCardGroup
+                  label="Payment method"
+                  value={paymentProvider}
+                  onChange={setPaymentProvider}
+                  columns={WHOP_ENABLED && TAMPAY_ENABLED ? 3 : 2}
+                  options={[
+                    { id: "polar" as const, label: "Card", description: "Apple Pay, Google Pay & cards via Polar", icon: CreditCard },
+                    ...(WHOP_ENABLED ? [{ id: "whop" as const, label: "Whop", description: "Pay with Whop’s hosted checkout", icon: Zap }] : []),
+                    ...(TAMPAY_ENABLED ? [{ id: "tampay" as const, label: "TamPay", description: "Regional cards & wallets", icon: Wallet }] : []),
+                  ]}
+                />
                 {paymentProvider === "tampay" && (
                   <div className="mt-4 flex flex-col gap-4 border-t border-border pt-4">
-                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                      {TAMPAY_METHODS.map((method) => (
-                        <button
-                          key={method.id}
-                          type="button"
-                          onClick={() => setTampaySubMethod(method.id)}
-                          aria-pressed={tampaySubMethod === method.id}
-                          className={cn(
-                            "rounded-lg border px-3 py-2.5 text-left transition-colors",
-                            tampaySubMethod === method.id ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
-                          )}
-                        >
-                          <span className="block text-sm font-semibold text-foreground">{method.label}</span>
-                          <span className="block text-xs text-muted-foreground">{method.description}</span>
-                        </button>
-                      ))}
-                    </div>
+                    <RadioCardGroup
+                      label="TamPay method"
+                      value={tampaySubMethod}
+                      onChange={setTampaySubMethod}
+                      columns={3}
+                      options={TAMPAY_METHODS.map((m) => ({ id: m.id, label: m.label, description: m.description }))}
+                    />
 
                     {tampaySubMethod === "togo" && (
                       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -464,7 +418,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                             value={tampayPhone}
                             onChange={(e) => setTampayPhone(e.target.value)}
                             aria-invalid={!!tampayFieldError.phone}
-                            className={inputClass}
+                            inputSize="lg"
                           />
                           {tampayFieldError.phone && <p className="text-xs text-destructive" role="alert">{tampayFieldError.phone}</p>}
                         </div>
@@ -475,7 +429,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                             value={tampayCity}
                             onChange={(e) => setTampayCity(e.target.value)}
                             aria-invalid={!!tampayFieldError.city}
-                            className={inputClass}
+                            inputSize="lg"
                           />
                           {tampayFieldError.city && <p className="text-xs text-destructive" role="alert">{tampayFieldError.city}</p>}
                         </div>
@@ -483,7 +437,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                     )}
 
                     <p className="text-xs leading-relaxed text-muted-foreground">
-                      TamPay adds a small processing fee on top of the total shown here — it's calculated and disclosed on TamPay's payment page before you pay.
+                      TamPay adds a small processing fee on top of the total shown here — it’s calculated and disclosed on TamPay’s payment page before you pay.
                     </p>
                   </div>
                 )}
@@ -568,9 +522,9 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
           <div className="mx-auto flex max-w-lg items-center gap-4">
             <div className="min-w-0">
               <p className="text-[11px] uppercase tracking-[0.06em] text-muted-foreground">Total</p>
-              <p className="font-display text-lg font-bold tabular-nums leading-tight">${total.toFixed(2)}</p>
+              <p className="font-display text-lg font-bold tabular-nums leading-tight"><PriceDisplay usdAmount={total} /></p>
             </div>
-            <Button type="submit" form={FORM_ID} size="lg" disabled={isBusy} aria-busy={isBusy} className="h-12 flex-1 font-semibold">
+            <Button type="submit" form={FORM_ID} size="xl" disabled={isBusy} aria-busy={isBusy} className="flex-1 font-semibold">
               <Lock size={ICON_SIZE.sm} aria-hidden="true" />
               {isBusy ? "Preparing…" : ctaLabel}
             </Button>
