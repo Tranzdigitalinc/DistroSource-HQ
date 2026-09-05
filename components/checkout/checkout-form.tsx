@@ -9,20 +9,24 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PolarInlineCheckout } from "@/components/checkout/polar-inline-checkout"
 import { TampayWaiting } from "@/components/checkout/tampay-waiting"
+import { WhopWaiting } from "@/components/checkout/whop-waiting"
 import { CheckoutLineItem, type CheckoutItem } from "@/components/checkout/checkout-line-item"
 import { OrderSummary } from "@/components/checkout/order-summary"
 import { saveAbandonedCart } from "@/lib/actions/recovery"
-import { createPolarCheckout, createTampayCheckout } from "@/lib/actions/checkout"
-import { Download, Lock, CreditCard, Wallet, ICON_SIZE } from "@/lib/storefront-icons"
+import { createPolarCheckout, createTampayCheckout, createWhopCheckout } from "@/lib/actions/checkout"
+import { Download, Lock, CreditCard, Wallet, Zap, ICON_SIZE } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
 
-type PaymentProvider = "polar" | "tampay"
+type PaymentProvider = "polar" | "tampay" | "whop"
 type TampaySubMethod = "togo" | "lahza" | "stripe"
 
 // Temporarily disabled — flip back to true to re-enable TamPay at checkout.
 // The action itself (lib/actions/checkout.ts) has the matching server-side
 // guard, so this only controls whether the picker is shown.
 const TAMPAY_ENABLED = false
+// Whop is live — the picker below only renders when more than one provider
+// is enabled, which now includes Whop by default.
+const WHOP_ENABLED = true
 
 const TAMPAY_METHODS: { id: TampaySubMethod; label: string; description: string }[] = [
   { id: "togo", label: "Togo", description: "Cards, Apple Pay & Google Pay" },
@@ -137,6 +141,10 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   // payment" screen. `tampayPaymentUrl` lets that screen reopen the tab if
   // the buyer closed it without paying.
   const [tampayOrder, setTampayOrder] = useState<{ orderNumber: string; url: string } | null>(null)
+  // Set once Whop has accepted the checkout configuration; drives the
+  // "payment in progress" screen. Unlike tampayOrder, this never polls —
+  // Whop's redirect + webhook combo confirms payment on its own.
+  const [whopOrder, setWhopOrder] = useState<{ orderNumber: string; url: string } | null>(null)
   // Signed-in shoppers already have an account, so they start on Review
   // (step 2). Guests confirm the name/email their order and receipt go to
   // first (step 1) — no account or password is required to pay. Guests get
@@ -210,6 +218,31 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
       return
     }
 
+    if (WHOP_ENABLED && paymentProvider === "whop") {
+      startTransition(async () => {
+        try {
+          const checkout = await createWhopCheckout({ billingEmail: email.trim(), billingName: name.trim(), couponCode })
+          if ("error" in checkout) {
+            // Whop only accepts the checkout (and clears the cart) after
+            // it's created, so it's safe to just let the buyer retry.
+            await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
+            toast.error(checkout.error)
+            return
+          }
+          // Whop has a real return URL, but opening it in a new tab keeps
+          // the review + waiting-screen UX identical to TamPay, and means
+          // an abandoned tab never leaves the buyer stuck on a blank page.
+          window.open(checkout.url, "_blank", "noopener,noreferrer")
+          setWhopOrder({ orderNumber: checkout.orderNumber, url: checkout.url })
+          setStep(3)
+        } catch (error) {
+          await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
+          toast.error(error instanceof Error ? error.message : "Could not start Whop checkout.")
+        }
+      })
+      return
+    }
+
     startTransition(async () => {
       try {
         const checkout = await createPolarCheckout({ billingEmail: email.trim(), billingName: name.trim(), couponCode })
@@ -230,18 +263,19 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
     })
   }
 
-  /** Resets the in-progress payment attempt (either provider) back to Review. */
+  /** Resets the in-progress payment attempt (any provider) back to Review. */
   function handleCancelPayment() {
     setPolarCheckoutUrl(null)
     setTampayOrder(null)
+    setWhopOrder(null)
     setStep(2)
   }
 
   const inputClass = "h-11"
-  // True once either provider has actually accepted a checkout attempt —
+  // True once any provider has actually accepted a checkout attempt —
   // drives the shared "payment in progress" chrome (hides the step
   // indicator/CTA, shows the "Paying as" bar) regardless of which one.
-  const paymentInProgress = Boolean(polarCheckoutUrl) || Boolean(tampayOrder)
+  const paymentInProgress = Boolean(polarCheckoutUrl) || Boolean(tampayOrder) || Boolean(whopOrder)
 
   // Step 1 submits its own form to create/confirm the account; step 2 submits
   // its own form to create the Polar checkout session. Only one is ever
@@ -347,9 +381,9 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 </ul>
               </Section>
 
-              {TAMPAY_ENABLED && (
+              {(TAMPAY_ENABLED || WHOP_ENABLED) && (
               <Section title="Payment method">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className={cn("grid grid-cols-1 gap-3 sm:grid-cols-2", WHOP_ENABLED && TAMPAY_ENABLED && "lg:grid-cols-3")}>
                   <button
                     type="button"
                     onClick={() => setPaymentProvider("polar")}
@@ -365,21 +399,40 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                       <span className="block text-xs text-muted-foreground">Apple Pay, Google Pay & cards via Polar</span>
                     </span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentProvider("tampay")}
-                    aria-pressed={paymentProvider === "tampay"}
-                    className={cn(
-                      "flex items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors",
-                      paymentProvider === "tampay" ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
-                    )}
-                  >
-                    <Wallet size={ICON_SIZE.base} className="mt-0.5 shrink-0 text-foreground" aria-hidden="true" />
-                    <span>
-                      <span className="block text-sm font-semibold text-foreground">TamPay</span>
-                      <span className="block text-xs text-muted-foreground">Regional cards & wallets</span>
-                    </span>
-                  </button>
+                  {WHOP_ENABLED && (
+                    <button
+                      type="button"
+                      onClick={() => setPaymentProvider("whop")}
+                      aria-pressed={paymentProvider === "whop"}
+                      className={cn(
+                        "flex items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors",
+                        paymentProvider === "whop" ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
+                      )}
+                    >
+                      <Zap size={ICON_SIZE.base} className="mt-0.5 shrink-0 text-foreground" aria-hidden="true" />
+                      <span>
+                        <span className="block text-sm font-semibold text-foreground">Whop</span>
+                        <span className="block text-xs text-muted-foreground">Pay with Whop&apos;s hosted checkout</span>
+                      </span>
+                    </button>
+                  )}
+                  {TAMPAY_ENABLED && (
+                    <button
+                      type="button"
+                      onClick={() => setPaymentProvider("tampay")}
+                      aria-pressed={paymentProvider === "tampay"}
+                      className={cn(
+                        "flex items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors",
+                        paymentProvider === "tampay" ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
+                      )}
+                    >
+                      <Wallet size={ICON_SIZE.base} className="mt-0.5 shrink-0 text-foreground" aria-hidden="true" />
+                      <span>
+                        <span className="block text-sm font-semibold text-foreground">TamPay</span>
+                        <span className="block text-xs text-muted-foreground">Regional cards & wallets</span>
+                      </span>
+                    </button>
+                  )}
                 </div>
 
                 {paymentProvider === "tampay" && (
@@ -491,6 +544,9 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 onPaid={(orderNumber) => router.push(`/checkout/success?order=${encodeURIComponent(orderNumber)}`)}
                 onCancel={handleCancelPayment}
               />
+            )}
+            {WHOP_ENABLED && whopOrder && (
+              <WhopWaiting orderNumber={whopOrder.orderNumber} paymentUrl={whopOrder.url} onCancel={handleCancelPayment} />
             )}
           </>
         )}

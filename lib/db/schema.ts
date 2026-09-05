@@ -257,6 +257,13 @@ export const orders = pgTable("orders", {
   tampayLinkId: text("tampayLinkId"),
   tampayPaymentMethod: text("tampayPaymentMethod"), // togo | lahza | stripe
   tampayPaidAt: timestamp("tampayPaidAt"),
+  // Whop checkout configuration id (ch_XXXXXXXX), created up front with the
+  // order (same pattern as polarCheckoutId / tampayOrderId). Whop has no
+  // return-based confirmation — payment.succeeded webhook is the only thing
+  // that sets whopPaidAt and fulfills the order. See lib/whop.ts.
+  whopCheckoutId: text("whopCheckoutId"),
+  whopPaidAt: timestamp("whopPaidAt"),
+  whopMetadata: jsonb("whopMetadata"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 

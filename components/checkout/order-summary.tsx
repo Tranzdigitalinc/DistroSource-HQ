@@ -104,7 +104,7 @@ export function OrderSummary({
             </span>
           </Button>
           <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-            Payments are processed securely via Polar or TamPay, depending on the method you choose.
+            Payments are processed securely via Polar or Whop, depending on the method you choose.
           </p>
         </div>
       )}
