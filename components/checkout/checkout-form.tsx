@@ -19,6 +19,11 @@ import { cn } from "@/lib/utils"
 type PaymentProvider = "polar" | "tampay"
 type TampaySubMethod = "togo" | "lahza" | "stripe"
 
+// Temporarily disabled — flip back to true to re-enable TamPay at checkout.
+// The action itself (lib/actions/checkout.ts) has the matching server-side
+// guard, so this only controls whether the picker is shown.
+const TAMPAY_ENABLED = false
+
 const TAMPAY_METHODS: { id: TampaySubMethod; label: string; description: string }[] = [
   { id: "togo", label: "Togo", description: "Cards, Apple Pay & Google Pay" },
   { id: "lahza", label: "Lahza", description: "Cards only, lower fee" },
@@ -167,7 +172,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   function handleContinueFromReview(e: React.FormEvent) {
     e.preventDefault()
 
-    if (paymentProvider === "tampay") {
+    if (TAMPAY_ENABLED && paymentProvider === "tampay") {
       const errors: typeof tampayFieldError = {}
       if (tampaySubMethod === "togo") {
         if (!tampayPhone.trim()) errors.phone = "Phone is required for Togo."
@@ -342,6 +347,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 </ul>
               </Section>
 
+              {TAMPAY_ENABLED && (
               <Section title="Payment method">
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <button
@@ -432,6 +438,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                   </div>
                 )}
               </Section>
+              )}
 
               <div className="flex items-start gap-3 rounded-lg border border-border bg-secondary/30 px-5 py-4">
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-card text-foreground">
@@ -477,7 +484,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 }}
               />
             )}
-            {tampayOrder && (
+            {TAMPAY_ENABLED && tampayOrder && (
               <TampayWaiting
                 orderNumber={tampayOrder.orderNumber}
                 paymentUrl={tampayOrder.url}

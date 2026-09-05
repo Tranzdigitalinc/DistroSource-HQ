@@ -212,6 +212,10 @@ export async function createPolarCheckout(input: {
 }
 
 const TAMPAY_MIN_USD = 0.5
+// Temporarily disabled — flip back to true to re-enable TamPay at checkout.
+// Guarded here (not just hidden in the UI) so the action can't be reached
+// directly while it's off.
+const TAMPAY_ENABLED = false
 
 /**
  * Creates a fixed-amount, single-use TamPay payment link and a matching
@@ -234,6 +238,7 @@ export async function createTampayCheckout(input: {
   city?: string
   country?: string
 }): Promise<{ url: string; orderNumber: string } | { error: string }> {
+  if (!TAMPAY_ENABLED) return { error: "TamPay checkout is temporarily unavailable. Please pay by card instead." }
   try {
     const billingEmail = input.billingEmail.trim()
     const billingName = input.billingName.trim()
