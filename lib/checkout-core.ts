@@ -409,6 +409,10 @@ export async function persistOrder(
  * Callers MUST have already verified payment with the provider themselves
  * (a verified webhook, or a direct server-to-server status check) — this
  * function trusts that the caller did so and never re-checks it.
+ *
+ * The cart is cleared here — not when the checkout/link was created — so an
+ * abandoned or declined payment attempt never strands the buyer with an
+ * empty cart and nothing to retry.
  */
 export async function fulfillPendingOrder(
   order: typeof orders.$inferSelect,
@@ -421,6 +425,8 @@ export async function fulfillPendingOrder(
       .update(orders)
       .set({ status: "completed", ...extra })
       .where(and(eq(orders.id, order.id), eq(orders.status, "pending_payment")))
+
+    await tx.delete(cartItems).where(eq(cartItems.userId, order.userId))
 
     for (const item of items) {
       const [existing] = await tx

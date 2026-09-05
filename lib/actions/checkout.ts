@@ -20,7 +20,7 @@
  */
 
 import { db } from "@/lib/db"
-import { cartItems, operationEvents, orderItems, orders, promotionCampaigns } from "@/lib/db/schema"
+import { operationEvents, orderItems, orders, promotionCampaigns } from "@/lib/db/schema"
 import { generateOrderNumber } from "@/lib/format"
 import { capturePaypalOrder, createPaypalOrder, refundPaypalCapture } from "@/lib/paypal"
 import { getOwnerId, getSession } from "@/lib/session"
@@ -113,12 +113,11 @@ export async function createPolarCheckout(input: {
 
     const orderNumber = generateOrderNumber()
 
-    // The pending order is written WITHOUT clearing the cart yet. Polar's
+    // The pending order is written WITHOUT touching the cart. Polar's
     // checkout API needs distrosourceOrderId in its metadata before it can
-    // be created, so the order has to exist first — but the cart must stay
-    // intact until Polar actually accepts the checkout. If the Polar call
-    // below fails for any reason, this order is deleted again and the
-    // customer's cart is exactly as they left it.
+    // be created, so the order has to exist first. If the Polar call below
+    // fails for any reason, this order is deleted again and the customer's
+    // cart is exactly as they left it.
     const [pendingOrder] = await db.transaction(async (tx) => {
       const [order] = await tx.insert(orders).values({
         orderNumber,
@@ -197,12 +196,13 @@ export async function createPolarCheckout(input: {
       return { error: describePolarCheckoutError(polarError) }
     }
 
-    // Only now — after Polar has actually accepted the checkout — is the
-    // cart cleared.
-    await db.transaction(async (tx) => {
-      await tx.update(orders).set({ polarCheckoutId: checkout.id }).where(eq(orders.id, pendingOrder.id))
-      await tx.delete(cartItems).where(eq(cartItems.userId, ownerId))
-    })
+    // The cart is deliberately left intact here — clearing it now would
+    // strand the buyer with an empty cart if this Polar checkout is later
+    // abandoned, declined, or dismissed, since there would be nothing left
+    // to retry with (see fulfillPendingOrder / the order.paid webhook
+    // handler, which are the only places a cart is actually cleared, once
+    // payment is confirmed).
+    await db.update(orders).set({ polarCheckoutId: checkout.id }).where(eq(orders.id, pendingOrder.id))
 
     return { url: polarCheckoutUrl(checkout), checkoutId: checkout.id }
   } catch (error) {
@@ -217,8 +217,9 @@ const TAMPAY_MIN_USD = 0.5
  * Creates a fixed-amount, single-use TamPay payment link and a matching
  * pending order (same pattern as `createPolarCheckout`: order + items are
  * written before the payment link exists, then rolled back if TamPay
- * rejects the request, and the cart is only cleared once TamPay has
- * actually accepted it).
+ * rejects the request). The cart is never touched here — it's only cleared
+ * once payment is actually confirmed, by `fulfillPendingOrder` — so an
+ * abandoned or declined TamPay attempt always leaves something to retry.
  *
  * TamPay has no return URL, so the caller opens `url` in a NEW TAB and
  * polls `confirmTampayPayment` from the original tab until it reports
@@ -259,9 +260,9 @@ export async function createTampayCheckout(input: {
 
     const orderNumber = generateOrderNumber()
 
-    // Written pending, exactly like the Polar path: if the TamPay API call
-    // below fails, this order and its items are deleted again and the
-    // cart is untouched.
+    // Written pending, exactly like the Polar path: the cart is never
+    // touched here, so if the TamPay API call below fails, this order and
+    // its items are simply deleted again and nothing else changes.
     const [pendingOrder] = await db.transaction(async (tx) => {
       const [order] = await tx
         .insert(orders)
@@ -337,12 +338,11 @@ export async function createTampayCheckout(input: {
       }
     }
 
-    // Only now — after TamPay has actually accepted the link — is the cart
-    // cleared.
-    await db.transaction(async (tx) => {
-      await tx.update(orders).set({ tampayOrderId: link.orderId, tampayLinkId: link.id }).where(eq(orders.id, pendingOrder.id))
-      await tx.delete(cartItems).where(eq(cartItems.userId, ownerId))
-    })
+    // The cart is deliberately left intact — see the comment on
+    // createPolarCheckout above for why. It's only cleared once
+    // confirmTampayPayment actually verifies payment and calls
+    // fulfillPendingOrder.
+    await db.update(orders).set({ tampayOrderId: link.orderId, tampayLinkId: link.id }).where(eq(orders.id, pendingOrder.id))
 
     return { url: link.url, orderNumber: pendingOrder.orderNumber }
   } catch (error) {
