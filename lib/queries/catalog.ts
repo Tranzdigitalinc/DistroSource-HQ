@@ -83,6 +83,42 @@ export async function getCategoryTree() {
   })
 }
 
+/**
+ * A few real product thumbnails per department, keyed by department id.
+ *
+ * The homepage department cards used to be typographic art with no
+ * connection to stock. Showing what is actually inside a department is both
+ * better merchandising and self-correcting: a department with nothing
+ * published simply has no images to show.
+ *
+ * One query over the visible catalog (a few hundred rows), grouped in memory,
+ * and cached with the rest of the homepage.
+ */
+export async function getDepartmentPreviews(perDepartment = 3) {
+  const rows = await db
+    .select({
+      departmentId: categories.parentId,
+      thumbnailUrl: products.thumbnailUrl,
+      coverImageUrl: products.coverImageUrl,
+    })
+    .from(products)
+    .innerJoin(categories, eq(products.categoryId, categories.id))
+    .where(and(publiclyVisible(), sql`${categories.parentId} is not null`))
+    .orderBy(desc(products.isFeatured), desc(products.createdAt))
+
+  // A plain object rather than a Map: the homepage passes this through
+  // unstable_cache, which serialises to JSON — a Map would come back as {}.
+  const byDepartment: Record<number, string[]> = {}
+  for (const row of rows) {
+    if (row.departmentId === null) continue
+    const image = row.thumbnailUrl ?? row.coverImageUrl
+    if (!image) continue
+    const list = (byDepartment[row.departmentId] ??= [])
+    if (list.length < perDepartment) list.push(image)
+  }
+  return byDepartment
+}
+
 /** id → name for a set of category ids (library, order pages). */
 export async function getCategoryNamesByIds(ids: number[]) {
   const unique = [...new Set(ids)]

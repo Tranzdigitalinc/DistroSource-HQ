@@ -8,6 +8,7 @@ import { FAQSection } from "@/components/home/faq-section"
 import { TrustBadges } from "@/components/home/trust-badges"
 import {
   getCategoryTree,
+  getDepartmentPreviews,
   getFeaturedProducts,
   getProducts,
   getStorefrontStats,
@@ -17,9 +18,10 @@ import { ShopByGoal } from "@/components/home/shop-by-goal"
 const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["homepage", key], { revalidate: 300 })
 
 export default async function HomePage() {
-  const [departments, featured, newArrivals, businessProducts, webDevProducts, designProducts, bundleProducts, stats] =
+  const [departments, departmentPreviews, featured, newArrivals, businessProducts, webDevProducts, designProducts, bundleProducts, stats] =
     await Promise.all([
       cache(getCategoryTree, "departments")(),
+      cache(getDepartmentPreviews, "department-previews")(),
       cache(() => getFeaturedProducts(12), "featured")(),
       cache(() => getProducts({ sort: "newest", limit: 12 }), "new-arrivals")(),
       cache(() => getProducts({ categorySlug: "business-office", sort: "featured", limit: 8 }), "business-office")(),
@@ -42,7 +44,7 @@ export default async function HomePage() {
           }))}
         />
         {/* Departments with nothing published are not advertised on the home page. */}
-        <CategoryGrid categories={departments.filter((d) => d.productCount > 0)} />
+        <CategoryGrid categories={departments.filter((d) => d.productCount > 0)} previews={departmentPreviews} />
         <ProductRail title="Featured products" href="/products" items={featured} />
         <ProductRail
           title="New releases"
