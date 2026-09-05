@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { validateEvent } from "@polar-sh/sdk/webhooks"
 import { and, eq } from "drizzle-orm"
 import { db } from "@/lib/db"
-import { entitlements, operationEvents, orderItems, orders, polarWebhookEvents } from "@/lib/db/schema"
+import { cartItems, entitlements, operationEvents, orderItems, orders, polarWebhookEvents } from "@/lib/db/schema"
 import { getPolarWebhookSecret } from "@/lib/polar"
 import { sendOrderConfirmationEmail, sendRefundConfirmationEmail } from "@/lib/email"
 
@@ -84,6 +84,10 @@ export async function POST(request: Request) {
           polarPaidAt: new Date(),
         })
         .where(and(eq(orders.id, order.id), eq(orders.status, "pending_payment")))
+      // Cart is cleared here — once payment is actually confirmed — rather
+      // than when the checkout session was created, so an abandoned or
+      // declined Polar checkout never leaves the buyer with an empty cart.
+      await tx.delete(cartItems).where(eq(cartItems.userId, order.userId))
       for (const item of items) {
         const [existing] = await tx.select({ id: entitlements.id }).from(entitlements).where(and(eq(entitlements.orderId, order.id), eq(entitlements.orderItemId, item.id))).limit(1)
         if (!existing) await tx.insert(entitlements).values({ userId: order.userId, productId: item.productId, licenseId: item.licenseId, orderId: order.id, orderItemId: item.id })
