@@ -7,6 +7,7 @@ import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion/motion-provider'
 import { ScrollToTop } from '@/components/scroll-to-top'
+import { CartDrawerProvider } from '@/components/cart/cart-drawer'
 import { ResizeObserverErrorGuard } from '@/components/resize-observer-error-guard'
 import { VisitorTracker } from '@/components/analytics/visitor-tracker'
 import { ScrollProgress } from '@/components/velora/scroll-progress'
@@ -77,7 +78,9 @@ export default async function RootLayout({
         <ScrollProgress />
         <MotionProvider>
           <ThemeProvider>
-            <TooltipProvider>{children}</TooltipProvider>
+            <TooltipProvider>
+              <CartDrawerProvider>{children}</CartDrawerProvider>
+            </TooltipProvider>
             <Toaster position="bottom-right" richColors />
             <ScrollToTop />
           </ThemeProvider>

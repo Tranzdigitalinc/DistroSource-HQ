@@ -12,6 +12,7 @@ import { PriceDisplay } from "@/components/price-display"
 import { LicenseSelector } from "@/components/product/license-selector"
 import { ArrowRight, Check, ImageOff, Loader2, ShoppingCart, Star, ICON_SIZE } from "@/lib/storefront-icons"
 import { addToCart } from "@/lib/actions/cart"
+import { useCartDrawer } from "@/components/cart/cart-drawer"
 import { getSourceTypeLabel } from "@/lib/format"
 import { licenseLabel } from "@/lib/licenses"
 import { cn } from "@/lib/utils"
@@ -30,6 +31,7 @@ export function QuickPreviewDialog({ item, open, onOpenChange }: { item: Product
   const [licenseId, setLicenseId] = useState<number | undefined>(item.licenses[0]?.id)
   const [isPending, startTransition] = useTransition()
   const [justAdded, setJustAdded] = useState(false)
+  const { openCart } = useCartDrawer()
 
   // Reset transient state each time the dialog opens — derived from the
   // previous `open` value during render, not in an effect.
@@ -57,7 +59,8 @@ export function QuickPreviewDialog({ item, open, onOpenChange }: { item: Product
         await addToCart(item.product.id, selected.id, 1)
         await mutate("/api/cart/summary")
         setJustAdded(true)
-        toast.success("Added to cart", { description: `${item.product.name} · ${licenseLabel(selected.licenseType)} licence` })
+        onOpenChange(false)
+        openCart()
         router.refresh()
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Couldn't add this to your cart.")
