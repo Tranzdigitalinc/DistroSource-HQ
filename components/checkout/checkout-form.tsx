@@ -463,7 +463,6 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                             type="tel"
                             value={tampayPhone}
                             onChange={(e) => setTampayPhone(e.target.value)}
-                            placeholder="+970599000000"
                             aria-invalid={!!tampayFieldError.phone}
                             className={inputClass}
                           />
@@ -475,7 +474,6 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                             id="tampay-city"
                             value={tampayCity}
                             onChange={(e) => setTampayCity(e.target.value)}
-                            placeholder="Ramallah"
                             aria-invalid={!!tampayFieldError.city}
                             className={inputClass}
                           />
