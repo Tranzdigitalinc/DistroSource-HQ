@@ -55,7 +55,7 @@ export function QuickPreviewDialog({ item, open, onOpenChange }: { item: Product
     startTransition(async () => {
       try {
         await addToCart(item.product.id, selected.id, 1)
-        await mutate("cart-count")
+        await mutate("/api/cart/summary")
         setJustAdded(true)
         toast.success("Added to cart", { description: `${item.product.name} · ${licenseLabel(selected.licenseType)} licence` })
         router.refresh()

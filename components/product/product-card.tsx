@@ -87,7 +87,7 @@ export function ProductCard({ item, className, style }: { item: ProductCardData;
         }
         if (!cheapestLicense) return
         await addToCart(item.product.id, cheapestLicense.id, 1)
-        await mutate("cart-count")
+        await mutate("/api/cart/summary")
         setJustAdded(true)
         toast.success("Added to cart", { description: item.product.name })
         router.refresh()

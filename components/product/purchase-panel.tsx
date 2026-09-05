@@ -48,7 +48,6 @@ export function PurchasePanel({
   async function add() {
     await addToCart(productId, selected.id, 1)
     await mutate("/api/cart/summary")
-    await mutate("cart-count")
   }
 
   function handleAddToCart() {
