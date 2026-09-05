@@ -148,10 +148,13 @@ export function SiteFooter() {
             ))}
           </div>
           {/* Text disclosure only — no card or wallet logos. Which methods
-              Polar exposes is configured in Polar, not knowable here. */}
+              Polar exposes is configured in Polar, not knowable here.
+              "Merchant of Record" only applies to Polar orders — TamPay is
+              a payment gateway, not a MoR — so this stays generic rather
+              than crediting Polar's status to both. */}
           <p className="flex items-center gap-1.5">
             <ShieldCheck size={ICON_SIZE.sm} className="shrink-0 text-primary" aria-hidden="true" />
-            Payments processed securely by Polar, our Merchant of Record.
+            Payments processed securely via Polar or TamPay.
           </p>
         </div>
       </div>

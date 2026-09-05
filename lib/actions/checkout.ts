@@ -26,10 +26,12 @@ import { capturePaypalOrder, createPaypalOrder, refundPaypalCapture } from "@/li
 import { getOwnerId, getSession } from "@/lib/session"
 import { getClientIpAddress } from "@/lib/request-ip"
 import { getPolarClient, polarCheckoutUrl, requiredPolarProductId } from "@/lib/polar"
+import { createTampayPaymentLink, getTampayLinkStatus, type TampayPaymentMethod } from "@/lib/tampay"
 import { getAppUrl } from "@/lib/env"
 import {
   EMAIL_PATTERN,
   computeOrderPricing,
+  fulfillPendingOrder,
   persistOrder,
   validateCoupon,
 } from "@/lib/checkout-core"
@@ -207,6 +209,191 @@ export async function createPolarCheckout(input: {
     console.error("[v0] createPolarCheckout failed:", error)
     return { error: error instanceof Error ? error.message : "Could not start secure checkout. Please try again." }
   }
+}
+
+const TAMPAY_MIN_USD = 0.5
+
+/**
+ * Creates a fixed-amount, single-use TamPay payment link and a matching
+ * pending order (same pattern as `createPolarCheckout`: order + items are
+ * written before the payment link exists, then rolled back if TamPay
+ * rejects the request, and the cart is only cleared once TamPay has
+ * actually accepted it).
+ *
+ * TamPay has no return URL, so the caller opens `url` in a NEW TAB and
+ * polls `confirmTampayPayment` from the original tab until it reports
+ * "paid" — see `TampayPayment` in components/checkout/tampay-payment.tsx.
+ */
+export async function createTampayCheckout(input: {
+  billingEmail: string
+  billingName: string
+  couponCode?: string
+  paymentMethod: TampayPaymentMethod
+  phone?: string
+  city?: string
+  country?: string
+}): Promise<{ url: string; orderNumber: string } | { error: string }> {
+  try {
+    const billingEmail = input.billingEmail.trim()
+    const billingName = input.billingName.trim()
+    if (!EMAIL_PATTERN.test(billingEmail)) return { error: "Enter a valid email address for your order confirmation." }
+    if (!billingName) return { error: "Enter the name on this order." }
+    if (input.paymentMethod === "togo" && (!input.phone?.trim() || !input.city?.trim())) {
+      return { error: "Phone and city are required for the Togo payment method." }
+    }
+
+    const ownerId = await getOwnerId()
+    await enforceRateLimit("tampay-checkout-create", RATE_LIMITS.tampayCheckoutCreate, ownerId)
+
+    const session = await getSession()
+    const cookieStore = await cookies()
+    const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
+    if (pricing.total < TAMPAY_MIN_USD) {
+      return {
+        error:
+          pricing.total <= 0
+            ? "Your order total is $0 after discounts — use the free checkout instead of TamPay."
+            : `TamPay requires a minimum order of $${TAMPAY_MIN_USD.toFixed(2)}.`,
+      }
+    }
+
+    const orderNumber = generateOrderNumber()
+
+    // Written pending, exactly like the Polar path: if the TamPay API call
+    // below fails, this order and its items are deleted again and the
+    // cart is untouched.
+    const [pendingOrder] = await db.transaction(async (tx) => {
+      const [order] = await tx
+        .insert(orders)
+        .values({
+          orderNumber,
+          userId: ownerId,
+          status: "pending_payment",
+          subtotalUsd: pricing.subtotal.toFixed(2),
+          discountUsd: pricing.discount.toFixed(2),
+          totalUsd: pricing.total.toFixed(2),
+          currency: "usd",
+          couponCode: pricing.promotion?.code ?? null,
+          referralCode: pricing.referral?.code ?? null,
+          affiliateCode: pricing.affiliateCode,
+          billingEmail,
+          billingName,
+          paymentMethod: "tampay",
+          tampayPaymentMethod: input.paymentMethod,
+        })
+        .returning()
+
+      await tx.insert(orderItems).values(
+        pricing.validatedItems.map((item) => {
+          const gross = item.unitPriceUsd * item.quantity
+          const lineDiscount = pricing.subtotal > 0 ? Math.round((pricing.discount * gross / pricing.subtotal) * 100) / 100 : 0
+          return {
+            orderId: order.id,
+            productId: item.productId,
+            licenseId: item.licenseId,
+            productName: item.productName,
+            licenseType: item.licenseType,
+            unitPriceUsd: item.unitPriceUsd.toFixed(2),
+            quantity: item.quantity,
+            discountUsd: lineDiscount.toFixed(2),
+            finalLineAmountUsd: (gross - lineDiscount).toFixed(2),
+            productVersion: item.productVersion,
+            currency: "usd",
+          }
+        }),
+      )
+      return [order]
+    })
+
+    let link: Awaited<ReturnType<typeof createTampayPaymentLink>>
+    try {
+      link = await createTampayPaymentLink({
+        title: `DistroSource order ${orderNumber}`,
+        amountUsd: pricing.total,
+        paymentMethod: input.paymentMethod,
+        // The buyer pays TamPay's processing fee on top of the listed
+        // total, so the total DistroSource receives (and what every other
+        // payment method charges) never changes based on which one is picked.
+        buyerPaysFee: true,
+        customer: {
+          name: billingName,
+          email: billingEmail,
+          ...(input.paymentMethod === "togo"
+            ? { phone: input.phone!.trim(), city: input.city!.trim(), country: input.country?.trim() || undefined }
+            : {}),
+        },
+      })
+    } catch (tampayError) {
+      await db.transaction(async (tx) => {
+        await tx.delete(orderItems).where(eq(orderItems.orderId, pendingOrder.id))
+        await tx.delete(orders).where(eq(orders.id, pendingOrder.id))
+      })
+      console.error("[v0] TamPay payment link creation failed:", tampayError)
+      return {
+        error:
+          tampayError instanceof Error
+            ? tampayError.message
+            : "We couldn't start TamPay checkout right now. Your cart is safe — please try again in a moment.",
+      }
+    }
+
+    // Only now — after TamPay has actually accepted the link — is the cart
+    // cleared.
+    await db.transaction(async (tx) => {
+      await tx.update(orders).set({ tampayOrderId: link.orderId, tampayLinkId: link.id }).where(eq(orders.id, pendingOrder.id))
+      await tx.delete(cartItems).where(eq(cartItems.userId, ownerId))
+    })
+
+    return { url: link.url, orderNumber: pendingOrder.orderNumber }
+  } catch (error) {
+    console.error("[v0] createTampayCheckout failed:", error)
+    return { error: error instanceof Error ? error.message : "Could not start TamPay checkout. Please try again." }
+  }
+}
+
+/**
+ * Actively confirms a TamPay payment. TamPay has no webhook, so this is
+ * called repeatedly (polling) from the client while the buyer completes
+ * payment on TamPay's hosted page in a separate tab. Every call re-checks
+ * ownership (`orders.userId = ownerId`) so one guest/session can never poll
+ * — or fulfil — another's order, and re-verifies payment directly with
+ * TamPay's API before ever calling `fulfillPendingOrder`.
+ */
+export async function confirmTampayPayment(
+  orderNumber: string,
+): Promise<{ status: "paid"; orderNumber: string } | { status: "pending" } | { status: "error"; error: string }> {
+  const ownerId = await getOwnerId()
+  await enforceRateLimit("tampay-poll", RATE_LIMITS.tampayPoll, ownerId)
+
+  const [order] = await db
+    .select()
+    .from(orders)
+    .where(and(eq(orders.orderNumber, orderNumber), eq(orders.userId, ownerId)))
+    .limit(1)
+  if (!order) return { status: "error", error: "Order not found." }
+  if (order.status === "completed") return { status: "paid", orderNumber: order.orderNumber }
+  if (order.status !== "pending_payment") return { status: "error", error: "This order is no longer payable." }
+  if (!order.tampayOrderId) return { status: "error", error: "This order has no TamPay payment link." }
+
+  let tampayStatus: Awaited<ReturnType<typeof getTampayLinkStatus>>
+  try {
+    tampayStatus = await getTampayLinkStatus(order.tampayOrderId)
+  } catch (error) {
+    // A transient TamPay/network error is NOT the same as "not paid yet" —
+    // report pending so the client keeps polling instead of giving up.
+    console.error("[v0] TamPay status check failed:", error)
+    return { status: "pending" }
+  }
+
+  if (!tampayStatus.paid) return { status: "pending" }
+
+  // The link amount was fixed server-side at creation time from our own
+  // pricing (see createTampayCheckout above), so — like a Polar checkout
+  // or a PayPal order — TamPay's hosted page cannot have charged a
+  // different amount. fulfillPendingOrder's own `status = "pending_payment"`
+  // guard makes this safe against concurrent polls double-fulfilling.
+  await fulfillPendingOrder(order, { tampayPaidAt: new Date() })
+  return { status: "paid", orderNumber: order.orderNumber }
 }
 
 const PAYPAL_MIN_USD = 0.5

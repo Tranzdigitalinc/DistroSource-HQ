@@ -135,6 +135,10 @@ export const RATE_LIMITS = {
   newsletter: { windowSeconds: 3600, max: 5 },
   /** Creates a Polar checkout session — a real API call to the provider. */
   checkoutCreate: { windowSeconds: 600, max: 10 },
+  /** Creates a TamPay payment link — a real API call to the provider. */
+  tampayCheckoutCreate: { windowSeconds: 600, max: 10 },
+  /** Client polls this every few seconds while a TamPay tab is open, so the window is generous. */
+  tampayPoll: { windowSeconds: 300, max: 90 },
   /** Otherwise allows unlimited coupon-code enumeration. */
   couponValidate: { windowSeconds: 300, max: 20 },
   freeClaim: { windowSeconds: 3600, max: 20 },

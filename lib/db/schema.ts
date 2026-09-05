@@ -250,6 +250,13 @@ export const orders = pgTable("orders", {
   polarPaidAt: timestamp("polarPaidAt"),
   polarRefundedAmount: numeric("polarRefundedAmount", { precision: 10, scale: 2 }),
   polarRefundedAt: timestamp("polarRefundedAt"),
+  // TamPay has no webhook — the order id it generates at link creation
+  // (TP-XXXXXX) is what we poll with GET /v1/one-time-links/:order_id to
+  // confirm payment. See lib/tampay.ts.
+  tampayOrderId: text("tampayOrderId"),
+  tampayLinkId: text("tampayLinkId"),
+  tampayPaymentMethod: text("tampayPaymentMethod"), // togo | lahza | stripe
+  tampayPaidAt: timestamp("tampayPaidAt"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 

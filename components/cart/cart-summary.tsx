@@ -13,8 +13,11 @@ import { applyCouponPreview } from "@/lib/actions/checkout"
 
 /**
  * Cart totals. Discounts previewed here are re-validated server-side at
- * checkout; tax is not estimated because Polar (merchant of record)
- * calculates it from the customer's billing details during payment.
+ * checkout; tax is not estimated because, for card payments, Polar
+ * (merchant of record) calculates it from the customer's billing details
+ * during payment. TamPay orders (the alternative payment method offered at
+ * checkout) are not taxed here either, since TamPay is a gateway, not a
+ * merchant of record.
  */
 export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCount: number }) {
   const router = useRouter()
@@ -179,7 +182,7 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
           {cta}
           <p className="text-center text-xs text-muted-foreground">Instant digital delivery after confirmed payment.</p>
           <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-            Payments and applicable taxes are handled by Polar, our Merchant of Record.
+            Pay by card via Polar or with TamPay at checkout.
           </p>
         </div>
       </section>

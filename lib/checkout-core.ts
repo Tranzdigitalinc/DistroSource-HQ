@@ -393,3 +393,77 @@ export async function persistOrder(
 
   return { orderNumber: orderResult.orderNumber, id: orderResult.id }
 }
+
+/**
+ * Marks an already-pending order (order + orderItems already written at
+ * checkout-creation time) as completed and grants one entitlement per item.
+ *
+ * This is the same transition the verified Polar `order.paid` webhook
+ * performs (app/api/webhooks/polar/route.ts) — kept here as a shared helper
+ * so any other payment method that writes a pending order up front (e.g.
+ * TamPay, which has no webhook and instead actively polls its own status
+ * endpoint before calling this) fulfils identically. The `status =
+ * "pending_payment"` guard in the update makes this idempotent: a
+ * concurrent duplicate call is a no-op rather than a double-fulfilment.
+ *
+ * Callers MUST have already verified payment with the provider themselves
+ * (a verified webhook, or a direct server-to-server status check) — this
+ * function trusts that the caller did so and never re-checks it.
+ */
+export async function fulfillPendingOrder(
+  order: typeof orders.$inferSelect,
+  extra: Partial<typeof orders.$inferInsert> = {},
+): Promise<void> {
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id))
+
+  await db.transaction(async (tx) => {
+    await tx
+      .update(orders)
+      .set({ status: "completed", ...extra })
+      .where(and(eq(orders.id, order.id), eq(orders.status, "pending_payment")))
+
+    for (const item of items) {
+      const [existing] = await tx
+        .select({ id: entitlements.id })
+        .from(entitlements)
+        .where(and(eq(entitlements.orderId, order.id), eq(entitlements.orderItemId, item.id)))
+        .limit(1)
+      if (!existing) {
+        await tx.insert(entitlements).values({
+          userId: order.userId,
+          productId: item.productId,
+          licenseId: item.licenseId,
+          orderId: order.id,
+          orderItemId: item.id,
+        })
+      }
+    }
+
+    await tx.insert(operationEvents).values({
+      eventType: "checkout_completed",
+      entityType: "order",
+      entityId: String(order.id),
+      status: "resolved",
+      payload: { itemCount: items.length, totalUsd: Number(order.totalUsd), paymentMethod: order.paymentMethod },
+      createdBy: order.userId,
+      resolvedAt: new Date(),
+    })
+  })
+
+  let confirmationEmailSent = false
+  try {
+    confirmationEmailSent = await sendOrderConfirmationEmail(
+      order.billingEmail,
+      order.orderNumber,
+      items.map((item) => ({ productName: item.productName, licenseType: item.licenseType, quantity: item.quantity })),
+    )
+  } catch (error) {
+    console.error("[v0] Order confirmation email threw:", error)
+  }
+  if (confirmationEmailSent) {
+    await db.update(orders).set({ confirmationEmailSent: true }).where(eq(orders.id, order.id))
+  }
+
+  revalidatePath("/account/orders")
+  revalidatePath("/account/library")
+}
