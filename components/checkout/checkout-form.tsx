@@ -8,12 +8,22 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PolarInlineCheckout } from "@/components/checkout/polar-inline-checkout"
+import { TampayWaiting } from "@/components/checkout/tampay-waiting"
 import { CheckoutLineItem, type CheckoutItem } from "@/components/checkout/checkout-line-item"
 import { OrderSummary } from "@/components/checkout/order-summary"
 import { saveAbandonedCart } from "@/lib/actions/recovery"
-import { createPolarCheckout } from "@/lib/actions/checkout"
-import { Download, Lock, ICON_SIZE } from "@/lib/storefront-icons"
+import { createPolarCheckout, createTampayCheckout } from "@/lib/actions/checkout"
+import { Download, Lock, CreditCard, Wallet, ICON_SIZE } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
+
+type PaymentProvider = "polar" | "tampay"
+type TampaySubMethod = "togo" | "lahza" | "stripe"
+
+const TAMPAY_METHODS: { id: TampaySubMethod; label: string; description: string }[] = [
+  { id: "togo", label: "Togo", description: "Cards, Apple Pay & Google Pay" },
+  { id: "lahza", label: "Lahza", description: "Cards only, lower fee" },
+  { id: "stripe", label: "Stripe", description: "Cards via Stripe" },
+]
 
 interface CheckoutFormProps {
   defaultEmail: string
@@ -113,6 +123,15 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const [fieldError, setFieldError] = useState<{ name?: string; email?: string }>({})
   const [isPending, startTransition] = useTransition()
   const [polarCheckoutUrl, setPolarCheckoutUrl] = useState<string | null>(null)
+  const [paymentProvider, setPaymentProvider] = useState<PaymentProvider>("polar")
+  const [tampaySubMethod, setTampaySubMethod] = useState<TampaySubMethod>("togo")
+  const [tampayPhone, setTampayPhone] = useState("")
+  const [tampayCity, setTampayCity] = useState("")
+  const [tampayFieldError, setTampayFieldError] = useState<{ phone?: string; city?: string }>({})
+  // Set once TamPay has accepted the payment link; drives the "waiting for
+  // payment" screen. `tampayPaymentUrl` lets that screen reopen the tab if
+  // the buyer closed it without paying.
+  const [tampayOrder, setTampayOrder] = useState<{ orderNumber: string; url: string } | null>(null)
   // Signed-in shoppers already have an account, so they start on Review
   // (step 2). Guests confirm the name/email their order and receipt go to
   // first (step 1) — no account or password is required to pay. Guests get
@@ -147,6 +166,45 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   /** Step 2 (Review) → Step 3 (Payment). Creates the Polar checkout session. */
   function handleContinueFromReview(e: React.FormEvent) {
     e.preventDefault()
+
+    if (paymentProvider === "tampay") {
+      const errors: typeof tampayFieldError = {}
+      if (tampaySubMethod === "togo") {
+        if (!tampayPhone.trim()) errors.phone = "Phone is required for Togo."
+        if (!tampayCity.trim()) errors.city = "City is required for Togo."
+      }
+      setTampayFieldError(errors)
+      if (Object.keys(errors).length > 0) return
+
+      startTransition(async () => {
+        try {
+          const checkout = await createTampayCheckout({
+            billingEmail: email.trim(),
+            billingName: name.trim(),
+            couponCode,
+            paymentMethod: tampaySubMethod,
+            ...(tampaySubMethod === "togo" ? { phone: tampayPhone.trim(), city: tampayCity.trim() } : {}),
+          })
+          if ("error" in checkout) {
+            // TamPay only accepts the link (and clears the cart) after it's
+            // created, so it's safe to just let the buyer retry.
+            await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
+            toast.error(checkout.error)
+            return
+          }
+          // TamPay has no return URL, so the buyer pays in a separate tab
+          // while this tab shows the waiting/poll screen below.
+          window.open(checkout.url, "_blank", "noopener,noreferrer")
+          setTampayOrder({ orderNumber: checkout.orderNumber, url: checkout.url })
+          setStep(3)
+        } catch (error) {
+          await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
+          toast.error(error instanceof Error ? error.message : "Could not start TamPay checkout.")
+        }
+      })
+      return
+    }
+
     startTransition(async () => {
       try {
         const checkout = await createPolarCheckout({ billingEmail: email.trim(), billingName: name.trim(), couponCode })
@@ -167,7 +225,18 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
     })
   }
 
+  /** Resets the in-progress payment attempt (either provider) back to Review. */
+  function handleCancelPayment() {
+    setPolarCheckoutUrl(null)
+    setTampayOrder(null)
+    setStep(2)
+  }
+
   const inputClass = "h-11"
+  // True once either provider has actually accepted a checkout attempt —
+  // drives the shared "payment in progress" chrome (hides the step
+  // indicator/CTA, shows the "Paying as" bar) regardless of which one.
+  const paymentInProgress = Boolean(polarCheckoutUrl) || Boolean(tampayOrder)
 
   // Step 1 submits its own form to create/confirm the account; step 2 submits
   // its own form to create the Polar checkout session. Only one is ever
@@ -179,14 +248,14 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   return (
     <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-8">
       <div className="flex flex-col gap-5">
-        {!polarCheckoutUrl && (
+        {!paymentInProgress && (
           <div className="rounded-lg border border-border bg-card px-5 py-3">
             <StepIndicator activeStep={step} />
           </div>
         )}
 
         <form id={FORM_ID} onSubmit={activeStepSubmit} className="flex flex-col gap-5" noValidate>
-          {polarCheckoutUrl ? (
+          {paymentInProgress ? (
             <div className="flex items-center justify-between rounded-lg border border-border bg-secondary/40 px-4 py-3 text-sm">
               <p className="min-w-0 truncate">
                 <span className="text-muted-foreground">Paying as </span>
@@ -195,7 +264,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               <button
                 type="button"
                 onClick={() => {
-                  setPolarCheckoutUrl(null)
+                  handleCancelPayment()
                   setStep(1)
                 }}
                 className="shrink-0 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
@@ -273,6 +342,97 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 </ul>
               </Section>
 
+              <Section title="Payment method">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentProvider("polar")}
+                    aria-pressed={paymentProvider === "polar"}
+                    className={cn(
+                      "flex items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors",
+                      paymentProvider === "polar" ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
+                    )}
+                  >
+                    <CreditCard size={ICON_SIZE.base} className="mt-0.5 shrink-0 text-foreground" aria-hidden="true" />
+                    <span>
+                      <span className="block text-sm font-semibold text-foreground">Card</span>
+                      <span className="block text-xs text-muted-foreground">Apple Pay, Google Pay & cards via Polar</span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentProvider("tampay")}
+                    aria-pressed={paymentProvider === "tampay"}
+                    className={cn(
+                      "flex items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors",
+                      paymentProvider === "tampay" ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
+                    )}
+                  >
+                    <Wallet size={ICON_SIZE.base} className="mt-0.5 shrink-0 text-foreground" aria-hidden="true" />
+                    <span>
+                      <span className="block text-sm font-semibold text-foreground">TamPay</span>
+                      <span className="block text-xs text-muted-foreground">Regional cards & wallets</span>
+                    </span>
+                  </button>
+                </div>
+
+                {paymentProvider === "tampay" && (
+                  <div className="mt-4 flex flex-col gap-4 border-t border-border pt-4">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                      {TAMPAY_METHODS.map((method) => (
+                        <button
+                          key={method.id}
+                          type="button"
+                          onClick={() => setTampaySubMethod(method.id)}
+                          aria-pressed={tampaySubMethod === method.id}
+                          className={cn(
+                            "rounded-lg border px-3 py-2.5 text-left transition-colors",
+                            tampaySubMethod === method.id ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
+                          )}
+                        >
+                          <span className="block text-sm font-semibold text-foreground">{method.label}</span>
+                          <span className="block text-xs text-muted-foreground">{method.description}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {tampaySubMethod === "togo" && (
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="flex flex-col gap-1.5">
+                          <Label htmlFor="tampay-phone">Phone (international format)</Label>
+                          <Input
+                            id="tampay-phone"
+                            type="tel"
+                            value={tampayPhone}
+                            onChange={(e) => setTampayPhone(e.target.value)}
+                            placeholder="+970599000000"
+                            aria-invalid={!!tampayFieldError.phone}
+                            className={inputClass}
+                          />
+                          {tampayFieldError.phone && <p className="text-xs text-destructive" role="alert">{tampayFieldError.phone}</p>}
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <Label htmlFor="tampay-city">City</Label>
+                          <Input
+                            id="tampay-city"
+                            value={tampayCity}
+                            onChange={(e) => setTampayCity(e.target.value)}
+                            placeholder="Ramallah"
+                            aria-invalid={!!tampayFieldError.city}
+                            className={inputClass}
+                          />
+                          {tampayFieldError.city && <p className="text-xs text-destructive" role="alert">{tampayFieldError.city}</p>}
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      TamPay adds a small processing fee on top of the total shown here — it's calculated and disclosed on TamPay's payment page before you pay.
+                    </p>
+                  </div>
+                )}
+              </Section>
+
               <div className="flex items-start gap-3 rounded-lg border border-border bg-secondary/30 px-5 py-4">
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-card text-foreground">
                   <Download size={ICON_SIZE.sm} aria-hidden="true" />
@@ -289,8 +449,8 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
           )}
         </form>
 
-        {/* The order review stays visible behind the Polar overlay so the buyer can always see what they are paying for. The overlay itself renders directly into document.body — this component has no visual output of its own. */}
-        {polarCheckoutUrl && (
+        {/* The order review stays visible behind the Polar overlay / TamPay waiting screen so the buyer can always see what they are paying for. The Polar overlay renders directly into document.body — this component has no visual output of its own. */}
+        {paymentInProgress && (
           <>
             <Section title="Your products">
               <ul className="divide-y divide-border">
@@ -299,22 +459,32 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 ))}
               </ul>
             </Section>
-            <PolarInlineCheckout
-              checkoutUrl={polarCheckoutUrl}
-              onSuccess={(successUrl) => {
-                const url = new URL(successUrl)
-                router.push(`${url.pathname}${url.search}`)
-              }}
-              onClose={(reason) => {
-                setPolarCheckoutUrl(null)
-                setStep(2)
-                if (reason === "failed") {
-                  toast.error(
-                    "We couldn't open secure payment. This can happen if this site isn't yet allow-listed in Polar's embedding settings — please try again in a moment.",
-                  )
-                }
-              }}
-            />
+            {polarCheckoutUrl && (
+              <PolarInlineCheckout
+                checkoutUrl={polarCheckoutUrl}
+                onSuccess={(successUrl) => {
+                  const url = new URL(successUrl)
+                  router.push(`${url.pathname}${url.search}`)
+                }}
+                onClose={(reason) => {
+                  setPolarCheckoutUrl(null)
+                  setStep(2)
+                  if (reason === "failed") {
+                    toast.error(
+                      "We couldn't open secure payment. This can happen if this site isn't yet allow-listed in Polar's embedding settings — please try again in a moment.",
+                    )
+                  }
+                }}
+              />
+            )}
+            {tampayOrder && (
+              <TampayWaiting
+                orderNumber={tampayOrder.orderNumber}
+                paymentUrl={tampayOrder.url}
+                onPaid={(orderNumber) => router.push(`/checkout/success?order=${encodeURIComponent(orderNumber)}`)}
+                onCancel={handleCancelPayment}
+              />
+            )}
           </>
         )}
       </div>
@@ -327,13 +497,13 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
           total={total}
           itemCount={itemCount}
           isSubmitting={isBusy}
-          hideAction={Boolean(polarCheckoutUrl)}
+          hideAction={paymentInProgress}
           submitLabel={ctaLabel}
           formId={FORM_ID}
         />
       </div>
 
-      {!polarCheckoutUrl && (
+      {!paymentInProgress && (
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 shadow-[var(--shadow-e3)] backdrop-blur supports-[backdrop-filter]:bg-background/90 lg:hidden">
           <div className="mx-auto flex max-w-lg items-center gap-4">
             <div className="min-w-0">
