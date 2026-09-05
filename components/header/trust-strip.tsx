@@ -2,9 +2,11 @@ import { Download, Lock, RefreshCw, ICON_SIZE } from "@/lib/storefront-icons"
 
 // Three statements the storefront can back today. No response-time
 // guarantees, no "worldwide" claims that depend on Polar's country list.
+// "Merchant of Record" is Polar-specific (it doesn't apply to TamPay) so
+// this stays a generic security claim rather than naming one provider.
 const items = [
   { icon: Download, label: "Instant delivery after payment" },
-  { icon: Lock, label: "Checkout by Polar, Merchant of Record" },
+  { icon: Lock, label: "Secure checkout, multiple payment options" },
   { icon: RefreshCw, label: "Re-download anytime from My Library" },
 ]
 

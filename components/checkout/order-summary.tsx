@@ -25,8 +25,10 @@ interface OrderSummaryProps {
 
 /**
  * The one authoritative totals block at checkout. Tax is a line but never a
- * number: Polar is the merchant of record and calculates it at its own
- * checkout from the buyer's billing details.
+ * number: when paying by card, Polar is the merchant of record and
+ * calculates it at its own checkout from the buyer's billing details.
+ * TamPay is a payment gateway, not a merchant of record, so its orders are
+ * not taxed here either — this summary stays provider-agnostic on purpose.
  */
 export function OrderSummary({
   subtotal,
@@ -102,7 +104,7 @@ export function OrderSummary({
             </span>
           </Button>
           <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-            Payments and applicable taxes are securely handled by Polar, our Merchant of Record.
+            Payments are processed securely via Polar or TamPay, depending on the method you choose.
           </p>
         </div>
       )}
