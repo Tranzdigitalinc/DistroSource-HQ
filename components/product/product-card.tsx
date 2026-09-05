@@ -87,7 +87,7 @@ export function ProductCard({ item, className, style }: { item: ProductCardData;
         }
         if (!cheapestLicense) return
         await addToCart(item.product.id, cheapestLicense.id, 1)
-        await mutate("cart-count")
+        await mutate("/api/cart/summary")
         setJustAdded(true)
         toast.success("Added to cart", { description: item.product.name })
         router.refresh()
@@ -102,7 +102,7 @@ export function ProductCard({ item, className, style }: { item: ProductCardData;
       <article
         style={style}
         className={cn(
-          "group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card",
+          "@container group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card",
           "transition-[border-color,box-shadow] duration-200 hover:border-border-strong hover:shadow-[var(--shadow-e2)] motion-reduce:transition-none",
           "focus-within:border-border-strong",
           className,
@@ -176,12 +176,16 @@ export function ProductCard({ item, className, style }: { item: ProductCardData;
           )}
         </div>
 
-        <div className="flex items-center justify-between gap-2 border-t border-border px-3.5 py-2.5">
-          <div className="flex min-w-0 items-baseline gap-1.5">
-            {hasMultipleLicenses && !isFree && <span className="text-[10px] font-medium text-muted-foreground">From</span>}
-            <span className="font-display text-base font-bold tabular-nums text-foreground">{isFree ? "Free" : <PriceDisplay usdAmount={item.startingPrice} />}</span>
+        <div className="flex items-center justify-between gap-1.5 border-t border-border px-3.5 py-2.5">
+          <div className="flex min-w-0 items-baseline gap-1 overflow-hidden">
+            {hasMultipleLicenses && !isFree && (
+              <span className="hidden shrink-0 text-[10px] font-medium text-muted-foreground @[190px]:inline">From</span>
+            )}
+            <span className="truncate font-display text-base font-bold tabular-nums text-foreground">
+              {isFree ? "Free" : <PriceDisplay usdAmount={item.startingPrice} />}
+            </span>
             {isOnSale && compareAt && (
-              <span className="text-xs text-muted-foreground line-through">
+              <span className="hidden shrink-0 text-xs text-muted-foreground line-through @[230px]:inline">
                 <PriceDisplay usdAmount={compareAt} />
               </span>
             )}
@@ -220,7 +224,7 @@ export function ProductCard({ item, className, style }: { item: ProductCardData;
               ) : (
                 <ShoppingCart size={14} aria-hidden="true" />
               )}
-              <span className="hidden sm:inline">{isPending ? "Adding" : justAdded ? "Added" : isFree ? "Get" : "Add"}</span>
+              <span className="hidden @[210px]:inline">{isPending ? "Adding" : justAdded ? "Added" : isFree ? "Get" : "Add"}</span>
             </button>
           </div>
         </div>
