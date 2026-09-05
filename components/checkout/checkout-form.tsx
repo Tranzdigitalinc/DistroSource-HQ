@@ -20,10 +20,9 @@ import { cn } from "@/lib/utils"
 type PaymentProvider = "polar" | "tampay" | "whop"
 type TampaySubMethod = "togo" | "lahza" | "stripe"
 
-// Temporarily disabled — flip back to true to re-enable TamPay at checkout.
 // The action itself (lib/actions/checkout.ts) has the matching server-side
 // guard, so this only controls whether the picker is shown.
-const TAMPAY_ENABLED = false
+const TAMPAY_ENABLED = true
 // Whop is live — the picker below only renders when more than one provider
 // is enabled, which now includes Whop by default.
 const WHOP_ENABLED = true

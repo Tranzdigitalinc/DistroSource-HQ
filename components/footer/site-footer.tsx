@@ -154,7 +154,7 @@ export function SiteFooter() {
               rather than crediting Polar's status to all three. */}
           <p className="flex items-center gap-1.5">
             <ShieldCheck size={ICON_SIZE.sm} className="shrink-0 text-primary" aria-hidden="true" />
-            Payments processed securely via Polar or Whop.
+            Payments processed securely via Polar, TamPay, or Whop.
           </p>
         </div>
       </div>
