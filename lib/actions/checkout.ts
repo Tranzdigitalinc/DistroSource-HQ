@@ -213,10 +213,9 @@ export async function createPolarCheckout(input: {
 }
 
 const TAMPAY_MIN_USD = 0.5
-// Temporarily disabled — flip back to true to re-enable TamPay at checkout.
 // Guarded here (not just hidden in the UI) so the action can't be reached
 // directly while it's off.
-const TAMPAY_ENABLED = false
+const TAMPAY_ENABLED = true
 
 /**
  * Creates a fixed-amount, single-use TamPay payment link and a matching
