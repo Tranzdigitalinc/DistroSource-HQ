@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { motion } from "motion/react"
 import { ArrowUpRight } from "@/lib/storefront-icons"
 import { getCategoryIcon } from "@/lib/category-icons"
@@ -28,15 +27,11 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
           <ArrowUpRight className="size-3.5" />
         </Link>
       </div>
-      <RevealGroup
-        className="grid grid-cols-2 gap-px border border-border bg-border sm:grid-cols-3 lg:grid-cols-4"
-        stagger={0.06}
-      >
+      <RevealGroup className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4" stagger={0.06}>
         {categories.map((category, index) => {
           const Icon = getCategoryIcon(category.slug)
-          const hasImage = Boolean(category.heroImageUrl)
-          // First tile spans larger on desktop for a bento rhythm — only when it has real imagery.
-          const featured = index === 0 && hasImage
+          const featured = index === 0
+          const initial = category.name.trim().charAt(0).toUpperCase()
           return (
             <RevealItem
               key={category.slug}
@@ -47,71 +42,60 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 420, damping: 32 }}
                 className={cn(
-                  "group relative flex h-full flex-col justify-between bg-background transition-colors",
-                  hasImage ? "text-navy-foreground" : "p-5 hover:bg-secondary/60",
-                  featured ? "min-h-56 lg:min-h-full" : "aspect-[4/3]",
+                  "group relative flex h-full flex-col justify-between overflow-hidden rounded-lg border border-border bg-navy text-navy-foreground transition-[border-color,box-shadow] duration-200 hover:border-primary/50 hover:shadow-[var(--shadow-e2)]",
+                  featured ? "min-h-64 p-6 lg:min-h-full lg:p-8" : "aspect-[4/3] p-5",
                 )}
               >
-                {hasImage && (
-                  <>
-                    <Image
-                      src={category.heroImageUrl || "/placeholder.svg"}
-                      alt=""
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      sizes={featured ? "(max-width: 1024px) 100vw, 520px" : "(max-width: 640px) 50vw, 260px"}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy/85 via-navy/30 to-navy/5" />
-                  </>
-                )}
+                {/* Halftone dot grain — print-poster texture, not decoration */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 opacity-[0.06]"
+                  style={{
+                    backgroundImage: "radial-gradient(var(--color-navy-foreground) 1px, transparent 1px)",
+                    backgroundSize: "9px 9px",
+                  }}
+                />
 
-                <div className={cn("relative flex items-start justify-between", hasImage && "p-5")}>
-                  <span
-                    className={cn(
-                      "flex size-10 items-center justify-center rounded-[4px] transition-colors",
-                      hasImage
-                        ? "bg-navy-foreground/15 text-navy-foreground"
-                        : "bg-secondary text-primary group-hover:bg-primary group-hover:text-primary-foreground",
-                    )}
-                  >
+                {/* Oversized outlined initial — the one signature graphic per card */}
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "pointer-events-none absolute -bottom-6 -right-3 select-none font-display font-bold leading-none transition-transform duration-500 group-hover:-translate-y-1.5",
+                    featured ? "text-[15rem] sm:text-[18rem]" : "text-[7.5rem] sm:text-[8.5rem]",
+                  )}
+                  style={{
+                    color: "transparent",
+                    WebkitTextStroke: "1.5px color-mix(in oklch, var(--color-navy-foreground) 35%, transparent)",
+                  }}
+                >
+                  {initial}
+                </span>
+
+                <div className="relative flex items-start justify-between">
+                  <span className="flex size-10 items-center justify-center rounded-[4px] border border-navy-foreground/15 bg-navy-foreground/5 text-primary transition-colors group-hover:border-primary/60 group-hover:bg-primary group-hover:text-primary-foreground">
                     <Icon aria-hidden="true" className={featured ? "size-6" : "size-5"} />
                   </span>
-                  <span
-                    className={cn(
-                      "font-mono text-[10px] font-semibold",
-                      hasImage ? "text-navy-foreground/70" : "text-muted-foreground/60",
-                    )}
-                  >
+                  <span className="font-mono text-[10px] font-semibold text-navy-foreground/40">
                     {String(index + 1).padStart(2, "0")}
                   </span>
                 </div>
 
-                <span className={cn("relative flex items-end justify-between gap-3", hasImage && "p-5")}>
-                  <span className="flex flex-col gap-1">
+                <span className="relative flex items-end justify-between gap-3">
+                  <span className="flex flex-col gap-1.5">
                     <span
                       className={cn(
-                        "font-display font-bold text-balance",
-                        featured ? "text-xl sm:text-2xl" : "text-base sm:text-lg",
-                        hasImage ? "text-navy-foreground" : "text-foreground",
+                        "font-display font-bold text-balance leading-[1.1]",
+                        featured ? "text-2xl sm:text-3xl" : "text-base sm:text-lg",
                       )}
                     >
                       {category.name}
                     </span>
-                    <span
-                      className={cn(
-                        "font-mono text-[11px] font-medium uppercase tracking-[0.02em]",
-                        hasImage ? "text-navy-foreground/75" : "text-muted-foreground",
-                      )}
-                    >
+                    <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.02em] text-primary">
+                      <span className="size-1 rounded-full bg-primary" />
                       {category.productCount} {category.productCount === 1 ? "product" : "products"}
                     </span>
                   </span>
-                  <span
-                    className={cn(
-                      "flex size-8 shrink-0 items-center justify-center transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5",
-                      hasImage ? "text-navy-foreground/80" : "text-muted-foreground/60 group-hover:text-primary",
-                    )}
-                  >
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-navy-foreground/15 text-navy-foreground/70 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:border-primary group-hover:text-primary">
                     <ArrowUpRight aria-hidden="true" className="size-4" />
                   </span>
                 </span>
