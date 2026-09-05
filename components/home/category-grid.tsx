@@ -29,7 +29,7 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
         </Link>
       </div>
       <RevealGroup
-        className="grid grid-cols-2 gap-px border border-border bg-border sm:grid-cols-3 lg:grid-cols-4"
+        className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4"
         stagger={0.06}
       >
         {categories.map((category, index) => {
@@ -47,9 +47,9 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 420, damping: 32 }}
                 className={cn(
-                  "group relative flex h-full flex-col justify-between bg-background transition-colors",
-                  hasImage ? "text-navy-foreground" : "p-5 hover:bg-secondary/60",
-                  featured ? "min-h-56 lg:min-h-full" : "aspect-[4/3]",
+                  "group relative flex h-full flex-col justify-between overflow-hidden rounded-lg border border-border bg-navy transition-[border-color,box-shadow] duration-200 hover:border-border-strong hover:shadow-[var(--shadow-e2)]",
+                  hasImage ? "text-navy-foreground" : "bg-secondary/40 p-5 text-foreground hover:bg-secondary/60",
+                  featured ? "min-h-64 lg:min-h-full" : "aspect-[4/3]",
                 )}
               >
                 {hasImage && (
@@ -58,20 +58,21 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
                       src={category.heroImageUrl || "/placeholder.svg"}
                       alt=""
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
                       sizes={featured ? "(max-width: 1024px) 100vw, 520px" : "(max-width: 640px) 50vw, 260px"}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy/85 via-navy/30 to-navy/5" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/10 to-transparent" />
+                    <div className="absolute inset-0 ring-1 ring-inset ring-navy-foreground/10 transition-colors group-hover:ring-primary/40" />
                   </>
                 )}
 
                 <div className={cn("relative flex items-start justify-between", hasImage && "p-5")}>
                   <span
                     className={cn(
-                      "flex size-10 items-center justify-center rounded-[4px] transition-colors",
+                      "flex size-10 items-center justify-center rounded-[4px] border transition-colors",
                       hasImage
-                        ? "bg-navy-foreground/15 text-navy-foreground"
-                        : "bg-secondary text-primary group-hover:bg-primary group-hover:text-primary-foreground",
+                        ? "border-navy-foreground/15 bg-navy-foreground/10 text-navy-foreground backdrop-blur-sm group-hover:border-primary/60 group-hover:bg-primary group-hover:text-primary-foreground"
+                        : "border-transparent bg-secondary text-primary group-hover:bg-primary group-hover:text-primary-foreground",
                     )}
                   >
                     <Icon aria-hidden="true" className={featured ? "size-6" : "size-5"} />
@@ -79,7 +80,7 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
                   <span
                     className={cn(
                       "font-mono text-[10px] font-semibold",
-                      hasImage ? "text-navy-foreground/70" : "text-muted-foreground/60",
+                      hasImage ? "text-navy-foreground/60" : "text-muted-foreground/60",
                     )}
                   >
                     {String(index + 1).padStart(2, "0")}
@@ -87,11 +88,11 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
                 </div>
 
                 <span className={cn("relative flex items-end justify-between gap-3", hasImage && "p-5")}>
-                  <span className="flex flex-col gap-1">
+                  <span className="flex flex-col gap-1.5">
                     <span
                       className={cn(
-                        "font-display font-bold text-balance",
-                        featured ? "text-xl sm:text-2xl" : "text-base sm:text-lg",
+                        "font-display font-bold text-balance leading-[1.1]",
+                        featured ? "text-2xl sm:text-3xl" : "text-base sm:text-lg",
                         hasImage ? "text-navy-foreground" : "text-foreground",
                       )}
                     >
@@ -99,17 +100,20 @@ export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<ty
                     </span>
                     <span
                       className={cn(
-                        "font-mono text-[11px] font-medium uppercase tracking-[0.02em]",
-                        hasImage ? "text-navy-foreground/75" : "text-muted-foreground",
+                        "inline-flex items-center gap-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.02em]",
+                        hasImage ? "text-primary" : "text-muted-foreground",
                       )}
                     >
+                      <span className={cn("size-1 rounded-full", hasImage ? "bg-primary" : "bg-muted-foreground/50")} />
                       {category.productCount} {category.productCount === 1 ? "product" : "products"}
                     </span>
                   </span>
                   <span
                     className={cn(
-                      "flex size-8 shrink-0 items-center justify-center transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5",
-                      hasImage ? "text-navy-foreground/80" : "text-muted-foreground/60 group-hover:text-primary",
+                      "flex size-8 shrink-0 items-center justify-center rounded-full border transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5",
+                      hasImage
+                        ? "border-navy-foreground/15 text-navy-foreground/80 group-hover:border-primary group-hover:text-primary"
+                        : "border-transparent text-muted-foreground/60 group-hover:text-primary",
                     )}
                   >
                     <ArrowUpRight aria-hidden="true" className="size-4" />
