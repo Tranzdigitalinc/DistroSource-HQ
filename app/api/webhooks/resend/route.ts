@@ -4,7 +4,14 @@ import { and, eq } from "drizzle-orm"
 import { db } from "@/lib/db"
 import { supportConversations, supportMessages } from "@/lib/db/schema"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Constructed lazily: the Resend SDK throws when the key is absent, and a
+// module-scope client made that throw at import time — which is when Next
+// collects route config, so any build without RESEND_API_KEY failed here
+// rather than at the request that actually needs mail. Mirrors the
+// getPolarClient() factory in lib/polar.ts.
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY)
+}
 
 // Inbound mail lands on a subdomain delegated entirely to Resend
 // (mail.distrosource.com), separate from the root domain's existing mail
@@ -45,9 +52,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing webhook signature headers" }, { status: 400 })
   }
 
-  let event: ReturnType<typeof resend.webhooks.verify>
+  let event: ReturnType<Resend["webhooks"]["verify"]>
   try {
-    event = resend.webhooks.verify({
+    event = getResend().webhooks.verify({
       payload,
       headers: { id: svixId, timestamp: svixTimestamp, signature: svixSignature },
       webhookSecret,
@@ -66,7 +73,7 @@ export async function POST(request: Request) {
   const fromName = extractName(from)
 
   // Webhook payload has metadata only — fetch the body separately.
-  const { data: email, error: fetchError } = await resend.emails.receiving.get(email_id)
+  const { data: email, error: fetchError } = await getResend().emails.receiving.get(email_id)
   if (fetchError || !email) {
     console.error("[v0] Failed to fetch received email body", fetchError)
     return NextResponse.json({ error: "Could not load email content" }, { status: 502 })

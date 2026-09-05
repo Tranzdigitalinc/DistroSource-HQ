@@ -37,7 +37,7 @@ export interface CartLineItemProps {
 }
 
 const actionClass =
-  "inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+  "inline-flex h-9 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
 export function CartLineItem({
   cartItemId,
@@ -173,7 +173,7 @@ export function CartLineItem({
             <PopoverTrigger
               disabled={busy || licenseOptions.length < 2}
               className={cn(
-                "inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-secondary/60 pl-2.5 pr-2 text-xs font-semibold text-foreground transition-colors",
+                "inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-secondary/60 pl-3 pr-2.5 text-xs font-semibold text-foreground transition-colors",
                 "hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default disabled:hover:border-border",
               )}
               aria-label={`Licence: ${licenseLabel(licenseType)}. Change licence`}

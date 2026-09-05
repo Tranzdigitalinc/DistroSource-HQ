@@ -11,6 +11,7 @@ import { PriceDisplay } from "@/components/price-display"
 import { WishlistButton } from "@/components/product/wishlist-button"
 import { QuickPreviewDialog } from "@/components/product/quick-preview-dialog"
 import { addToCart } from "@/lib/actions/cart"
+import { useCartDrawer } from "@/components/cart/cart-drawer"
 import { claimFreeProduct } from "@/lib/actions/free-products"
 import { getSourceTypeLabel } from "@/lib/format"
 import { cn } from "@/lib/utils"
@@ -43,6 +44,7 @@ export function ProductCard({ item, className, style }: { item: ProductCardData;
   const [isPending, startTransition] = useTransition()
   const [justAdded, setJustAdded] = useState(false)
   const [previewOpen, setPreviewOpen] = useState(false)
+  const { openCart } = useCartDrawer()
 
   const cheapestLicense = item.licenses.length
     ? item.licenses.reduce((min, l) => (Number.parseFloat(l.price) < Number.parseFloat(min.price) ? l : min), item.licenses[0])
@@ -89,7 +91,7 @@ export function ProductCard({ item, className, style }: { item: ProductCardData;
         await addToCart(item.product.id, cheapestLicense.id, 1)
         await mutate("/api/cart/summary")
         setJustAdded(true)
-        toast.success("Added to cart", { description: item.product.name })
+        openCart()
         router.refresh()
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Something went wrong. Please try again.")

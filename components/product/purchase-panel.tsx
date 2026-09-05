@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { PriceDisplay } from "@/components/price-display"
 import { LicenseSelector, type LicenseOption } from "@/components/product/license-selector"
 import { addToCart } from "@/lib/actions/cart"
+import { useCartDrawer } from "@/components/cart/cart-drawer"
 import { toggleWishlist } from "@/lib/actions/wishlist"
 import { licenseLabel } from "@/lib/licenses"
 import { mutate } from "swr"
@@ -42,6 +43,7 @@ export function PurchasePanel({
   const [isBuying, startBuy] = useTransition()
   const [isSaving, startSaving] = useTransition()
   const [justAdded, setJustAdded] = useState(false)
+  const { openCart } = useCartDrawer()
 
   const selected = licenses.find((l) => l.id === selectedId) ?? licenses[0]
 
@@ -56,7 +58,7 @@ export function PurchasePanel({
         await add()
         router.refresh()
         setJustAdded(true)
-        toast.success("Added to cart", { description: `${licenseLabel(selected.licenseType)} licence` })
+        openCart()
         setTimeout(() => setJustAdded(false), 2000)
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Couldn't add this to your cart. Please try again.")

@@ -1,105 +1,118 @@
-"use client"
-
 import Link from "next/link"
-import { motion } from "motion/react"
-import { ArrowUpRight } from "@/lib/storefront-icons"
+import Image from "next/image"
+import { ArrowRight, ArrowUpRight, ImageOff, ICON_SIZE } from "@/lib/storefront-icons"
 import { getCategoryIcon } from "@/lib/category-icons"
 import { RevealGroup, RevealItem } from "@/components/motion/reveal"
-import { cn } from "@/lib/utils"
 import type { getCategoryTree } from "@/lib/queries/catalog"
 
-const MotionLink = motion.create(Link)
+/**
+ * Department cards for the homepage.
+ *
+ * These were typographic poster tiles: a navy card with an oversized outlined
+ * initial, a decorative index number, and a first tile that spanned two
+ * columns. The letterform competed with the department name, the dark tiles
+ * sat oddly in a light page, the uneven first tile made the grid ragged, and
+ * none of it said anything about what the department contains.
+ *
+ * Now each card shows three real products from that department, then the
+ * name, the stock count and the subcategories inside it — the same
+ * information a customer would get from walking up to a shelf. Uniform
+ * cards, so the grid reads as one set.
+ *
+ * Server component: no client JS beyond the shared reveal animation.
+ */
+export function CategoryGrid({
+  categories,
+  previews,
+}: {
+  categories: Awaited<ReturnType<typeof getCategoryTree>>
+  /** department id → up to three product image URLs. */
+  previews?: Record<number, string[]>
+}) {
+  if (categories.length === 0) return null
 
-export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<typeof getCategoryTree>> }) {
   return (
     <section className="mx-auto max-w-7xl px-6 py-16 sm:px-8">
-      <div className="mb-8 flex items-end justify-between border-b border-border pb-6">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
         <div>
           <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Browse the catalog</p>
-          <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">Top categories</h2>
-          <p className="mt-1.5 text-sm text-muted-foreground">Every department in the catalog, one click away</p>
+          <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">Shop by department</h2>
+          <p className="mt-1.5 text-sm text-muted-foreground">Every department in the catalog, with a look at what is inside.</p>
         </div>
         <Link
           href="/categories"
           className="hidden items-center gap-1 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary hover:underline sm:flex"
         >
-          All categories
+          All departments
           <ArrowUpRight className="size-3.5" />
         </Link>
       </div>
-      <RevealGroup className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4" stagger={0.06}>
-        {categories.map((category, index) => {
-          const Icon = getCategoryIcon(category.slug)
-          const featured = index === 0
-          const initial = category.name.trim().charAt(0).toUpperCase()
+
+      <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" stagger={0.05}>
+        {categories.map((department) => {
+          const Icon = getCategoryIcon(department.slug)
+          const images = previews?.[department.id] ?? []
+          // Only subcategories that actually hold stock are named.
+          const shelves = department.subcategories.filter((s) => s.productCount > 0)
+
           return (
-            <RevealItem
-              key={category.slug}
-              className={cn(featured && "col-span-2 sm:col-span-1 lg:col-span-2 lg:row-span-2")}
-            >
-              <MotionLink
-                href={`/categories/${category.slug}`}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 420, damping: 32 }}
-                className={cn(
-                  "group relative flex h-full flex-col justify-between overflow-hidden rounded-lg border border-border bg-navy text-navy-foreground transition-[border-color,box-shadow] duration-200 hover:border-primary/50 hover:shadow-[var(--shadow-e2)]",
-                  featured ? "min-h-64 p-6 lg:min-h-full lg:p-8" : "aspect-[4/3] p-5",
-                )}
+            <RevealItem key={department.slug} className="h-full">
+              <Link
+                href={`/categories/${department.slug}`}
+                className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card transition-[border-color,box-shadow] duration-200 hover:border-border-strong hover:shadow-[var(--shadow-e2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none"
               >
-                {/* Halftone dot grain — print-poster texture, not decoration */}
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 opacity-[0.06]"
-                  style={{
-                    backgroundImage: "radial-gradient(var(--color-navy-foreground) 1px, transparent 1px)",
-                    backgroundSize: "9px 9px",
-                  }}
-                />
-
-                {/* Oversized outlined initial — the one signature graphic per card */}
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "pointer-events-none absolute -bottom-6 -right-3 select-none font-display font-bold leading-none transition-transform duration-500 group-hover:-translate-y-1.5",
-                    featured ? "text-[15rem] sm:text-[18rem]" : "text-[7.5rem] sm:text-[8.5rem]",
-                  )}
-                  style={{
-                    color: "transparent",
-                    WebkitTextStroke: "1.5px color-mix(in oklch, var(--color-navy-foreground) 35%, transparent)",
-                  }}
-                >
-                  {initial}
-                </span>
-
-                <div className="relative flex items-start justify-between">
-                  <span className="flex size-10 items-center justify-center rounded-[4px] border border-navy-foreground/15 bg-navy-foreground/5 text-primary transition-colors group-hover:border-primary/60 group-hover:bg-primary group-hover:text-primary-foreground">
-                    <Icon aria-hidden="true" className={featured ? "size-6" : "size-5"} />
-                  </span>
-                  <span className="font-mono text-[10px] font-semibold text-navy-foreground/40">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
+                {/* Three real products from this department. gap-px on the
+                    border colour draws hairlines without extra elements. */}
+                <div className="grid grid-cols-3 gap-px bg-border">
+                  {Array.from({ length: 3 }, (_, i) => {
+                    const src = images[i]
+                    return (
+                      <div key={i} className="relative aspect-[4/3] overflow-hidden bg-secondary">
+                        {src ? (
+                          <Image
+                            src={src}
+                            alt=""
+                            fill
+                            sizes="(max-width: 640px) 33vw, (max-width: 1024px) 17vw, 12vw"
+                            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                          />
+                        ) : (
+                          <span className="flex h-full items-center justify-center text-muted-foreground/30">
+                            <ImageOff size={ICON_SIZE.base} aria-hidden="true" />
+                          </span>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
 
-                <span className="relative flex items-end justify-between gap-3">
-                  <span className="flex flex-col gap-1.5">
-                    <span
-                      className={cn(
-                        "font-display font-bold text-balance leading-[1.1]",
-                        featured ? "text-2xl sm:text-3xl" : "text-base sm:text-lg",
-                      )}
-                    >
-                      {category.name}
+                <div className="flex flex-1 flex-col gap-2 p-4">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground transition-colors group-hover:bg-foreground group-hover:text-background">
+                      <Icon className="size-4" aria-hidden="true" />
                     </span>
-                    <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.02em] text-primary">
-                      <span className="size-1 rounded-full bg-primary" />
-                      {category.productCount} {category.productCount === 1 ? "product" : "products"}
-                    </span>
-                  </span>
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-navy-foreground/15 text-navy-foreground/70 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:border-primary group-hover:text-primary">
-                    <ArrowUpRight aria-hidden="true" className="size-4" />
-                  </span>
-                </span>
-              </MotionLink>
+                    <h3 className="min-w-0 flex-1 truncate font-display text-[15px] font-bold tracking-tight text-foreground">
+                      {department.name}
+                    </h3>
+                    <ArrowRight
+                      size={ICON_SIZE.sm}
+                      className="shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-foreground motion-reduce:transition-none"
+                      aria-hidden="true"
+                    />
+                  </div>
+
+                  {shelves.length > 0 && (
+                    <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                      {shelves.slice(0, 4).map((s) => s.name).join(" · ")}
+                      {shelves.length > 4 ? ` +${shelves.length - 4} more` : ""}
+                    </p>
+                  )}
+
+                  <p className="mt-auto pt-1 font-mono text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+                    {department.productCount.toLocaleString()} {department.productCount === 1 ? "product" : "products"}
+                  </p>
+                </div>
+              </Link>
             </RevealItem>
           )
         })}

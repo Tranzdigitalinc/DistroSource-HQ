@@ -4,13 +4,22 @@ import Link from "next/link"
 import { AnimatePresence, motion } from "motion/react"
 import { ShoppingCart, ICON_SIZE } from "@/lib/storefront-icons"
 import { useCartCount } from "@/lib/use-cart"
+import { useCartDrawer } from "@/components/cart/cart-drawer"
 
 export function CartTrigger() {
   const { count } = useCartCount()
+  const { openCart } = useCartDrawer()
 
   return (
+    // Still a real link to /cart: a plain click opens the drawer, but
+    // middle-click, ctrl/cmd-click and no-JS all still reach the cart page.
     <Link
       href="/cart"
+      onClick={(e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+        e.preventDefault()
+        openCart()
+      }}
       aria-label={count > 0 ? `Cart, ${count} ${count === 1 ? "item" : "items"}` : "Cart"}
       className="relative flex h-10 items-center gap-2 rounded-md px-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
