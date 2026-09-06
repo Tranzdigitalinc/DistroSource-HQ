@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState, useTransition } from "react"
 import { mutate } from "swr"
 import { getCartItems, removeCartItem } from "@/lib/actions/cart"
 import { PriceDisplay } from "@/components/price-display"
-import { ArrowRight, Close, Loader2, ShoppingCart, Trash2 } from "@/lib/storefront-icons"
+import { ArrowRight, Close, Loader2, ShoppingCart, Trash } from "@/lib/storefront-icons"
 import { useCartCount } from "@/lib/use-cart"
 
 const EASE = [0.16, 1, 0.3, 1] as const
@@ -166,7 +166,7 @@ export function V4CartDrawer() {
                           aria-label={`Remove ${item.product.name}`}
                           className="mt-1 flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                         >
-                          <Trash2 size={15} aria-hidden="true" />
+                          <Trash size={15} aria-hidden="true" />
                         </button>
                       </li>
                     ))}
