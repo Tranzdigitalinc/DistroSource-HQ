@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { RedesignHeader } from "@/components/redesign/redesign-header"
 import { RedesignFooter } from "@/components/redesign/redesign-footer"
 import { RedesignProductCard } from "@/components/redesign/redesign-product-card"
@@ -110,9 +111,9 @@ export default async function RedesignProductsPage({ searchParams }: { searchPar
                   <p className="font-display text-xl font-bold text-foreground">Nothing matches this shelf.</p>
                   <p className="mt-2 text-sm text-muted-foreground">Clear a filter or try a broader search.</p>
                   {filtered && (
-                    <a href="/redesign-preview/products" className="mt-5 inline-flex min-h-11 items-center border border-border px-4 py-2 text-sm font-semibold hover:border-primary hover:text-primary">
+                    <Link href="/redesign-preview/products" className="mt-5 inline-flex min-h-11 items-center border border-border px-4 py-2 text-sm font-semibold hover:border-primary hover:text-primary">
                       Clear all filters
-                    </a>
+                    </Link>
                   )}
                 </div>
               )}
