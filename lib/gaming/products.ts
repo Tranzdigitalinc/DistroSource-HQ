@@ -55,6 +55,8 @@ interface Draft {
   originalPrice?: number
   category: GamingCategory
   subcategory: string
+  /** Real captures. When present these replace `art` on the storefront. */
+  images?: string[]
   art: GamingArt[]
   version: string
   lastUpdated: string
@@ -86,7 +88,7 @@ function build(draft: Draft, defaults: Defaults, index: number): GamingProduct {
     platform: defaults.platform,
     category: draft.category,
     subcategory: draft.subcategory,
-    images: [],
+    images: draft.images ?? [],
     art: draft.art,
     version: draft.version,
     lastUpdated: draft.lastUpdated,

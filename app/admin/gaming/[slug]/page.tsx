@@ -7,6 +7,7 @@ import { isAdminEmail } from "@/lib/admin-emails"
 import { getGamingProductBySlug, getGamingProductSlugs } from "@/lib/gaming/queries"
 import { CATEGORY_LABEL, PLATFORM_LABEL } from "@/lib/gaming/types"
 import { isTebexConfigured } from "@/lib/gaming/tebex"
+import { hasRealImages, resolveGamingImage } from "@/lib/gaming/images"
 import { GamingPreview } from "@/components/gaming/gaming-preview"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -63,6 +64,7 @@ export default async function AdminGamingProductPage({ params }: { params: Promi
   if (!product) notFound()
 
   const tebexLive = isTebexConfigured(product)
+  const live = hasRealImages(product.images)
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
@@ -205,29 +207,43 @@ export default async function AdminGamingProductPage({ params }: { params: Promi
               <CardTitle className="text-base">Imagery</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
-              {/* Every gallery view, so an admin can see exactly what the
-                  product page shows without leaving the dashboard. */}
-              {product.art.map((view) => (
-                <div key={view.caption} className="overflow-hidden rounded-md border border-border bg-secondary">
-                  <GamingPreview art={view} />
-                </div>
-              ))}
-              <p className="font-mono text-[11px] text-muted-foreground">
-                {product.art.length} schematic {product.art.length === 1 ? "view" : "views"} &middot; scene{" "}
-                {product.art.map((v) => v.scene).join(", ")}
-              </p>
-              {product.images.length === 0 ? (
-                <p className="flex items-start gap-2 text-xs leading-5 text-muted-foreground">
-                  <ImageOff className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                  No photographic capture uploaded. The storefront renders the schematics above and never presents one as a screenshot of the
-                  delivered files. Upload real captures once the product files exist.
-                </p>
-              ) : (
-                <ul className="flex flex-col gap-1 break-all font-mono text-xs text-muted-foreground">
+              {/* Exactly what the storefront shows, in the same precedence:
+                  real captures if there are any, illustrations otherwise. */}
+              {live ? (
+                <>
+                  <Badge variant="default" className="w-fit">
+                    Live: real captures
+                  </Badge>
                   {product.images.map((image) => (
-                    <li key={image}>{image}</li>
+                    <div key={image} className="relative aspect-[4/3] overflow-hidden rounded-md border border-border bg-secondary">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={resolveGamingImage(image)} alt="" className="h-full w-full object-cover" />
+                    </div>
                   ))}
-                </ul>
+                  <ul className="flex flex-col gap-1 break-all font-mono text-[11px] text-muted-foreground">
+                    {product.images.map((image) => (
+                      <li key={image}>{image}</li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <>
+                  <Badge variant="outline" className="w-fit">
+                    Live: illustrations
+                  </Badge>
+                  {product.art.map((view) => (
+                    <div key={view.caption} className="overflow-hidden rounded-md border border-border bg-secondary">
+                      <GamingPreview art={view} />
+                    </div>
+                  ))}
+                  <p className="flex items-start gap-2 text-xs leading-5 text-muted-foreground">
+                    <ImageOff className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                    No captures on this product, so the storefront is showing the illustrations above. Add entries to{" "}
+                    <code className="rounded bg-background px-1 py-0.5 font-mono text-[11px]">images</code> and they replace the illustrations
+                    entirely — a path in <code className="rounded bg-background px-1 py-0.5 font-mono text-[11px]">/public</code>, any https URL,
+                    or a Blob pathname all work.
+                  </p>
+                </>
               )}
             </CardContent>
           </Card>

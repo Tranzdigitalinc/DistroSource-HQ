@@ -1,5 +1,7 @@
 import Link from "next/link"
+import Image from "next/image"
 import { GamingPreview } from "@/components/gaming/gaming-preview"
+import { hasRealImages, resolveGamingImage } from "@/lib/gaming/images"
 import { TebexBuyButton } from "@/components/gaming/tebex-buy-button"
 import { getGamingBadges } from "@/lib/gaming/queries"
 import { CATEGORY_LABEL, PLATFORM_LABEL, type GamingProduct } from "@/lib/gaming/types"
@@ -24,13 +26,24 @@ export function GamingProductCard({ product, className }: { product: GamingProdu
       )}
     >
       <Link href={href} className="relative block aspect-[4/3] overflow-hidden" tabIndex={-1} aria-hidden="true">
-        {/* No caption at card size: the badges take the top-left corner the art
-            would caption, and the category is labelled below the image. */}
-        <GamingPreview
-          art={product.art[0]}
-          caption={false}
-          className="transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-        />
+        {/* A real capture wins over the illustration whenever one exists.
+            No caption on the illustrated fallback: the badges take the
+            top-left corner it would caption. */}
+        {hasRealImages(product.images) ? (
+          <Image
+            src={resolveGamingImage(product.images[0])}
+            alt=""
+            fill
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
+        ) : (
+          <GamingPreview
+            art={product.art[0]}
+            caption={false}
+            className="transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+          />
+        )}
         {badges.length > 0 && (
           <div className="pointer-events-none absolute left-2.5 top-2.5 flex flex-wrap gap-1.5">
             {badges.map((badge) => (

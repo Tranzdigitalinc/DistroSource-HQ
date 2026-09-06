@@ -187,7 +187,7 @@ export default async function GamingProductPage({ params }: { params: Promise<{ 
 
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-12">
             <div className="lg:col-start-1 lg:row-start-1">
-              <GamingGallery art={product.art} title={product.title} />
+              <GamingGallery images={product.images} art={product.art} title={product.title} />
             </div>
 
             {/* ---- Purchase panel ---- */}
