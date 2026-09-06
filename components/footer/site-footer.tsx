@@ -7,6 +7,7 @@ import { ArrowRight, Check, ShieldCheck, ICON_SIZE } from "@/lib/storefront-icon
 import { BrandLogo } from "@/components/brand-logo"
 import { Button } from "@/components/ui/button"
 import { subscribeToNewsletter } from "@/lib/actions/newsletter"
+import { trackWhopEvent } from "@/lib/whop-pixel"
 
 // "Bundles" is absent on purpose: every bundle is a draft, so the listing
 // is empty. Add it back when the first bundle publishes.
@@ -65,6 +66,8 @@ function NewsletterForm() {
     startTransition(async () => {
       try {
         await subscribeToNewsletter(email)
+        trackWhopEvent("lead", { email: email.trim().toLowerCase(), event_id: `newsletter-${Date.now()}` })
+        trackWhopEvent("newsletter_subscribe", { email: email.trim().toLowerCase(), event_id: `newsletter-signup-${Date.now()}` })
         setSubmitted(true)
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Could not subscribe. Please try again.")
