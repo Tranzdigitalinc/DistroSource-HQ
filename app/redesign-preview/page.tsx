@@ -1,13 +1,17 @@
 import { unstable_cache } from "next/cache"
-import { FAQSection } from "@/components/home/faq-section"
-import { TrustBadges } from "@/components/home/trust-badges"
-import { GamingTeaser } from "@/components/home/gaming-teaser"
 import { RedesignHeader } from "@/components/redesign/redesign-header"
 import { RedesignFooter } from "@/components/redesign/redesign-footer"
 import { RedesignHero } from "@/components/redesign/redesign-hero"
 import { RedesignCategoryShowcase } from "@/components/redesign/category-showcase"
 import { RedesignProductShowcase } from "@/components/redesign/product-showcase"
+import { RedesignGamingBridge } from "@/components/redesign/redesign-gaming-bridge"
+import { RedesignProof } from "@/components/redesign/redesign-proof"
 import { getCategoryTree, getFeaturedProducts, getProducts, getStorefrontStats } from "@/lib/queries/catalog"
+
+export const metadata = {
+  title: "DistroSource redesign preview",
+  robots: { index: false, follow: false },
+}
 
 const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["redesign-preview", key], { revalidate: 300 })
 
@@ -64,7 +68,7 @@ export default async function RedesignPreviewPage() {
           href="/redesign-preview/products?category=web-development"
           items={development}
         />
-        <GamingTeaser />
+        <RedesignGamingBridge />
         <RedesignProductShowcase
           eyebrow="Make it look finished"
           title="Design resources with a point of view."
@@ -73,8 +77,7 @@ export default async function RedesignPreviewPage() {
           items={design}
           tone="muted"
         />
-        <TrustBadges />
-        <FAQSection />
+        <RedesignProof />
       </main>
       <RedesignFooter />
     </div>
