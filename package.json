@@ -10,7 +10,6 @@
     "typecheck": "tsc --noEmit --incremental false",
     "seed:catalog": "node scripts/catalog/upload.mjs && node scripts/catalog/seed.mjs",
     "seed:catalog:batch2": "node scripts/catalog/upload-batch2.mjs && node scripts/catalog/seed-batch2.mjs",
-    "seed:gaming": "node scripts/gaming/upload.mjs && node scripts/gaming/seed.mjs",
     "audit:catalog": "node --env-file=.env.local scripts/audit/catalog-audit.mjs",
     "audit:schema": "node --env-file=.env.local scripts/audit/schema-drift.mjs",
     "db:generate": "drizzle-kit generate",
