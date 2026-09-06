@@ -26,74 +26,94 @@ export type GamingCategory =
 /* -------------------------------------------------------------------------
  * Product artwork
  *
- * Each product describes its own imagery as data rather than picking one of a
- * handful of shared templates. A police department and a car dealership are
- * both floor plans, but they are not the same floor plan, and the rooms are
- * labelled with what is actually in them — so the image tells a buyer what
- * they are getting instead of decorating the card.
+ * These are rendered scenes, not diagrams. A buyer scanning a gaming store
+ * expects to see the thing — a lit interior, a built world, an interface in
+ * use — so each product describes a scene and the renderer draws it with
+ * materials, depth and light rather than outlines on a grid.
  *
- * These are measured schematics, not screenshots, and the product page says
- * so. Nothing here claims to show the delivered files.
+ * They remain illustrations drawn by DistroSource, not screen captures.
+ * Photographic captures of the delivered files go in `images`, which takes
+ * precedence over everything here once populated. Nothing in this module is
+ * ever presented as a capture.
  *
  * Coordinates are in a 400 x 300 viewBox.
  * ---------------------------------------------------------------------- */
 
-export interface GamingArtRoom {
-  x: number
-  y: number
-  w: number
-  h: number
-  /** Drawn inside the room when it is large enough to hold the text. */
-  label: string
-  /** Highlight in the brand accent — the room that sells the product. */
-  accent?: boolean
-}
+/** Lighting and material treatment for an interior scene. */
+export type GamingInteriorTone = "warm" | "cool" | "clinical" | "neon" | "showroom"
+
+/** Objects the interior renderer can place in the room, drawn in perspective. */
+export type GamingInteriorProp =
+  | "desk"
+  | "counter"
+  | "sofa"
+  | "shelf"
+  | "locker"
+  | "cell"
+  | "car"
+  | "bar"
+  | "screen"
+  | "plant"
+  | "crate"
+  | "table"
+
+/** Sky and ambient treatment for an isometric world scene. */
+export type GamingWorldSky = "day" | "dusk" | "night" | "cave"
+
+/** Structures the world renderer can place on the terrain. */
+export type GamingWorldStructure =
+  | "castle"
+  | "house"
+  | "tower"
+  | "hall"
+  | "tree"
+  | "pine"
+  | "water"
+  | "portal"
+  | "arena"
+  | "path"
 
 /** A labelled bar: a stat readout, a config value, a capacity meter. */
 export interface GamingArtBar {
   label: string
-  /** 0–1. */
+  /** 0-1. */
   fill: number
   value?: string
 }
 
-/** One extruded block on the isometric ground plane. */
-export interface GamingArtZone {
-  col: number
-  row: number
-  /** Extrusion height in viewBox units. */
-  height: number
-  label?: string
-  accent?: boolean
+/** One app on the phone home screen. `hue` is an HSL hue in degrees. */
+export interface GamingArtApp {
+  name: string
+  hue: number
 }
 
 export type GamingArt =
-  /** Top-down measured plan. MLO interiors and built map layouts. */
-  | { scene: "floorplan"; caption: string; rooms: GamingArtRoom[] }
-  /** Extruded isometric massing. Minecraft world builds. */
-  | { scene: "isometric"; caption: string; zones: GamingArtZone[] }
-  /** Windowed interface: sidebar navigation over a content grid. */
+  /** A lit interior in one-point perspective. MLOs and built interiors. */
+  | { scene: "interior"; caption: string; tone: GamingInteriorTone; props: GamingInteriorProp[] }
+  /** An isometric landscape under a sky. Minecraft worlds and maps. */
+  | { scene: "world"; caption: string; sky: GamingWorldSky; structures: GamingWorldStructure[] }
+  /** A vehicle HUD drawn over the road scene it sits on. */
+  | { scene: "hud"; caption: string; speed: string; unit: string; gauges: GamingArtBar[]; chips: string[] }
+  /** An in-game interface with tabs and a populated item grid. */
   | {
-      scene: "interface"
+      scene: "screen"
       caption: string
-      nav: string[]
-      columns: number
-      rows: number
-      activeNav?: number
+      app: string
+      tabs: string[]
+      activeTab: number
+      slots: number
       meter?: GamingArtBar
     }
-  /** Handset with a labelled app grid. */
-  | { scene: "phone"; caption: string; apps: string[] }
-  /** Gauge cluster with a primary readout and supporting bars. */
-  | { scene: "cluster"; caption: string; readout: string; unit: string; bars: GamingArtBar[]; chips: string[] }
-  /** Server-side logic drawn as a sequence of named stages. */
-  | { scene: "flow"; caption: string; nodes: string[]; activeNode?: number }
+  /** A handset home screen with coloured app tiles. */
+  | { scene: "phone"; caption: string; apps: GamingArtApp[] }
+  /** Server-side logic as a lit pipeline of named stages. */
+  | { scene: "system"; caption: string; stages: string[]; activeStage: number }
   /** Named configuration values and where they sit in their range. */
-  | { scene: "sliders"; caption: string; rows: GamingArtBar[] }
-  /** Palette and tile sheet for texture work. */
-  | { scene: "swatches"; caption: string; rows: number; columns: number }
-  /** Stacked cards listing what a multi-product pack contains. */
-  | { scene: "stack"; caption: string; items: string[] }
+  | { scene: "config"; caption: string; rows: GamingArtBar[] }
+  /** A texture sheet — game block textures or a brand palette. */
+  | { scene: "palette"; caption: string; kind: "blocks" | "brand" }
+  /** What a multi-product pack contains, as thumbnailed cards. */
+  | { scene: "pack"; caption: string; items: string[] }
 
 export interface GamingFaq {
   question: string
@@ -121,9 +141,9 @@ export interface GamingProduct {
   category: GamingCategory
   subcategory: string
   /**
-   * Real capture URLs once the product files exist and can be photographed.
-   * Empty today — the storefront renders the `art` schematics below instead,
-   * and never presents one as a screenshot of the delivered files.
+   * Photographic captures of the delivered files. These take precedence over
+   * `art` wherever both exist — as soon as a product has real captures, the
+   * illustrations stop being shown for it.
    */
   images: string[]
   /**

@@ -27,35 +27,25 @@ export const metadata: Metadata = {
 /**
  * Artwork for each category card. These stand for a whole category rather
  * than one product, so they are generic on purpose — the per-product
- * schematics live on the products themselves.
+ * artwork lives on the products themselves.
  */
 const CATEGORY_ART: Record<GamingCategory, GamingArt> = {
-  "maps-mlos": {
-    scene: "floorplan",
-    caption: "INTERIORS",
-    rooms: [
-      { x: 28, y: 44, w: 150, h: 96, label: "MAIN", accent: true },
-      { x: 186, y: 44, w: 186, h: 96, label: "ANNEX" },
-      { x: 28, y: 148, w: 104, h: 120, label: "SIDE" },
-      { x: 140, y: 148, w: 116, h: 120, label: "STORE" },
-      { x: 264, y: 148, w: 108, h: 120, label: "YARD" },
-    ],
-  },
-  "scripts-systems": { scene: "flow", caption: "SERVER LOGIC", nodes: ["TRIGGER", "VALIDATE", "PERSIST"], activeNode: 1 },
+  "maps-mlos": { scene: "interior", caption: "INTERIORS", tone: "warm", props: ["sofa", "table", "shelf", "plant"] },
+  "scripts-systems": { scene: "system", caption: "SERVER LOGIC", stages: ["TRIGGER", "VALIDATE", "PERSIST"], activeStage: 1 },
   "ui-hud": {
-    scene: "cluster",
+    scene: "hud",
     caption: "INTERFACES",
-    readout: "72",
-    unit: "READOUT",
-    bars: [
-      { label: "PRIMARY", fill: 0.7 },
-      { label: "SECONDARY", fill: 0.45 },
-      { label: "TERTIARY", fill: 0.6 },
+    speed: "72",
+    unit: "MPH",
+    gauges: [
+      { label: "FUEL", fill: 0.7 },
+      { label: "ENGINE", fill: 0.45 },
+      { label: "CONDITION", fill: 0.6 },
     ],
     chips: ["STATUS", "ALERT", "MODE"],
   },
   "server-resources": {
-    scene: "sliders",
+    scene: "config",
     caption: "SERVER SETUP",
     rows: [
       { label: "PERMISSIONS", fill: 0.7 },
@@ -64,10 +54,10 @@ const CATEGORY_ART: Record<GamingCategory, GamingArt> = {
       { label: "MODERATION", fill: 0.62 },
     ],
   },
-  textures: { scene: "swatches", caption: "TEXTURE SETS", rows: 6, columns: 9 },
-  graphics: { scene: "swatches", caption: "BRAND GRAPHICS", rows: 4, columns: 8 },
+  textures: { scene: "palette", caption: "TEXTURE SETS", kind: "blocks" },
+  graphics: { scene: "palette", caption: "BRAND GRAPHICS", kind: "brand" },
   configurations: {
-    scene: "sliders",
+    scene: "config",
     caption: "TUNED CONFIGS",
     rows: [
       { label: "BALANCE", fill: 0.58 },
@@ -77,7 +67,7 @@ const CATEGORY_ART: Record<GamingCategory, GamingArt> = {
     ],
   },
   bundles: {
-    scene: "stack",
+    scene: "pack",
     caption: "MULTI-PRODUCT",
     items: ["Core resources", "Combined config", "Setup guide", "Update notes"],
   },
@@ -89,19 +79,7 @@ const PLATFORM_CARDS = [
     label: "FiveM",
     href: "/gaming/fivem",
     blurb: "Maps and MLOs, interfaces, gameplay systems and server essentials for roleplay communities.",
-    art: {
-      scene: "floorplan",
-      caption: "FIVEM · MLO",
-      rooms: [
-        { x: 28, y: 44, w: 130, h: 90, label: "LOBBY" },
-        { x: 166, y: 44, w: 96, h: 90, label: "OFFICE" },
-        { x: 270, y: 44, w: 102, h: 140, label: "GARAGE", accent: true },
-        { x: 28, y: 142, w: 130, h: 60, label: "STORE" },
-        { x: 166, y: 142, w: 96, h: 60, label: "HALL" },
-        { x: 28, y: 210, w: 234, h: 58, label: "FORECOURT" },
-        { x: 270, y: 192, w: 102, h: 76, label: "YARD" },
-      ],
-    } satisfies GamingArt,
+    art: { scene: "interior", caption: "FIVEM", tone: "showroom", props: ["car", "desk", "sofa", "plant"] } satisfies GamingArt,
     emphasis: true,
   },
   {
@@ -110,16 +88,10 @@ const PLATFORM_CARDS = [
     href: "/gaming/minecraft",
     blurb: "Spawn and adventure maps, resource packs, server packs and tuned configurations.",
     art: {
-      scene: "isometric",
-      caption: "MINECRAFT · BUILD",
-      zones: [
-        { col: 3, row: 3, height: 14, label: "SPAWN", accent: true },
-        { col: 1, row: 2, height: 28 },
-        { col: 5, row: 1, height: 34, label: "KEEP" },
-        { col: 2, row: 5, height: 20 },
-        { col: 6, row: 4, height: 24, label: "SHOPS" },
-        { col: 0, row: 5, height: 16 },
-      ],
+      scene: "world",
+      caption: "MINECRAFT",
+      sky: "day",
+      structures: ["castle", "tree", "house", "path", "house", "pine", "water", "tree"],
     } satisfies GamingArt,
     emphasis: true,
   },
@@ -129,7 +101,7 @@ const PLATFORM_CARDS = [
     href: "/gaming/products?platform=other",
     blurb: "Community branding and cross-platform starter packs for any server.",
     art: {
-      scene: "stack",
+      scene: "pack",
       caption: "CROSS-PLATFORM",
       items: ["Community brand set", "Server resources", "Staff handbook", "Launch checklist"],
     } satisfies GamingArt,

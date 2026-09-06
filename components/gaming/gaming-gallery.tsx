@@ -8,11 +8,10 @@ import { cn } from "@/lib/utils"
 /**
  * Product gallery for a Gaming product.
  *
- * Each view is a real, distinct drawing of the product — a different floor of
- * the building, a different screen of the interface — not the same image
- * three times. Until captures of the delivered files exist in `images[]`,
- * this shows those schematics and says so beneath them. It never labels a
- * drawing as a screenshot.
+ * Each view is a distinct scene from the product — a different room, a
+ * different screen — not the same image three times. Until in-game captures
+ * exist in `images[]`, this shows the illustrations and says so beneath them.
+ * It never labels an illustration as a screenshot.
  */
 export function GamingGallery({ art, title }: { art: GamingArt[]; title: string }) {
   const [active, setActive] = useState(0)
@@ -47,8 +46,8 @@ export function GamingGallery({ art, title }: { art: GamingArt[]; title: string 
       )}
 
       <p className="text-xs text-muted-foreground">
-        Measured schematics of what this product contains. Photographic captures are added as each product is
-        shot — these are drawings, not screenshots.
+        Illustrations of what this product contains, drawn by DistroSource. In-game captures are added as each
+        product is shot — these are illustrations, not screenshots.
       </p>
     </div>
   )
