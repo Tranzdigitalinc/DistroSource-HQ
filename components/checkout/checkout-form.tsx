@@ -398,23 +398,23 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                       <span className="block text-xs text-muted-foreground">Apple Pay, Google Pay & cards via Polar</span>
                     </span>
                   </button>
-                  {WHOP_ENABLED && (
-                    <button
-                      type="button"
-                      onClick={() => setPaymentProvider("whop")}
-                      aria-pressed={paymentProvider === "whop"}
-                      className={cn(
-                        "flex items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors",
-                        paymentProvider === "whop" ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
-                      )}
-                    >
-                      <Zap size={ICON_SIZE.base} className="mt-0.5 shrink-0 text-foreground" aria-hidden="true" />
-                      <span>
-                        <span className="block text-sm font-semibold text-foreground">Whop</span>
-                        <span className="block text-xs text-muted-foreground">Pay with Whop&apos;s hosted checkout</span>
+                  <button
+                    type="button"
+                    disabled
+                    aria-disabled="true"
+                    className="flex cursor-not-allowed items-start gap-3 rounded-lg border border-border bg-secondary/30 px-4 py-3 text-left opacity-75"
+                  >
+                    <Zap size={ICON_SIZE.base} className="mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+                    <span>
+                      <span className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                        Whop
+                        <span className="rounded-full border border-border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-muted-foreground">
+                          Maintenance
+                        </span>
                       </span>
-                    </button>
-                  )}
+                      <span className="block text-xs text-muted-foreground">Whop checkout is temporarily unavailable.</span>
+                    </span>
+                  </button>
                   {TAMPAY_ENABLED && (
                     <button
                       type="button"
