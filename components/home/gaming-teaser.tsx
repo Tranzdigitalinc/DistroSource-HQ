@@ -1,47 +1,38 @@
 import Link from "next/link"
 import { GamingProductCard } from "@/components/gaming/gaming-product-card"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, GameController, ICON_SIZE } from "@/lib/storefront-icons"
+import { ArrowRight, GameController } from "@/lib/storefront-icons"
 import { getFeaturedGamingProducts } from "@/lib/gaming/queries"
 
-/**
- * Gaming's presence on the main homepage: one band, four products, one way
- * in. Deliberately the same size as any other section — Gaming is a new
- * department inside DistroSource, not a takeover of the front page.
- */
 export function GamingTeaser() {
   const products = getFeaturedGamingProducts(4)
   if (products.length === 0) return null
 
   return (
-    <section className="border-y border-border bg-secondary/30">
-      <div className="mx-auto max-w-7xl px-6 py-14 sm:px-8">
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+    <section className="bg-navy text-navy-foreground">
+      <div className="mx-auto max-w-[94rem] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="grid gap-10 lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.7fr)] lg:items-end">
           <div className="max-w-xl">
-            <p className="flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-              <GameController size={ICON_SIZE.sm} aria-hidden="true" />
-              Explore DistroSource Gaming
+            <span className="flex size-11 items-center justify-center rounded-xl border border-navy-foreground/12 bg-navy-foreground/5 text-primary">
+              <GameController size={21} aria-hidden="true" />
+            </span>
+            <p className="mt-6 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-primary">DistroSource Gaming</p>
+            <h2 className="mt-3 font-display text-4xl font-black leading-[0.96] tracking-[-0.045em] sm:text-5xl">
+              Built for the worlds people play in.
+            </h2>
+            <p className="mt-4 text-sm leading-6 text-navy-foreground/58 sm:text-base">
+              FiveM maps and MLOs, Minecraft server resources, interfaces and configurations — a dedicated gaming department inside DistroSource.
             </p>
-            <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Digital resources built for gaming.</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              FiveM maps and MLOs, Minecraft server packs, interfaces and configurations — sold directly by DistroSource.
-            </p>
+            <Link href="/gaming" className="group mt-7 inline-flex items-center gap-2 text-sm font-bold text-navy-foreground hover:text-primary">
+              Explore Gaming
+              <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
+            </Link>
           </div>
-          <Button
-            variant="outline"
-            className="bg-transparent font-semibold"
-            nativeButton={false}
-            render={<Link href="/gaming" />}
-          >
-            Explore Gaming
-            <ArrowRight size={ICON_SIZE.base} aria-hidden="true" />
-          </Button>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {products.map((product) => (
-            <GamingProductCard key={product.id} product={product} />
-          ))}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4">
+            {products.map((product) => (
+              <GamingProductCard key={product.id} product={product} />
+            ))}
+          </div>
         </div>
       </div>
     </section>
