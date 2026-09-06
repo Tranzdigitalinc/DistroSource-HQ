@@ -165,7 +165,7 @@ export default async function RedesignProductDetailPage({ params }: { params: Pr
                 {reviewCount > 0 && (
                   <a href="#section-reviews" className="flex items-center gap-1.5 hover:text-foreground">
                     <Star size={13} className="fill-primary text-primary" aria-hidden="true" />
-                    <strong className="text-foreground">{avgRating.toFixed(1)}</strong>
+                    <strong className="text-foreground">{(avgRating ?? 0).toFixed(1)}</strong>
                     <span>({reviewCount})</span>
                   </a>
                 )}
