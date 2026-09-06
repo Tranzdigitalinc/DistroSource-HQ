@@ -42,8 +42,7 @@ export function V4ProductCard({
       )
     : null
 
-  function primaryAction(event: React.MouseEvent) {
-    event.preventDefault()
+  function primaryAction() {
     if (isPending) return
     startTransition(async () => {
       try {
@@ -94,39 +93,34 @@ export function V4ProductCard({
             ) : (
               <span className="flex h-full w-full items-center justify-center text-muted-foreground/35"><ImageOff size={32} /></span>
             )}
-
             <div className="absolute inset-0 bg-gradient-to-t from-black/42 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
             <div className="absolute left-3 top-3 flex gap-1.5">
               {isFree && <span className="rounded-full bg-background/92 px-2.5 py-1 font-mono text-[9px] font-black uppercase tracking-[0.08em] text-foreground backdrop-blur">Free</span>}
               {isOnSale && <span className="rounded-full bg-primary px-2.5 py-1 font-mono text-[9px] font-black uppercase tracking-[0.08em] text-primary-foreground">Sale</span>}
             </div>
-
-            <div className="absolute right-3 top-3 z-10"><WishlistButton productId={item.product.id} /></div>
-
-            <div className="absolute inset-x-3 bottom-3 z-10 flex translate-y-2 items-center gap-2 opacity-0 transition-[opacity,transform] duration-300 group-hover:translate-y-0 group-hover:opacity-100 focus-within:translate-y-0 focus-within:opacity-100">
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.preventDefault()
-                  setPreviewOpen(true)
-                }}
-                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-black shadow-lg transition-transform hover:scale-105"
-                aria-label={`Preview ${item.product.name}`}
-              >
-                <Eye size={17} />
-              </button>
-              <button
-                type="button"
-                onClick={primaryAction}
-                disabled={isPending || (!isFree && !cheapest)}
-                className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-white px-4 text-xs font-bold text-black shadow-lg transition-transform hover:scale-[1.015] disabled:opacity-60"
-              >
-                {isPending ? <Loader2 size={15} className="animate-spin" /> : justAdded ? <Check size={15} /> : isFree ? <Gift size={15} /> : <ShoppingCart size={15} />}
-                {isPending ? "Adding…" : justAdded ? "Added" : isFree ? "Get free" : "Quick add"}
-              </button>
-            </div>
           </Link>
+
+          <div className="absolute right-3 top-3 z-10"><WishlistButton productId={item.product.id} /></div>
+
+          <div className="absolute inset-x-3 bottom-3 z-10 flex translate-y-2 items-center gap-2 opacity-0 transition-[opacity,transform] duration-300 group-hover:translate-y-0 group-hover:opacity-100 focus-within:translate-y-0 focus-within:opacity-100">
+            <button
+              type="button"
+              onClick={() => setPreviewOpen(true)}
+              className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-black shadow-lg transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+              aria-label={`Preview ${item.product.name}`}
+            >
+              <Eye size={17} />
+            </button>
+            <button
+              type="button"
+              onClick={primaryAction}
+              disabled={isPending || (!isFree && !cheapest)}
+              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-white px-4 text-xs font-bold text-black shadow-lg transition-transform hover:scale-[1.015] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            >
+              {isPending ? <Loader2 size={15} className="animate-spin" /> : justAdded ? <Check size={15} /> : isFree ? <Gift size={15} /> : <ShoppingCart size={15} />}
+              {isPending ? "Adding…" : justAdded ? "Added" : isFree ? "Get free" : "Quick add"}
+            </button>
+          </div>
         </div>
 
         <div className={cn("pt-3", feature && "pt-4")}> 
