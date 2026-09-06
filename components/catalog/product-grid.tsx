@@ -1,7 +1,6 @@
 import Link from "next/link"
-import { ArrowRight, SearchEmpty, ICON_SIZE } from "@/lib/storefront-icons"
-import { ProductCard, type ProductCardData } from "@/components/product/product-card"
-import { Button } from "@/components/ui/button"
+import { ArrowRight, SearchEmpty } from "@/lib/storefront-icons"
+import { V4ProductCard, type V4ProductCardData } from "@/components/v4/product-card"
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 
 export interface ProductGridEmptyState {
@@ -14,45 +13,34 @@ export function ProductGrid({
   clearHref,
   emptyState,
 }: {
-  items: ProductCardData[]
+  items: V4ProductCardData[]
   clearHref?: string
-  /** Override the "nothing matches" copy when the emptiness isn't caused by filters. */
   emptyState?: ProductGridEmptyState
 }) {
   if (items.length === 0) {
-    const title = emptyState?.title ?? "Nothing matches those filters"
-    const description =
-      emptyState?.description ??
-      "Try removing a filter or broadening the search term. Every product shows its licence and delivery details before you buy."
+    const title = emptyState?.title ?? "Nothing matches yet."
+    const description = emptyState?.description ?? "Try removing a filter, changing the search, or exploring another department."
+
     return (
-      <Reveal className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-lg border border-border bg-card px-6 py-16 text-center">
-        <span className="flex size-14 items-center justify-center rounded-full bg-secondary text-muted-foreground">
-          <SearchEmpty size={ICON_SIZE.feature} aria-hidden="true" />
-        </span>
-        <div>
-          <h3 className="font-display text-lg font-bold text-foreground">{title}</h3>
-          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{description}</p>
-        </div>
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          {clearHref && (
-            <Button size="sm" render={<Link href={clearHref} />} nativeButton={false} className="font-semibold">
-              Clear filters
-            </Button>
-          )}
-          <Button size="sm" variant="outline" render={<Link href="/categories" />} nativeButton={false} className="bg-transparent font-semibold">
-            Browse departments
-            <ArrowRight size={ICON_SIZE.sm} aria-hidden="true" />
-          </Button>
+      <Reveal className="flex min-h-[460px] flex-col items-center justify-center rounded-[32px] border border-dashed border-border bg-secondary/30 px-6 text-center">
+        <span className="flex size-16 items-center justify-center rounded-full bg-background text-muted-foreground shadow-sm"><SearchEmpty size={24} /></span>
+        <h3 className="mt-6 font-display text-3xl font-black tracking-[-0.045em] text-foreground">{title}</h3>
+        <p className="mt-3 max-w-md text-sm leading-7 text-muted-foreground">{description}</p>
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
+          {clearHref && <Link href={clearHref} className="inline-flex h-11 items-center rounded-full bg-foreground px-5 text-sm font-semibold text-background">Clear filters</Link>}
+          <Link href="/categories" className="group inline-flex h-11 items-center gap-2 rounded-full border border-border px-5 text-sm font-semibold transition-colors hover:bg-secondary">
+            Browse departments <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+          </Link>
         </div>
       </Reveal>
     )
   }
 
   return (
-    <RevealGroup className="grid grid-cols-2 gap-4 pt-6 sm:grid-cols-3 lg:grid-cols-4" stagger={0.03}>
+    <RevealGroup className="grid grid-cols-2 gap-x-3 gap-y-8 pt-7 sm:gap-x-5 sm:gap-y-10 lg:grid-cols-3 xl:grid-cols-4" stagger={0.025}>
       {items.map((item) => (
         <RevealItem key={item.product.id} className="h-full">
-          <ProductCard item={item} />
+          <V4ProductCard item={item} />
         </RevealItem>
       ))}
     </RevealGroup>
