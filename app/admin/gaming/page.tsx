@@ -172,7 +172,7 @@ export default async function AdminGamingPage({
             <Card key={product.id}>
               <CardContent className="flex flex-wrap items-start gap-4 p-4">
                 <div className="h-16 w-24 shrink-0 overflow-hidden rounded-md border border-border bg-secondary">
-                  <GamingPreview kind={product.previewKind} seed={product.id.length} />
+                  <GamingPreview art={product.art[0]} caption={false} />
                 </div>
 
                 <div className="min-w-64 flex-1">

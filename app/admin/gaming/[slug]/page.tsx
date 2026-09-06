@@ -205,14 +205,22 @@ export default async function AdminGamingProductPage({ params }: { params: Promi
               <CardTitle className="text-base">Imagery</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
-              <div className="overflow-hidden rounded-md border border-border bg-secondary">
-                <GamingPreview kind={product.previewKind} seed={product.id.length} />
-              </div>
+              {/* Every gallery view, so an admin can see exactly what the
+                  product page shows without leaving the dashboard. */}
+              {product.art.map((view) => (
+                <div key={view.caption} className="overflow-hidden rounded-md border border-border bg-secondary">
+                  <GamingPreview art={view} />
+                </div>
+              ))}
+              <p className="font-mono text-[11px] text-muted-foreground">
+                {product.art.length} schematic {product.art.length === 1 ? "view" : "views"} &middot; scene{" "}
+                {product.art.map((v) => v.scene).join(", ")}
+              </p>
               {product.images.length === 0 ? (
                 <p className="flex items-start gap-2 text-xs leading-5 text-muted-foreground">
                   <ImageOff className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                  No capture uploaded. The storefront renders the illustrative preview above and never presents it as a screenshot of the delivered
-                  files. Upload real captures before launch.
+                  No photographic capture uploaded. The storefront renders the schematics above and never presents one as a screenshot of the
+                  delivered files. Upload real captures once the product files exist.
                 </p>
               ) : (
                 <ul className="flex flex-col gap-1 break-all font-mono text-xs text-muted-foreground">

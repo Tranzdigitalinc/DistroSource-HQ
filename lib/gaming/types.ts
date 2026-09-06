@@ -23,8 +23,77 @@ export type GamingCategory =
   | "configurations"
   | "bundles"
 
-/** Chooses which illustrative preview graphic a product renders. */
-export type GamingPreviewKind = "mlo" | "map" | "hud" | "ui" | "script" | "config" | "texture" | "bundle"
+/* -------------------------------------------------------------------------
+ * Product artwork
+ *
+ * Each product describes its own imagery as data rather than picking one of a
+ * handful of shared templates. A police department and a car dealership are
+ * both floor plans, but they are not the same floor plan, and the rooms are
+ * labelled with what is actually in them — so the image tells a buyer what
+ * they are getting instead of decorating the card.
+ *
+ * These are measured schematics, not screenshots, and the product page says
+ * so. Nothing here claims to show the delivered files.
+ *
+ * Coordinates are in a 400 x 300 viewBox.
+ * ---------------------------------------------------------------------- */
+
+export interface GamingArtRoom {
+  x: number
+  y: number
+  w: number
+  h: number
+  /** Drawn inside the room when it is large enough to hold the text. */
+  label: string
+  /** Highlight in the brand accent — the room that sells the product. */
+  accent?: boolean
+}
+
+/** A labelled bar: a stat readout, a config value, a capacity meter. */
+export interface GamingArtBar {
+  label: string
+  /** 0–1. */
+  fill: number
+  value?: string
+}
+
+/** One extruded block on the isometric ground plane. */
+export interface GamingArtZone {
+  col: number
+  row: number
+  /** Extrusion height in viewBox units. */
+  height: number
+  label?: string
+  accent?: boolean
+}
+
+export type GamingArt =
+  /** Top-down measured plan. MLO interiors and built map layouts. */
+  | { scene: "floorplan"; caption: string; rooms: GamingArtRoom[] }
+  /** Extruded isometric massing. Minecraft world builds. */
+  | { scene: "isometric"; caption: string; zones: GamingArtZone[] }
+  /** Windowed interface: sidebar navigation over a content grid. */
+  | {
+      scene: "interface"
+      caption: string
+      nav: string[]
+      columns: number
+      rows: number
+      activeNav?: number
+      meter?: GamingArtBar
+    }
+  /** Handset with a labelled app grid. */
+  | { scene: "phone"; caption: string; apps: string[] }
+  /** Gauge cluster with a primary readout and supporting bars. */
+  | { scene: "cluster"; caption: string; readout: string; unit: string; bars: GamingArtBar[]; chips: string[] }
+  /** Server-side logic drawn as a sequence of named stages. */
+  | { scene: "flow"; caption: string; nodes: string[]; activeNode?: number }
+  /** Named configuration values and where they sit in their range. */
+  | { scene: "sliders"; caption: string; rows: GamingArtBar[] }
+  /** Palette and tile sheet for texture work. */
+  | { scene: "swatches"; caption: string; rows: number; columns: number }
+  /** Stacked cards listing what a multi-product pack contains. */
+  | { scene: "stack"; caption: string; items: string[] }
 
 export interface GamingFaq {
   question: string
@@ -52,12 +121,16 @@ export interface GamingProduct {
   category: GamingCategory
   subcategory: string
   /**
-   * Real capture URLs once they exist. Empty today — the storefront renders
-   * an illustrative preview instead, and never presents that preview as a
-   * screenshot of the delivered files.
+   * Real capture URLs once the product files exist and can be photographed.
+   * Empty today — the storefront renders the `art` schematics below instead,
+   * and never presents one as a screenshot of the delivered files.
    */
   images: string[]
-  previewKind: GamingPreviewKind
+  /**
+   * One entry per gallery view. The first is the card thumbnail, so it
+   * should be the view that identifies the product fastest.
+   */
+  art: GamingArt[]
   version: string
   /** ISO date. Drives the "Updated" badge. */
   lastUpdated: string

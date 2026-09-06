@@ -36,7 +36,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { dateStyle: "medium" })
+  // These are calendar dates, not instants. `new Date("2026-07-09")` parses
+  // as UTC midnight, which formats as the previous day for any viewer behind
+  // UTC — so a release dated the 9th shows as the 8th. Read the parts and
+  // build a local date instead.
+  const [year, month, day] = iso.split("-").map(Number)
+  return new Date(year, month - 1, day).toLocaleDateString("en-US", { dateStyle: "medium" })
 }
 
 export default async function GamingProductPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -46,7 +51,6 @@ export default async function GamingProductPage({ params }: { params: Promise<{ 
 
   const badges = getGamingBadges(product)
   const related = getRelatedGamingProducts(product, 4)
-  const seed = Number(product.id.replace(/\D/g, "")) || 1
   const discounted = product.originalPrice && product.originalPrice > product.price
 
   const facts: [string, string][] = [
@@ -183,7 +187,7 @@ export default async function GamingProductPage({ params }: { params: Promise<{ 
 
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-12">
             <div className="lg:col-start-1 lg:row-start-1">
-              <GamingGallery kind={product.previewKind} seed={seed} title={product.title} />
+              <GamingGallery art={product.art} title={product.title} />
             </div>
 
             {/* ---- Purchase panel ---- */}

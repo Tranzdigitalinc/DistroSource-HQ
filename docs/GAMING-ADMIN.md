@@ -66,7 +66,7 @@ mirrors `GamingProduct` in `lib/gaming/types.ts` one-for-one:
 | `category` | `text` not null | the eight `GamingCategory` values |
 | `subcategory` | `text` not null | |
 | `images` | `jsonb` not null default `'[]'` | uploaded capture URLs |
-| `preview_kind` | `text` not null | illustrative fallback when `images` is empty |
+| `art` | `jsonb` not null default `'[]'` | schematic gallery views, rendered when `images` is empty |
 | `version` | `text` not null | |
 | `last_updated` | `date` not null | drives the "Updated" badge |
 | `released_at` | `date` not null | drives the "New" badge |

@@ -9,7 +9,7 @@ import { GamingTrustStrip } from "@/components/gaming/gaming-trust-strip"
 import { RevealGroup, RevealItem } from "@/components/motion/reveal"
 import { ArrowRight, ArrowUpRight, ICON_SIZE } from "@/lib/storefront-icons"
 import { filterGamingProducts, getFeaturedGamingProducts, getGamingFacets, getGamingProductsByPlatform } from "@/lib/gaming/queries"
-import { GAMING_CATEGORIES, type GamingPreviewKind } from "@/lib/gaming/types"
+import { GAMING_CATEGORIES, type GamingArt, type GamingCategory } from "@/lib/gaming/types"
 
 export const metadata: Metadata = {
   title: "Gaming Resources, FiveM Assets & Minecraft Products | DistroSource",
@@ -24,16 +24,63 @@ export const metadata: Metadata = {
   },
 }
 
-/** Preview graphic used on each category card. */
-const CATEGORY_PREVIEW: Record<string, GamingPreviewKind> = {
-  "maps-mlos": "mlo",
-  "scripts-systems": "script",
-  "ui-hud": "hud",
-  "server-resources": "config",
-  textures: "texture",
-  graphics: "bundle",
-  configurations: "config",
-  bundles: "bundle",
+/**
+ * Artwork for each category card. These stand for a whole category rather
+ * than one product, so they are generic on purpose — the per-product
+ * schematics live on the products themselves.
+ */
+const CATEGORY_ART: Record<GamingCategory, GamingArt> = {
+  "maps-mlos": {
+    scene: "floorplan",
+    caption: "INTERIORS",
+    rooms: [
+      { x: 28, y: 44, w: 150, h: 96, label: "MAIN", accent: true },
+      { x: 186, y: 44, w: 186, h: 96, label: "ANNEX" },
+      { x: 28, y: 148, w: 104, h: 120, label: "SIDE" },
+      { x: 140, y: 148, w: 116, h: 120, label: "STORE" },
+      { x: 264, y: 148, w: 108, h: 120, label: "YARD" },
+    ],
+  },
+  "scripts-systems": { scene: "flow", caption: "SERVER LOGIC", nodes: ["TRIGGER", "VALIDATE", "PERSIST"], activeNode: 1 },
+  "ui-hud": {
+    scene: "cluster",
+    caption: "INTERFACES",
+    readout: "72",
+    unit: "READOUT",
+    bars: [
+      { label: "PRIMARY", fill: 0.7 },
+      { label: "SECONDARY", fill: 0.45 },
+      { label: "TERTIARY", fill: 0.6 },
+    ],
+    chips: ["STATUS", "ALERT", "MODE"],
+  },
+  "server-resources": {
+    scene: "sliders",
+    caption: "SERVER SETUP",
+    rows: [
+      { label: "PERMISSIONS", fill: 0.7 },
+      { label: "RANKS", fill: 0.5 },
+      { label: "WARPS", fill: 0.35 },
+      { label: "MODERATION", fill: 0.62 },
+    ],
+  },
+  textures: { scene: "swatches", caption: "TEXTURE SETS", rows: 6, columns: 9 },
+  graphics: { scene: "swatches", caption: "BRAND GRAPHICS", rows: 4, columns: 8 },
+  configurations: {
+    scene: "sliders",
+    caption: "TUNED CONFIGS",
+    rows: [
+      { label: "BALANCE", fill: 0.58 },
+      { label: "PAYOUTS", fill: 0.44 },
+      { label: "SINKS", fill: 0.72 },
+      { label: "LIMITS", fill: 0.3 },
+    ],
+  },
+  bundles: {
+    scene: "stack",
+    caption: "MULTI-PRODUCT",
+    items: ["Core resources", "Combined config", "Setup guide", "Update notes"],
+  },
 }
 
 const PLATFORM_CARDS = [
@@ -42,7 +89,19 @@ const PLATFORM_CARDS = [
     label: "FiveM",
     href: "/gaming/fivem",
     blurb: "Maps and MLOs, interfaces, gameplay systems and server essentials for roleplay communities.",
-    preview: "mlo" as GamingPreviewKind,
+    art: {
+      scene: "floorplan",
+      caption: "FIVEM · MLO",
+      rooms: [
+        { x: 28, y: 44, w: 130, h: 90, label: "LOBBY" },
+        { x: 166, y: 44, w: 96, h: 90, label: "OFFICE" },
+        { x: 270, y: 44, w: 102, h: 140, label: "GARAGE", accent: true },
+        { x: 28, y: 142, w: 130, h: 60, label: "STORE" },
+        { x: 166, y: 142, w: 96, h: 60, label: "HALL" },
+        { x: 28, y: 210, w: 234, h: 58, label: "FORECOURT" },
+        { x: 270, y: 192, w: 102, h: 76, label: "YARD" },
+      ],
+    } satisfies GamingArt,
     emphasis: true,
   },
   {
@@ -50,7 +109,18 @@ const PLATFORM_CARDS = [
     label: "Minecraft",
     href: "/gaming/minecraft",
     blurb: "Spawn and adventure maps, resource packs, server packs and tuned configurations.",
-    preview: "map" as GamingPreviewKind,
+    art: {
+      scene: "isometric",
+      caption: "MINECRAFT · BUILD",
+      zones: [
+        { col: 3, row: 3, height: 14, label: "SPAWN", accent: true },
+        { col: 1, row: 2, height: 28 },
+        { col: 5, row: 1, height: 34, label: "KEEP" },
+        { col: 2, row: 5, height: 20 },
+        { col: 6, row: 4, height: 24, label: "SHOPS" },
+        { col: 0, row: 5, height: 16 },
+      ],
+    } satisfies GamingArt,
     emphasis: true,
   },
   {
@@ -58,7 +128,11 @@ const PLATFORM_CARDS = [
     label: "Game Servers",
     href: "/gaming/products?platform=other",
     blurb: "Community branding and cross-platform starter packs for any server.",
-    preview: "bundle" as GamingPreviewKind,
+    art: {
+      scene: "stack",
+      caption: "CROSS-PLATFORM",
+      items: ["Community brand set", "Server resources", "Staff handbook", "Launch checklist"],
+    } satisfies GamingArt,
     emphasis: false,
   },
 ]
@@ -106,8 +180,7 @@ export default function GamingLandingPage() {
               >
                 <div className="relative aspect-[16/9] overflow-hidden">
                   <GamingPreview
-                    kind={platform.preview}
-                    seed={platform.id.length * 7}
+                    art={platform.art}
                     className="transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
                   />
                 </div>
@@ -144,7 +217,7 @@ export default function GamingLandingPage() {
                     className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card transition-[border-color,box-shadow] duration-200 hover:border-border-strong hover:shadow-[var(--shadow-e2)]"
                   >
                     <div className="relative aspect-[16/10] overflow-hidden">
-                      <GamingPreview kind={CATEGORY_PREVIEW[category.id] ?? "bundle"} seed={category.id.length * 11} />
+                      <GamingPreview art={CATEGORY_ART[category.id]} />
                     </div>
                     <div className="flex flex-1 flex-col gap-1 p-4">
                       <h3 className="font-display text-sm font-bold tracking-tight text-foreground">{category.label}</h3>

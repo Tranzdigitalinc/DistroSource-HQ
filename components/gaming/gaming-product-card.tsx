@@ -14,7 +14,6 @@ import { cn } from "@/lib/utils"
 export function GamingProductCard({ product, className }: { product: GamingProduct; className?: string }) {
   const href = `/gaming/product/${product.slug}`
   const badges = getGamingBadges(product)
-  const seed = Number(product.id.replace(/\D/g, "")) || 1
 
   return (
     <article
@@ -28,8 +27,7 @@ export function GamingProductCard({ product, className }: { product: GamingProdu
         {/* No caption at card size: the badges take the top-left corner the art
             would caption, and the category is labelled below the image. */}
         <GamingPreview
-          kind={product.previewKind}
-          seed={seed}
+          art={product.art[0]}
           caption={false}
           className="transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
