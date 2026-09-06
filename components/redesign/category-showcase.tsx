@@ -15,8 +15,8 @@ export function RedesignCategoryShowcase({ categories }: { categories: Awaited<R
           <h2 className="mt-3 font-display text-4xl font-black tracking-[-0.04em] text-foreground sm:text-5xl">Start with what you need.</h2>
           <p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base">Broad enough to explore, structured enough to find the right asset quickly.</p>
         </div>
-        <Link href="/redesign-preview/products" className="inline-flex min-h-11 items-center gap-2 self-start border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary/50 hover:text-primary sm:self-auto">
-          View full catalog
+        <Link href="/redesign-preview/categories" className="inline-flex min-h-11 items-center gap-2 self-start border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary/50 hover:text-primary sm:self-auto">
+          View all departments
           <ArrowUpRight className="size-4" />
         </Link>
       </div>
