@@ -23,9 +23,9 @@ type TampaySubMethod = "togo" | "lahza" | "stripe"
 // The action itself (lib/actions/checkout.ts) has the matching server-side
 // guard, so this only controls whether the picker is shown.
 const TAMPAY_ENABLED = true
-// Whop is live — the picker below only renders when more than one provider
-// is enabled, which now includes Whop by default.
-const WHOP_ENABLED = true
+  // Whop checkout is temporarily unavailable while it is under maintenance.
+  // Keep the server-side guard in sync with this UI flag.
+  const WHOP_ENABLED = false
 
 const TAMPAY_METHODS: { id: TampaySubMethod; label: string; description: string }[] = [
   { id: "togo", label: "Togo", description: "Cards, Apple Pay & Google Pay" },
