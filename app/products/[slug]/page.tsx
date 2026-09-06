@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
-import { ChevronRight, Download, FileText, RefreshCw, ShieldCheck, Star, ICON_SIZE } from "@/lib/storefront-icons"
+import { ChevronRight, Download, FileText, RefreshCw, ShieldCheck, Star } from "@/lib/storefront-icons"
 import { getProductBySlug, getRecommendedProducts } from "@/lib/queries/catalog"
 import { getWishlistProductIds } from "@/lib/actions/wishlist"
 import { getReviewEligibility } from "@/lib/actions/reviews"
@@ -9,9 +9,6 @@ import { stripLiteMarkdown } from "@/lib/html-to-text"
 import { PurchasePanel } from "@/components/product/purchase-panel"
 import { ProductGallery } from "@/components/product/product-gallery"
 import { ProductSections } from "@/components/product/product-sections"
-// parseSections is pure and must come from the server-safe module: the page
-// is a Server Component and cannot invoke a function exported by a
-// "use client" file.
 import { parseSections, type ProductSection } from "@/components/product/product-sections.shared"
 import { ReviewList } from "@/components/product/review-list"
 import { ReviewForm } from "@/components/product/review-form"
@@ -41,13 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: data.product.seoTitle ?? `${data.product.name} — DistroSource`,
     description,
     alternates: { canonical },
-    openGraph: {
-      title: data.product.name,
-      description,
-      url: canonical,
-      type: "website",
-      images: resolvedImage ? [{ url: resolvedImage, alt: data.product.name }] : undefined,
-    },
+    openGraph: { title: data.product.name, description, url: canonical, type: "website", images: resolvedImage ? [{ url: resolvedImage, alt: data.product.name }] : undefined },
     twitter: { card: "summary_large_image", title: data.product.name, description, images: resolvedImage ? [resolvedImage] : undefined },
   }
 }
@@ -66,9 +57,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     getReviewEligibility(product.id),
   ])
 
-  const rawGallery = Array.from(
-    new Set([product.coverImageUrl, ...images.map((i) => i.url), product.thumbnailUrl].filter((u): u is string => Boolean(u))),
-  )
+  const rawGallery = Array.from(new Set([product.coverImageUrl, ...images.map((image) => image.url), product.thumbnailUrl].filter((url): url is string => Boolean(url))))
   const gallery = rawGallery.map(resolveProductImageUrl)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://distrosource.com"
   const isOriginal = product.sourceType === "distrosource_original" && product.rightsStatus === "original"
@@ -80,202 +69,121 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     description: stripLiteMarkdown(product.description),
     image: gallery.length ? gallery : undefined,
     aggregateRating: reviewCount > 0 ? { "@type": "AggregateRating", ratingValue: avgRating, reviewCount } : undefined,
-    offers: licenses.map((license) => ({
-      "@type": "Offer",
-      priceCurrency: "USD",
-      price: license.price,
-      availability: "https://schema.org/InStock",
-      url: `${siteUrl}/products/${product.slug}`,
-    })),
+    offers: licenses.map((license) => ({ "@type": "Offer", priceCurrency: "USD", price: license.price, availability: "https://schema.org/InStock", url: `${siteUrl}/products/${product.slug}` })),
   }
 
-  // ---- Build the anchored section list ------------------------------------
-  // Description sections come from the stored markdown; data-driven sections
-  // (file details, updates, reviews) are appended so one nav covers all.
   const sections: ProductSection[] = parseSections(product.description)
-
   const fileDetails = [
     product.fileFormats.length ? ["File formats", product.fileFormats.join(", ")] : null,
     product.softwareCompatibility.length ? ["Compatible with", product.softwareCompatibility.join(", ")] : null,
     product.fileSizeMb ? ["File size", `${product.fileSizeMb} MB`] : null,
     ["Version", `v${product.currentVersion}`],
     ["Last updated", formatDate(product.updatedAt)],
-  ].filter((r): r is [string, string] => Boolean(r))
+  ].filter((row): row is [string, string] => Boolean(row))
 
   sections.push({
     id: "file-details",
     title: "File details",
     body: (
-      <div className="max-w-3xl">
-        <dl className="divide-y divide-border rounded-lg border border-border">
-          {fileDetails.map(([k, v]) => (
-            <div key={k} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
-              <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">{k}</dt>
-              <dd className="text-sm text-foreground">{v}</dd>
+      <div className="max-w-4xl">
+        <dl className="grid overflow-hidden rounded-2xl border border-border/80 sm:grid-cols-2">
+          {fileDetails.map(([key, value]) => (
+            <div key={key} className="border-b border-border/70 px-5 py-4 odd:sm:border-r">
+              <dt className="font-mono text-[9px] font-bold uppercase tracking-[0.08em] text-muted-foreground">{key}</dt>
+              <dd className="mt-1 text-sm font-semibold text-foreground">{value}</dd>
             </div>
           ))}
-          {product.includedFiles.length > 0 && (
-            <div className="flex flex-col gap-1.5 px-4 py-3 sm:flex-row sm:gap-4">
-              <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">What&apos;s included</dt>
-              <dd className="text-sm text-foreground">
-                <ul className="space-y-1">
-                  {product.includedFiles.map((f) => (
-                    <li key={f} className="flex items-baseline gap-2">
-                      <FileText size={12} className="shrink-0 translate-y-0.5 text-muted-foreground" aria-hidden="true" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </dd>
-            </div>
-          )}
         </dl>
-        {product.documentation && <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{product.documentation}</p>}
+        {product.includedFiles.length > 0 && (
+          <div className="mt-4 rounded-2xl border border-border/80 p-5">
+            <p className="font-mono text-[9px] font-bold uppercase tracking-[0.08em] text-muted-foreground">What&apos;s included</p>
+            <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+              {product.includedFiles.map((file) => <li key={file} className="flex items-start gap-2 text-sm text-foreground"><FileText size={13} className="mt-0.5 shrink-0 text-primary" />{file}</li>)}
+            </ul>
+          </div>
+        )}
+        {product.documentation && <p className="mt-4 text-sm leading-6 text-muted-foreground">{product.documentation}</p>}
       </div>
     ),
   })
 
-  // Empty sections are not rendered: a "Changelog" with nothing in it or a
-  // "Reviews" heading over zero reviews reads as a gap, not information.
   if (versions.length > 0) {
     sections.push({
       id: "changelog",
-      title: `Changelog (${versions.length})`,
+      title: `Updates (${versions.length})`,
       body: (
-        <ul className="max-w-3xl divide-y divide-border rounded-lg border border-border">
-          {versions.map((v) => (
-            <li key={v.id} className="flex flex-col gap-1 px-4 py-3.5">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-sm font-bold text-foreground">v{v.version}</span>
-                <span className="font-mono text-xs text-muted-foreground">{formatDate(v.releasedAt)}</span>
-              </div>
-              {v.changelog && <p className="text-sm text-muted-foreground">{v.changelog}</p>}
+        <ol className="max-w-4xl overflow-hidden rounded-2xl border border-border/80">
+          {versions.map((version) => (
+            <li key={version.id} className="grid gap-3 border-b border-border/70 p-5 last:border-b-0 sm:grid-cols-[7rem_minmax(0,1fr)]">
+              <div><p className="font-display text-lg font-black">v{version.version}</p><p className="mt-1 font-mono text-[9px] uppercase tracking-[0.08em] text-muted-foreground">{formatDate(version.releasedAt)}</p></div>
+              {version.changelog && <p className="text-sm leading-6 text-muted-foreground">{version.changelog}</p>}
             </li>
           ))}
-        </ul>
+        </ol>
       ),
     })
   }
 
   if (reviewCount > 0 || reviewEligibility.canReview) {
-    sections.push({
-      id: "reviews",
-      title: `Reviews${reviewCount ? ` (${reviewCount})` : ""}`,
-      body: (
-        <div className="flex max-w-3xl flex-col gap-8">
-          <ReviewForm productId={product.id} eligibility={reviewEligibility} />
-          <ReviewList reviews={reviews} />
-        </div>
-      ),
-    })
+    sections.push({ id: "reviews", title: `Reviews${reviewCount ? ` (${reviewCount})` : ""}`, body: <div className="flex max-w-4xl flex-col gap-8"><ReviewForm productId={product.id} eligibility={reviewEligibility} /><ReviewList reviews={reviews} /></div> })
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <RecentlyViewedTracker productId={product.id} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
 
       <main className="flex-1">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 md:py-8">
-          <nav className="mb-5 flex items-center gap-1.5 text-xs text-muted-foreground" aria-label="Breadcrumb">
-            <Link href="/" className="transition-colors hover:text-foreground">Home</Link>
-            <ChevronRight size={12} aria-hidden="true" />
-            <Link href={`/categories/${category.slug}`} className="transition-colors hover:text-foreground">{category.name}</Link>
-            <ChevronRight size={12} aria-hidden="true" />
+        <div className="mx-auto max-w-[94rem] px-4 py-5 sm:px-6 lg:px-8">
+          <nav className="flex min-w-0 items-center gap-1.5 overflow-hidden text-xs text-muted-foreground" aria-label="Breadcrumb">
+            <Link href="/" className="shrink-0 hover:text-foreground">Home</Link><ChevronRight size={11} />
+            <Link href={`/categories/${category.slug}`} className="shrink-0 hover:text-foreground">{category.name}</Link><ChevronRight size={11} />
             <span className="truncate font-medium text-foreground">{product.name}</span>
           </nav>
+        </div>
 
-          <Reveal className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-12">
-            {/* ---- Left: gallery ---- */}
-            <div className="flex flex-col gap-4 lg:col-start-1 lg:row-start-1">
-              <ProductGallery images={gallery} alt={product.name} />
-            </div>
+        <section className="border-y border-border/70 bg-secondary/18">
+          <div className="mx-auto grid max-w-[94rem] gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1.22fr)_minmax(24rem,0.78fr)] lg:gap-12 lg:px-8 lg:py-12 xl:gap-16">
+            <Reveal className="min-w-0"><ProductGallery images={gallery} alt={product.name} /></Reveal>
 
-            {/* ---- Right: title + sticky purchase panel ---- */}
-            <div className="flex flex-col gap-5 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-24">
-              <div>
-                <Link href={`/categories/${category.slug}`} className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground hover:underline">
-                  {category.name}
-                </Link>
-                <h1 className="mt-2 font-display text-2xl font-bold leading-tight tracking-tight text-balance md:text-3xl">{product.name}</h1>
-                {product.tagline && <p className="mt-2 text-base leading-relaxed text-muted-foreground text-pretty">{product.tagline}</p>}
-                <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  {isOriginal && <ShieldCheck size={13} className="text-success" aria-hidden="true" />}
-                  <span>
-                    By <span className="font-medium text-foreground">{getSourceTypeLabel(product.sourceType)}</span>
-                  </span>
-                </p>
+            <Reveal className="flex min-w-0 flex-col lg:sticky lg:top-24 lg:self-start">
+              <Link href={`/categories/${category.slug}`} className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-primary hover:underline">{category.name}</Link>
+              <h1 className="mt-3 font-display text-4xl font-black leading-[0.96] tracking-[-0.05em] text-foreground text-balance sm:text-5xl">{product.name}</h1>
+              {product.tagline && <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground">{product.tagline}</p>}
 
-                {reviewCount > 0 && (
-                  <div className="mt-3 flex items-center gap-2 text-sm">
-                    <span className="flex items-center gap-0.5" aria-label={`${avgRating?.toFixed(1)} out of 5 stars`}>
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} size={14} className={i < Math.round(avgRating ?? 0) ? "fill-primary text-primary" : "text-border"} aria-hidden="true" />
-                      ))}
-                    </span>
-                    <span className="font-semibold">{avgRating?.toFixed(1)}</span>
-                    <a href="#section-reviews" className="text-muted-foreground underline-offset-4 hover:underline">
-                      {reviewCount} review{reviewCount === 1 ? "" : "s"}
-                    </a>
-                  </div>
-                )}
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <ShareProductButton name={product.name} />
-                  <CompareButton productId={product.id} />
-                </div>
+              <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1.5">{isOriginal && <ShieldCheck size={14} className="text-success" />}By <strong className="font-semibold text-foreground">{getSourceTypeLabel(product.sourceType)}</strong></span>
+                {reviewCount > 0 && <a href="#section-reviews" className="flex items-center gap-1.5 hover:text-foreground"><Star size={13} className="fill-primary text-primary" /><strong className="text-foreground">{avgRating?.toFixed(1)}</strong><span>({reviewCount})</span></a>}
               </div>
 
-              <PurchasePanel
-                productId={product.id}
-                licenses={licenses}
-                initialWishlisted={wishlistIds.includes(product.id)}
-                isPreviewOnly={product.assetStatus !== "ready" || !APPROVED_RIGHTS.includes(product.rightsStatus)}
-                meta={{
-                  formats: product.fileFormats,
-                  software: product.softwareCompatibility,
-                  version: product.currentVersion,
-                  updatedAt: formatDate(product.updatedAt),
-                  hasDocumentation: Boolean(product.documentation),
-                }}
-              />
+              <div className="mt-5 flex flex-wrap gap-2"><ShareProductButton name={product.name} /><CompareButton productId={product.id} /></div>
+              <div className="mt-7"><PurchasePanel productId={product.id} licenses={licenses} initialWishlisted={wishlistIds.includes(product.id)} isPreviewOnly={product.assetStatus !== "ready" || !APPROVED_RIGHTS.includes(product.rightsStatus)} meta={{ formats: product.fileFormats, software: product.softwareCompatibility, version: product.currentVersion, updatedAt: formatDate(product.updatedAt), hasDocumentation: Boolean(product.documentation) }} /></div>
 
-              <ul className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border bg-border text-center">
-                {[
-                  { icon: Download, label: "Instant delivery" },
-                  { icon: ShieldCheck, label: "Polar checkout" },
-                  { icon: RefreshCw, label: "Re-download anytime" },
-                ].map(({ icon: Icon, label }) => (
-                  <li key={label} className="flex flex-col items-center gap-1.5 bg-card px-2 py-3">
-                    <Icon size={ICON_SIZE.base} className="text-foreground" aria-hidden="true" />
-                    <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
-                  </li>
+              <ul className="mt-3 grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-border/80 bg-border/70 text-center">
+                {[{ icon: Download, label: "Instant access" }, { icon: ShieldCheck, label: "Secure checkout" }, { icon: RefreshCw, label: "Re-download" }].map(({ icon: Icon, label }) => (
+                  <li key={label} className="flex min-h-20 flex-col items-center justify-center gap-1.5 bg-background px-2 py-3"><Icon size={15} className="text-foreground" /><span className="text-[10px] font-semibold text-muted-foreground">{label}</span></li>
                 ))}
               </ul>
-            </div>
-
-            {/* ---- Left, below gallery: anchored sections ---- */}
-            <div className="lg:col-start-1 lg:row-start-2">
-              <ProductSections sections={sections} />
-            </div>
-          </Reveal>
-
-          {related.length > 0 && (
-            <Reveal className="mt-16 border-t border-border pt-10">
-              <div className="mb-2 flex items-end justify-between gap-4">
-                <div>
-                  <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">You may also like</p>
-                  <h2 className="mt-1 font-display text-xl font-bold tracking-tight">More in {category.name}</h2>
-                </div>
-                <Link href={`/categories/${category.slug}`} className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
-                  View all
-                </Link>
-              </div>
-              <ProductGrid items={related} />
             </Reveal>
-          )}
-        </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-[94rem] px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+          <div className="grid gap-10 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-14">
+            <aside className="hidden lg:block"><div className="sticky top-28 border-t-2 border-primary pt-4"><p className="font-mono text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Product file</p><p className="mt-2 font-display text-xl font-black tracking-tight text-foreground">Details before decoration.</p><p className="mt-2 text-xs leading-5 text-muted-foreground">Everything you need to understand the product, licence and updates lives below.</p></div></aside>
+            <ProductSections sections={sections} />
+          </div>
+        </section>
+
+        {related.length > 0 && (
+          <section className="border-t border-border/70 bg-secondary/18">
+            <div className="mx-auto max-w-[94rem] px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+              <div className="mb-7 flex items-end justify-between gap-4"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-primary">Keep browsing</p><h2 className="mt-2 font-display text-3xl font-black tracking-[-0.04em] text-foreground">More in {category.name}</h2></div><Link href={`/categories/${category.slug}`} className="text-sm font-bold text-muted-foreground hover:text-foreground">View all →</Link></div>
+              <ProductGrid items={related} />
+            </div>
+          </section>
+        )}
       </main>
       <SiteFooter />
     </div>
