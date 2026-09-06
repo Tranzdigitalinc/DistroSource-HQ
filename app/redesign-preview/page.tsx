@@ -1,21 +1,15 @@
 import { unstable_cache } from "next/cache"
-import { SiteHeader } from "@/components/header/site-header"
-import { SiteFooter } from "@/components/footer/site-footer"
 import { FAQSection } from "@/components/home/faq-section"
 import { TrustBadges } from "@/components/home/trust-badges"
 import { GamingTeaser } from "@/components/home/gaming-teaser"
+import { RedesignHeader } from "@/components/redesign/redesign-header"
+import { RedesignFooter } from "@/components/redesign/redesign-footer"
 import { RedesignHero } from "@/components/redesign/redesign-hero"
 import { RedesignCategoryShowcase } from "@/components/redesign/category-showcase"
 import { RedesignProductShowcase } from "@/components/redesign/product-showcase"
-import {
-  getCategoryTree,
-  getFeaturedProducts,
-  getProducts,
-  getStorefrontStats,
-} from "@/lib/queries/catalog"
+import { getCategoryTree, getFeaturedProducts, getProducts, getStorefrontStats } from "@/lib/queries/catalog"
 
-const cache = <T,>(fn: () => Promise<T>, key: string) =>
-  unstable_cache(fn, ["redesign-preview", key], { revalidate: 300 })
+const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["redesign-preview", key], { revalidate: 300 })
 
 export default async function RedesignPreviewPage() {
   const [departments, featured, newest, business, development, design, stats] = await Promise.all([
@@ -36,61 +30,53 @@ export default async function RedesignPreviewPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader />
+      <RedesignHeader departments={departments} />
       <main className="flex-1 overflow-hidden">
         <RedesignHero stats={stats} products={heroProducts} />
-
         <RedesignCategoryShowcase categories={departments} />
-
         <RedesignProductShowcase
           eyebrow="DistroSource picks"
           title="Worth opening first."
           description="A curated front shelf built from real catalog inventory — useful products with strong visual and practical value."
-          href="/products"
+          href="/redesign-preview/products"
           items={featured}
           tone="muted"
         />
-
         <RedesignProductShowcase
           eyebrow="Just landed"
           title="New digital releases."
           description="Fresh templates, systems, assets and resources added to the store."
-          href="/products?sort=newest"
+          href="/redesign-preview/products?sort=newest"
           items={newest}
         />
-
         <RedesignProductShowcase
           eyebrow="Work smarter"
           title="Business systems that earn their tab."
           description="Documents, spreadsheets, operating systems and practical resources for everyday work."
-          href="/categories/business-office"
+          href="/redesign-preview/products?category=business-office"
           items={business}
           tone="navy"
         />
-
         <RedesignProductShowcase
           eyebrow="Build faster"
           title="Web & development resources."
           description="UI kits, templates, starters and digital building blocks for shipping the next idea."
-          href="/categories/web-development"
+          href="/redesign-preview/products?category=web-development"
           items={development}
         />
-
         <GamingTeaser />
-
         <RedesignProductShowcase
           eyebrow="Make it look finished"
           title="Design resources with a point of view."
           description="Graphics, mockups, brand assets and presentation-ready material for polished output."
-          href="/categories/design-resources"
+          href="/redesign-preview/products?category=design-resources"
           items={design}
           tone="muted"
         />
-
         <TrustBadges />
         <FAQSection />
       </main>
-      <SiteFooter />
+      <RedesignFooter />
     </div>
   )
 }
