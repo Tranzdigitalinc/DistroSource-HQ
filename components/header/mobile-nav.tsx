@@ -7,6 +7,7 @@ import {
   BriefcaseBusiness,
   ChevronRight,
   CircleHelp,
+  GameController,
   Heart,
   Library,
   Mail,
@@ -39,13 +40,18 @@ function GroupLabel({ children }: { children: React.ReactNode }) {
   return <p className="px-3 pb-1.5 pt-4 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{children}</p>
 }
 
-function NavRow({ href, icon: Icon, label, onClick }: { href: string; icon: React.ComponentType<{ size?: number; className?: string; "aria-hidden"?: boolean | "true" }>; label: string; onClick: () => void }) {
+function NavRow({ href, icon: Icon, label, onClick, badge }: { href: string; icon: React.ComponentType<{ size?: number; className?: string; "aria-hidden"?: boolean | "true" }>; label: string; onClick: () => void; badge?: string }) {
   return (
     <Link href={href} onClick={onClick} className={rowClass}>
       <span className="flex size-8 items-center justify-center rounded-md bg-secondary text-muted-foreground">
         <Icon size={ICON_SIZE.sm} aria-hidden="true" />
       </span>
       <span className="flex-1">{label}</span>
+      {badge && (
+        <span className="rounded bg-primary px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.04em] text-primary-foreground">
+          {badge}
+        </span>
+      )}
       <ChevronRight size={ICON_SIZE.sm} className="text-muted-foreground" aria-hidden="true" />
     </Link>
   )
@@ -112,6 +118,7 @@ export function MobileNav({ departments }: { departments: Department[] }) {
             })}
           </Accordion>
           {/* No "Free" or "Bundles" shortcuts: every free product and bundle is currently a draft, so both listings are empty. */}
+          <NavRow href="/gaming" icon={GameController} label="Gaming" onClick={close} badge="New" />
           <NavRow href="/deals" icon={Tag} label="Deals" onClick={close} />
 
           <GroupLabel>Account</GroupLabel>

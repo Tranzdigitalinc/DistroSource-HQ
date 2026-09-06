@@ -13,6 +13,7 @@ import {
   getStorefrontStats,
 } from "@/lib/queries/catalog"
 import { ShopByGoal } from "@/components/home/shop-by-goal"
+import { GamingTeaser } from "@/components/home/gaming-teaser"
 
 const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["homepage", key], { revalidate: 300 })
 
@@ -69,6 +70,7 @@ export default async function HomePage() {
           items={designProducts}
         />
         <ShopByGoal />
+        <GamingTeaser />
         <ProductRail
           title="Digital bundles"
           subtitle="Curated collections that cost less than buying each file on its own"

@@ -36,6 +36,7 @@ import {
   FlashIcon,
   GiftIcon,
   Globe02Icon,
+  GameController01Icon,
   GridViewIcon,
   HeadphonesIcon as HeadphonesIcon_,
   HandshakeIcon,
@@ -185,6 +186,7 @@ export const Plus = createIcon(Add01Icon)
 export const Trash = createIcon(Delete02Icon)
 export const Filter = createIcon(FilterIcon)
 export const Grid = createIcon(GridViewIcon)
+export const GameController = createIcon(GameController01Icon)
 export const LayoutTemplate = createIcon(LayoutTableIcon)
 export const Dashboard = createIcon(DashboardSquare01Icon)
 export const Home = createIcon(Home01Icon)
