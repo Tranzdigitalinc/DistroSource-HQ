@@ -3,17 +3,16 @@
 import { useEffect, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { motion, AnimatePresence } from "motion/react"
-import { Check, Download, FileText, Heart, Loader2, Lock, ShoppingCart, ICON_SIZE } from "@/lib/storefront-icons"
-import { Button } from "@/components/ui/button"
+import { AnimatePresence, motion } from "motion/react"
+import { mutate } from "swr"
 import { PriceDisplay } from "@/components/price-display"
 import { LicenseSelector, type LicenseOption } from "@/components/product/license-selector"
 import { addToCart } from "@/lib/actions/cart"
 import { toggleWishlist } from "@/lib/actions/wishlist"
 import { licenseLabel } from "@/lib/licenses"
-import { mutate } from "swr"
-import { cn } from "@/lib/utils"
 import { trackWhopEvent } from "@/lib/whop-pixel"
+import { Check, Download, FileText, Heart, Loader2, Lock, ShoppingCart } from "@/lib/storefront-icons"
+import { cn } from "@/lib/utils"
 
 export interface PurchaseMeta {
   formats?: string[]
@@ -44,13 +43,10 @@ export function PurchasePanel({
   const [isSaving, startSaving] = useTransition()
   const [justAdded, setJustAdded] = useState(false)
 
-  const selected = licenses.find((l) => l.id === selectedId) ?? licenses[0]
+  const selected = licenses.find((license) => license.id === selectedId) ?? licenses[0]
 
   useEffect(() => {
-    trackWhopEvent("view_content", {
-      product_id: productId,
-      event_id: `view-product-${productId}`,
-    })
+    trackWhopEvent("view_content", { product_id: productId, event_id: `view-product-${productId}` })
   }, [productId])
 
   async function add() {
@@ -70,14 +66,13 @@ export function PurchasePanel({
         router.refresh()
         setJustAdded(true)
         toast.success("Added to cart", { description: `${licenseLabel(selected.licenseType)} licence` })
-        setTimeout(() => setJustAdded(false), 2000)
+        window.setTimeout(() => setJustAdded(false), 2000)
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Couldn't add this to your cart. Please try again.")
       }
     })
   }
 
-  /** Add the selected licence, then go straight to the cart review before payment. */
   function handleBuyNow() {
     startBuy(async () => {
       try {
@@ -110,100 +105,111 @@ export function PurchasePanel({
 
   if (!selected) return null
   const busy = isAdding || isBuying
-
   const facts = [
-    meta?.formats?.length ? ["Formats", meta.formats.map((f) => f.toUpperCase()).join(", ")] : null,
-    meta?.software?.length ? ["Compatibility", meta.software.join(", ")] : null,
+    meta?.formats?.length ? ["Formats", meta.formats.map((format) => format.toUpperCase()).join(", ")] : null,
+    meta?.software?.length ? ["Works with", meta.software.join(", ")] : null,
     meta?.version ? ["Version", `v${meta.version}`] : null,
-    meta?.updatedAt ? ["Last updated", meta.updatedAt] : null,
-  ].filter((r): r is [string, string] => Boolean(r))
+    meta?.updatedAt ? ["Updated", meta.updatedAt] : null,
+  ].filter((row): row is [string, string] => Boolean(row))
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-e1)]">
-      <div className="border-b border-border px-5 py-4">
-        <AnimatePresence mode="popLayout" initial={false}>
-          <motion.div
-            key={selected.id}
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 4 }}
-            transition={{ duration: 0.16 }}
-            className="flex items-baseline gap-2"
-          >
-            <span className="font-display text-3xl font-bold tabular-nums tracking-tight text-foreground">
-              <PriceDisplay usdAmount={Number.parseFloat(selected.price)} />
-            </span>
-            <span className="font-mono text-xs font-medium uppercase text-muted-foreground">USD</span>
-          </motion.div>
-        </AnimatePresence>
-        <p className="mt-0.5 text-xs text-muted-foreground">{licenseLabel(selected.licenseType)} licence · one-time payment</p>
-      </div>
+    <div className="overflow-hidden rounded-[30px] border border-border bg-card shadow-[0_24px_80px_-42px_rgba(0,0,0,0.24)]">
+      <div className="p-5 sm:p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="font-mono text-[9px] font-black uppercase tracking-[0.14em] text-muted-foreground">Selected licence</p>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.div
+                key={selected.id}
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 5 }}
+                transition={{ duration: 0.18 }}
+                className="mt-2 flex items-end gap-2"
+              >
+                <span className="font-display text-4xl font-black tabular-nums tracking-[-0.055em] text-foreground sm:text-5xl">
+                  <PriceDisplay usdAmount={Number.parseFloat(selected.price)} />
+                </span>
+                <span className="pb-1 font-mono text-[9px] font-bold uppercase tracking-[0.08em] text-muted-foreground">USD</span>
+              </motion.div>
+            </AnimatePresence>
+            <p className="mt-1 text-xs text-muted-foreground">{licenseLabel(selected.licenseType)} licence · one-time payment</p>
+          </div>
 
-      <div className="border-b border-border px-5 py-4">
-        <LicenseSelector licenses={licenses} value={selected.id} onChange={setSelectedId} />
+          <button
+            type="button"
+            onClick={handleWishlist}
+            disabled={isSaving}
+            aria-label={wishlisted ? "Remove from wishlist" : "Save to wishlist"}
+            aria-pressed={wishlisted}
+            className={cn(
+              "flex size-11 shrink-0 items-center justify-center rounded-full border transition-[background-color,color,transform] active:scale-95 disabled:opacity-50",
+              wishlisted ? "border-destructive/20 bg-destructive/10 text-destructive" : "border-border hover:bg-secondary",
+            )}
+          >
+            <Heart size={18} className={wishlisted ? "fill-current" : ""} />
+          </button>
+        </div>
+
+        <div className="mt-6 border-t border-border pt-5">
+          <LicenseSelector licenses={licenses} value={selected.id} onChange={setSelectedId} />
+        </div>
+
+        {isPreviewOnly && (
+          <p className="mt-5 rounded-2xl border border-dashed border-border bg-secondary/45 px-4 py-3 text-xs leading-6 text-muted-foreground">
+            This product&apos;s downloadable files are still being prepared, so purchasing is disabled for now.
+          </p>
+        )}
+
+        <div className="mt-6 grid gap-2.5">
+          {!isPreviewOnly && (
+            <button
+              type="button"
+              onClick={handleBuyNow}
+              disabled={busy}
+              className="group flex h-14 w-full items-center justify-between rounded-full bg-foreground px-5 text-sm font-bold text-background transition-[transform,opacity] active:scale-[0.985] disabled:opacity-60"
+            >
+              <span className="flex items-center gap-2">
+                {isBuying ? <Loader2 size={16} className="animate-spin" /> : <Lock size={15} />}
+                {isBuying ? "Preparing checkout…" : "Buy now"}
+              </span>
+              <span className="flex size-9 items-center justify-center rounded-full bg-background text-foreground transition-transform group-hover:translate-x-1">
+                <PriceDisplay usdAmount={Number.parseFloat(selected.price)} />
+              </span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={busy || justAdded || isPreviewOnly}
+            className={cn(
+              "flex h-13 w-full items-center justify-center gap-2 rounded-full border border-border px-5 text-sm font-bold transition-[background-color,transform] hover:bg-secondary active:scale-[0.985] disabled:opacity-55",
+              justAdded && "border-success/30 bg-success/10 text-success",
+            )}
+          >
+            {isAdding ? <Loader2 size={16} className="animate-spin" /> : justAdded ? <Check size={16} /> : <ShoppingCart size={16} />}
+            {justAdded ? "Added to cart" : isPreviewOnly ? "Not yet available" : "Add to cart"}
+          </button>
+        </div>
       </div>
 
       {facts.length > 0 && (
-        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 border-b border-border px-5 py-3.5 text-xs">
-          {facts.map(([k, v]) => (
-            <div key={k} className="contents">
-              <dt className="text-muted-foreground">{k}</dt>
-              <dd className="min-w-0 truncate text-foreground">{v}</dd>
+        <dl className="grid grid-cols-2 gap-px border-t border-border bg-border sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+          {facts.map(([label, value]) => (
+            <div key={label} className="min-w-0 bg-card px-4 py-3.5">
+              <dt className="font-mono text-[8px] font-black uppercase tracking-[0.12em] text-muted-foreground">{label}</dt>
+              <dd className="mt-1 truncate text-[11px] font-semibold text-foreground" title={value}>{value}</dd>
             </div>
           ))}
         </dl>
       )}
 
-      <div className="flex flex-col gap-2.5 px-5 py-4">
-        {isPreviewOnly && (
-          <p className="rounded-md border border-dashed border-border bg-secondary/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
-            This product&apos;s downloadable files are still being prepared, so it isn&apos;t purchasable yet.
-          </p>
-        )}
-
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={handleAddToCart}
-            disabled={busy || justAdded || isPreviewOnly}
-            size="lg"
-            className={cn("h-11 flex-1 font-semibold", justAdded && "bg-success hover:bg-success")}
-          >
-            {isAdding ? <Loader2 size={ICON_SIZE.base} className="animate-spin" aria-hidden="true" /> : justAdded ? <Check size={ICON_SIZE.base} aria-hidden="true" /> : <ShoppingCart size={ICON_SIZE.base} aria-hidden="true" />}
-            {justAdded ? "Added to cart" : isPreviewOnly ? "Not yet available" : "Add to cart"}
-          </Button>
-          <Button
-            onClick={handleWishlist}
-            disabled={isSaving}
-            variant="outline"
-            size="icon"
-            className="size-11 shrink-0 bg-transparent"
-            aria-label={wishlisted ? "Remove from wishlist" : "Save to wishlist"}
-            aria-pressed={wishlisted}
-          >
-            <Heart size={ICON_SIZE.nav} className={cn("transition-transform", wishlisted && "scale-110 fill-destructive text-destructive")} aria-hidden="true" />
-          </Button>
-        </div>
-        {!isPreviewOnly && (
-          <Button onClick={handleBuyNow} disabled={busy} variant="outline" size="lg" className="h-11 w-full bg-transparent font-semibold">
-            {isBuying ? <Loader2 size={ICON_SIZE.base} className="animate-spin" aria-hidden="true" /> : <Lock size={ICON_SIZE.sm} aria-hidden="true" />}
-            Buy now
-          </Button>
-        )}
+      <div className="grid gap-2 border-t border-border bg-secondary/30 px-5 py-4 text-[11px] text-muted-foreground sm:px-6">
+        <p className="flex items-center gap-2"><Download size={14} className="text-primary" /> Digital delivery after confirmed payment</p>
+        {meta?.hasDocumentation && <p className="flex items-center gap-2"><FileText size={14} className="text-primary" /> Documentation included</p>}
+        <p className="flex items-center gap-2"><Lock size={14} className="text-primary" /> Secure checkout through the available payment provider</p>
       </div>
-
-      {/* Reassurance: only statements true for this product. */}
-      <ul className="flex flex-col gap-1.5 border-t border-border bg-secondary/30 px-5 py-3.5">
-        {[
-          { icon: Download, text: "Digital delivery to My Library after payment" },
-          ...(meta?.hasDocumentation ? [{ icon: FileText, text: "Documentation included" }] : []),
-          { icon: Lock, text: "Secure checkout by Polar" },
-        ].map(({ icon: Icon, text }) => (
-          <li key={text} className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Icon size={ICON_SIZE.sm} className="shrink-0 text-success" aria-hidden="true" />
-            {text}
-          </li>
-        ))}
-      </ul>
     </div>
   )
 }
