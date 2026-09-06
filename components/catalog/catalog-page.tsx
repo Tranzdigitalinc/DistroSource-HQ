@@ -19,15 +19,8 @@ export async function CatalogPage({
   subtitle?: string
   banner?: React.ReactNode
   products: Awaited<ReturnType<typeof getProducts>>
-  // Defaults to the query-param-driven CategoryPillBar (used by /products and
-  // /deals, which filter via `?category=`). Pass a real navigation element
-  // instead on pages like /categories/[slug] where the category is set by
-  // the route, not a query param — a query-param pill there would render
-  // but silently do nothing when clicked.
   categoryPillBar?: React.ReactNode
-  /** Where "Clear filters" in the empty state should go. Defaults to the bare pathname. */
   clearHref?: string
-  /** Copy for an empty result that isn't caused by filters (e.g. a category with nothing published yet). */
   emptyState?: ProductGridEmptyState
 }) {
   const [categories, formats, stats] = await Promise.all([
@@ -37,26 +30,46 @@ export async function CatalogPage({
   ])
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <main className="flex-1">
         {banner}
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-10">
-          {!banner && (
-            <div className="mb-6">
-              <h1 className="font-display text-3xl font-bold tracking-tight">{title}</h1>
-              {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
+
+        {!banner && (
+          <section className="border-b border-border/70 bg-secondary/18">
+            <div className="mx-auto max-w-[94rem] px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+              <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                <div className="max-w-4xl">
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-primary">Discover DistroSource</p>
+                  <h1 className="mt-3 font-display text-4xl font-black leading-[0.95] tracking-[-0.05em] text-foreground sm:text-5xl lg:text-6xl">{title}</h1>
+                  {subtitle && <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">{subtitle}</p>}
+                </div>
+                <div className="hidden border-l border-border pl-5 text-right lg:block">
+                  <p className="font-display text-3xl font-black tabular-nums text-foreground">{products.length}</p>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">shown on this page</p>
+                </div>
+              </div>
             </div>
-          )}
-          {categoryPillBar !== undefined ? categoryPillBar : <CategoryPillBar categories={categories!} />}
-          <div className="flex flex-col gap-8 lg:flex-row">
-            {/* reviewCount keeps the rating filter hidden while there are no reviews to filter by. */}
-            <CatalogFilters
-              formats={formats}
-              reviewCount={stats.reviewCount}
-              typeCounts={{ free: stats.freeCount, bundle: stats.bundleCount, deal: stats.dealCount }}
-            />
-            <div className="min-w-0 flex-1">
+          </section>
+        )}
+
+        <div className="mx-auto max-w-[94rem] px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+          <div className="mb-8 overflow-hidden">{categoryPillBar !== undefined ? categoryPillBar : <CategoryPillBar categories={categories!} />}</div>
+
+          <div className="grid gap-8 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[18rem_minmax(0,1fr)]">
+            <aside className="lg:sticky lg:top-24 lg:self-start">
+              <div className="mb-4 hidden lg:block">
+                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Refine</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">Narrow by type, format, price and rating.</p>
+              </div>
+              <CatalogFilters
+                formats={formats}
+                reviewCount={stats.reviewCount}
+                typeCounts={{ free: stats.freeCount, bundle: stats.bundleCount, deal: stats.dealCount }}
+              />
+            </aside>
+
+            <div className="min-w-0">
               <CatalogToolbar resultCount={products.length} />
               <ProductGrid items={products} clearHref={clearHref} emptyState={emptyState} />
             </div>
