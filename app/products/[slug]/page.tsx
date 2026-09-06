@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
-import { ChevronRight, Download, FileText, RefreshCw, ShieldCheck, Star, ICON_SIZE } from "@/lib/storefront-icons"
+import { ChevronRight, FileText, ShieldCheck, Star } from "@/lib/storefront-icons"
 import { getProductBySlug, getRecommendedProducts } from "@/lib/queries/catalog"
 import { getWishlistProductIds } from "@/lib/actions/wishlist"
 import { getReviewEligibility } from "@/lib/actions/reviews"
@@ -9,9 +9,6 @@ import { stripLiteMarkdown } from "@/lib/html-to-text"
 import { PurchasePanel } from "@/components/product/purchase-panel"
 import { ProductGallery } from "@/components/product/product-gallery"
 import { ProductSections } from "@/components/product/product-sections"
-// parseSections is pure and must come from the server-safe module: the page
-// is a Server Component and cannot invoke a function exported by a
-// "use client" file.
 import { parseSections, type ProductSection } from "@/components/product/product-sections.shared"
 import { ReviewList } from "@/components/product/review-list"
 import { ReviewForm } from "@/components/product/review-form"
@@ -61,17 +58,18 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   const { product, category, images, licenses, reviews, versions, avgRating, reviewCount } = data
   const [related, wishlistIds, reviewEligibility] = await Promise.all([
-    getRecommendedProducts(category.id, product.id, 4),
+    getRecommendedProducts(category.id, product.id, 8),
     getWishlistProductIds(),
     getReviewEligibility(product.id),
   ])
 
   const rawGallery = Array.from(
-    new Set([product.coverImageUrl, ...images.map((i) => i.url), product.thumbnailUrl].filter((u): u is string => Boolean(u))),
+    new Set([product.coverImageUrl, ...images.map((image) => image.url), product.thumbnailUrl].filter((url): url is string => Boolean(url))),
   )
   const gallery = rawGallery.map(resolveProductImageUrl)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://distrosource.com"
   const isOriginal = product.sourceType === "distrosource_original" && product.rightsStatus === "original"
+  const rating = avgRating ?? 0
 
   const productSchema = {
     "@context": "https://schema.org",
@@ -79,7 +77,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     name: product.name,
     description: stripLiteMarkdown(product.description),
     image: gallery.length ? gallery : undefined,
-    aggregateRating: reviewCount > 0 ? { "@type": "AggregateRating", ratingValue: avgRating, reviewCount } : undefined,
+    aggregateRating: reviewCount > 0 ? { "@type": "AggregateRating", ratingValue: rating, reviewCount } : undefined,
     offers: licenses.map((license) => ({
       "@type": "Offer",
       priceCurrency: "USD",
@@ -89,40 +87,36 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     })),
   }
 
-  // ---- Build the anchored section list ------------------------------------
-  // Description sections come from the stored markdown; data-driven sections
-  // (file details, updates, reviews) are appended so one nav covers all.
   const sections: ProductSection[] = parseSections(product.description)
-
   const fileDetails = [
     product.fileFormats.length ? ["File formats", product.fileFormats.join(", ")] : null,
     product.softwareCompatibility.length ? ["Compatible with", product.softwareCompatibility.join(", ")] : null,
     product.fileSizeMb ? ["File size", `${product.fileSizeMb} MB`] : null,
     ["Version", `v${product.currentVersion}`],
     ["Last updated", formatDate(product.updatedAt)],
-  ].filter((r): r is [string, string] => Boolean(r))
+  ].filter((row): row is [string, string] => Boolean(row))
 
   sections.push({
     id: "file-details",
     title: "File details",
     body: (
-      <div className="max-w-3xl">
-        <dl className="divide-y divide-border rounded-lg border border-border">
-          {fileDetails.map(([k, v]) => (
-            <div key={k} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
-              <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">{k}</dt>
-              <dd className="text-sm text-foreground">{v}</dd>
+      <div className="max-w-4xl">
+        <dl className="grid overflow-hidden rounded-[26px] border border-border bg-border sm:grid-cols-2">
+          {fileDetails.map(([label, value]) => (
+            <div key={label} className="bg-card px-5 py-5 sm:px-6">
+              <dt className="font-mono text-[9px] font-black uppercase tracking-[0.12em] text-muted-foreground">{label}</dt>
+              <dd className="mt-2 text-sm font-semibold text-foreground">{value}</dd>
             </div>
           ))}
           {product.includedFiles.length > 0 && (
-            <div className="flex flex-col gap-1.5 px-4 py-3 sm:flex-row sm:gap-4">
-              <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">What&apos;s included</dt>
-              <dd className="text-sm text-foreground">
-                <ul className="space-y-1">
-                  {product.includedFiles.map((f) => (
-                    <li key={f} className="flex items-baseline gap-2">
-                      <FileText size={12} className="shrink-0 translate-y-0.5 text-muted-foreground" aria-hidden="true" />
-                      {f}
+            <div className="bg-card px-5 py-5 sm:col-span-2 sm:px-6">
+              <dt className="font-mono text-[9px] font-black uppercase tracking-[0.12em] text-muted-foreground">What&apos;s included</dt>
+              <dd className="mt-3">
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {product.includedFiles.map((file) => (
+                    <li key={file} className="flex items-start gap-2 text-sm text-foreground">
+                      <FileText size={14} className="mt-0.5 shrink-0 text-primary" />
+                      {file}
                     </li>
                   ))}
                 </ul>
@@ -130,26 +124,24 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </div>
           )}
         </dl>
-        {product.documentation && <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{product.documentation}</p>}
+        {product.documentation && <p className="mt-5 text-sm leading-7 text-muted-foreground">{product.documentation}</p>}
       </div>
     ),
   })
 
-  // Empty sections are not rendered: a "Changelog" with nothing in it or a
-  // "Reviews" heading over zero reviews reads as a gap, not information.
   if (versions.length > 0) {
     sections.push({
       id: "changelog",
       title: `Changelog (${versions.length})`,
       body: (
-        <ul className="max-w-3xl divide-y divide-border rounded-lg border border-border">
-          {versions.map((v) => (
-            <li key={v.id} className="flex flex-col gap-1 px-4 py-3.5">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-sm font-bold text-foreground">v{v.version}</span>
-                <span className="font-mono text-xs text-muted-foreground">{formatDate(v.releasedAt)}</span>
+        <ul className="max-w-4xl divide-y divide-border border-y border-border">
+          {versions.map((version) => (
+            <li key={version.id} className="grid gap-2 py-5 sm:grid-cols-[120px_1fr] sm:gap-5">
+              <div>
+                <span className="font-display text-lg font-black">v{version.version}</span>
+                <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.08em] text-muted-foreground">{formatDate(version.releasedAt)}</p>
               </div>
-              {v.changelog && <p className="text-sm text-muted-foreground">{v.changelog}</p>}
+              {version.changelog && <p className="text-sm leading-7 text-muted-foreground">{version.changelog}</p>}
             </li>
           ))}
         </ul>
@@ -162,7 +154,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       id: "reviews",
       title: `Reviews${reviewCount ? ` (${reviewCount})` : ""}`,
       body: (
-        <div className="flex max-w-3xl flex-col gap-8">
+        <div className="flex max-w-4xl flex-col gap-8">
           <ReviewForm productId={product.id} eligibility={reviewEligibility} />
           <ReviewList reviews={reviews} />
         </div>
@@ -171,111 +163,94 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <RecentlyViewedTracker productId={product.id} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
 
       <main className="flex-1">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 md:py-8">
-          <nav className="mb-5 flex items-center gap-1.5 text-xs text-muted-foreground" aria-label="Breadcrumb">
-            <Link href="/" className="transition-colors hover:text-foreground">Home</Link>
-            <ChevronRight size={12} aria-hidden="true" />
-            <Link href={`/categories/${category.slug}`} className="transition-colors hover:text-foreground">{category.name}</Link>
-            <ChevronRight size={12} aria-hidden="true" />
-            <span className="truncate font-medium text-foreground">{product.name}</span>
-          </nav>
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-[1540px] px-4 pb-12 pt-5 sm:px-6 sm:pb-16 lg:px-8 lg:pb-20">
+            <nav className="mb-7 flex min-w-0 items-center gap-1.5 overflow-hidden text-[11px] text-muted-foreground" aria-label="Breadcrumb">
+              <Link href="/" className="shrink-0 hover:text-foreground">Home</Link>
+              <ChevronRight size={11} />
+              <Link href={`/categories/${category.slug}`} className="shrink-0 hover:text-foreground">{category.name}</Link>
+              <ChevronRight size={11} />
+              <span className="truncate text-foreground">{product.name}</span>
+            </nav>
 
-          <Reveal className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-12">
-            {/* ---- Left: gallery ---- */}
-            <div className="flex flex-col gap-4 lg:col-start-1 lg:row-start-1">
-              <ProductGallery images={gallery} alt={product.name} />
-            </div>
-
-            {/* ---- Right: title + sticky purchase panel ---- */}
-            <div className="flex flex-col gap-5 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-24">
-              <div>
-                <Link href={`/categories/${category.slug}`} className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground hover:underline">
-                  {category.name}
-                </Link>
-                <h1 className="mt-2 font-display text-2xl font-bold leading-tight tracking-tight text-balance md:text-3xl">{product.name}</h1>
-                {product.tagline && <p className="mt-2 text-base leading-relaxed text-muted-foreground text-pretty">{product.tagline}</p>}
-                <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  {isOriginal && <ShieldCheck size={13} className="text-success" aria-hidden="true" />}
-                  <span>
-                    By <span className="font-medium text-foreground">{getSourceTypeLabel(product.sourceType)}</span>
-                  </span>
-                </p>
-
-                {reviewCount > 0 && (
-                  <div className="mt-3 flex items-center gap-2 text-sm">
-                    <span className="flex items-center gap-0.5" aria-label={`${avgRating?.toFixed(1)} out of 5 stars`}>
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} size={14} className={i < Math.round(avgRating ?? 0) ? "fill-primary text-primary" : "text-border"} aria-hidden="true" />
-                      ))}
-                    </span>
-                    <span className="font-semibold">{avgRating?.toFixed(1)}</span>
-                    <a href="#section-reviews" className="text-muted-foreground underline-offset-4 hover:underline">
-                      {reviewCount} review{reviewCount === 1 ? "" : "s"}
-                    </a>
-                  </div>
-                )}
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <ShareProductButton name={product.name} />
-                  <CompareButton productId={product.id} />
-                </div>
+            <Reveal className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.38fr)_minmax(360px,0.62fr)] lg:gap-12 xl:gap-16">
+              <div className="min-w-0">
+                <ProductGallery images={gallery} alt={product.name} />
               </div>
 
-              <PurchasePanel
-                productId={product.id}
-                licenses={licenses}
-                initialWishlisted={wishlistIds.includes(product.id)}
-                isPreviewOnly={product.assetStatus !== "ready" || !APPROVED_RIGHTS.includes(product.rightsStatus)}
-                meta={{
-                  formats: product.fileFormats,
-                  software: product.softwareCompatibility,
-                  version: product.currentVersion,
-                  updatedAt: formatDate(product.updatedAt),
-                  hasDocumentation: Boolean(product.documentation),
-                }}
-              />
+              <aside className="lg:sticky lg:top-24">
+                <div className="mb-6">
+                  <div className="flex flex-wrap items-center gap-2 font-mono text-[9px] font-black uppercase tracking-[0.12em] text-muted-foreground">
+                    <Link href={`/categories/${category.slug}`} className="text-primary hover:underline">{category.name}</Link>
+                    <span>/</span>
+                    <span>{getSourceTypeLabel(product.sourceType)}</span>
+                    {isOriginal && <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-1 text-success"><ShieldCheck size={11} /> Original</span>}
+                  </div>
 
-              <ul className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border bg-border text-center">
-                {[
-                  { icon: Download, label: "Instant delivery" },
-                  { icon: ShieldCheck, label: "Polar checkout" },
-                  { icon: RefreshCw, label: "Re-download anytime" },
-                ].map(({ icon: Icon, label }) => (
-                  <li key={label} className="flex flex-col items-center gap-1.5 bg-card px-2 py-3">
-                    <Icon size={ICON_SIZE.base} className="text-foreground" aria-hidden="true" />
-                    <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                  <h1 className="mt-4 font-display text-[clamp(2.6rem,5.2vw,5.7rem)] font-black leading-[0.88] tracking-[-0.07em] text-foreground lg:text-[clamp(3rem,4.2vw,5rem)]">
+                    {product.name}
+                  </h1>
+                  {product.tagline && <p className="mt-5 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">{product.tagline}</p>}
 
-            {/* ---- Left, below gallery: anchored sections ---- */}
-            <div className="lg:col-start-1 lg:row-start-2">
-              <ProductSections sections={sections} />
-            </div>
-          </Reveal>
-
-          {related.length > 0 && (
-            <Reveal className="mt-16 border-t border-border pt-10">
-              <div className="mb-2 flex items-end justify-between gap-4">
-                <div>
-                  <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">You may also like</p>
-                  <h2 className="mt-1 font-display text-xl font-bold tracking-tight">More in {category.name}</h2>
+                  <div className="mt-5 flex flex-wrap items-center gap-3">
+                    {reviewCount > 0 && (
+                      <a href="#section-reviews" className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-xs hover:bg-secondary">
+                        <span className="flex items-center gap-0.5">
+                          {Array.from({ length: 5 }).map((_, index) => (
+                            <Star key={index} size={12} className={index < Math.round(rating) ? "fill-primary text-primary" : "text-border"} />
+                          ))}
+                        </span>
+                        <strong>{rating.toFixed(1)}</strong>
+                        <span className="text-muted-foreground">{reviewCount}</span>
+                      </a>
+                    )}
+                    <ShareProductButton name={product.name} />
+                    <CompareButton productId={product.id} />
+                  </div>
                 </div>
-                <Link href={`/categories/${category.slug}`} className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
-                  View all
-                </Link>
+
+                <PurchasePanel
+                  productId={product.id}
+                  licenses={licenses}
+                  initialWishlisted={wishlistIds.includes(product.id)}
+                  isPreviewOnly={product.assetStatus !== "ready" || !APPROVED_RIGHTS.includes(product.rightsStatus)}
+                  meta={{
+                    formats: product.fileFormats,
+                    software: product.softwareCompatibility,
+                    version: product.currentVersion,
+                    updatedAt: formatDate(product.updatedAt),
+                    hasDocumentation: Boolean(product.documentation),
+                  }}
+                />
+              </aside>
+            </Reveal>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-[1320px] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+          <ProductSections sections={sections} />
+        </section>
+
+        {related.length > 0 && (
+          <Reveal className="border-t border-border bg-secondary/25 py-16 sm:py-20 lg:py-24">
+            <div className="mx-auto max-w-[1540px] px-4 sm:px-6 lg:px-8">
+              <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="font-mono text-[10px] font-black uppercase tracking-[0.16em] text-primary">Keep exploring</p>
+                  <h2 className="mt-3 font-display text-[clamp(2.2rem,4vw,4.4rem)] font-black leading-[0.94] tracking-[-0.055em]">More in {category.name}.</h2>
+                </div>
+                <Link href={`/categories/${category.slug}`} className="text-sm font-semibold hover:underline">View department</Link>
               </div>
               <ProductGrid items={related} />
-            </Reveal>
-          )}
-        </div>
+            </div>
+          </Reveal>
+        )}
       </main>
       <SiteFooter />
     </div>
