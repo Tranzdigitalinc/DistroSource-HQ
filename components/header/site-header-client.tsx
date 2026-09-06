@@ -1,18 +1,15 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
 import { DesktopNav } from "@/components/header/desktop-nav"
 import { MobileNav } from "@/components/header/mobile-nav"
 import { HeaderSearch } from "@/components/header/header-search"
 import { CartTrigger } from "@/components/header/cart-trigger"
 import { AccountMenu } from "@/components/header/account-menu"
 import { ThemeToggle } from "@/components/header/theme-toggle"
-import { TrustStrip } from "@/components/header/trust-strip"
 import { BrandLogo } from "@/components/brand-logo"
 import { VerifyEmailBanner } from "@/components/verify-email-banner"
-import { Heart, ICON_SIZE } from "@/lib/storefront-icons"
-import { cn } from "@/lib/utils"
+import { Heart } from "@/lib/storefront-icons"
 
 type Subcategory = {
   id: number
@@ -25,64 +22,44 @@ type Subcategory = {
 type Department = Subcategory & { subcategories: Subcategory[] }
 
 /**
- * Storefront header. Two rows on desktop — a quiet navy strip with three
- * verifiable promises, then logo / departments / search / actions. Search
- * takes the widest share of the row because a catalog this size is
- * navigated by search more than by menu. Compacts once the user scrolls.
+ * Premium storefront shell: one calm navigation row, strong search and no
+ * decorative chrome. The catalog should be the visual event, not the header.
  */
 export function SiteHeaderClient({ departments = [] }: { departments?: Department[] }) {
-  const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    onScroll()
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
-
   return (
-    <header className={cn("sticky top-0 z-40 border-b border-border bg-background", scrolled && "shadow-[var(--shadow-e1)]")}>
+    <header className="sticky top-0 z-50 border-b border-border/80 bg-background/88 backdrop-blur-xl supports-[backdrop-filter]:bg-background/78">
       <VerifyEmailBanner />
 
-      <div
-        className={cn("overflow-hidden transition-all duration-300 ease-out motion-reduce:transition-none", scrolled ? "max-h-0 opacity-0" : "max-h-10 opacity-100")}
-        aria-hidden={scrolled}
-      >
-        <TrustStrip />
-      </div>
-
-      <div
-        className={cn(
-          "mx-auto flex max-w-[90rem] items-center gap-2 px-4 transition-[height] duration-300 ease-out motion-reduce:transition-none sm:gap-3 sm:px-6",
-          scrolled ? "h-14" : "h-16 lg:h-[4.25rem]",
-        )}
-      >
+      <div className="mx-auto flex h-[72px] max-w-[94rem] items-center gap-3 px-4 sm:px-6 lg:gap-5 lg:px-8">
         <MobileNav departments={departments} />
 
-        <Link href="/" aria-label="DistroSource home" className="flex shrink-0 items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          <BrandLogo href={null} heightClassName={cn("transition-all duration-300 motion-reduce:transition-none", scrolled ? "h-7" : "h-8 sm:h-9")} />
+        <Link
+          href="/"
+          aria-label="DistroSource home"
+          className="flex shrink-0 items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <BrandLogo href={null} heightClassName="h-8 sm:h-9" />
         </Link>
 
         <DesktopNav departments={departments} />
 
-        <HeaderSearch className="mx-auto hidden w-full max-w-2xl flex-1 md:block" />
+        <HeaderSearch className="mx-auto hidden w-full max-w-[34rem] flex-1 md:block" />
 
         <div className="ml-auto flex shrink-0 items-center gap-0.5 md:ml-0">
-          <ThemeToggle />
           <Link
             href="/account/wishlist"
-            className="hidden h-10 items-center gap-2 rounded-md px-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex"
             aria-label="Wishlist"
+            className="hidden size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex"
           >
-            <Heart size={ICON_SIZE.nav} aria-hidden="true" />
-            <span className="hidden xl:inline">Wishlist</span>
+            <Heart size={19} aria-hidden="true" />
           </Link>
+          <ThemeToggle />
           <AccountMenu />
           <CartTrigger />
         </div>
       </div>
 
-      <div className="border-t border-border px-4 py-2 md:hidden">
+      <div className="border-t border-border/70 px-4 py-2.5 md:hidden sm:px-6">
         <HeaderSearch />
       </div>
     </header>
