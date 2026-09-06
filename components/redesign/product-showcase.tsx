@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ProductCard } from "@/components/product/product-card"
+import { RedesignProductCard } from "@/components/redesign/redesign-product-card"
 import { ArrowRight } from "@/lib/storefront-icons"
 import type { getProducts } from "@/lib/queries/catalog"
 
@@ -50,7 +50,7 @@ export function RedesignProductShowcase({
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {items.slice(0, 10).map((item) => (
-            <ProductCard key={item.product.id} item={item} className={tone === "navy" ? "bg-background text-foreground" : undefined} />
+            <RedesignProductCard key={item.product.id} item={item} />
           ))}
         </div>
       </div>
