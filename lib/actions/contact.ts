@@ -7,7 +7,13 @@ import { supportConversations, supportMessages } from "@/lib/db/schema"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy for the same reason as the Resend webhook route: `new Resend(undefined)`
+// throws, and this module is imported at build time.
+let client: Resend | null = null
+function getResend(): Resend {
+  if (!client) client = new Resend(process.env.RESEND_API_KEY)
+  return client
+}
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "DistroSource <support@distrosource.com>"
 const SUPPORT_INBOX = "support@distrosource.com"
 
@@ -47,7 +53,7 @@ export async function submitContactMessage(input: {
 
   const subject = `${topicLabel} — ${name}`
 
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
     to: SUPPORT_INBOX,
     replyTo: email,

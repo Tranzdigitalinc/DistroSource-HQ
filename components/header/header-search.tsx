@@ -20,7 +20,8 @@ type ProductSuggestion = {
   compareAtPrice: string | null
   fileFormats?: string[]
 }
-type SuggestionsResponse = { categories: CategorySuggestion[]; products: ProductSuggestion[] }
+type GamingSuggestion = { id: string; slug: string; name: string; platform: string; price: number }
+type SuggestionsResponse = { categories: CategorySuggestion[]; products: ProductSuggestion[]; gaming?: GamingSuggestion[] }
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json() as Promise<SuggestionsResponse>)
 
@@ -88,6 +89,7 @@ export function HeaderSearch({ className, size = "default" }: { className?: stri
 
   const categories = hasQuery ? (data?.categories ?? []) : []
   const products = hasQuery ? (data?.products ?? []) : []
+  const gaming = hasQuery ? (data?.gaming ?? []) : []
 
   // One flat, keyboard-navigable list regardless of which panel is showing.
   type Row =
@@ -95,12 +97,14 @@ export function HeaderSearch({ className, size = "default" }: { className?: stri
     | { kind: "quick"; label: string; href: string }
     | { kind: "category"; item: CategorySuggestion }
     | { kind: "product"; item: ProductSuggestion }
+    | { kind: "gaming"; item: GamingSuggestion }
     | { kind: "all" }
   const rows: Row[] = hasQuery
     ? [
         ...categories.map((item) => ({ kind: "category" as const, item })),
         ...products.map((item) => ({ kind: "product" as const, item })),
-        ...(categories.length + products.length > 0 ? [{ kind: "all" as const }] : []),
+        ...gaming.map((item) => ({ kind: "gaming" as const, item })),
+        ...(categories.length + products.length + gaming.length > 0 ? [{ kind: "all" as const }] : []),
       ]
     : [...recent.map((label) => ({ kind: "recent" as const, label })), ...QUICK_LINKS.map((q) => ({ kind: "quick" as const, ...q }))]
 
@@ -145,6 +149,7 @@ export function HeaderSearch({ className, size = "default" }: { className?: stri
       if (row.kind === "recent") return submitSearch(row.label)
       if (row.kind === "quick") return router.push(row.href)
       if (row.kind === "category") return router.push(`/categories/${row.item.slug}`)
+      if (row.kind === "gaming") return router.push(`/gaming/product/${row.item.slug}`)
       if (row.kind === "product") {
         remember(query.trim() || row.item.name)
         return router.push(`/products/${row.item.slug}`)
@@ -401,6 +406,43 @@ export function HeaderSearch({ className, size = "default" }: { className?: stri
                       </span>
                       <span className="shrink-0 text-xs font-semibold text-foreground">
                         {row.item.isFree ? "Free" : <PriceDisplay usdAmount={row.item.price} />}
+                      </span>
+                    </button>
+                  ) : null,
+                )}
+              </div>
+            )}
+
+            {/* Gaming products are sold by DistroSource through Tebex rather
+                than the main catalogue, so they are grouped and badged
+                instead of being mixed into the product results. */}
+            {hasQuery && gaming.length > 0 && (
+              <div className="pt-1">
+                <p className="px-3 pb-1 pt-2 font-mono text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+                  DistroSource Gaming
+                </p>
+                {rows.map((row, i) =>
+                  row.kind === "gaming" ? (
+                    <button
+                      key={`g-${row.item.id}`}
+                      id={`search-option-${i}`}
+                      type="button"
+                      role="option"
+                      aria-selected={activeIndex === i}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onMouseEnter={() => setActiveIndex(i)}
+                      onClick={() => activate(row)}
+                      className={optionClass(i)}
+                    >
+                      <span className="rounded bg-primary px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.04em] text-primary-foreground">
+                        Gaming
+                      </span>
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate font-medium">{row.item.name}</span>
+                        <span className="truncate text-[11px] text-muted-foreground">{row.item.platform}</span>
+                      </span>
+                      <span className="shrink-0 text-xs font-semibold text-foreground">
+                        <PriceDisplay usdAmount={row.item.price} />
                       </span>
                     </button>
                   ) : null,

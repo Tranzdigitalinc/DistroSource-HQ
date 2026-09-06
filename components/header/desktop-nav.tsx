@@ -22,8 +22,11 @@ interface Department extends Subcategory {
 
 // "Bundles" is intentionally absent: every bundle is a draft today, so the
 // link would open an empty grid. Add it back when the first bundle publishes.
-const NAV_LINKS = [
+const NAV_LINKS: { href: string; label: string; badge?: string }[] = [
   { href: "/products", label: "Products" },
+  // Gaming is a department of DistroSource, not a separate store, so it sits
+  // in the same navigation as everything else.
+  { href: "/gaming", label: "Gaming", badge: "New" },
   { href: "/deals", label: "Deals" },
   { href: "/licenses", label: "Licensing" },
 ]
@@ -59,10 +62,15 @@ export function DesktopNav({ departments }: { departments: Department[] }) {
       </Popover>
 
       {NAV_LINKS.map((link) => {
-        const active = pathname === link.href
+        const active = link.href === "/gaming" ? pathname.startsWith("/gaming") : pathname === link.href
         return (
           <Link key={link.href} href={link.href} aria-current={active ? "page" : undefined} className={cn(linkClass, active && "text-foreground")}>
             {link.label}
+            {link.badge && (
+              <span className="rounded bg-primary px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.04em] text-primary-foreground">
+                {link.badge}
+              </span>
+            )}
           </Link>
         )
       })}

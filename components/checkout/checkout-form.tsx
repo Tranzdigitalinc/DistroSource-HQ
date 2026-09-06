@@ -483,7 +483,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                     )}
 
                     <p className="text-xs leading-relaxed text-muted-foreground">
-                      TamPay adds a small processing fee on top of the total shown here — it's calculated and disclosed on TamPay's payment page before you pay.
+                      TamPay adds a small processing fee on top of the total shown here — it&rsquo;s calculated and disclosed on TamPay&rsquo;s payment page before you pay.
                     </p>
                   </div>
                 )}
