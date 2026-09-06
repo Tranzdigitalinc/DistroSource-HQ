@@ -3,50 +3,17 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { toast } from "sonner"
-import { ArrowRight, Check, ShieldCheck, ICON_SIZE } from "@/lib/storefront-icons"
+import { ArrowRight, Check, ShieldCheck } from "@/lib/storefront-icons"
 import { BrandLogo } from "@/components/brand-logo"
 import { Button } from "@/components/ui/button"
 import { subscribeToNewsletter } from "@/lib/actions/newsletter"
 import { trackWhopEvent } from "@/lib/whop-pixel"
 
-// "Bundles" is absent on purpose: every bundle is a draft, so the listing
-// is empty. Add it back when the first bundle publishes.
 const columns = [
-  {
-    title: "Shop",
-    links: [
-      { label: "Departments", href: "/categories" },
-      { label: "Products", href: "/products" },
-      { label: "Deals", href: "/deals" },
-      { label: "New arrivals", href: "/products?sort=newest" },
-    ],
-  },
-  {
-    title: "Resources",
-    links: [
-      { label: "Help Center", href: "/help" },
-      { label: "Licensing", href: "/licenses" },
-      { label: "Team licensing", href: "/team-licensing" },
-      { label: "Contact", href: "/contact" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { label: "About", href: "/about" },
-      { label: "Terms", href: "/legal/terms" },
-      { label: "Privacy", href: "/legal/privacy" },
-      { label: "Refund Policy", href: "/legal/refund-policy" },
-    ],
-  },
-  {
-    title: "Account",
-    links: [
-      { label: "Orders", href: "/account/orders" },
-      { label: "Downloads", href: "/account/library" },
-      { label: "Wishlist", href: "/account/wishlist" },
-    ],
-  },
+  { title: "Shop", links: [{ label: "Departments", href: "/categories" }, { label: "All products", href: "/products" }, { label: "Gaming", href: "/gaming" }, { label: "Deals", href: "/deals" }, { label: "New arrivals", href: "/products?sort=newest" }] },
+  { title: "Resources", links: [{ label: "Help Center", href: "/help" }, { label: "Licensing", href: "/licenses" }, { label: "Team licensing", href: "/team-licensing" }, { label: "Contact", href: "/contact" }] },
+  { title: "Company", links: [{ label: "About", href: "/about" }, { label: "Terms", href: "/legal/terms" }, { label: "Privacy", href: "/legal/privacy" }, { label: "Refund Policy", href: "/legal/refund-policy" }] },
+  { title: "Account", links: [{ label: "Orders", href: "/account/orders" }, { label: "Downloads", href: "/account/library" }, { label: "Wishlist", href: "/account/wishlist" }] },
 ]
 
 const legalLinks = [
@@ -60,8 +27,8 @@ function NewsletterForm() {
   const [isPending, startTransition] = useTransition()
   const [submitted, setSubmitted] = useState(false)
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault()
     if (!email.trim()) return
     startTransition(async () => {
       try {
@@ -75,34 +42,13 @@ function NewsletterForm() {
     })
   }
 
-  if (submitted) {
-    return (
-      <p className="flex items-center gap-2 text-sm text-navy-foreground/80" role="status">
-        <Check size={ICON_SIZE.sm} className="text-primary" aria-hidden="true" />
-        You&apos;re subscribed. Watch your inbox.
-      </p>
-    )
-  }
+  if (submitted) return <p className="flex items-center gap-2 text-sm text-navy-foreground/75" role="status"><Check size={14} className="text-primary" />You&apos;re subscribed.</p>
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full max-w-sm gap-2">
-      <label htmlFor="footer-email" className="sr-only">
-        Email address
-      </label>
-      <input
-        id="footer-email"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="you@example.com"
-        autoComplete="email"
-        required
-        className="h-10 min-w-0 flex-1 rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-3 text-sm text-navy-foreground placeholder:text-navy-foreground/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-      />
-      <Button type="submit" size="sm" disabled={isPending} className="h-10 shrink-0 px-4 font-semibold">
-        Subscribe
-        <ArrowRight size={ICON_SIZE.sm} aria-hidden="true" />
-      </Button>
+    <form onSubmit={handleSubmit} className="flex w-full max-w-md gap-2">
+      <label htmlFor="footer-email" className="sr-only">Email address</label>
+      <input id="footer-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" required className="h-11 min-w-0 flex-1 rounded-xl border border-navy-foreground/16 bg-navy-foreground/5 px-3.5 text-sm text-navy-foreground placeholder:text-navy-foreground/35 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25" />
+      <Button type="submit" disabled={isPending} className="h-11 shrink-0 rounded-xl px-4 font-bold">Join <ArrowRight size={14} /></Button>
     </form>
   )
 }
@@ -110,55 +56,35 @@ function NewsletterForm() {
 export function SiteFooter() {
   return (
     <footer className="bg-navy text-navy-foreground">
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,2fr)]">
-          <div className="flex max-w-sm flex-col gap-5">
-            <BrandLogo heightClassName="h-10" />
-            <p className="text-sm leading-relaxed text-navy-foreground/65">
-              Professional downloadable digital products for business, design, development and everyday work.
-            </p>
-            <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-navy-foreground/50">Newsletter</p>
-              <NewsletterForm />
-            </div>
+      <div className="mx-auto max-w-[94rem] px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <div className="border-b border-navy-foreground/12 pb-12">
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-primary">DistroSource</p>
+          <p className="mt-4 max-w-5xl font-display text-4xl font-black leading-[0.94] tracking-[-0.05em] text-navy-foreground sm:text-5xl lg:text-6xl">Useful digital products, without the noise.</p>
+        </div>
+
+        <div className="grid gap-12 py-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.9fr)]">
+          <div className="max-w-md">
+            <BrandLogo heightClassName="h-9" />
+            <p className="mt-4 text-sm leading-6 text-navy-foreground/55">A digital department store for business, design, development, gaming and everyday creative work.</p>
+            <p className="mb-2 mt-7 font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-navy-foreground/42">Occasional product updates</p>
+            <NewsletterForm />
           </div>
 
-          <nav aria-label="Footer" className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+          <nav aria-label="Footer" className="grid grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-4">
             {columns.map((column) => (
               <div key={column.title}>
-                <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-navy-foreground/50">{column.title}</h3>
+                <h3 className="font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-navy-foreground/42">{column.title}</h3>
                 <ul className="mt-4 flex flex-col gap-2.5">
-                  {column.links.map((link) => (
-                    <li key={link.href}>
-                      <Link href={link.href} className="text-sm text-navy-foreground/75 transition-colors hover:text-navy-foreground">
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
+                  {column.links.map((link) => <li key={link.href}><Link href={link.href} className="text-sm text-navy-foreground/68 transition-colors hover:text-navy-foreground">{link.label}</Link></li>)}
                 </ul>
               </div>
             ))}
           </nav>
         </div>
 
-        <div className="mt-12 flex flex-col gap-4 border-t border-navy-foreground/15 pt-6 text-xs text-navy-foreground/55 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <span>&copy; {new Date().getFullYear()} DistroSource</span>
-            {legalLinks.map((l) => (
-              <Link key={l.href} href={l.href} className="transition-colors hover:text-navy-foreground">
-                {l.label}
-              </Link>
-            ))}
-          </div>
-          {/* Text disclosure only — no card or wallet logos. Which methods
-              Polar exposes is configured in Polar, not knowable here.
-              "Merchant of Record" only applies to Polar orders — TamPay and
-              Whop are payment gateways, not a MoR — so this stays generic
-              rather than crediting Polar's status to all three. */}
-          <p className="flex items-center gap-1.5">
-            <ShieldCheck size={ICON_SIZE.sm} className="shrink-0 text-primary" aria-hidden="true" />
-            Payments processed securely via Polar, TamPay, or Whop.
-          </p>
+        <div className="flex flex-col gap-4 border-t border-navy-foreground/12 pt-6 text-xs text-navy-foreground/45 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2"><span>&copy; {new Date().getFullYear()} DistroSource</span>{legalLinks.map((link) => <Link key={link.href} href={link.href} className="hover:text-navy-foreground">{link.label}</Link>)}</div>
+          <p className="flex items-center gap-1.5"><ShieldCheck size={13} className="text-primary" />Secure payment options are shown at checkout.</p>
         </div>
       </div>
     </footer>
