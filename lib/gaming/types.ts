@@ -165,6 +165,12 @@ export interface GamingProduct {
    */
   images: string[]
   /**
+   * An 800x500 render of the cover for listing cards, so a grid of forty
+   * cards does not download forty 1600px images. Optional; the card falls
+   * back to `images[0]`.
+   */
+  cardImage?: string
+  /**
    * One entry per gallery view. The first is the card thumbnail, so it
    * should be the view that identifies the product fastest.
    */

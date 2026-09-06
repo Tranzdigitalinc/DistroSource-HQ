@@ -57,6 +57,8 @@ interface Draft {
   subcategory: string
   /** Real captures. When present these replace `art` on the storefront. */
   images?: string[]
+  /** 800x500 cover variant for listing cards. */
+  cardImage?: string
   art: GamingArt[]
   version: string
   lastUpdated: string
@@ -89,6 +91,7 @@ function build(draft: Draft, defaults: Defaults, index: number): GamingProduct {
     category: draft.category,
     subcategory: draft.subcategory,
     images: draft.images ?? [],
+    cardImage: draft.cardImage,
     art: draft.art,
     version: draft.version,
     lastUpdated: draft.lastUpdated,
@@ -131,6 +134,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-001",
     title: "Premium City MLO Pack",
     slug: "premium-city-mlo-pack",
+    images: ["gaming/premium-city-mlo-pack/cover-DDk9nLTD7wk0aQRRVkxGnkQlLp5Kns.webp","gaming/premium-city-mlo-pack/gallery-01-vrwNFPD9zHuhqYYZTaxpCxz15gCKvf.webp","gaming/premium-city-mlo-pack/gallery-02-OkBytNZzypcqHPihIg7mLjHyUWE0ar.webp","gaming/premium-city-mlo-pack/gallery-03-2dTRtqcuwcUMZ74queQ1y9fIAqaZDa.webp","gaming/premium-city-mlo-pack/gallery-04-7ZEXR5ZJRyuGIV9WH0W4wHt8KRLu5z.webp"],
+    cardImage: "gaming/premium-city-mlo-pack/cover-card-IP3DESgJK3TECoNymQUWOfwokaCOtQ.webp",
     shortDescription: "Eleven interiors covering the core of a roleplay city, built to one consistent standard.",
     description:
       "A complete set of city interiors for a roleplay server, drawn to a single art direction so buildings do not look like they came from eleven different places. Every interior is collision-tested, has working navmesh for pedestrians, and ships with interior portals already configured. Props are optimised and LOD-tuned so a full block of these does not cost you frames.",
@@ -210,6 +215,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-002",
     title: "Modern Police Department MLO",
     slug: "modern-police-department-mlo",
+    images: ["gaming/modern-police-department-mlo/cover-3iatoCKFbQ4pjJTl0Jgd8R2fKc39SP.webp","gaming/modern-police-department-mlo/gallery-01-luQdZPKGuW44E9nvQYaPvPHNnlxRFe.webp","gaming/modern-police-department-mlo/gallery-02-zU5dkLdo50DLfBZh87NkTDwYqTQh4d.webp","gaming/modern-police-department-mlo/gallery-03-GnlUk2EJVe33eIYeHE5fCuszoxz3sN.webp","gaming/modern-police-department-mlo/gallery-04-D1BG4bdOvoDCSPssD4QFrvKMfJYIxs.webp","gaming/modern-police-department-mlo/gallery-05-gXX8DwgNILek7Ixi2Y1iyIWyXfMLP0.webp","gaming/modern-police-department-mlo/gallery-06-FlPGhby4aVh7aonvKXDb5ns4bBhvPh.webp"],
+    cardImage: "gaming/modern-police-department-mlo/cover-card-8VqIbiLQFxZKN2qm19FN2yl1ONfpPU.webp",
     shortDescription: "A full department building: cells, armoury, briefing room, garage and rooftop helipad.",
     description:
       "A police department designed around how roleplay servers actually use one. The layout keeps booking, cells and the armoury on a short path so officers are not walking the length of the map between actions. Includes a briefing room sized for a full shift, an evidence store, an interior garage and a rooftop helipad with clearance for the standard air units.",
@@ -279,6 +286,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-003",
     title: "Luxury Auto Dealership MLO",
     slug: "luxury-auto-dealership-mlo",
+    images: ["gaming/luxury-auto-dealership-mlo/cover-8iCtNmSfhGCZydbN0gls5UAW7NXNaO.webp","gaming/luxury-auto-dealership-mlo/gallery-01-qaYEFt3lavW5nh53oc4X4Bo9o4vk56.webp","gaming/luxury-auto-dealership-mlo/gallery-02-0dd9N1sEo5XvSwd0tL4cYFZewzgDOT.webp","gaming/luxury-auto-dealership-mlo/gallery-03-0Xtmr9aLeM6R2oPwXB8hSl9gAfG0BP.webp","gaming/luxury-auto-dealership-mlo/gallery-04-QgVriF9GaOPmTgYEXcjRmkW5BXzgTn.webp","gaming/luxury-auto-dealership-mlo/gallery-05-ai2K8RnriKhhUfyTOFpE2avSI920Bf.webp"],
+    cardImage: "gaming/luxury-auto-dealership-mlo/cover-card-7LpeUsYj3HJX3r0Y3b5RHLsWOU8sBw.webp",
     shortDescription: "A two-floor showroom with display plinths, offices and a service bay.",
     description:
       "A dealership interior for servers running a vehicle economy. The showroom floor is laid out on a grid of display plinths so a spawn script can place stock predictably, with a mezzanine for higher-value vehicles. Includes sales offices, a customer lounge and a working service bay with lifts.",
@@ -342,6 +351,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-004",
     title: "Advanced Vehicle HUD",
     slug: "advanced-vehicle-hud",
+    images: ["gaming/advanced-vehicle-hud/cover-SZXL9Rd1WMWvqBDOVAs2hFH1kmACMI.webp","gaming/advanced-vehicle-hud/gallery-01-XtVMcax0i0vsbQC7Lpgn9MA6Wg0u79.webp","gaming/advanced-vehicle-hud/gallery-02-npxVngcKGNtKI3hWnXvXrCuIqwtf1B.webp","gaming/advanced-vehicle-hud/gallery-03-t2f2xTbk3cUJKW2rtKD4fUAxjsiyK5.webp","gaming/advanced-vehicle-hud/gallery-04-xSs1w3olMaPZmPtKfTWraQdk0ph9Ad.webp"],
+    cardImage: "gaming/advanced-vehicle-hud/cover-card-LXzexaRkaqNKPpYuxUft2QJ0OXGlz4.webp",
     shortDescription: "Speed, fuel, gear, indicators and seatbelt in one compact, configurable cluster.",
     description:
       "A vehicle HUD that stays readable at speed. Everything sits in one cluster rather than scattered around the screen edge, and every element can be repositioned, resized or switched off in the config. Units, colour and the seatbelt warning behaviour are all configurable, and the HUD hides itself automatically on foot.",
@@ -431,6 +442,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-005",
     title: "Premium Inventory Interface",
     slug: "premium-inventory-interface",
+    images: ["gaming/premium-inventory-interface/cover-Mz4TgFwluqRiivFSqntnQnguofxkk4.webp","gaming/premium-inventory-interface/gallery-01-9VJ3Feb1N42T6N6m4QiToOLMcJl9im.webp","gaming/premium-inventory-interface/gallery-02-CA2V3gsoimB6jdm6HLGYo0tuS62ZBs.webp","gaming/premium-inventory-interface/gallery-03-J3RNnYUVTd9A3A7ImhuAJBHDg4SbYS.webp"],
+    cardImage: "gaming/premium-inventory-interface/cover-card-5aeBH3jJvmMV5DCVahp42u8OZt2sqb.webp",
     shortDescription: "Grid inventory with drag-and-drop, weight, hotbar and container support.",
     description:
       "An inventory front end built for servers that care about how the interface feels. Drag-and-drop is snappy, stacks split with a modifier key, and weight is shown as a bar rather than a number you have to interpret. Supports player inventory, containers, vehicle trunks and shops through one consistent layout.",
@@ -518,6 +531,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-006",
     title: "Advanced Garage System",
     slug: "advanced-garage-system",
+    images: ["gaming/advanced-garage-system/cover-45tie1tR19D06QTqojYN2auQ9FIteA.webp","gaming/advanced-garage-system/gallery-01-yvpNV11zaqA8XmWMXPRgDdx5nWrqRJ.webp","gaming/advanced-garage-system/gallery-02-DouWeOtpsHfmtqlR5VElYKCssEHTO5.webp","gaming/advanced-garage-system/gallery-03-x3PimzKjSGgiuBgSYl3EDVYBavsppU.webp"],
+    cardImage: "gaming/advanced-garage-system/cover-card-bETYphUU7FzBUb8NElppxepekng3os.webp",
     shortDescription: "Multi-garage vehicle storage with impound, insurance and condition persistence.",
     description:
       "A garage system that remembers what happened to the car. Vehicle condition, fuel and modifications persist between sessions, damaged vehicles can be routed to an impound with a configurable fee, and each garage can be restricted by job or ownership. Includes an admin view for recovering vehicles that get stuck.",
@@ -595,6 +610,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-007",
     title: "Business Management System",
     slug: "business-management-system",
+    images: ["gaming/business-management-system/cover-BhGGEeiHdglSgLlJgUcKgY2teLgEHB.webp","gaming/business-management-system/gallery-01-Q2yYy0rpqpnSCcqndgqDNk7OV5WS15.webp","gaming/business-management-system/gallery-02-R4qmqjPXV5njNpOFoJBT44IBNO8FJw.webp"],
+    cardImage: "gaming/business-management-system/cover-card-bTMhIoOwfZgPGE7MzmnIS7tHywAfYQ.webp",
     shortDescription: "Player-owned businesses with staff roles, payroll, stock and a books view.",
     description:
       "Everything a player needs to run a business in-server: hire and fire staff against defined roles, set wages, track stock in and out, and see takings over time. Owners get a books view showing revenue against costs; staff only see what their role allows. Designed to sit on top of your existing economy rather than replace it.",
@@ -667,6 +684,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-008",
     title: "Modern Phone Interface",
     slug: "modern-phone-interface",
+    images: ["gaming/modern-phone-interface/cover-LI49RaqzJxXxQQb5sQ5V8htCyJJ13U.webp","gaming/modern-phone-interface/gallery-01-vdoAZlwVf7OjVEyxU1WidePlhTiBvP.webp","gaming/modern-phone-interface/gallery-02-YRWCprJbkW6oPFCy8zGpl06HWCOQNX.webp","gaming/modern-phone-interface/gallery-03-jpI6ROLJHGJkahP2aMMarmtoMocfvz.webp","gaming/modern-phone-interface/gallery-04-Ypil7TsFuDOYP7HDGBgzQLstUptzGA.webp"],
+    cardImage: "gaming/modern-phone-interface/cover-card-JdzRYGbhKQPL4rqMaHQH6VDmd0ArLN.webp",
     shortDescription: "In-game phone with calls, messages, contacts, banking and a photo gallery.",
     description:
       "A phone interface that behaves like a phone: an app grid, a notification tray, and apps that keep their state when you switch between them. Ships with calls, messages, contacts, a bank app, a camera with a saved gallery, and a simple social feed. New apps can be registered without editing the core.",
@@ -755,6 +774,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-009",
     title: "Emergency Services UI Pack",
     slug: "emergency-services-ui-pack",
+    images: ["gaming/emergency-services-ui-pack/cover-oPoZrNRbElqvMiiW1bJG0maL9klbuG.webp","gaming/emergency-services-ui-pack/gallery-01-viJficnsis87KWdp46qdWDnsn81lV1.webp","gaming/emergency-services-ui-pack/gallery-02-piNwVx6SOgjMb32Or6rYgWaAsaOt14.webp","gaming/emergency-services-ui-pack/gallery-03-PEPZrjysKF3dVHClQ6QKj1CZsrfng1.webp"],
+    cardImage: "gaming/emergency-services-ui-pack/cover-card-WWJUeU7WVRBz1u7iCE2SHew39AJKcD.webp",
     shortDescription: "MDT, dispatch board and callout panels for police, fire and EMS.",
     description:
       "A shared interface set for the three emergency services so dispatch, police and EMS are reading the same screens. Includes a mobile data terminal with searchable records, a dispatch board with unit status, and callout panels that keep priority and location visible without covering the play area.",
@@ -834,6 +855,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-010",
     title: "Server Essentials Bundle",
     slug: "fivem-server-essentials-bundle",
+    images: ["gaming/fivem-server-essentials-bundle/cover-GTPTmcycJLb2myQFuTuxYEDn6mGC3F.webp","gaming/fivem-server-essentials-bundle/gallery-01-bo66JVEDyxTN0H0nOyYB7OvpcEEjCL.webp","gaming/fivem-server-essentials-bundle/gallery-02-3Pbn7sdtlzv5HQyj0TWJmtD7A0VFyO.webp"],
+    cardImage: "gaming/fivem-server-essentials-bundle/cover-card-p102LCd24A5n3SXKF1xdwHSO4Iz6pw.webp",
     shortDescription: "The core systems a new FiveM server needs, priced as one package.",
     description:
       "A starting point for a new server: HUD, inventory interface, garage system and admin tooling, already configured to work together. Buying the bundle costs materially less than the products separately, and the included setup guide takes a blank server to a playable state in one sitting.",
@@ -905,6 +928,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-021",
     title: "Emergency Vehicle Pack",
     slug: "emergency-vehicle-pack",
+    images: ["gaming/emergency-vehicle-pack/cover-CTsyVd8GkNILPPbStNQ4A2LysoIem5.webp","gaming/emergency-vehicle-pack/gallery-01-DZCUDqHWqZG5DDwMCj2sc13wHwNehA.webp","gaming/emergency-vehicle-pack/gallery-02-iJBLJ0nYeiW7HRQPdLpPKrgcujIOSP.webp","gaming/emergency-vehicle-pack/gallery-03-CUstka1XVdaAcBSmJfMEuW8vFjNLYh.webp","gaming/emergency-vehicle-pack/gallery-04-3u9wydvgHFfBJlDDCiIex86qgoS5MN.webp","gaming/emergency-vehicle-pack/gallery-05-1tBdT3OviK97I3LXFCzRsDBXaAgfKa.webp"],
+    cardImage: "gaming/emergency-vehicle-pack/cover-card-b5ZGWv8sXZqtkw8hZkU2rKH70AZiPe.webp",
     shortDescription: "Fourteen police, fire and EMS vehicles with liveries, ELS lighting and tuned handling.",
     description:
       "A complete emergency fleet built to one standard, so your police, fire and EMS units look like they belong to the same city. Every vehicle has a layered livery you can rebrand, ELS-compatible lighting with realistic patterns, working extras, and handling tuned so pursuit vehicles actually behave differently from the ambulance. Liveries ship as source files at 4K.",
@@ -984,6 +1009,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-022",
     title: "Tuner Car Pack",
     slug: "tuner-car-pack",
+    images: ["gaming/tuner-car-pack/cover-xBbeV72I9JQ89eKi3FiZbLTzG83i7x.webp","gaming/tuner-car-pack/gallery-01-lHgZLiDyki9ZDEwmB57SXHx9AFUCCR.webp","gaming/tuner-car-pack/gallery-02-q1NN9fY0pHS17mgOaJtyByMgEVfkwB.webp","gaming/tuner-car-pack/gallery-03-FqcLJ6Nt0zfUp3hZrdU2xmiIEDeqGP.webp","gaming/tuner-car-pack/gallery-04-q0cTeu7pdKlpL5zpVV4qDO3CaobwbM.webp","gaming/tuner-car-pack/gallery-05-Qobgm1kMFeGTp2t6Y9jPHgpJtlJjSm.webp"],
+    cardImage: "gaming/tuner-car-pack/cover-card-YvIL8kcAzBfryiiwzeVxRegNZFcBH2.webp",
     shortDescription: "Twelve tunable street cars with full mod support, custom wheels and engine audio.",
     description:
       "Twelve street cars built for a server with a tuning scene. Every model supports the full mod menu — body kits, spoilers, bumpers, wheels, liveries and engine swaps — with LODs at four levels so a full car meet does not tank frames. Includes matching engine audio and a wheel pack that works across the whole set.",
@@ -1051,6 +1078,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-023",
     title: "Emergency Services EUP Pack",
     slug: "emergency-services-eup-pack",
+    images: ["gaming/emergency-services-eup-pack/cover-RWv3D0hovprKioaH91n7TwKgvcGKW6.webp","gaming/emergency-services-eup-pack/gallery-01-HENCUFu0PWVpJiaOUEeR7DVbyzAY4J.webp","gaming/emergency-services-eup-pack/gallery-02-7IDKbot64uHgIqazL9f5AGknqV7DLT.webp","gaming/emergency-services-eup-pack/gallery-03-cm8lhhuHkTs15rPUSdAPzISjvicOd6.webp","gaming/emergency-services-eup-pack/gallery-04-ulkfkpFf4AQl4VfS3a1AtqUyV6UmDI.webp","gaming/emergency-services-eup-pack/gallery-05-fPy4GfuGcho5rUAUv6qtVhmxuc9y1b.webp"],
+    cardImage: "gaming/emergency-services-eup-pack/cover-card-FUqJlirIH09fN8bGjE1F0Ix78glBWA.webp",
     shortDescription: "Police, fire and EMS uniforms for both genders with rank variants and patches.",
     description:
       "A uniform set covering the three emergency services, drawn to one standard so a joint scene does not look like three different servers. Includes patrol, tactical, dress and utility variants, rank insignia from officer to command, and separate male and female meshes that actually fit rather than being scaled copies. Patches are on their own layer for rebranding.",
@@ -1120,6 +1149,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-024",
     title: "Civilian Clothing Collection",
     slug: "civilian-clothing-collection",
+    images: ["gaming/civilian-clothing-collection/cover-9JbiRZfxGUooNC4zvXzVEAxgywsu1y.webp","gaming/civilian-clothing-collection/gallery-01-TNLc3awI9nZ4vyLRuxyWGjZhFjUWLw.webp","gaming/civilian-clothing-collection/gallery-02-qABQO3ErCRrtM4dCowV4poyBAAKzYe.webp","gaming/civilian-clothing-collection/gallery-03-hk0mCQ2CmZauIHyg7FblZfxM6rhFu0.webp","gaming/civilian-clothing-collection/gallery-04-3Frj3D737LrYgWv50cD5371Km78lEp.webp"],
+    cardImage: "gaming/civilian-clothing-collection/cover-card-iW5ESo20jcPDf9HQRs8dE8MQtYjr03.webp",
     shortDescription: "Over 200 civilian clothing items across tops, legs, shoes and accessories.",
     description:
       "A civilian wardrobe with enough range that players stop looking like the same six characters. Over 200 items across tops, jackets, legwear, footwear and accessories, split between male and female with correct meshes for each. Everything shares one texture standard, so mixing items from different sets does not produce a resolution mismatch.",
@@ -1185,6 +1216,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-025",
     title: "Custom Ped Model Pack",
     slug: "custom-ped-model-pack",
+    images: ["gaming/custom-ped-model-pack/cover-W99TgqNtMvddbFBFHXygc765HAtCAy.webp","gaming/custom-ped-model-pack/gallery-01-OJjRo7P0e7ZHxtPI4PA9ak7Y421MRs.webp","gaming/custom-ped-model-pack/gallery-02-pXCnpmbsHYJk3AB6kherUWtt3urS0e.webp","gaming/custom-ped-model-pack/gallery-03-BkRuXKUS7eLaLNNizRwa2NFKeLMrmN.webp","gaming/custom-ped-model-pack/gallery-04-YV8NARwfArtmMCm2XBJaXvogELEJV5.webp"],
+    cardImage: "gaming/custom-ped-model-pack/cover-card-XnZRrwCbSRmn5ICWrWlSPVrIAUYeXL.webp",
     shortDescription: "Ten original character models with rigged faces, LODs and clothing component support.",
     description:
       "Ten original peds built to the game's own rig, so they animate correctly rather than sliding through emotes. Each has a rigged face with working expressions, three LOD levels, and clothing component support so players can dress them from your existing wardrobe rather than being stuck with a baked outfit.",
@@ -1251,6 +1284,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-026",
     title: "Modern Weapon Pack",
     slug: "modern-weapon-pack",
+    images: ["gaming/modern-weapon-pack/cover-359rNcuLh8z21muTFGsxnzOBzEwqn6.webp","gaming/modern-weapon-pack/gallery-01-RjPmPaUhUREPRaycRjRZ5rXhQ0fxj9.webp","gaming/modern-weapon-pack/gallery-02-5meHB9zMkiNDNIEHJezxO6NVKPwqAL.webp","gaming/modern-weapon-pack/gallery-03-I1wB9BJuSWfAx9QYVM3o1LAYgq0LDI.webp","gaming/modern-weapon-pack/gallery-04-kuLYbnG5nqtKFAwx30iOF4qhR9a0rp.webp"],
+    cardImage: "gaming/modern-weapon-pack/cover-card-XVpuzEjueJ3y8tbtoEWAlsbyBo94NI.webp",
     shortDescription: "Fifteen weapon models with attachments, custom audio and balanced ballistics.",
     description:
       "Fifteen weapons modelled to a consistent standard with working attachment points for optics, suppressors, grips and lights. Ballistics are balanced against each other rather than each weapon being tuned alone, so damage, range and recoil form a coherent ladder. Includes custom firing audio and correct animations for each class.",
@@ -1318,6 +1353,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-027",
     title: "Emote & Animation Pack",
     slug: "emote-animation-pack",
+    images: ["gaming/emote-animation-pack/cover-Tw51FxoQtbXKCb3DWKOgUwWm7KVLtP.webp","gaming/emote-animation-pack/gallery-01-fz0nqPnYSQuuxHaxDtKulgOUca2X5Y.webp","gaming/emote-animation-pack/gallery-02-4M5tBFHPTrdHpPjKxttsBVuMpBss5a.webp","gaming/emote-animation-pack/gallery-03-vs0dqhcsUY8JnO3H1WLhu2pIRo6gyT.webp","gaming/emote-animation-pack/gallery-04-4BNUNJdZZz75FVcL5Sa3AHgkUlK1o7.webp"],
+    cardImage: "gaming/emote-animation-pack/cover-card-lBfrVAOHawfLAtZSrV2vf7VvNGYBVE.webp",
     shortDescription: "Over 300 emotes and animations with a searchable in-game menu and keybinds.",
     description:
       "More than 300 animations covering everyday actions, social emotes, props, dances and paired interactions. The menu is searchable and supports favourites and keybinds, so players are not scrolling a wall of names mid-scene. Paired emotes have a consent prompt rather than snapping another player into position.",
@@ -1383,6 +1420,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-028",
     title: "Roleplay Job Animations",
     slug: "roleplay-job-animations",
+    images: ["gaming/roleplay-job-animations/cover-sagBj6jldfrw3ZdWZOAfZtJ43tvouk.webp","gaming/roleplay-job-animations/gallery-01-dRPLs5md60Lq2ycKyZfunJhrma9Wrw.webp","gaming/roleplay-job-animations/gallery-02-IRgbB63ui2KcpU25NDutoqnKUcO90A.webp","gaming/roleplay-job-animations/gallery-03-LkhouymytEf00Su46eqzK2AmKVN8Ui.webp","gaming/roleplay-job-animations/gallery-04-iikpdzzeN3P8zQtZmIJWjwZnZKb367.webp","gaming/roleplay-job-animations/gallery-05-3xml2iEFjEtYaW4jfO2ihW3j55EJ7d.webp"],
+    cardImage: "gaming/roleplay-job-animations/cover-card-tdr2Tev68LDzcixYWiKoABUTAiYFK6.webp",
     shortDescription: "Job-specific animation sets for mechanics, medics, police and service work.",
     description:
       "Animation sets built for the jobs servers actually run. Mechanics get repair, inspection and tyre-change sequences with the right props; medics get treatment and stretcher animations; police get search, cuff and evidence actions. Each set is scripted as a sequence rather than a single loop, so an action reads as a task being performed.",
@@ -1440,6 +1479,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-029",
     title: "Emergency Siren Pack",
     slug: "emergency-siren-pack",
+    images: ["gaming/emergency-siren-pack/cover-jbMF1xlqIjvHr1RXzLslmxPsTHFFDk.webp","gaming/emergency-siren-pack/gallery-01-Ufe6rINGd7gO9U8dtlo1Z0Po4JwpE2.webp","gaming/emergency-siren-pack/gallery-02-dGxCQ0S1oYd6QuqLGYZeJewPSsyLz8.webp"],
+    cardImage: "gaming/emergency-siren-pack/cover-card-cBLeU1d7wFb510VIpKmWG28sIwVnAS.webp",
     shortDescription: "Twenty-four siren tones with realistic falloff, horn layers and per-vehicle mapping.",
     description:
       "Twenty-four siren tones sampled and mixed for in-game use rather than lifted from stock libraries. Each has correct distance falloff so a siren four blocks away sounds like it, plus a separate horn layer that can be triggered independently. Mapping is per vehicle, so your fire apparatus does not share a tone with the patrol fleet.",
@@ -1514,6 +1555,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-030",
     title: "Vehicle Engine Sound Pack",
     slug: "vehicle-engine-sound-pack",
+    images: ["gaming/vehicle-engine-sound-pack/cover-bwD9dlzTuyVCRFEHivdUPHHiOwCLxo.webp","gaming/vehicle-engine-sound-pack/gallery-01-SKe3QszHOuEV6MTxTCFUoVSWG4X0so.webp","gaming/vehicle-engine-sound-pack/gallery-02-qrTfIbjidjsWJZK4gIetO8FmOLTdwC.webp"],
+    cardImage: "gaming/vehicle-engine-sound-pack/cover-card-HNnIdzpS0J2HPF4xPlWYtGcwx2QxuW.webp",
     shortDescription: "Forty engine audio profiles covering four-cylinder through V12 and electric.",
     description:
       "Forty engine profiles spanning small four-cylinders, tuned turbos, big-displacement V8s, V12s and electric drivetrains. Each has correct load and RPM layers so the sound changes with what the car is doing rather than just getting louder. Includes turbo spool, blow-off and exhaust pop layers you can enable per profile.",
@@ -1579,6 +1622,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-031",
     title: "FiveM Anticheat Suite",
     slug: "fivem-anticheat-suite",
+    images: ["gaming/fivem-anticheat-suite/cover-xNEY9EZOa8kz4dzToZe6e2tpmVAUAE.webp","gaming/fivem-anticheat-suite/gallery-01-vKNoHG9yr3dmJGg1Gi2rGhjowovYOI.webp","gaming/fivem-anticheat-suite/gallery-02-gwkqEnGWJwQRRJx2aVZ2Tojo83MftH.webp"],
+    cardImage: "gaming/fivem-anticheat-suite/cover-card-bPPUxAv2Yn0lORX66BFXYSp7ZHVgm0.webp",
     shortDescription: "Server-side cheat detection with event validation, injection blocking and an admin log.",
     description:
       "Detection that runs server-side, because anything living on the client is negotiable. Validates events against what the player could actually have triggered, blocks the common injection vectors, catches resource tampering, and logs every action with enough context to review a decision later. Ships with sane defaults and a tuning guide so you are not banning your own staff on day one.",
@@ -1663,6 +1708,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-032",
     title: "Hospital MLO",
     slug: "hospital-mlo",
+    images: ["gaming/hospital-mlo/cover-hrCRbahvbpg45zJDykvTDMK9nBBMNE.webp","gaming/hospital-mlo/gallery-01-XgXhMIvUOtD8N0ZASBKOWwx748mbX3.webp","gaming/hospital-mlo/gallery-02-MzFZIz0cmrZzVY0u2EVa6SIcoSZcWr.webp","gaming/hospital-mlo/gallery-03-ZGM47uFyQBcIid0r5WE3hgVHKcdulq.webp","gaming/hospital-mlo/gallery-04-40c2RbdjzH17XVAacMcYbr5DVKxdP1.webp","gaming/hospital-mlo/gallery-05-0RheIP1DXaV4kDZk96PDoBs6YuZrFo.webp"],
+    cardImage: "gaming/hospital-mlo/cover-card-s1i9v3LreeGGw0X5VuCFO3HB70SK2V.webp",
     shortDescription: "A working hospital: emergency bays, surgery, wards, morgue and a helipad.",
     description:
       "A hospital laid out the way medical roleplay actually runs. Ambulance bays open directly onto triage, surgery and imaging sit on the same corridor, and the ward block is sized for multiple simultaneous patients rather than one bed in a room. Includes a morgue, a pharmacy store with lockable points, staff areas and a rooftop helipad.",
@@ -1721,6 +1768,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-033",
     title: "Mechanic Workshop MLO",
     slug: "mechanic-workshop-mlo",
+    images: ["gaming/mechanic-workshop-mlo/cover-tLQ87brZ5ATyFW4iFPx72YI7IIvO4n.webp","gaming/mechanic-workshop-mlo/gallery-01-ExOicqBM9JjeGvPjesJSaixWgnXkgc.webp","gaming/mechanic-workshop-mlo/gallery-02-1yyRq8f7t4OyiQzU4CeId4TdDQv7Lg.webp","gaming/mechanic-workshop-mlo/gallery-03-pAg3URy8jqux3GtPUfprhnCr4sUr1V.webp","gaming/mechanic-workshop-mlo/gallery-04-H1o2bVzObLpdPYzjO6lilhTKnUhSfV.webp","gaming/mechanic-workshop-mlo/gallery-05-gskfO8Y5PNh6wY1RAq9ZnYmCoxr8l9.webp"],
+    cardImage: "gaming/mechanic-workshop-mlo/cover-card-5P4T8YXXEZowsVdF1lNjYseT1KvmY2.webp",
     shortDescription: "A working garage with lifts, a paint booth, parts store and customer desk.",
     description:
       "A mechanic workshop built around the job loop: vehicles come in through a roller door, go onto one of four lifts, and the parts store and paint booth are both a short walk from the bay. Includes a customer-facing desk and waiting area so repair roleplay does not happen in a corner of an empty warehouse.",
@@ -1777,6 +1826,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-034",
     title: "Banking System",
     slug: "banking-system",
+    images: ["gaming/banking-system/cover-7dkntzDoog10nvjP80aV9I5I3xiF5c.webp","gaming/banking-system/gallery-01-wZOPRDNvJ3lj5KdHdiVXks4KoMdC7N.webp","gaming/banking-system/gallery-02-rdKRYD0w3Njf9aGrZNzXxPhzLZ18se.webp","gaming/banking-system/gallery-03-fvMaS51KtsYl5IpoMXHu1YPIlMSS7a.webp","gaming/banking-system/gallery-04-diMZs2QFbh5pmGatrNvUqvIg9gCjdy.webp"],
+    cardImage: "gaming/banking-system/cover-card-a5oiWuXdYwTwT5zX1jgXyQQcJSkR4z.webp",
     shortDescription: "Accounts, transfers, cards, loans and an ATM network with a full transaction log.",
     description:
       "A banking layer for servers running a real economy. Players get personal and business accounts, transfers with a searchable history, physical cards that can be lost or stolen, and loans with interest that actually accrues. ATMs are placed across the map with configurable limits, and every movement of money is logged so staff can investigate a dispute.",
@@ -1847,6 +1898,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-035",
     title: "Loading Screen Pack",
     slug: "loading-screen-pack",
+    images: ["gaming/loading-screen-pack/cover-Mkj6dRmEtG6skK68HBQC73rm8KnLE5.webp","gaming/loading-screen-pack/gallery-01-iMsJBfBITs7aqoirn5C91BU0EUFNcs.webp","gaming/loading-screen-pack/gallery-02-Kt01ey6Ol1RiqgUJaPUElwLoGutdko.webp"],
+    cardImage: "gaming/loading-screen-pack/cover-card-Ared8UMMDkonWViPEuAD4pgYRw9xBK.webp",
     shortDescription: "Six animated loading screens with music, server rules and a rotating tip feed.",
     description:
       "Six loading screens that give players something to read instead of a static logo. Each has a rotating tip and rules feed you edit as plain text, a music player with volume control that remembers the setting, and a live connection progress indicator. All six share one editable brand layer, so changing your colours and logo is done once.",
@@ -1916,6 +1969,8 @@ const FIVEM_DRAFTS: Draft[] = [
     id: "gp-036",
     title: "Complete FiveM Server Package",
     slug: "complete-fivem-server-package",
+    images: ["gaming/complete-fivem-server-package/cover-FNiEFkYRMh3vcuLLBSvFg02QrTKnPa.webp","gaming/complete-fivem-server-package/gallery-01-5o8BOTUzWcGg4Jvua7XTqVSJBa2oe3.webp","gaming/complete-fivem-server-package/gallery-02-0JrfFjwFofOgICNDYQD6s1jcYGlAJW.webp"],
+    cardImage: "gaming/complete-fivem-server-package/cover-card-wUhtN9du5BWzqJBguqMqA77FVCQ29d.webp",
     shortDescription: "A full server in one purchase: MLOs, vehicles, clothing, systems, UI and anticheat.",
     description:
       "The widest FiveM package DistroSource sells, aimed at launching a serious roleplay server rather than assembling one over six months. Combines the core MLOs, the emergency and tuner vehicle packs, EUP and civilian clothing, the inventory and phone interfaces, the banking and garage systems, the anticheat suite and a loading screen — pre-configured to work together, with a setup guide that sequences the whole build.",
@@ -2011,6 +2066,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-011",
     title: "Medieval Spawn Map",
     slug: "medieval-spawn-map",
+    images: ["gaming/medieval-spawn-map/cover-3jBhCwOcTA2RIWC0M2AHLg5wSVW9eV.webp","gaming/medieval-spawn-map/gallery-01-l4eK38KHb7oKBvai2jTWf1YXoKGatW.webp","gaming/medieval-spawn-map/gallery-02-C4PBoRPvkh6uNkw9ovduQgV2QwzlnR.webp","gaming/medieval-spawn-map/gallery-03-JRmYAXhBBJRmVXI5QZUjfBMAn1dgZj.webp","gaming/medieval-spawn-map/gallery-04-0XD5yE4O18UQh6DDv0SKNiqFmfMvmx.webp"],
+    cardImage: "gaming/medieval-spawn-map/cover-card-8JFw2jL7dxHQHxAvQCbhswZLjDGqLW.webp",
     shortDescription: "A walled medieval spawn town with shops, portals and a working market square.",
     description:
       "A spawn built to hold a crowd. The market square is sized so a full server can gather without players clipping through each other, shop frontages are pre-marked for villager or sign shops, and the portal hall gives you six clearly labelled destinations. Terrain around the walls is finished, so the build does not stop abruptly at the edge.",
@@ -2075,6 +2132,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-012",
     title: "Premium Survival Spawn",
     slug: "premium-survival-spawn",
+    images: ["gaming/premium-survival-spawn/cover-OlbKLrFu12xqnWY8NtLsBtjL4dM0Oy.webp","gaming/premium-survival-spawn/gallery-01-pNr7GCquQFRIG0tjlsDLOtYThGfjMu.webp","gaming/premium-survival-spawn/gallery-02-ETd66SDPb6j7iMOhNgFwzf7UT09ST4.webp","gaming/premium-survival-spawn/gallery-03-mvstbIXbBQFZms4fvq7c6mAeK9IaVP.webp","gaming/premium-survival-spawn/gallery-04-nnU3DiQCMOL3ofXu2mJwpckHEK1Ym3.webp"],
+    cardImage: "gaming/premium-survival-spawn/cover-card-Jolrqq28CTqAnNJr2diRZhJfhu16Z5.webp",
     shortDescription: "A compact survival hub with protected zones, shops and a clear route out to the wild.",
     description:
       "A survival spawn that gets players out into the world quickly. The hub is deliberately compact — a shop row, a warp board and a clearly signposted exit path — with a protection boundary marked in the schematic so region setup is a single command. Includes a spawn platform arranged so new arrivals face the exit.",
@@ -2134,6 +2193,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-013",
     title: "Modern Lobby Map",
     slug: "modern-lobby-map",
+    images: ["gaming/modern-lobby-map/cover-KvrB3gWtChGO67dsomz8CqmkO7oROr.webp","gaming/modern-lobby-map/gallery-01-MnRicYYq7eF2JnSKQ7EN69C9svggSe.webp","gaming/modern-lobby-map/gallery-02-9aFcvssIhOItWV9rVGsDIzhfLAPAyO.webp","gaming/modern-lobby-map/gallery-03-GpqBsvULMJ4S8zodekI0BUzvMCI6Ov.webp"],
+    cardImage: "gaming/modern-lobby-map/cover-card-nTakIJHqudpHit6aRLWQv3NUGSaBgr.webp",
     shortDescription: "A clean minigame lobby with game portals, leaderboards and a cosmetics area.",
     description:
       "A lobby for a minigame network. Game portals sit on a circular walkway so no mode is buried, leaderboard walls are sized for readable holograms, and there is a separate cosmetics area that keeps the main floor uncluttered. Neutral palette so it reads as your brand once your own signage goes in.",
@@ -2193,6 +2254,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-014",
     title: "RPG Interface Pack",
     slug: "rpg-interface-pack",
+    images: ["gaming/rpg-interface-pack/cover-psAky1A08n1U2E4LznRIg9z5sn5diI.webp","gaming/rpg-interface-pack/gallery-01-BJS4JwUJmMPqzw1okTOVUcRrZ5lqjl.webp","gaming/rpg-interface-pack/gallery-02-v4gd6tkRAGvqLJh6PvZphanl0QezEk.webp","gaming/rpg-interface-pack/gallery-03-Dtu1W7RPMGLrE1oRtQmSCXy95Qi6sF.webp"],
+    cardImage: "gaming/rpg-interface-pack/cover-card-47XJTZxtQZ2JyQqaako7jZmtYgBB45.webp",
     shortDescription: "Menus, quest logs and stat panels as a coherent resource-pack interface set.",
     description:
       "A complete interface set for an RPG server, drawn as one system rather than a folder of unrelated textures. Covers inventory and container screens, a quest log, a stat and skill panel, and a shop layout. Uses standard GUI dimensions so it drops onto existing menu plugins without re-mapping coordinates.",
@@ -2270,6 +2333,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-015",
     title: "Economy Server Configuration",
     slug: "economy-server-configuration",
+    images: ["gaming/economy-server-configuration/cover-qijvaYGiNkWogmKSjxrroFjSIBIGLF.webp","gaming/economy-server-configuration/gallery-01-6MjXQO5mPWmqcndTIHQNeuP8EIt6L8.webp","gaming/economy-server-configuration/gallery-02-2dhQvzdS6ZC27hmILTeGsl0iYM45Kf.webp"],
+    cardImage: "gaming/economy-server-configuration/cover-card-PeLGuysmV7oJeA4gokd6u2q9CuL9Bd.webp",
     shortDescription: "A tuned economy config: shop prices, payouts and sinks that hold their value.",
     description:
       "A full economy configuration for a survival or towny server, tuned so currency does not inflate away in the first month. Shop buy and sell prices are set against each other to close the obvious arbitrage loops, job payouts are balanced against playtime, and there are working money sinks so the top end of the economy has somewhere to spend.",
@@ -2360,6 +2425,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-016",
     title: "Adventure Map Collection",
     slug: "adventure-map-collection",
+    images: ["gaming/adventure-map-collection/cover-bcdoweHU5SIqXmh1xYFiu3ThKfrRcP.webp","gaming/adventure-map-collection/gallery-01-O72C5BbQokrGyTqZjDNSl72wwZJnc7.webp","gaming/adventure-map-collection/gallery-02-vc9nijmz0n2mmswUqpHfAKwiBUBBcJ.webp","gaming/adventure-map-collection/gallery-03-W5dcDgsdVatt7VkfFXaPoInkj2JMYk.webp","gaming/adventure-map-collection/gallery-04-ozxUXHVfENp31fxsQqpGOUW2E2WU05.webp"],
+    cardImage: "gaming/adventure-map-collection/cover-card-BNRvg5zByJ8HfKuZJBwlV9jVrOZYGc.webp",
     shortDescription: "Four finished adventure maps with objectives, checkpoints and boss arenas.",
     description:
       "Four self-contained adventure maps that can run as a rotation or as separate worlds. Each has a defined objective path, checkpoints that survive a server restart, and a final arena. Command blocks and structure files are documented, so you can retune difficulty without reverse-engineering the build.",
@@ -2419,6 +2486,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-017",
     title: "Premium Resource Pack",
     slug: "premium-resource-pack",
+    images: ["gaming/premium-resource-pack/cover-00PV8A263fIKeLNikQcYnAPFv19tpc.webp","gaming/premium-resource-pack/gallery-01-8R21gnrlhgxZfbEeaGoyppfFEYmKc5.webp","gaming/premium-resource-pack/gallery-02-3WHw1YfR4HsnKCB1nfks8hWUzVveNo.webp","gaming/premium-resource-pack/gallery-03-Wpjf7YbENWxesuTFPQ4PPpgXrN0jFl.webp"],
+    cardImage: "gaming/premium-resource-pack/cover-card-J5h8sjvtkRunAfdaDQSZJW3x7JDN7f.webp",
     shortDescription: "A consistent 32× texture set with custom items, UI and sounds.",
     description:
       "A 32× resource pack drawn to one palette, so blocks, items and interface all belong together. Includes custom model data ranges reserved for server items, a matching UI skin and a small replacement sound set. Ships with the source files so you can extend it without guessing at the palette.",
@@ -2483,6 +2552,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-018",
     title: "Server Essentials Pack",
     slug: "minecraft-server-essentials-pack",
+    images: ["gaming/minecraft-server-essentials-pack/cover-HsPDS6DMbi2jID7WbhdLOvLKQIZrFZ.webp","gaming/minecraft-server-essentials-pack/gallery-01-BPxIPBarr26yCLgZV7bRqlc4mMnFds.webp","gaming/minecraft-server-essentials-pack/gallery-02-PNaimGFewnRu52MsEDYiUOVkeu6490.webp","gaming/minecraft-server-essentials-pack/gallery-03-2CSRnlSiSBMroPxPekAYHKTTkz1Gvw.webp"],
+    cardImage: "gaming/minecraft-server-essentials-pack/cover-card-XYqZt8igDx8y2gZM8HadFdRGphDce2.webp",
     shortDescription: "Permissions, ranks, warps and moderation configured as one coherent setup.",
     description:
       "The unglamorous half of running a server, already configured: a permission tree that does not collapse when you add a rank, staff roles with sensible escalation, warps and homes tuned for a public server, and moderation defaults that catch the common problems. Written to be edited, with comments explaining why each value is what it is.",
@@ -2559,6 +2630,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-037",
     title: "Custom Enchantments Plugin",
     slug: "custom-enchantments-plugin",
+    images: ["gaming/custom-enchantments-plugin/cover-26eD7GSbsQ2OC1tGwup4vEG7pEr7V9.webp","gaming/custom-enchantments-plugin/gallery-01-kJ4finP2cO0tjekwaScXcorK6VuHyU.webp","gaming/custom-enchantments-plugin/gallery-02-CXX2OeGJSdakicMQnPmptqViYXldmw.webp"],
+    cardImage: "gaming/custom-enchantments-plugin/cover-card-D5dl9DAZooeWFgfbIWuuPCse3fsqgq.webp",
     shortDescription: "Eighty custom enchantments with an enchanter GUI, tiers and full config control.",
     description:
       "Eighty enchantments that go beyond the vanilla set, grouped into tiers so progression means something. Players use an enchanter GUI rather than memorising commands, and every enchantment has its own config block — chance, tier, applicable items, conflicts and cost — so you can retune the whole system without touching code. Conflicts are declared, so incompatible enchantments cannot stack.",
@@ -2638,6 +2711,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-038",
     title: "Crates & Rewards Plugin",
     slug: "crates-rewards-plugin",
+    images: ["gaming/crates-rewards-plugin/cover-1DYEEPSaZacVdfM269Lh5qMOixlFQI.webp","gaming/crates-rewards-plugin/gallery-01-hGmNl0YyUT2XZmTDWxp8ZgD8Ihbak9.webp","gaming/crates-rewards-plugin/gallery-02-hFSoXKh8UP83PIDAqE7T6Pr1jbltIK.webp"],
+    cardImage: "gaming/crates-rewards-plugin/cover-card-8fW4POkEWc0cgPdNE4W9epaCfhU3zh.webp",
     shortDescription: "Animated crates with weighted loot tables, keys, previews and milestone rewards.",
     description:
       "A crate system with animations players will actually stop to watch and loot tables you can reason about. Weights are declared as numbers rather than percentages that drift, every crate has a preview GUI so players see the pool before spending a key, and milestone rewards give something back for repeated opens. Keys are items, so they trade and sell like anything else.",
@@ -2718,6 +2793,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-039",
     title: "Player Shops Plugin",
     slug: "player-shops-plugin",
+    images: ["gaming/player-shops-plugin/cover-5MVAIbejk3OLzMXN5UADan1OGJZvqu.webp","gaming/player-shops-plugin/gallery-01-h8xtuaxd0JLXJppcCeJO6nqDZX8y95.webp","gaming/player-shops-plugin/gallery-02-IM7OAgs6qhUFWuWm6gTQLgdQTNfh8O.webp","gaming/player-shops-plugin/gallery-03-fuIdyOiCluJ3Hx67Fgwqet2JBKvyiZ.webp"],
+    cardImage: "gaming/player-shops-plugin/cover-card-5d5tUaVoRhZUbCjwtsdlDckFvwv3y5.webp",
     shortDescription: "Chest shops with a searchable market, price history and transaction logging.",
     description:
       "A player-to-player economy that scales past a wall of signs. Players create chest shops with one command, and every shop is indexed into a searchable market GUI so buyers find stock without walking the map. Price history is tracked per item, so both sides can see what things actually sell for, and every transaction is logged for dispute resolution.",
@@ -2787,6 +2864,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-040",
     title: "Minigame Framework",
     slug: "minigame-framework",
+    images: ["gaming/minigame-framework/cover-DWMbqDHjglnCMjluSn2Fa6blmKkdJU.webp","gaming/minigame-framework/gallery-01-vHl2Q7KBYXpla4ZFjICJzi6JKFyxTK.webp","gaming/minigame-framework/gallery-02-Tyqx6e4Jldt3VMwHgbOErHEqoNnfMS.webp","gaming/minigame-framework/gallery-03-Z661IENFx97WRRBEWkJoNAeIm9a85R.webp","gaming/minigame-framework/gallery-04-5tcJJNVebho8058Wkcx161StHVjSdY.webp"],
+    cardImage: "gaming/minigame-framework/cover-card-bI5qg2d1UtGSpESFUQ1Fi6LADg9AYb.webp",
     shortDescription: "An arena framework with queues, teams, scoreboards and four ready-made games.",
     description:
       "The plumbing every minigame server ends up writing badly: queues, arena resets, team assignment, scoreboards, spectating and rewards, all handled once. Four complete games ship with it, and the API is documented so you can add your own without touching framework internals. Arenas reset from schematics, so a broken round leaves nothing behind.",
@@ -2859,6 +2938,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-041",
     title: "Skyblock Island Pack",
     slug: "skyblock-island-pack",
+    images: ["gaming/skyblock-island-pack/cover-Q2qVfFco5rMjtEUCDyFNFTLPeortv6.webp","gaming/skyblock-island-pack/gallery-01-8Sg25FgfC64zMoLMgvGHIQR7M0avUr.webp","gaming/skyblock-island-pack/gallery-02-IQL6g8WddPNlTK753EhDv0Xg4o1RlW.webp","gaming/skyblock-island-pack/gallery-03-3JrMfyJVl3PXJS3fMqScFxxUXcKFKh.webp"],
+    cardImage: "gaming/skyblock-island-pack/cover-card-WII8VK5ZT5ovljpcMCGdZjUa2dmBcN.webp",
     shortDescription: "Twelve starter island schematics with balanced resources and progression notes.",
     description:
       "Twelve island designs for a skyblock server, each with a different resource profile so island choice is an actual decision rather than cosmetic. Progression is documented — what each island gives you early, where it bottlenecks and what the intended route out is — so you can balance your own generators and shop prices against them.",
@@ -2916,6 +2997,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-042",
     title: "Prison Server Map",
     slug: "prison-server-map",
+    images: ["gaming/prison-server-map/cover-Y5E370WHzgSEmC22REvDr2OrodJmUc.webp","gaming/prison-server-map/gallery-01-HiE600AQcGWZEnDsTp7zX2aS1LtJm0.webp","gaming/prison-server-map/gallery-02-Cf3QP0ogXNUdntt82S73IMZ2YtoTHS.webp","gaming/prison-server-map/gallery-03-rOGrCesyHSHa17t47n0r6oW6QohbWe.webp"],
+    cardImage: "gaming/prison-server-map/cover-card-pMfvPS7BwgodsnoIYfLOqDRKm9AUbb.webp",
     shortDescription: "A full prison build with mine tiers, cell blocks, plots and a guard tower.",
     description:
       "A prison map laid out for the gamemode's actual loop: rank up through mine tiers, move to a better cell block, eventually get plot access. Mines are sized so higher tiers feel like progress, cell blocks are numbered for plugin assignment, and the shop, plot and PvP areas are separated so a fight does not spill into the trading floor.",
@@ -2973,6 +3056,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-043",
     title: "Minecraft Anticheat Configuration",
     slug: "minecraft-anticheat-configuration",
+    images: ["gaming/minecraft-anticheat-configuration/cover-fjzsjmc4sIJlTVh6MLQp3WpGNnfGRy.webp","gaming/minecraft-anticheat-configuration/gallery-01-N3mUqgZZy465Go8V6STL6ZFEnD2OVY.webp","gaming/minecraft-anticheat-configuration/gallery-02-cwxCnD9CRhK7VxZxED3Z8xTiuvfkKy.webp","gaming/minecraft-anticheat-configuration/gallery-03-wIlj4E7kgDBuDyYUwaqVS0490tdZeO.webp"],
+    cardImage: "gaming/minecraft-anticheat-configuration/cover-card-nSGudB5GdosUbNlECxZgHNOBrvRbov.webp",
     shortDescription: "Tuned anticheat configs for the common plugins, with false-positive notes per check.",
     description:
       "Anticheat plugins ship with defaults tuned for nobody in particular, and the result is either a wall of false positives or nothing caught at all. This is a tuned configuration set for the common anticheat plugins, with every check documented: what it catches, what legitimately trips it, and how far you can tighten it before your own players start getting flagged.",
@@ -3046,6 +3131,8 @@ const MINECRAFT_DRAFTS: Draft[] = [
     id: "gp-044",
     title: "Ambient Music Pack",
     slug: "ambient-music-pack",
+    images: ["gaming/ambient-music-pack/cover-H8G9CclTgs5RGw4fHuwh0FpCK2jOzf.webp","gaming/ambient-music-pack/gallery-01-e9sx4tnRTOHlUheI7ja0y9pFzOJybw.webp","gaming/ambient-music-pack/gallery-02-OVQsMXq5tRoew1a5zzuLpUAwZYjJJv.webp"],
+    cardImage: "gaming/ambient-music-pack/cover-card-878VA6kcuh9oPnKgo8qqwx2PMAdvUM.webp",
     shortDescription: "Thirty original ambient tracks with biome triggers and smooth crossfading.",
     description:
       "Thirty original ambient tracks written for a server rather than lifted from a stock library, covering exploration, settlement, tension and night. Biome and region triggers switch tracks based on where the player actually is, with crossfading so the change is not a hard cut. All tracks are cleared for commercial server use, including monetised servers.",
@@ -3131,6 +3218,8 @@ const OTHER_DRAFTS: Draft[] = [
     id: "gp-019",
     title: "Gaming Community UI Bundle",
     slug: "gaming-community-ui-bundle",
+    images: ["gaming/gaming-community-ui-bundle/cover-JH71ZWTHijH81LEQmNB1F4AVqDVzuK.webp","gaming/gaming-community-ui-bundle/gallery-01-utFq5Nb01h8I2RERHy6fM6ZioHFbOd.webp","gaming/gaming-community-ui-bundle/gallery-02-ZKczZzPvIUw8fcaqqr2cX9wwW1QLd8.webp","gaming/gaming-community-ui-bundle/gallery-03-O9MjUdKeGZiz7PFndUqJaTvuJ4jCvy.webp"],
+    cardImage: "gaming/gaming-community-ui-bundle/cover-card-haolsdTPtCjpajiLnOtVnpAmUufH3a.webp",
     shortDescription: "Discord, web and in-game graphics drawn as one community brand set.",
     description:
       "A brand kit for a gaming community, covering the places players actually see you: Discord server graphics, role and channel icons, web banners, and in-game overlay elements. Everything is drawn from one palette and type pairing, so your Discord and your server do not look like two different organisations. Source files included.",
@@ -3198,6 +3287,8 @@ const OTHER_DRAFTS: Draft[] = [
     id: "gp-020",
     title: "Complete Game Server Starter Pack",
     slug: "complete-game-server-starter-pack",
+    images: ["gaming/complete-game-server-starter-pack/cover-9jdVq6f5HbZAZOYKkGQh5UefGftMDh.webp","gaming/complete-game-server-starter-pack/gallery-01-V7N52pt4TpTD4qK89o6vzuUAwsbeXj.webp","gaming/complete-game-server-starter-pack/gallery-02-AmXNuY1KAAXxR5MH0DDFV8f493nfEg.webp","gaming/complete-game-server-starter-pack/gallery-03-VQKB6WfHzXSp8S0ao4ZPlxapmqxvUP.webp"],
+    cardImage: "gaming/complete-game-server-starter-pack/cover-card-DRAyphSItfDX5RWd6B13ErLeoh1g6j.webp",
     shortDescription: "Everything to launch a community: server assets, branding and launch documentation.",
     description:
       "The widest package in the Gaming department, aimed at someone launching a community from nothing. Combines server-side essentials, a full community brand set and the operational documentation — staff handbook, rules templates, launch checklist — that usually gets written badly at 2am the night before opening.",
@@ -3280,6 +3371,8 @@ const OTHER_DRAFTS: Draft[] = [
     id: "gp-045",
     title: "Discord Bot Suite",
     slug: "discord-bot-suite",
+    images: ["gaming/discord-bot-suite/cover-deOOfRb58GdzwdWEvHH68GV2QbObS2.webp","gaming/discord-bot-suite/gallery-01-VUWgjV7TwrQnbOgdTWlRrv537dAkmM.webp","gaming/discord-bot-suite/gallery-02-N3sDNkNP9U847GPem2kABZjyZA2xCx.webp","gaming/discord-bot-suite/gallery-03-TkcqqZLU179vjF26D7DRYvhuTMu9e4.webp","gaming/discord-bot-suite/gallery-04-9q05etHksl2dR1xwElk5hJB2VPyyln.webp","gaming/discord-bot-suite/gallery-05-3JXhw7hUcmXn9ZZppI7hukgp0wnBt4.webp"],
+    cardImage: "gaming/discord-bot-suite/cover-card-RFOLLbfIULA7x3TixbhK2SY3LTq9Gr.webp",
     shortDescription: "Server status, application forms, tickets and in-game linking in one bot.",
     description:
       "The four Discord bots most gaming communities end up running badly, replaced by one that does them properly: live server status with player count, staff and whitelist application forms with a review queue, a ticket system with transcripts, and account linking so Discord roles reflect in-game rank. Self-hosted, so your member data stays yours.",
@@ -3351,6 +3444,8 @@ const OTHER_DRAFTS: Draft[] = [
     id: "gp-046",
     title: "Esports Team Brand Kit",
     slug: "esports-team-brand-kit",
+    images: ["gaming/esports-team-brand-kit/cover-NKhHdIqUPoEMEKTGdQCuhvnaQtY2jI.webp","gaming/esports-team-brand-kit/gallery-01-hcoiqV9tAwdpq1lgWQ0JrL3lHcVFuW.webp","gaming/esports-team-brand-kit/gallery-02-9yeKc3FBqRiC4y9dPnXMJXxM92gd9o.webp","gaming/esports-team-brand-kit/gallery-03-T7gxdbuy0wYvUmm2JhDY9eRTTgBIUP.webp"],
+    cardImage: "gaming/esports-team-brand-kit/cover-card-5sUxEa2r7SS279qrXFAzbDFQq73kFY.webp",
     shortDescription: "A full competitive team identity: logo system, kits, socials and broadcast overlays.",
     description:
       "A complete visual identity for a competitive team or organisation. Includes a logo system that works from a 16px favicon to a jersey chest print, player card and roster templates, social layouts sized for every current platform, and broadcast overlays for streams. Everything is built from one grid and palette, and every file is editable.",

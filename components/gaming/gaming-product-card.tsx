@@ -31,7 +31,7 @@ export function GamingProductCard({ product, className }: { product: GamingProdu
             top-left corner it would caption. */}
         {hasRealImages(product.images) ? (
           <Image
-            src={resolveGamingImage(product.images[0])}
+            src={resolveGamingImage(product.cardImage ?? product.images[0])}
             alt=""
             fill
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"

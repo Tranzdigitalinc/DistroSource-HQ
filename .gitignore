@@ -12,6 +12,10 @@ __v0_jsx-dev-runtime.ts
 # Common ignores
 node_modules
 .next/
+
+# Gaming imagery render scratch — hundreds of PNG/WebP frames; the finished
+# assets live in Blob, not in git.
+.gaming-render/
 .DS_Store
 .env
 scripts/catalog-enhance/backups/
