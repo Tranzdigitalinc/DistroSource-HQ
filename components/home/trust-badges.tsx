@@ -1,74 +1,31 @@
-"use client"
+import { Zap, ShieldCheck, Headphones, Library } from "@/lib/storefront-icons"
+import { RevealGroup, RevealItem } from "@/components/motion/reveal"
 
-import { Zap, ShieldCheck, Headphones, Library, ICON_SIZE } from "@/lib/storefront-icons"
-import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
-import { cn } from "@/lib/utils"
-
-// Every line here is something a reviewer can verify on the live site. No
-// "real sample file" promises (downloads are still being finalised) and no
-// response-time guarantee — "typical" is the honest word.
 const badges = [
-  {
-    icon: Zap,
-    title: "Instant access",
-    body: "Paid products unlock in My Library the moment Polar confirms the payment. No shipping, no waiting.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Secure checkout",
-    body: "Payments are handled by Polar as merchant of record. DistroSource never sees or stores your card details.",
-  },
-  {
-    icon: Library,
-    title: "Re-download anytime",
-    body: "Purchases stay in your library. Lost a file or switched machines? Download it again from your account.",
-  },
-  {
-    icon: Headphones,
-    title: "Support by email",
-    body: "Order, download and licensing questions are answered by a person. Typical response within 1 business day.",
-  },
+  { icon: Zap, title: "Instant access", body: "Digital products are delivered after confirmed payment — no shipping or fulfilment delay." },
+  { icon: ShieldCheck, title: "Secure payment", body: "Payment details are handled by the selected checkout provider, not stored by DistroSource." },
+  { icon: Library, title: "Your library", body: "Eligible purchases remain available from your account so you can return to your files later." },
+  { icon: Headphones, title: "Human support", body: "Questions about orders, downloads and licensing can be handled through DistroSource support." },
 ]
 
 export function TrustBadges() {
   return (
-    <section className="border-t border-border bg-secondary/30">
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-16">
-        <Reveal className="mb-8 max-w-2xl">
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">How buying works</p>
-          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Straightforward, from checkout to download
-          </h2>
-        </Reveal>
-        <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" stagger={0.06}>
-          {badges.map((badge, i) => {
-            const highlighted = i === 0
-            return (
-              <RevealItem key={badge.title} className="h-full">
-                <div
-                  className={cn(
-                    "flex h-full flex-col gap-4 rounded-lg border p-6",
-                    highlighted ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card",
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "flex size-10 items-center justify-center rounded-md",
-                      highlighted ? "bg-primary-foreground/15 text-primary-foreground" : "bg-secondary text-foreground",
-                    )}
-                  >
-                    <badge.icon size={ICON_SIZE.feature} aria-hidden="true" />
-                  </span>
-                  <div>
-                    <h3 className="font-display text-base font-bold">{badge.title}</h3>
-                    <p className={cn("mt-1.5 text-sm leading-relaxed", highlighted ? "text-primary-foreground/85" : "text-muted-foreground")}>
-                      {badge.body}
-                    </p>
-                  </div>
-                </div>
-              </RevealItem>
-            )
-          })}
+    <section className="border-y border-border/70 bg-background">
+      <div className="mx-auto max-w-[94rem] px-4 py-14 sm:px-6 lg:px-8 lg:py-18">
+        <div className="mb-8 max-w-2xl">
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-primary">Buying on DistroSource</p>
+          <h2 className="mt-2 font-display text-3xl font-black tracking-[-0.04em] text-foreground">Confidence should feel quiet.</h2>
+        </div>
+        <RevealGroup className="grid gap-px overflow-hidden rounded-2xl border border-border/80 bg-border/70 sm:grid-cols-2 lg:grid-cols-4" stagger={0.045}>
+          {badges.map((badge) => (
+            <RevealItem key={badge.title} className="h-full bg-background">
+              <div className="h-full p-5 sm:p-6">
+                <badge.icon size={19} className="text-primary" aria-hidden="true" />
+                <h3 className="mt-7 font-display text-base font-black tracking-tight text-foreground">{badge.title}</h3>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">{badge.body}</p>
+              </div>
+            </RevealItem>
+          ))}
         </RevealGroup>
       </div>
     </section>
