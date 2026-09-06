@@ -86,7 +86,9 @@ export function GamingProductCard({ product, className }: { product: GamingProdu
           share a row there, so the footer stacks and Buy takes the full width.
           From sm up the original single row returns. */}
       <div className="flex flex-col gap-2 border-t border-border px-3.5 py-2.5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex min-w-0 items-baseline gap-1.5">
+        {/* flex-wrap: a long pair like "$199.99 $379.99" otherwise runs into
+            the View button. When tight, the struck-through price drops a line. */}
+        <div className="flex min-w-0 flex-wrap items-baseline gap-x-1.5">
           <span className="font-display text-base font-bold tabular-nums text-foreground">{formatUsd(product.price)}</span>
           {product.originalPrice && product.originalPrice > product.price && (
             <span className="text-xs text-muted-foreground line-through">{formatUsd(product.originalPrice)}</span>

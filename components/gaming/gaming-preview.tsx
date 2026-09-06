@@ -35,6 +35,78 @@ function hashArt(art: GamingArt) {
   return h.toString(36)
 }
 
+/* -------------------------------------------------------- post-processing */
+
+/**
+ * The difference between "vector illustration" and "rendered scene" is
+ * mostly what happens after the geometry: light sources bloom, shadows are
+ * soft, distant things blur, and the whole frame has grain. Flat fills and
+ * hard edges read as a diagram no matter how good the drawing is.
+ *
+ * These filters are shared by every scene. All of them are deterministic —
+ * feTurbulence seeds from a fixed value — so server and client agree.
+ */
+function PostProcessDefs({ id }: { id: string }) {
+  return (
+    <defs>
+      {/* Light bloom: blur a copy of the source and add it back underneath. */}
+      <filter id={`bloom-${id}`} x="-40%" y="-40%" width="180%" height="180%" colorInterpolationFilters="sRGB">
+        <feGaussianBlur stdDeviation="7" result="blur" />
+        <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1.6 0" result="bright" />
+        <feMerge>
+          <feMergeNode in="bright" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+
+      {/* Tighter bloom for small emitters — indicator lamps, city windows. */}
+      <filter id={`glow-sm-${id}`} x="-60%" y="-60%" width="220%" height="220%" colorInterpolationFilters="sRGB">
+        <feGaussianBlur stdDeviation="3" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+
+      {/* Soft contact shadow. */}
+      <filter id={`soft-${id}`} x="-30%" y="-60%" width="160%" height="220%">
+        <feGaussianBlur stdDeviation="4" />
+      </filter>
+
+      {/* Depth of field for far or out-of-focus elements. */}
+      <filter id={`dof-${id}`} x="-10%" y="-10%" width="120%" height="120%">
+        <feGaussianBlur stdDeviation="1.6" />
+      </filter>
+
+      {/* Film grain, laid over the finished frame at low opacity. */}
+      <filter id={`grain-${id}`} x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" stitchTiles="stitch" result="noise" />
+        <feColorMatrix in="noise" type="saturate" values="0" result="mono" />
+        <feComponentTransfer in="mono" result="grain">
+          <feFuncA type="linear" slope="0.5" intercept="-0.12" />
+        </feComponentTransfer>
+      </filter>
+
+      {/* Lens vignette and a faint warm-cool split, like graded footage. */}
+      <radialGradient id={`lens-${id}`} cx="50%" cy="50%" r="72%">
+        <stop offset="55%" stopColor="#000" stopOpacity="0" />
+        <stop offset="100%" stopColor="#000" stopOpacity="0.42" />
+      </radialGradient>
+    </defs>
+  )
+}
+
+/** Applied over every finished scene, under the caption. */
+function PostProcess({ id }: { id: string }) {
+  return (
+    <g style={{ pointerEvents: "none" }}>
+      <rect width="400" height="300" fill={`url(#lens-${id})`} />
+      <rect width="400" height="300" filter={`url(#grain-${id})`} opacity="0.18" style={{ mixBlendMode: "overlay" }} />
+    </g>
+  )
+}
+
 /* ------------------------------------------------------------- interiors */
 
 interface InteriorPalette {
@@ -148,8 +220,10 @@ function InteriorProp({
   const h = 42 * scale
   const tall = 74 * scale
 
+  // Soft contact shadow: blurred, so the prop sits on the floor instead of
+  // floating above a hard-edged disc.
   const shadow = (
-    <ellipse cx={cx} cy={floorY + 2} rx={w * 0.72} ry={6 * scale} fill="#000" opacity="0.32" />
+    <ellipse cx={cx} cy={floorY + 3} rx={w * 0.8} ry={7 * scale} fill="#000" opacity="0.45" filter={`url(#soft-${id})`} />
   )
 
   switch (kind) {
@@ -367,9 +441,17 @@ function Interior({ tone, props, id }: { tone: GamingInteriorTone; props: Gaming
         <line x1="400" y1="34" x2={BACK.x2} y2={BACK.y1 + 12} stroke={p.trim} strokeWidth="1" opacity="0.6" />
       </g>
 
-      {/* Back-wall opening: the light source the whole room reads from */}
+      {/* Back-wall opening: the light source the whole room reads from.
+          A bloomed copy sits behind it so the light bleeds into the wall. */}
+      <rect x={172} y={BACK.y1 + 12} width={56} height={BACK.y2 - BACK.y1 - 12} fill={p.glow} opacity="0.85" filter={`url(#bloom-${id})`} />
       <rect x={172} y={BACK.y1 + 12} width={56} height={BACK.y2 - BACK.y1 - 12} fill={p.glow} opacity="0.62" />
       <rect x={181} y={BACK.y1 + 22} width={38} height={BACK.y2 - BACK.y1 - 22} fill="#fff" opacity="0.22" />
+
+      {/* Volumetric rays from the opening, blurred so they read as haze */}
+      <g filter={`url(#soft-${id})`} opacity="0.32">
+        <polygon points={`176,${BACK.y1 + 14} 224,${BACK.y1 + 14} 300,300 100,300`} fill={p.glow} />
+        <polygon points={`188,${BACK.y1 + 14} 212,${BACK.y1 + 14} 240,300 160,300`} fill="#fff" opacity="0.5" />
+      </g>
       <rect
         x={172}
         y={BACK.y1 + 12}
@@ -399,14 +481,16 @@ function Interior({ tone, props, id }: { tone: GamingInteriorTone; props: Gaming
         })}
       </g>
 
-      {/* Ceiling lights */}
-      {[0.34, 0.62].map((d) => {
-        const y = BACK.y1 - BACK.y1 * d * 0.55
-        const half = (BACK.x2 - BACK.x1) / 2 + ((400 - (BACK.x2 - BACK.x1)) / 2) * d
-        return (
-          <rect key={d} x={200 - half * 0.34} y={y} width={half * 0.68} height={3 + d * 3} rx="2" fill={p.glow} opacity="0.75" />
-        )
-      })}
+      {/* Ceiling lights, bloomed so they emit rather than sit on the ceiling */}
+      <g filter={`url(#bloom-${id})`}>
+        {[0.34, 0.62].map((d) => {
+          const y = BACK.y1 - BACK.y1 * d * 0.55
+          const half = (BACK.x2 - BACK.x1) / 2 + ((400 - (BACK.x2 - BACK.x1)) / 2) * d
+          return (
+            <rect key={d} x={200 - half * 0.34} y={y} width={half * 0.68} height={3 + d * 3} rx="2" fill={p.glow} opacity="0.9" />
+          )
+        })}
+      </g>
 
       <rect width="400" height="300" fill={`url(#glow-${id})`} />
 
@@ -573,8 +657,20 @@ function World({ sky, structures, id }: { sky: GamingWorldSky; structures: Gamin
       </defs>
 
       <rect width="400" height="300" fill={`url(#sky-${id})`} />
+
+      {/* Clouds: blurred so they have soft edges instead of reading as ovals */}
+      {sky !== "cave" && (
+        <g filter={`url(#soft-${id})`} opacity={sky === "night" ? 0.12 : 0.55}>
+          <ellipse cx="88" cy="54" rx="46" ry="11" fill="#fff" />
+          <ellipse cx="112" cy="46" rx="30" ry="9" fill="#fff" />
+          <ellipse cx="228" cy="34" rx="38" ry="9" fill="#fff" />
+          <ellipse cx="250" cy="42" rx="24" ry="7" fill="#fff" />
+        </g>
+      )}
+
+      {/* Sun, bloomed so it lights the sky rather than sitting on it */}
       <circle cx="312" cy="58" r="52" fill={`url(#sun-${id})`} />
-      <circle cx="312" cy="58" r="15" fill={s.sun} opacity={sky === "cave" ? 0 : 0.95} />
+      <circle cx="312" cy="58" r="15" fill={s.sun} opacity={sky === "cave" ? 0 : 0.95} filter={`url(#bloom-${id})`} />
 
       {/* Terrain plate */}
       {Array.from({ length: 7 }, (_, col) =>
@@ -594,9 +690,22 @@ function World({ sky, structures, id }: { sky: GamingWorldSky; structures: Gamin
         }),
       )}
 
-      {placed.map((item, i) => (
-        <WorldStructure key={i} kind={item.kind} col={item.col} row={item.row} />
-      ))}
+      {/* Atmospheric haze over the far rows, so distance reads as distance */}
+      <rect x="0" y="0" width="400" height="150" fill={s.bottom} opacity="0.14" filter={`url(#dof-${id})`} />
+
+      {placed.map((item, i) => {
+        const p = isoPoint(item.col, item.row)
+        const flat = item.kind === "water" || item.kind === "path"
+        return (
+          <g key={i}>
+            {/* Soft contact shadow, so structures sit on the ground */}
+            {!flat && (
+              <ellipse cx={p.x + 6} cy={p.y + 4} rx={ISO_W * 0.95} ry={ISO_H * 0.62} fill="#000" opacity="0.38" filter={`url(#soft-${id})`} />
+            )}
+            <WorldStructure kind={item.kind} col={item.col} row={item.row} />
+          </g>
+        )
+      })}
 
       <rect width="400" height="300" fill={s.ambient} opacity={sky === "night" ? 0.06 : 0.03} />
     </g>
@@ -617,16 +726,35 @@ function Hud({ speed, unit, gauges, chips, id }: { speed: string; unit: string; 
       </defs>
       {/* Night drive backdrop, so the HUD reads as an overlay on a game */}
       <rect width="400" height="300" fill={`url(#road-${id})`} />
-      <circle cx="300" cy="72" r="34" fill="#f0c46a" opacity="0.16" />
-      {Array.from({ length: 9 }, (_, i) => (
-        <rect key={i} x={22 + i * 46} y={128 - (i % 3) * 12} width={16 + (i % 4) * 7} height={30 + (i % 3) * 22} fill="#0d1420" opacity="0.85" />
-      ))}
+      {/* Moon, bloomed */}
+      <circle cx="300" cy="72" r="14" fill="#f0c46a" opacity="0.8" filter={`url(#bloom-${id})`} />
+      {/* Skyline, slightly out of focus, with lit windows that glow */}
+      <g filter={`url(#dof-${id})`}>
+        {Array.from({ length: 9 }, (_, i) => (
+          <rect key={i} x={22 + i * 46} y={128 - (i % 3) * 12} width={16 + (i % 4) * 7} height={30 + (i % 3) * 22} fill="#0d1420" opacity="0.9" />
+        ))}
+      </g>
+      <g filter={`url(#glow-sm-${id})`}>
+        {Array.from({ length: 22 }, (_, i) => (
+          <rect
+            key={i}
+            x={26 + (i % 9) * 46 + (i % 3) * 5}
+            y={134 + Math.floor(i / 9) * 14 - ((i % 9) % 3) * 12}
+            width="3"
+            height="4"
+            fill={i % 4 === 0 ? "#ffd27a" : "#9fc7ff"}
+            opacity="0.85"
+          />
+        ))}
+      </g>
       <polygon points="0,300 400,300 250,150 150,150" fill="#161d29" />
+      {/* Wet-road highlight down the centre */}
+      <polygon points="192,150 208,150 236,300 164,300" fill="#fff" opacity="0.05" filter={`url(#soft-${id})`} />
       {[0, 1, 2, 3].map((i) => (
         <rect key={i} x={198 - i * 1.5} y={158 + i * 34} width={4 + i * 2.4} height={16 + i * 5} fill="#c8cfda" opacity="0.5" />
       ))}
 
-      {/* Gauge */}
+      {/* Gauge, with the active arc bloomed like a backlit dial */}
       <circle cx="96" cy="196" r="50" fill="rgba(6,10,18,0.72)" />
       <circle cx="96" cy="196" r="50" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="7" />
       <circle
@@ -640,6 +768,7 @@ function Hud({ speed, unit, gauges, chips, id }: { speed: string; unit: string; 
         strokeDashoffset="92"
         strokeLinecap="round"
         transform="rotate(135 96 196)"
+        filter={`url(#bloom-${id})`}
       />
       <text x="96" y="200" fill="#fff" fontSize="30" fontFamily={MONO} textAnchor="middle" fontWeight="700">
         {speed}
@@ -1137,32 +1266,45 @@ function Lineup({
       {/* Lit ceiling band, and a wash behind the subjects so the upper half of
           the frame is not dead space. */}
       <rect x="40" y="52" width="320" height="10" rx="5" fill="rgba(255,255,255,0.10)" />
-      {[0, 1, 2].map((i) => (
-        <rect key={i} x={54 + i * 110} y={54} width="92" height="6" rx="3" fill={ACCENT} opacity={i === 1 ? 0.85 : 0.32} />
-      ))}
+      <g filter={`url(#bloom-${id})`}>
+        {[0, 1, 2].map((i) => (
+          <rect key={i} x={54 + i * 110} y={54} width="92" height="6" rx="3" fill={ACCENT} opacity={i === 1 ? 0.95 : 0.4} />
+        ))}
+      </g>
       <rect width="400" height="300" fill={`url(#wash-${id})`} />
 
       {/* Weapons rack vertically: they are long and thin, so a horizontal row
           overlaps them into an unreadable blob. Everything else lines up. */}
-      {Array.from({ length: n }, (_, i) => {
+      {(() => {
         const racked = subject === "weapon"
         const spread = subject === "vehicle" ? 84 : 72
-        // The weapon shape is asymmetric about its origin, so nudge to centre.
-        const x = racked ? 212 : 200 + (i - (n - 1) / 2) * spread
-        const y = racked ? 118 + i * 48 : subject === "vehicle" ? 232 : 240
-        const scale = racked ? 1.35 : subject === "vehicle" ? 1.16 : 1.24
+        const items = Array.from({ length: n }, (_, i) => ({
+          // The weapon shape is asymmetric about its origin, so nudge to centre.
+          x: racked ? 212 : 200 + (i - (n - 1) / 2) * spread,
+          y: racked ? 118 + i * 48 : subject === "vehicle" ? 232 : 240,
+          scale: racked ? 1.35 : subject === "vehicle" ? 1.16 : 1.24,
+          hue: LINEUP_HUES[i % LINEUP_HUES.length],
+          accent: i === accentIndex,
+        }))
         return (
-          <LineupItem
-            key={i}
-            subject={subject}
-            x={x}
-            y={y}
-            scale={scale}
-            hue={LINEUP_HUES[i % LINEUP_HUES.length]}
-            accent={i === accentIndex}
-          />
+          <>
+            {/* Showroom floor reflection: the row mirrored beneath itself,
+                faded and blurred. Racked weapons hang on a wall, so none. */}
+            {!racked && (
+              <g opacity="0.22" filter={`url(#dof-${id})`}>
+                {items.map((it, i) => (
+                  <g key={`r${i}`} transform={`translate(0 ${it.y * 2 + 6}) scale(1 -1)`}>
+                    <LineupItem subject={subject} x={it.x} y={it.y} scale={it.scale} hue={it.hue} accent={it.accent} />
+                  </g>
+                ))}
+              </g>
+            )}
+            {items.map((it, i) => (
+              <LineupItem key={i} subject={subject} x={it.x} y={it.y} scale={it.scale} hue={it.hue} accent={it.accent} />
+            ))}
+          </>
         )
-      })}
+      })()}
 
       {/* Count badge */}
       <rect x="292" y="252" width="86" height="30" rx="6" fill="rgba(6,10,16,0.82)" stroke={ACCENT} strokeWidth="1.25" />
@@ -1316,6 +1458,8 @@ export function GamingPreview({
       aria-label={`Illustration: ${art.caption}`}
       preserveAspectRatio="xMidYMid slice"
     >
+      <PostProcessDefs id={id} />
+
       {art.scene === "interior" && <Interior tone={art.tone} props={art.props} id={id} />}
       {art.scene === "world" && <World sky={art.sky} structures={art.structures} id={id} />}
       {art.scene === "hud" && <Hud speed={art.speed} unit={art.unit} gauges={art.gauges} chips={art.chips} id={id} />}
@@ -1331,6 +1475,8 @@ export function GamingPreview({
       )}
       {art.scene === "audio" && <Audio tracks={art.tracks} id={id} />}
       {art.scene === "pack" && <Pack items={art.items} id={id} />}
+
+      <PostProcess id={id} />
 
       <g className="preview-caption">
         <rect x="16" y="14" width={art.caption.length * 6.1 + 20} height="22" rx="4" fill="rgba(6,10,16,0.72)" />
