@@ -15,7 +15,16 @@ import { doc, W, H } from "../lib.mjs"
 
 const RUNTIME = String.raw`
 import * as THREE from "three";
+import {RoomEnvironment} from "http://localhost/jsm/environments/RoomEnvironment.js";
 const W=${W},H=${H};
+
+/* ---- image-based lighting: a neutral room, so paint, glass and metal
+   reflect something instead of a black void ---- */
+export function environment(r,scene,intensity=1){const pm=new THREE.PMREMGenerator(r);const env=pm.fromScene(new RoomEnvironment(),0.04).texture;scene.environment=env;scene.environmentIntensity=intensity;pm.dispose();return env;}
+/* ---- gradient sky dome: horizon colour to zenith colour, unaffected by fog ---- */
+export function skyDome(scene,horizon,zenith,r=230){const g=new THREE.SphereGeometry(r,32,18);const pos=g.attributes.position;const col=new Float32Array(pos.count*3);const h=new THREE.Color(horizon),z=new THREE.Color(zenith),c=new THREE.Color();
+  for(let i=0;i<pos.count;i++){const t=Math.max(0,Math.min(1,pos.getY(i)/r));c.copy(h).lerp(z,Math.pow(t,0.42));col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;}
+  g.setAttribute("color",new THREE.BufferAttribute(col,3));const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,fog:false}));scene.add(m);return m;}
 
 /* ---- renderer ---- */
 export function makeRenderer(){
@@ -184,36 +193,58 @@ export const props={
 // NOTE: this whole runtime lives inside a String.raw literal — never put a
 // backtick in a comment here, it terminates the literal and breaks the module.
 const PROFILES={
-  sedan:{pts:[[-2.3,0.35],[-2.25,0.7],[-1.5,0.8],[-1.0,1.35],[0.5,1.4],[1.4,0.85],[2.3,0.75],[2.35,0.35]],w:1.85,wheel:0.34,axle:[-1.45,1.45],cabFrom:-9},
-  suv:{pts:[[-2.45,0.35],[-2.4,0.9],[-1.6,0.95],[-1.25,1.75],[1.2,1.78],[1.8,1.0],[2.45,0.9],[2.5,0.35]],w:1.95,wheel:0.38,axle:[-1.55,1.55],cabFrom:-9},
+  sedan:{pts:[[-2.3,0.35],[-2.25,0.7],[-1.5,0.8],[-1.0,1.35],[0.5,1.4],[1.4,0.85],[2.3,0.75],[2.35,0.35]],w:1.85,wheel:0.34,axle:[-1.45,1.45],cabFrom:-9,doors:[0.15,-1.0]},
+  suv:{pts:[[-2.45,0.35],[-2.4,0.9],[-1.6,0.95],[-1.25,1.75],[1.2,1.78],[1.8,1.0],[2.45,0.9],[2.5,0.35]],w:1.95,wheel:0.38,axle:[-1.55,1.55],cabFrom:-9,doors:[0.2,-1.05]},
   // Tall patient box behind, lower cab with a raked windscreen in front.
-  van:{pts:[[-2.9,0.38],[-2.88,2.4],[0.6,2.42],[0.65,2.0],[1.5,1.95],[2.3,1.15],[2.9,1.05],[2.92,0.38]],w:2.1,wheel:0.38,axle:[-1.8,1.7],cabFrom:0.62},
+  van:{pts:[[-2.9,0.38],[-2.88,2.4],[0.6,2.42],[0.65,2.0],[1.5,1.95],[2.3,1.15],[2.9,1.05],[2.92,0.38]],w:2.1,wheel:0.38,axle:[-1.8,1.7],cabFrom:0.62,doors:[1.15,-0.4]},
   // Long equipment body, slightly lower cab, raked windscreen, short hood.
   // Street cars: a low coupe and a short hatchback.
-  coupe:{pts:[[-2.2,0.42],[-2.15,0.66],[-1.75,0.74],[-1.1,1.18],[0.15,1.24],[1.1,0.8],[2.2,0.7],[2.25,0.42]],w:1.9,wheel:0.35,axle:[-1.4,1.4],cabFrom:-9},
-  hatch:{pts:[[-1.9,0.42],[-1.85,0.8],[-1.6,1.44],[0.35,1.48],[1.15,0.88],[1.9,0.76],[1.95,0.42]],w:1.78,wheel:0.32,axle:[-1.25,1.25],cabFrom:-9},
-  truck:{pts:[[-4.0,0.42],[-3.98,2.95],[-0.2,2.95],[-0.15,2.7],[2.4,2.7],[3.15,1.85],[3.9,1.35],[4.0,0.42]],w:2.45,wheel:0.5,axle:[-2.5,2.2],cabFrom:-0.16},
+  coupe:{pts:[[-2.2,0.42],[-2.15,0.66],[-1.75,0.74],[-1.1,1.18],[0.15,1.24],[1.1,0.8],[2.2,0.7],[2.25,0.42]],w:1.9,wheel:0.35,axle:[-1.4,1.4],cabFrom:-9,doors:[0.0]},
+  hatch:{pts:[[-1.9,0.42],[-1.85,0.8],[-1.6,1.44],[0.35,1.48],[1.15,0.88],[1.9,0.76],[1.95,0.42]],w:1.78,wheel:0.32,axle:[-1.25,1.25],cabFrom:-9,doors:[0.05,-0.9]},
+  truck:{pts:[[-4.0,0.42],[-3.98,2.95],[-0.2,2.95],[-0.15,2.7],[2.4,2.7],[3.15,1.85],[3.9,1.35],[4.0,0.42]],w:2.45,wheel:0.5,axle:[-2.5,2.2],cabFrom:-0.16,doors:[2.0]},
 };
-export function vehicle(s,kind,x,z,rot=0,{color=0xffffff,stripe="#1f4e79",unit="",lightbar=true,type="police",livery=true,spoiler=false,kit=false,wheelColor=0xc9ccd1,tint=0x1b2530,gloss=0.35}={}){
+export function vehicle(s,kind,x,z,rot=0,{color=0xffffff,stripe="#1f4e79",unit="",lightbar=true,type="police",livery=true,spoiler=false,kit=false,wheelColor=0xc9ccd1,tint=0x1b2530,gloss=0.28}={}){
   const P=PROFILES[kind]||PROFILES.sedan;const g=group(x,0,z,rot);
-  const shape=new THREE.Shape();P.pts.forEach((p,i)=>i?shape.lineTo(p[0],p[1]):shape.moveTo(p[0],p[1]));shape.closePath();
-  const geo=new THREE.ExtrudeGeometry(shape,{depth:P.w,bevelEnabled:true,bevelThickness:0.08,bevelSize:0.08,bevelSegments:6});geo.translate(0,0,-P.w/2);
-  const body=new THREE.Mesh(geo,mat.std(color,{roughness:gloss,metalness:0.15}));body.castShadow=true;body.receiveShadow=true;g.add(body);
-  // glass band
-  const gb=P.pts.filter(p=>p[1]>1.0&&p[0]>P.cabFrom);if(gb.length>=2){const gs=new THREE.Shape();gb.forEach((p,i)=>i?gs.lineTo(p[0],p[1]-0.06):gs.moveTo(p[0],p[1]-0.06));const last=gb[gb.length-1],first=gb[0];gs.lineTo(last[0],Math.max(first[1],last[1])-0.55);gs.lineTo(first[0],Math.max(first[1],last[1])-0.55);gs.closePath();
-    const gg=new THREE.ExtrudeGeometry(gs,{depth:P.w+0.02,bevelEnabled:false});gg.translate(0,0,-(P.w+0.02)/2);const glass=new THREE.Mesh(gg,new THREE.MeshStandardMaterial({color:tint,roughness:0.15,metalness:0.6}));g.add(glass);}
+  const bottom=P.pts[0][1],front=P.pts[P.pts.length-1][0],rear=P.pts[0][0],len=front-rear,W=P.w,archR=P.wheel+0.06;
+  // Side profile with wheel arches cut into the sill, extruded to width and
+  // painted with a clear-coated physical material (reflects the environment).
+  const shape=new THREE.Shape();P.pts.forEach((p,i)=>i?shape.lineTo(p[0],p[1]):shape.moveTo(p[0],p[1]));
+  for(const ax of [...P.axle].sort((a,b)=>b-a)){shape.lineTo(ax+archR,bottom);shape.absarc(ax,bottom,archR,0,Math.PI,false);}
+  shape.closePath();
+  const geo=new THREE.ExtrudeGeometry(shape,{depth:W,bevelEnabled:true,bevelThickness:0.07,bevelSize:0.07,bevelSegments:5});geo.translate(0,0,-W/2);
+  const paint=new THREE.MeshPhysicalMaterial({color,roughness:gloss,metalness:0.3,clearcoat:1.0,clearcoatRoughness:0.06});
+  const body=new THREE.Mesh(geo,paint);body.castShadow=true;body.receiveShadow=true;g.add(body);
+  const dark=mat.std(0x17191c,{roughness:0.7});const trim=mat.std(0x2a2d31,{roughness:0.5,metalness:0.2});const chrome=new THREE.MeshStandardMaterial({color:0xb9bec6,roughness:0.25,metalness:0.9});
+  // wheel wells (so the arches read as enclosed), sill trim, bumpers, grille, plates
+  for(const ax of P.axle){const well=cyl(archR-0.02,archR-0.02,W-0.3,mat.std(0x0e0f11,{roughness:1}),ax,bottom,0,24);well.rotation.x=Math.PI/2;g.add(well);}
+  for(const sd of[-1,1])g.add(box(len*0.96,0.05,0.04,dark,(front+rear)/2,bottom+0.04,sd*(W/2+0.06),false));
+  g.add(box(0.14,0.18,W+0.06,trim,front-0.02,bottom+0.14,0));g.add(box(0.14,0.18,W+0.06,trim,rear+0.02,bottom+0.14,0));
+  g.add(box(0.05,0.17,W*0.42,dark,front+0.045,bottom+0.34,0,false));for(let i=0;i<5;i++)g.add(box(0.06,0.014,W*0.4,chrome,front+0.05,bottom+0.28+i*0.032,0,false));
+  g.add(box(0.02,0.11,0.5,mat.std(0xf4f4f0,{roughness:0.5}),front+0.075,bottom+0.13,0,false));g.add(box(0.02,0.11,0.5,mat.std(0xf4f4f0,{roughness:0.5}),rear-0.075,bottom+0.13,0,false));
+  // glass band with pillars and mirrors
+  const gb=P.pts.filter(p=>p[1]>1.0&&p[0]>P.cabFrom);
+  if(gb.length>=2){const top=Math.max(...gb.map(p=>p[1]));const gs=new THREE.Shape();gb.forEach((p,i)=>i?gs.lineTo(p[0],p[1]-0.06):gs.moveTo(p[0],p[1]-0.06));const last=gb[gb.length-1],first=gb[0];gs.lineTo(last[0],top-0.55);gs.lineTo(first[0],top-0.55);gs.closePath();
+    const gg=new THREE.ExtrudeGeometry(gs,{depth:W+0.02,bevelEnabled:false});gg.translate(0,0,-(W+0.02)/2);g.add(new THREE.Mesh(gg,new THREE.MeshPhysicalMaterial({color:tint,roughness:0.08,metalness:0.2,clearcoat:1.0})));
+    const xs=gb.map(p=>p[0]);const mid=(xs[0]+xs[xs.length-1])/2;
+    for(const px of [...xs.slice(1,-1),mid])for(const sd of[-1,1])g.add(box(0.06,0.5,0.03,dark,px,top-0.32,sd*(W/2+0.025),false));
+    const mx=xs[xs.length-1]-0.12,my=top-0.5;for(const sd of[-1,1]){g.add(box(0.14,0.09,0.12,paint,mx,my,sd*(W/2+0.14),false));g.add(box(0.03,0.03,0.12,dark,mx,my,sd*(W/2+0.08),false));}
+  }
+  // door seams and handles
+  for(const dx of (P.doors||[0.1,-1.0]))for(const sd of[-1,1]){g.add(box(0.012,0.36,0.006,dark,dx,bottom+0.25,sd*(W/2+0.075),false));g.add(box(0.11,0.028,0.014,chrome,dx-0.2,bottom+0.5,sd*(W/2+0.078),false));}
   // livery stripe panels on both sides
-  const len=P.pts[P.pts.length-1][0]-P.pts[0][0];
-  if(livery){const lv=new THREE.MeshStandardMaterial({map:tex.livery("#ffffff",stripe,unit),roughness:0.4});for(const side of[-1,1]){const pl=new THREE.Mesh(new THREE.PlaneGeometry(len*0.86,0.42),lv);pl.position.set(0,0.78,side*(P.w/2+0.095));pl.rotation.y=side>0?0:Math.PI;g.add(pl);}}
-  // wheels with rims
-  for(const ax of P.axle)for(const side of[-1,1]){const wh=cyl(P.wheel,P.wheel,0.26,mat.std(0x151719,{roughness:0.9}),ax,P.wheel,side*(P.w/2-0.05),28);wh.rotation.x=Math.PI/2;g.add(wh);
-    const rim=cyl(P.wheel*0.58,P.wheel*0.58,0.27,mat.std(wheelColor,{roughness:0.35,metalness:0.2}),ax,P.wheel,side*(P.w/2-0.045),24);rim.rotation.x=Math.PI/2;g.add(rim);}
+  if(livery){const lv=new THREE.MeshStandardMaterial({map:tex.livery("#ffffff",stripe,unit),roughness:0.4});for(const side of[-1,1]){const pl=new THREE.Mesh(new THREE.PlaneGeometry(len*0.86,0.42),lv);pl.position.set(0,0.78,side*(W/2+0.085));pl.rotation.y=side>0?0:Math.PI;g.add(pl);}}
+  // wheels: tyre, alloy rim with five dark spoke gaps, hub
+  for(const ax of P.axle)for(const sd of[-1,1]){const zc=sd*(W/2-0.02);
+    const tyre=cyl(P.wheel,P.wheel,0.24,mat.std(0x141517,{roughness:0.95}),ax,P.wheel,zc,36);tyre.rotation.x=Math.PI/2;g.add(tyre);
+    const rimR=P.wheel*0.64;const rim=cyl(rimR,rimR,0.25,new THREE.MeshStandardMaterial({color:wheelColor,roughness:0.25,metalness:0.85}),ax,P.wheel,zc,32);rim.rotation.x=Math.PI/2;g.add(rim);
+    const hub=cyl(rimR*0.22,rimR*0.22,0.27,mat.std(0x3a3d42,{roughness:0.5,metalness:0.3}),ax,P.wheel,zc,16);hub.rotation.x=Math.PI/2;g.add(hub);
+    for(let k=0;k<5;k++){const a=k*1.2566+0.3;const gap=box(rimR*0.5,rimR*0.3,0.012,mat.std(0x101214,{roughness:0.8}),0,0,0,false);gap.position.set(ax+Math.cos(a)*rimR*0.56,P.wheel+Math.sin(a)*rimR*0.56,zc+sd*0.128);gap.rotation.z=a;g.add(gap);}}
   // lights
   g.add(box(0.12,0.16,0.5,mat.emissive(0xfff2cc,1.4),P.pts[P.pts.length-1][0]-0.02,0.7,P.w/2-0.4,false));g.add(box(0.12,0.16,0.5,mat.emissive(0xfff2cc,1.4),P.pts[P.pts.length-1][0]-0.02,0.7,-P.w/2+0.4,false));
   g.add(box(0.1,0.14,0.4,mat.emissive(0xff3b30,1.2),P.pts[0][0]+0.02,0.7,P.w/2-0.35,false));g.add(box(0.1,0.14,0.4,mat.emissive(0xff3b30,1.2),P.pts[0][0]+0.02,0.7,-P.w/2+0.35,false));
   // Tuner options: a rear wing on stands, and a body kit (side skirts + front splitter).
   if(spoiler){const ry=P.pts.filter(p=>p[0]<P.pts[0][0]+0.9).reduce((m,p)=>Math.max(m,p[1]),0);const bm=mat.std(color,{roughness:gloss,metalness:0.15});g.add(box(0.3,0.04,P.w*0.92,bm,P.pts[0][0]+0.3,ry+0.24,0));for(const sd of[-1,1])g.add(box(0.22,0.22,0.05,mat.std(0x151719,{roughness:0.6}),P.pts[0][0]+0.3,ry+0.11,sd*P.w*0.36,false));}
-  if(kit){const km=mat.std(0x151719,{roughness:0.6});for(const sd of[-1,1])g.add(box(len*0.6,0.1,0.1,km,0.05,P.pts[0][1]-0.03,sd*(P.w/2+0.1)));g.add(box(0.22,0.08,P.w+0.12,km,P.pts[P.pts.length-1][0]-0.06,P.pts[0][1]-0.04,0));g.add(box(0.18,0.08,P.w+0.08,km,P.pts[0][0]+0.06,P.pts[0][1]-0.04,0));}
+  if(kit){const km=mat.std(0x151719,{roughness:0.6});const skL=P.axle[1]-P.axle[0]-2*archR-0.1,skX=(P.axle[0]+P.axle[1])/2;for(const sd of[-1,1])g.add(box(skL,0.09,0.1,km,skX,P.pts[0][1]-0.02,sd*(P.w/2+0.1)));g.add(box(0.22,0.08,P.w+0.12,km,P.pts[P.pts.length-1][0]-0.06,P.pts[0][1]-0.04,0));g.add(box(0.18,0.08,P.w+0.08,km,P.pts[0][0]+0.06,P.pts[0][1]-0.04,0));}
   if(lightbar){const topY=Math.max(...P.pts.map(p=>p[1]));const bar=group(kind==="truck"?1.4:kind==="van"?-1.0:-0.2,topY+0.12,0);bar.add(box(1.1,0.14,0.28,mat.std(0x22262b,{roughness:0.4}),0,0,0));
     const seg=type==="fire"?[0xff2a1f,0xff2a1f,0xffffff,0xff2a1f]:type==="ems"?[0xff2a1f,0xffffff,0xff2a1f,0xffffff]:[0xff2a1f,0x2a6dff,0xffffff,0x2a6dff];
     seg.forEach((c,i)=>bar.add(box(0.24,0.1,0.26,mat.emissive(c,2.4),-0.41+i*0.27,0.03,0,false)));g.add(bar);}
@@ -226,7 +257,8 @@ export function vehicle(s,kind,x,z,rot=0,{color=0xffffff,stripe="#1f4e79",unit="
 
 /* ---- exterior base: asphalt, kerbs, sky ---- */
 export function exterior(scene,{size=60,sky=0xbfd6ea,fog=true,markings=true}={}){
-  scene.background=new THREE.Color(sky);if(fog)scene.fog=new THREE.Fog(sky,35,110);
+  const sc=new THREE.Color(sky);scene.background=sc;if(fog)scene.fog=new THREE.Fog(sky,35,110);
+  if(sc.r+sc.g+sc.b>1.2){skyDome(scene,sc.clone().lerp(new THREE.Color(0xffffff),0.1),sc.clone().lerp(new THREE.Color(0x4d8fd6),0.7));}
   const g=new THREE.Mesh(new THREE.PlaneGeometry(size,size),mat.mapped(tex.asphalt(size/5),{roughness:0.95}));g.rotation.x=-Math.PI/2;g.receiveShadow=true;scene.add(g);
   if(markings){const lm=mat.std(0xe9e6d8,{roughness:0.9});for(let i=-size/2;i<size/2;i+=3)scene.add(box(1.6,0.01,0.14,lm,i+0.8,0.006,0,false));}
 }
@@ -364,8 +396,9 @@ export function threeDoc(sceneCode) {
  */
 export function interior({ spec, view, sign }) {
   return threeDoc(`
-import {makeRenderer,finish,room,props,wallSign,camera,scene as mkScene,daylight,mat,THREE} from "rt";
+import {makeRenderer,finish,room,props,wallSign,camera,scene as mkScene,daylight,environment,mat,THREE} from "rt";
 const r=makeRenderer();const s=mkScene(${spec.bg ?? 0x000000});
+${spec.env ? `environment(r,s,${spec.env});` : ""}
 const R=room(s,${JSON.stringify(spec.room)});
 ${spec.daylight ? `daylight(s,{intensity:${spec.daylight.intensity ?? 1.4},pos:${JSON.stringify(spec.daylight.pos ?? [6, 9, 4])},size:14,hemi:${spec.daylight.hemi ?? 0.5}});` : `s.add(new THREE.HemisphereLight(0xe9eef5,0x5a5650,0.5));`}
 ${spec.club ? `{s.add(new THREE.HemisphereLight(0x4a2a6a,0x120a18,0.3));
@@ -382,8 +415,9 @@ finish(r,s,cam);`)
 /** Exterior scene: ground, sky, buildings, vehicles, props. */
 export function exteriorScene({ items, view, sky, fog = true, daylight: dl }) {
   return threeDoc(`
-import {makeRenderer,finish,exterior,buildingBlock,helipad,vehicle,props,camera,scene as mkScene,daylight,box,cyl,group,mat,tex,wallSign,THREE} from "rt";
+import {makeRenderer,finish,exterior,buildingBlock,helipad,vehicle,props,camera,scene as mkScene,daylight,environment,box,cyl,group,mat,tex,wallSign,THREE} from "rt";
 const r=makeRenderer();const s=mkScene();
+environment(r,s,${dl && dl.intensity < 1 ? 0.18 : 0.45});
 exterior(s,{sky:${sky ?? 0xbfd6ea},fog:${fog}});
 daylight(s,${JSON.stringify(dl || { intensity: 2.4, pos: [14, 18, 8], size: 26, hemi: 0.6 })});
 ${items.map((it) => it).join("\n")}

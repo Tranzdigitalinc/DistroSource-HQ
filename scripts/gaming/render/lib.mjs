@@ -74,6 +74,8 @@ export async function renderScene(browser, html, { width = W, height = H, timeou
     const u = new URL(route.request().url())
     if (u.pathname === "/three.module.js" || u.pathname === "/three.core.js")
       return route.fulfill({ path: `${THREE_DIR}${u.pathname}`, contentType: "text/javascript" })
+    if (u.pathname.startsWith("/jsm/") && !u.pathname.includes(".."))
+      return route.fulfill({ path: `${THREE_DIR}/../examples${u.pathname}`, contentType: "text/javascript" })
     if (u.pathname === "/render.html") return route.fulfill({ body: html, contentType: "text/html; charset=utf-8" })
     return route.fulfill({ status: 404, body: "" })
   })

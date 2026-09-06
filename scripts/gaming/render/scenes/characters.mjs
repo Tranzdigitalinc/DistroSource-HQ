@@ -113,7 +113,7 @@ export const studioProps={
    silhouette; attachments add an optic, suppressor, grip, light. */
 export function weapon(s,kind,x,y,z,rot=0,o={}){
   const {body=0x2b2e33,furniture=0x3d3a35,optic=false,suppressor=false,grip=false,light=false,rail=true,finish=0.45}=o;
-  const g=group(x,y,z,rot);const bm=mat.std(body,{roughness:finish,metalness:0.25});const fm=mat.std(furniture,{roughness:0.7});const am=mat.std(0x1c1e22,{roughness:0.4,metalness:0.3});
+  const g=group(x,y,z,rot);const bm=new THREE.MeshStandardMaterial({color:body,roughness:finish,metalness:0.7});const fm=mat.std(furniture,{roughness:0.6});const am=new THREE.MeshStandardMaterial({color:0x1c1e22,roughness:0.35,metalness:0.8});
   let barrelEnd=0.3,railY=0.05,railX=0.0;
   if(kind==="rifle"){g.add(box(0.46,0.07,0.045,bm,0.05,0,0));g.add(box(0.28,0.05,0.04,fm,0.32,-0.005,0));const b=cyl(0.011,0.011,0.3,am,0.58,0.005,0,10);b.rotation.z=Math.PI/2;g.add(b);barrelEnd=0.73;
     g.add(box(0.24,0.055,0.04,fm,-0.34,0.0,0));g.add(box(0.05,0.08,0.035,fm,-0.44,-0.02,0));g.add(box(0.06,0.13,0.04,fm,-0.06,-0.09,0));const mg=box(0.05,0.17,0.035,am,0.08,-0.11,0);mg.rotation.z=0.15;g.add(mg);if(rail)g.add(box(0.4,0.012,0.03,am,0.08,0.042,0,false));railY=0.048;railX=0.04;}
@@ -126,6 +126,16 @@ export function weapon(s,kind,x,y,z,rot=0,o={}){
   if(optic){const om=mat.std(0x1a1c20,{roughness:0.35,metalness:0.3});if(kind==="sniper"){const sc=cyl(0.022,0.022,0.24,om,railX,railY+0.04,0,14);sc.rotation.z=Math.PI/2;g.add(sc);g.add(box(0.02,0.03,0.02,om,railX-0.06,railY+0.02,0,false));g.add(box(0.02,0.03,0.02,om,railX+0.06,railY+0.02,0,false));}
     else if(kind==="pistol"){g.add(box(0.03,0.02,0.024,om,railX-0.04,railY+0.012,0,false));g.add(box(0.005,0.024,0.026,mat.std(0x9fd3ff,{roughness:0.1,metalness:0.3}),railX-0.025,railY+0.02,0,false));}
     else{g.add(box(0.06,0.03,0.03,om,railX,railY+0.02,0,false));g.add(box(0.008,0.032,0.032,mat.std(0x9fd3ff,{roughness:0.1,metalness:0.3}),railX+0.02,railY+0.038,0,false));g.add(box(0.03,0.02,0.02,om,railX,railY+0.038,0,false));}}
+  // shared detail: trigger guard + trigger, rail teeth, front sight post, per-class parts
+  {const tg=kind==="pistol"?{x:-0.01,y:-0.045,l:0.07}:kind==="smg"?{x:0.02,y:-0.06,l:0.09}:kind==="shotgun"?{x:-0.12,y:-0.05,l:0.09}:kind==="sniper"?{x:-0.02,y:-0.055,l:0.09}:{x:0.0,y:-0.055,l:0.09};
+   g.add(box(tg.l,0.006,0.02,am,tg.x,tg.y-0.03,0,false));g.add(box(0.006,0.03,0.02,am,tg.x-tg.l/2,tg.y-0.015,0,false));g.add(box(0.006,0.03,0.02,am,tg.x+tg.l/2,tg.y-0.015,0,false));g.add(box(0.012,0.028,0.012,am,tg.x+0.01,tg.y-0.012,0,false));
+   if(rail&&kind!=="pistol"&&kind!=="shotgun"){for(let i=0;i<14;i++)g.add(box(0.012,0.008,0.032,am,railX-0.19+i*0.028,railY+0.01,0,false));}
+   g.add(box(0.012,0.03,0.01,am,barrelEnd-0.05,railY+0.02,0,false));
+   if(kind==="rifle"){g.add(box(0.07,0.03,0.006,mat.std(0x101214),0.12,0.0,0.024,false));g.add(box(0.05,0.012,0.02,am,-0.05,0.03,-0.03,false));const mb=cyl(0.016,0.016,0.05,am,barrelEnd-0.01,0.005,0,10);mb.rotation.z=Math.PI/2;g.add(mb);g.add(box(0.06,0.04,0.045,fm,-0.36,0.03,0,false));}
+   if(kind==="sniper"){const bh=cyl(0.006,0.006,0.05,am,0.02,-0.01,0.04,8);bh.rotation.x=Math.PI/2;g.add(bh);g.add(box(0.12,0.03,0.04,fm,-0.4,0.035,0,false));}
+   if(kind==="shotgun"){for(let i=0;i<6;i++)g.add(box(0.006,0.052,0.042,am,0.2+i*0.03,-0.01,0,false));}
+   if(kind==="smg"){g.add(box(0.05,0.03,0.006,mat.std(0x101214),0.05,0.0,0.026,false));}
+   if(kind==="pistol"){for(let i=0;i<5;i++)g.add(box(0.005,0.04,0.032,am,-0.05+i*0.012,0.005,0,false));}}
   if(suppressor){const sp=cyl(0.017,0.017,0.16,mat.std(0x1a1c20,{roughness:0.5,metalness:0.3}),barrelEnd+0.07,kind==="pistol"?0.0:0.008,0,12);sp.rotation.z=Math.PI/2;g.add(sp);}
   if(grip&&kind!=="pistol"){g.add(box(0.03,0.07,0.028,fm,kind==="rifle"?0.34:0.16,-0.06,0));}
   if(light){const lm=mat.std(0x1a1c20,{roughness:0.4,metalness:0.3});const l=cyl(0.012,0.012,0.05,lm,kind==="pistol"?0.07:kind==="rifle"?0.42:0.2,kind==="pistol"?-0.03:-0.035,0,10);l.rotation.z=Math.PI/2;g.add(l);g.add(box(0.004,0.02,0.02,mat.emissive(0xfff2cc,0.6),(kind==="pistol"?0.07:kind==="rifle"?0.42:0.2)+0.026,kind==="pistol"?-0.03:-0.035,0,false));}
@@ -146,15 +156,15 @@ export function studio({ items, view, tone = "light", grid = false, floorColor, 
   const wc = wallColor ?? (dark ? 0x22252a : 0xe9e6e0)
   const charUrl = `data:text/javascript;base64,${Buffer.from(CHAR).toString("base64")}`
   return threeDoc(`
-import {makeRenderer,finish,camera,scene as mkScene,box,cyl,group,mat,THREE} from "rt";
+import {makeRenderer,finish,camera,scene as mkScene,environment,box,cyl,group,mat,THREE} from "rt";
 import {mannequin,studioProps,weapon,POSES} from "${charUrl}";
-const r=makeRenderer();r.toneMappingExposure=${exposure};const s=mkScene(${wc});
+const r=makeRenderer();r.toneMappingExposure=${exposure};const s=mkScene(${wc});environment(r,s,${dark ? 0.5 : 0.3});
 s.fog=new THREE.Fog(${wc},18,40);
 {const fl=new THREE.Mesh(new THREE.PlaneGeometry(60,60),mat.std(${fc},{roughness:0.9}));fl.rotation.x=-Math.PI/2;fl.receiveShadow=true;s.add(fl);
  const bk=new THREE.Mesh(new THREE.PlaneGeometry(80,30),mat.std(${wc},{roughness:0.95}));bk.position.set(0,15,-14);bk.receiveShadow=true;s.add(bk);}
 ${grid ? `{const gh=new THREE.GridHelper(20,20,${dark ? 0x3a3f46 : 0xc8c4bd},${dark ? 0x33373d : 0xd2cec7});gh.position.y=0.005;s.add(gh);}` : ""}
 s.add(new THREE.HemisphereLight(${dark ? 0x9aa4b4 : 0xffffff},${dark ? 0x1c1f24 : 0xb9b4ac},${dark ? 0.7 : 0.85}));
-{const k=new THREE.DirectionalLight(0xfff4e6,${dark ? 2.2 : 2.6});k.position.set(${keyPos.join(",")});k.castShadow=true;k.shadow.mapSize.set(2048,2048);k.shadow.camera.left=-8;k.shadow.camera.right=8;k.shadow.camera.top=8;k.shadow.camera.bottom=-8;k.shadow.bias=-0.0008;k.shadow.radius=4;s.add(k);
+{const k=new THREE.DirectionalLight(0xfff4e6,${dark ? 3.0 : 2.4});k.position.set(${keyPos.join(",")});k.castShadow=true;k.shadow.mapSize.set(2048,2048);k.shadow.camera.left=-8;k.shadow.camera.right=8;k.shadow.camera.top=8;k.shadow.camera.bottom=-8;k.shadow.bias=-0.0008;k.shadow.radius=4;s.add(k);
  const f=new THREE.DirectionalLight(0xdde8ff,${dark ? 0.8 : 1.0});f.position.set(-6,4,3);s.add(f);
  const rim=new THREE.DirectionalLight(0xffffff,${dark ? 1.4 : 0.9});rim.position.set(0,5,-6);s.add(rim);}
 ${items.join("\n")}

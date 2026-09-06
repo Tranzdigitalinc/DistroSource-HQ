@@ -47,6 +47,7 @@ const PD_EVIDENCE = {
   ],
 }
 const PD_GARAGE = {
+  env: 0.35,
   room: { w: 16, d: 10, h: 4.0, floor: "concrete", wallColor: "#c9ccd0", doors: [{ wall: "s", x: -4, w: 4.2, h: 3.4 }, { wall: "s", x: 4, w: 4.2, h: 3.4 }, { wall: "n", x: 6, w: 1.4 }], panels: true },
   items: [
     { type: "car", args: [-4, -1, 0, { kind: "sedan", color: 0x1a1c1f, livery: true, stripe: "#e8e8e8", unit: "104", lightbar: true }] }, { type: "car", args: [4, -1, 0, { kind: "suv", color: 0xf2f2f0, livery: true, stripe: "#1f4e79", unit: "215", lightbar: true }] },
@@ -66,7 +67,7 @@ const PD_PLAN = [
 /* ------------------------------------------------------------ dealership */
 
 const DEALER_SHOWROOM = {
-  bg: 0xbfd6ea,
+  bg: 0xbfd6ea, env: 0.45,
   room: { w: 22, d: 14, h: 5.2, floor: "tile", wallColor: "#ecebe7", doors: [{ wall: "n", x: 8, w: 1.4 }], windows: [{ wall: "s", x: -7, w: 6.6, y0: 0.1, y1: 4.6 }, { wall: "s", x: 0, w: 6.6, y0: 0.1, y1: 4.6 }, { wall: "s", x: 7, w: 6.6, y0: 0.1, y1: 4.6 }, { wall: "e", x: -3, w: 6, y0: 0.1, y1: 4.6 }] },
   daylight: { intensity: 1.6, pos: [6, 12, 10], hemi: 0.6 },
   items: [
@@ -79,7 +80,7 @@ const DEALER_SHOWROOM = {
   ],
 }
 const DEALER_MEZZ = {
-  bg: 0xbfd6ea,
+  bg: 0xbfd6ea, env: 0.45,
   room: { w: 16, d: 12, h: 7.0, floor: "tile", wallColor: "#ecebe7", windows: [{ wall: "s", x: -4, w: 7, y0: 0.1, y1: 4.6 }, { wall: "s", x: 4, w: 7, y0: 0.1, y1: 4.6 }], panels: false },
   daylight: { intensity: 1.5, pos: [4, 12, 8], hemi: 0.65 },
   items: [
@@ -97,6 +98,7 @@ const DEALER_OFFICE = {
   ],
 }
 const DEALER_SERVICE = {
+  env: 0.35,
   room: { w: 16, d: 11, h: 4.4, floor: "concrete", wallColor: "#cfd2d6", doors: [{ wall: "s", x: -4.5, w: 4.2, h: 3.4 }, { wall: "s", x: 4.5, w: 4.2, h: 3.4 }], windows: [{ wall: "n", x: 0, w: 8, y0: 2.8, y1: 3.8 }], panels: true },
   items: [
     { type: "lift", args: [-4.5, -1.5, 0, { kind: "sedan", color: 0xe8e6e1, raised: 1.4 }] }, { type: "lift", args: [0.2, -1.5, 0, { kind: "hatch", color: 0x2a6dd8, raised: 0.0 }] }, { type: "lift", args: [4.8, -1.5, 0, { kind: "suv", color: 0x2b2f36, raised: 1.0 }] },
@@ -114,6 +116,7 @@ const DEALER_PLAN = [
 /* -------------------------------------------------------------- workshop */
 
 const SHOP_BAY = {
+  env: 0.35,
   room: { w: 18, d: 12, h: 4.4, floor: "concrete", wallColor: "#cfd2d6", doors: [{ wall: "s", x: -5, w: 4.4, h: 3.5 }, { wall: "s", x: 5, w: 4.4, h: 3.5 }, { wall: "e", x: 2, w: 1.4 }], windows: [{ wall: "n", x: -4, w: 6, y0: 2.8, y1: 3.8 }, { wall: "n", x: 4, w: 6, y0: 2.8, y1: 3.8 }], panels: true },
   items: [
     { type: "lift", args: [-6.5, -2, 0, { kind: "hatch", color: 0xc44536, raised: 1.5 }] }, { type: "lift", args: [-2.2, -2, 0, { kind: "sedan", color: 0x3d5a80, raised: 0.0 }] }, { type: "lift", args: [2.2, -2, 0, { kind: "coupe", color: 0xe0b23a, raised: 1.1, }] }, { type: "lift", args: [6.5, -2, 0, { kind: "suv", color: 0x8a8f96, raised: 0.0 }] },
@@ -122,6 +125,7 @@ const SHOP_BAY = {
   ],
 }
 const SHOP_PAINT = {
+  env: 0.35,
   room: { w: 10, d: 9, h: 3.6, floor: "concrete", wallColor: "#cfd2d6", doors: [{ wall: "s", x: 0, w: 4.4, h: 3.2 }], panels: false },
   items: [
     { type: "paintBooth", args: [0, -1, 0] }, { type: "car", args: [0, -1.2, 0, { kind: "coupe", color: 0x8a8f96, gloss: 0.9, wheelColor: 0x8a8f96 }] },

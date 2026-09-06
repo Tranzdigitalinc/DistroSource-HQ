@@ -334,6 +334,29 @@ export function docPage({ kicker, title, meta, sections, page = "1 / 12", accent
   return doc({ body, style, bg: "#d9d6cf" })
 }
 
+/* ------------------------------------------------------ audio falloff */
+
+/** Distance falloff reference for the siren pack: level vs distance, with and without occlusion. */
+export function audioFalloff() {
+  const W = 1320, H = 640, ox = 140, oy = 80
+  const X = (d) => ox + (d / 200) * W, Y = (v) => oy + (1 - v) * H
+  const curve = (f, color, dash = "") => { let d = ""; for (let i = 0; i <= 200; i += 2) d += (i ? " L" : "M") + X(i).toFixed(1) + " " + Y(f(i)).toFixed(1); return `<path d="${d}" fill="none" stroke="${color}" stroke-width="3" ${dash ? `stroke-dasharray="${dash}"` : ""}/>` }
+  const linear = (d) => Math.max(0, 1 - d / 180), inverse = (d) => 1 / (1 + Math.pow(d / 40, 1.6)), occluded = (d) => linear(d) * (d < 60 ? 1 : 0.42)
+  const grid = Array.from({ length: 5 }, (_, i) => `<line x1="${ox}" y1="${Y(i / 4)}" x2="${ox + W}" y2="${Y(i / 4)}" stroke="rgba(255,255,255,.08)"/><text x="${ox - 14}" y="${Y(i / 4) + 5}" text-anchor="end" font-size="13" fill="#8b93a1" font-family="Segoe UI, Arial">${i * 25}%</text>`).join("") + [0, 40, 80, 120, 160, 200].map((d) => `<line x1="${X(d)}" y1="${oy}" x2="${X(d)}" y2="${oy + H}" stroke="rgba(255,255,255,.06)"/><text x="${X(d)}" y="${oy + H + 26}" text-anchor="middle" font-size="13" fill="#8b93a1" font-family="Segoe UI, Arial">${d} m</text>`).join("")
+  const body = `<svg width="1600" height="1000" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg"><rect width="1600" height="1000" fill="#12161d"/>
+    <text x="70" y="52" font-size="24" font-weight="700" fill="#f2f3f5" font-family="Segoe UI, Inter, Arial">Falloff reference · wail, standard</text><text x="70" y="76" font-size="13" fill="#8b93a1" font-family="Segoe UI, Inter, Arial">Perceived level against distance from the vehicle. Occlusion applies when a building sits between the listener and the source.</text>
+    <rect x="${X(60)}" y="${oy}" width="${X(200) - X(60)}" height="${H}" fill="rgba(74,155,232,.05)"/>${grid}
+    ${curve(inverse, "#4a9be8", "8 6")}${curve(linear, "#e8b84a")}${curve(occluded, "#e8554a")}
+    <g font-family="Segoe UI, Inter, Arial" font-size="14"><rect x="${ox + W - 330}" y="${oy + 16}" width="310" height="96" rx="8" fill="#171c25" stroke="rgba(255,255,255,.08)"/>
+      <line x1="${ox + W - 310}" y1="${oy + 42}" x2="${ox + W - 270}" y2="${oy + 42}" stroke="#e8b84a" stroke-width="3"/><text x="${ox + W - 258}" y="${oy + 47}" fill="#e6e9ee">Linear rolloff · max 180 m (shipped)</text>
+      <line x1="${ox + W - 310}" y1="${oy + 70}" x2="${ox + W - 270}" y2="${oy + 70}" stroke="#4a9be8" stroke-width="3" stroke-dasharray="8 6"/><text x="${ox + W - 258}" y="${oy + 75}" fill="#e6e9ee">Inverse rolloff · optional</text>
+      <line x1="${ox + W - 310}" y1="${oy + 98}" x2="${ox + W - 270}" y2="${oy + 98}" stroke="#e8554a" stroke-width="3"/><text x="${ox + W - 258}" y="${oy + 103}" fill="#e6e9ee">Linear, occluded from 60 m (−58%)</text></g>
+    <text x="${X(130)}" y="${oy + H - 18}" text-anchor="middle" font-size="12" fill="#8fc3f5" font-family="Segoe UI, Arial" letter-spacing="1.5">OCCLUSION ZONE</text>
+    <g transform="translate(70,860)" font-family="Segoe UI, Inter, Arial"><rect width="1460" height="70" rx="10" fill="#171c25"/><text x="24" y="30" font-size="13" fill="#8b93a1" letter-spacing="1.5">CONFIG</text><text x="24" y="54" font-size="15" fill="#e6e9ee" font-family="Consolas, Menlo, monospace">Config.Falloff = { maxDistance = 180.0, rolloff = 'linear', occlusion = true, occlusionFactor = 0.42 }</text></g>
+  </svg>`
+  return doc({ body, style: "", bg: "#12161d" })
+}
+
 /* ------------------------------------------------------------- bundles */
 
 /** "What's in the box": the real rendered covers of the bundle's products. */

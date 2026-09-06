@@ -129,19 +129,25 @@ const EVENTS = [
 ]
 
 export function anticheatDashboard({ tab = "live" } = {}) {
+  const TITLE = { live: "Live events", flagged: "Flagged players", bans: "Bans", rules: "Rules", audit: "Audit log" }[tab] || "Live events"
+  const NAVI = { live: 0, flagged: 1, bans: 2, rules: 3, audit: 4 }[tab] ?? 0
+  const BANS = [["#B-0412", "S. Lindqvist", "Teleport delta ×3 · 91, 88, 94", "Auto", "Permanent", "2 clips · 3 log lines"], ["#B-0411", "T. Nakamura", "Injection · unregistered client script", "Auto", "Permanent", "1 log line · resource hash"], ["#B-0409", "R. Okafor", "Event validation · bank:withdraw ×4", "Dana W.", "7 days", "4 log lines"], ["#B-0407", "J. Moreno", "Resource hash mismatch (ds_inventory_ui)", "Marcus B.", "3 days", "1 log line · appeal open"], ["#B-0402", "P. Haddad", "Event rate · 56 moves in 2 s, repeated", "Dana W.", "24 h", "2 log lines"]]
+  const AUDIT = [["21:16:02", "Dana W.", "ban.issue", "R. Okafor · 7 days · evidence attached"], ["21:02:40", "system", "auto.kick", "S. Lindqvist · score 91 · teleport delta"], ["20:48:11", "Marcus B.", "flag.clear", "K. Adebayo · false positive: garage retrieve during lag"], ["20:31:57", "Dana W.", "rule.edit", "event-rate threshold 25 → 30 /s"], ["20:12:09", "system", "auto.kick", "T. Nakamura · score 96 · injection"], ["19:55:33", "Marcus B.", "ban.appeal", "J. Moreno · appeal opened · assigned to Dana W."], ["19:40:20", "Priya R.", "settings", "mode: notify → enforce"]]
+  const bansTable = `<table><thead><tr><th>Ban</th><th>Player</th><th>Reason</th><th>By</th><th>Duration</th><th>Evidence</th></tr></thead><tbody>${BANS.map((b) => `<tr><td class="mono t">${b[0]}</td><td><b>${esc(b[1])}</b></td><td class="msg">${esc(b[2])}</td><td>${esc(b[3])}</td><td><span class="tag ${b[4] === "Permanent" ? "bad" : "warn"}">${b[4]}</span></td><td class="t">${esc(b[5])}</td></tr>`).join("")}</tbody></table>`
+  const auditTable = `<table><thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Detail</th></tr></thead><tbody>${AUDIT.map((a) => `<tr><td class="mono t">${a[0]}</td><td><b>${esc(a[1])}</b></td><td><span class="tag ${a[2].startsWith("auto") ? "bad" : a[2].startsWith("ban") ? "warn" : "info"}">${a[2]}</span></td><td class="msg">${esc(a[3])}</td></tr>`).join("")}</tbody></table>`
   const score = (n) => `<div class="sc"><div class="bar"><i style="width:${n}%;background:${n >= 80 ? "#e8554a" : n >= 60 ? "#e8b84a" : "#4a9be8"}"></i></div><b>${n}</b></div>`
   const st = { flagged: `<span class="tag warn">Flagged</span>`, "auto-action": `<span class="tag bad">Auto-kicked</span>`, watch: `<span class="tag info">Watching</span>`, cleared: `<span class="tag ok">Cleared</span>` }
   const rows = EVENTS.map((e) => `<tr><td class="mono t">${e[0]}</td><td><b>${esc(e[1])}</b></td><td><span class="tag">${e[2]}</span></td><td class="msg">${esc(e[3])}</td><td>${score(e[4])}</td><td>${st[e[5]]}</td></tr>`).join("")
   const body = `
   <div class="app">
     <aside class="nav"><div class="brand">Anticheat</div>
-      ${["Live events", "Flagged players", "Bans", "Rules", "Audit log", "Settings"].map((n, i) => `<div class="ni${(tab === "live" && i === 0) || (tab === "rules" && i === 3) ? " on" : ""}">${n}</div>`).join("")}
+      ${["Live events", "Flagged players", "Bans", "Rules", "Audit log", "Settings"].map((n, i) => `<div class="ni${i === NAVI ? " on" : ""}">${n}</div>`).join("")}
       <div class="foot"><span class="dot"></span> Enforcing · staff bypass on</div></aside>
     <main>
-      <header><h1>Live events</h1><div class="stats">
+      <header><h1>${TITLE}</h1><div class="stats">
         <div class="st"><span class="lbl">Active sessions</span><b>84</b></div><div class="st"><span class="lbl">Events / min</span><b>1,240</b></div><div class="st"><span class="lbl">Flagged (24h)</span><b>17</b></div><div class="st"><span class="lbl">Auto-actions (24h)</span><b>3</b></div></div></header>
       <div class="tools"><input value="Search player, event type or resource…"><span class="tag info">Last 15 min</span><span class="tag">Score ≥ 30</span></div>
-      <table><thead><tr><th>Time</th><th>Player</th><th>Check</th><th>Detail</th><th style="width:170px">Score</th><th>Action</th></tr></thead><tbody>${rows}</tbody></table>
+      ${tab === "bans" ? bansTable : tab === "audit" ? auditTable : `<table><thead><tr><th>Time</th><th>Player</th><th>Check</th><th>Detail</th><th style="width:170px">Score</th><th>Action</th></tr></thead><tbody>${rows}</tbody></table>`}
     </main>
   </div>`
   const style = `${BASE_STYLE}
