@@ -4,6 +4,7 @@ import { ArrowUpRight, Download, ShieldCheck } from "@/lib/storefront-icons"
 
 const shopLinks = [
   { label: "All products", href: "/redesign-preview/products" },
+  { label: "All departments", href: "/redesign-preview/categories" },
   { label: "Business & Office", href: "/redesign-preview/products?category=business-office" },
   { label: "Web & Development", href: "/redesign-preview/products?category=web-development" },
   { label: "Design Resources", href: "/redesign-preview/products?category=design-resources" },
@@ -22,7 +23,9 @@ export function RedesignFooter() {
       <div className="mx-auto max-w-[1500px] px-6 py-14 sm:px-8 lg:px-10 lg:py-20">
         <div className="grid gap-14 lg:grid-cols-[1.35fr_0.65fr_0.65fr]">
           <div className="max-w-xl">
-            <BrandLogo heightClassName="h-10" />
+            <Link href="/redesign-preview" aria-label="DistroSource redesign preview home" className="inline-flex">
+              <BrandLogo href={null} heightClassName="h-10" />
+            </Link>
             <h2 className="mt-8 font-display text-4xl font-black leading-[0.95] tracking-[-0.045em] sm:text-5xl">
               Everything digital.
               <span className="block text-primary">One source.</span>
@@ -48,10 +51,7 @@ export function RedesignFooter() {
             <ul className="mt-5 space-y-3">
               {shopLinks.map((link) => (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="group inline-flex items-center gap-2 text-sm text-navy-foreground/70 transition-colors hover:text-navy-foreground"
-                  >
+                  <Link href={link.href} className="group inline-flex items-center gap-2 text-sm text-navy-foreground/70 transition-colors hover:text-navy-foreground">
                     {link.label}
                     <ArrowUpRight className="size-3.5 opacity-0 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />
                   </Link>
@@ -64,11 +64,7 @@ export function RedesignFooter() {
             <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-navy-foreground/35">Support</p>
             <ul className="mt-5 space-y-3">
               {supportLinks.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-navy-foreground/70 transition-colors hover:text-navy-foreground">
-                    {link.label}
-                  </Link>
-                </li>
+                <li key={link.href}><Link href={link.href} className="text-sm text-navy-foreground/70 transition-colors hover:text-navy-foreground">{link.label}</Link></li>
               ))}
             </ul>
           </nav>
