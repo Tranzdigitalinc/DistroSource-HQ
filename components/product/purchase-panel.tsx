@@ -13,6 +13,7 @@ import { toggleWishlist } from "@/lib/actions/wishlist"
 import { licenseLabel } from "@/lib/licenses"
 import { mutate } from "swr"
 import { cn } from "@/lib/utils"
+import { trackWhopEvent } from "@/lib/whop-pixel"
 
 export interface PurchaseMeta {
   formats?: string[]
@@ -47,6 +48,11 @@ export function PurchasePanel({
 
   async function add() {
     await addToCart(productId, selected.id, 1)
+    trackWhopEvent("add_to_cart", {
+      value: Number.parseFloat(selected.price),
+      currency: "USD",
+      product_id: productId,
+    })
     await mutate("/api/cart/summary")
   }
 
