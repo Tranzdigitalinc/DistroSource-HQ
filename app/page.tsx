@@ -6,32 +6,31 @@ import { CategoryGrid } from "@/components/home/category-grid"
 import { ProductRail } from "@/components/home/product-rail"
 import { FAQSection } from "@/components/home/faq-section"
 import { TrustBadges } from "@/components/home/trust-badges"
+import { GamingTeaser } from "@/components/home/gaming-teaser"
 import {
   getCategoryTree,
   getFeaturedProducts,
   getProducts,
   getStorefrontStats,
 } from "@/lib/queries/catalog"
-import { ShopByGoal } from "@/components/home/shop-by-goal"
-import { GamingTeaser } from "@/components/home/gaming-teaser"
 
-const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["homepage", key], { revalidate: 300 })
+const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["homepage-v3", key], { revalidate: 300 })
 
 export default async function HomePage() {
-  const [departments, featured, newArrivals, businessProducts, webDevProducts, designProducts, bundleProducts, stats] =
-    await Promise.all([
-      cache(getCategoryTree, "departments")(),
-      cache(() => getFeaturedProducts(12), "featured")(),
-      cache(() => getProducts({ sort: "newest", limit: 12 }), "new-arrivals")(),
-      cache(() => getProducts({ categorySlug: "business-office", sort: "featured", limit: 8 }), "business-office")(),
-      cache(() => getProducts({ categorySlug: "web-development", sort: "featured", limit: 8 }), "web-development")(),
-      cache(() => getProducts({ categorySlug: "design-resources", sort: "featured", limit: 8 }), "design-resources")(),
-      cache(() => getProducts({ categorySlug: "product-bundles", sort: "featured", limit: 8 }), "product-bundles")(),
-      cache(getStorefrontStats, "stats")(),
-    ])
+  const [departments, featured, newArrivals, businessProducts, webDevProducts, designProducts, stats] = await Promise.all([
+    cache(getCategoryTree, "departments")(),
+    cache(() => getFeaturedProducts(10), "featured")(),
+    cache(() => getProducts({ sort: "newest", limit: 10 }), "new-arrivals")(),
+    cache(() => getProducts({ categorySlug: "business-office", sort: "featured", limit: 3 }), "business-office")(),
+    cache(() => getProducts({ categorySlug: "web-development", sort: "featured", limit: 3 }), "web-development")(),
+    cache(() => getProducts({ categorySlug: "design-resources", sort: "featured", limit: 3 }), "design-resources")(),
+    cache(getStorefrontStats, "stats")(),
+  ])
+
+  const workPicks = [...businessProducts.slice(0, 2), ...webDevProducts.slice(0, 2), ...designProducts.slice(0, 2)].slice(0, 5)
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <main className="flex-1">
         <Hero
@@ -42,41 +41,33 @@ export default async function HomePage() {
             imageUrl: item.product.coverImageUrl ?? item.images[0]?.url ?? item.product.thumbnailUrl ?? null,
           }))}
         />
-        {/* Departments with nothing published are not advertised on the home page. */}
-        <CategoryGrid categories={departments.filter((d) => d.productCount > 0)} />
-        <ProductRail title="Featured products" href="/products" items={featured} />
+
+        <CategoryGrid categories={departments.filter((department) => department.productCount > 0)} />
+
         <ProductRail
-          title="New releases"
-          subtitle="Fresh templates, fonts, and assets just added to the catalog"
-          href="/products?sort=newest"
-          items={newArrivals}
+          title="Featured right now"
+          subtitle="A smaller, sharper selection of products worth seeing first — chosen from the live catalog."
+          href="/products?sort=featured"
+          items={featured}
         />
+
+        <div className="border-y border-border/70 bg-secondary/18">
+          <ProductRail
+            title="New to DistroSource"
+            subtitle="Fresh releases across templates, systems, design assets, development resources and more."
+            href="/products?sort=newest"
+            items={newArrivals}
+          />
+        </div>
+
         <ProductRail
-          title="Business essentials"
-          subtitle="Documents, spreadsheets, and systems that make the everyday work lighter"
-          href="/categories/business-office"
-          items={businessProducts}
+          title="Build better. Work faster."
+          subtitle="A cross-department edit of business, web and design products for projects that need to move."
+          href="/products"
+          items={workPicks}
         />
-        <ProductRail
-          title="Web & development"
-          subtitle="Site templates, UI kits, and code starters for your next build"
-          href="/categories/web-development"
-          items={webDevProducts}
-        />
-        <ProductRail
-          title="Design resources"
-          subtitle="Graphics, mockups, and brand assets with a point of view"
-          href="/categories/design-resources"
-          items={designProducts}
-        />
-        <ShopByGoal />
+
         <GamingTeaser />
-        <ProductRail
-          title="Digital bundles"
-          subtitle="Curated collections that cost less than buying each file on its own"
-          href="/categories/product-bundles"
-          items={bundleProducts}
-        />
         <TrustBadges />
         <FAQSection />
       </main>
