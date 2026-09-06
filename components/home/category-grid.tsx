@@ -1,109 +1,76 @@
-"use client"
-
 import Link from "next/link"
-import { motion } from "motion/react"
 import { ArrowUpRight } from "@/lib/storefront-icons"
 import { getCategoryIcon } from "@/lib/category-icons"
 import { RevealGroup, RevealItem } from "@/components/motion/reveal"
-import { cn } from "@/lib/utils"
 import type { getCategoryTree } from "@/lib/queries/catalog"
 
-const MotionLink = motion.create(Link)
-
 export function CategoryGrid({ categories }: { categories: Awaited<ReturnType<typeof getCategoryTree>> }) {
+  const visible = categories.slice(0, 8)
+
   return (
-    <section className="mx-auto max-w-7xl px-6 py-16 sm:px-8">
-      <div className="mb-8 flex items-end justify-between border-b border-border pb-6">
-        <div>
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Browse the catalog</p>
-          <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">Top categories</h2>
-          <p className="mt-1.5 text-sm text-muted-foreground">Every department in the catalog, one click away</p>
+    <section className="border-b border-border/70 bg-secondary/18">
+      <div className="mx-auto max-w-[94rem] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="mb-9 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,28rem)] lg:items-end">
+          <div>
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-primary">Departments</p>
+            <h2 className="mt-2 max-w-3xl font-display text-3xl font-black tracking-[-0.045em] text-foreground sm:text-4xl lg:text-5xl">
+              Find the right shelf, faster.
+            </h2>
+          </div>
+          <div className="lg:text-right">
+            <p className="text-sm leading-6 text-muted-foreground">
+              Browse by what you need, then narrow with formats, software, licensing and price.
+            </p>
+            <Link href="/categories" className="group mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-foreground hover:text-primary">
+              All departments
+              <ArrowUpRight size={14} className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </Link>
+          </div>
         </div>
-        <Link
-          href="/categories"
-          className="hidden items-center gap-1 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary hover:underline sm:flex"
-        >
-          All categories
-          <ArrowUpRight className="size-3.5" />
-        </Link>
-      </div>
-      <RevealGroup className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4" stagger={0.06}>
-        {categories.map((category, index) => {
-          const Icon = getCategoryIcon(category.slug)
-          const featured = index === 0
-          const initial = category.name.trim().charAt(0).toUpperCase()
-          return (
-            <RevealItem
-              key={category.slug}
-              className={cn(featured && "col-span-2 sm:col-span-1 lg:col-span-2 lg:row-span-2")}
-            >
-              <MotionLink
-                href={`/categories/${category.slug}`}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 420, damping: 32 }}
-                className={cn(
-                  "group relative flex h-full flex-col justify-between overflow-hidden rounded-lg border border-border bg-navy text-navy-foreground transition-[border-color,box-shadow] duration-200 hover:border-primary/50 hover:shadow-[var(--shadow-e2)]",
-                  featured ? "min-h-64 p-6 lg:min-h-full lg:p-8" : "aspect-[4/3] p-5",
-                )}
-              >
-                {/* Halftone dot grain — print-poster texture, not decoration */}
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 opacity-[0.06]"
-                  style={{
-                    backgroundImage: "radial-gradient(var(--color-navy-foreground) 1px, transparent 1px)",
-                    backgroundSize: "9px 9px",
-                  }}
-                />
 
-                {/* Oversized outlined initial — the one signature graphic per card */}
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "pointer-events-none absolute -bottom-6 -right-3 select-none font-display font-bold leading-none transition-transform duration-500 group-hover:-translate-y-1.5",
-                    featured ? "text-[15rem] sm:text-[18rem]" : "text-[7.5rem] sm:text-[8.5rem]",
-                  )}
-                  style={{
-                    color: "transparent",
-                    WebkitTextStroke: "1.5px color-mix(in oklch, var(--color-navy-foreground) 35%, transparent)",
-                  }}
+        <RevealGroup className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" stagger={0.045}>
+          {visible.map((category) => {
+            const Icon = getCategoryIcon(category.slug)
+            const subcategories = category.subcategories.filter((item) => item.productCount > 0).slice(0, 3)
+
+            return (
+              <RevealItem key={category.slug}>
+                <Link
+                  href={`/categories/${category.slug}`}
+                  className="group flex min-h-[17rem] h-full flex-col rounded-2xl border border-border/80 bg-background p-5 transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-border-strong hover:shadow-[0_20px_60px_-36px_color-mix(in_oklch,var(--foreground)_25%,transparent)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
                 >
-                  {initial}
-                </span>
-
-                <div className="relative flex items-start justify-between">
-                  <span className="flex size-10 items-center justify-center rounded-[4px] border border-navy-foreground/15 bg-navy-foreground/5 text-primary transition-colors group-hover:border-primary/60 group-hover:bg-primary group-hover:text-primary-foreground">
-                    <Icon aria-hidden="true" className={featured ? "size-6" : "size-5"} />
-                  </span>
-                  <span className="font-mono text-[10px] font-semibold text-navy-foreground/40">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                </div>
-
-                <span className="relative flex items-end justify-between gap-3">
-                  <span className="flex flex-col gap-1.5">
-                    <span
-                      className={cn(
-                        "font-display font-bold text-balance leading-[1.1]",
-                        featured ? "text-2xl sm:text-3xl" : "text-base sm:text-lg",
-                      )}
-                    >
-                      {category.name}
+                  <div className="flex items-start justify-between gap-4">
+                    <span className="flex size-11 items-center justify-center rounded-xl bg-secondary text-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                      <Icon className="size-5" aria-hidden="true" />
                     </span>
-                    <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.02em] text-primary">
-                      <span className="size-1 rounded-full bg-primary" />
-                      {category.productCount} {category.productCount === 1 ? "product" : "products"}
+                    <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                      {category.productCount} products
                     </span>
-                  </span>
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-navy-foreground/15 text-navy-foreground/70 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:border-primary group-hover:text-primary">
-                    <ArrowUpRight aria-hidden="true" className="size-4" />
-                  </span>
-                </span>
-              </MotionLink>
-            </RevealItem>
-          )
-        })}
-      </RevealGroup>
+                  </div>
+
+                  <div className="mt-auto pt-10">
+                    <h3 className="font-display text-xl font-black tracking-[-0.025em] text-foreground sm:text-2xl">{category.name}</h3>
+                    {category.description && <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{category.description}</p>}
+                    {subcategories.length > 0 && (
+                      <div className="mt-4 flex flex-wrap gap-1.5">
+                        {subcategories.map((subcategory) => (
+                          <span key={subcategory.slug} className="rounded-full border border-border bg-secondary/35 px-2.5 py-1 text-[10px] font-medium text-muted-foreground">
+                            {subcategory.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-foreground transition-colors group-hover:text-primary">
+                      Browse department
+                      <ArrowUpRight size={13} />
+                    </span>
+                  </div>
+                </Link>
+              </RevealItem>
+            )
+          })}
+        </RevealGroup>
+      </div>
     </section>
   )
 }
