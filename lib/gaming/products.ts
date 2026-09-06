@@ -899,6 +899,1107 @@ const FIVEM_DRAFTS: Draft[] = [
     ],
     tags: ["bundle", "starter", "essentials", "server"],
   },
+  {
+    id: "gp-021",
+    title: "Emergency Vehicle Pack",
+    slug: "emergency-vehicle-pack",
+    shortDescription: "Fourteen police, fire and EMS vehicles with liveries, ELS lighting and tuned handling.",
+    description:
+      "A complete emergency fleet built to one standard, so your police, fire and EMS units look like they belong to the same city. Every vehicle has a layered livery you can rebrand, ELS-compatible lighting with realistic patterns, working extras, and handling tuned so pursuit vehicles actually behave differently from the ambulance. Liveries ship as source files at 4K.",
+    price: 54.99,
+    originalPrice: 74.99,
+    category: "vehicles",
+    subcategory: "Emergency fleet",
+    art: [
+      { scene: "lineup", caption: "EMERGENCY FLEET", subject: "vehicle", count: 14, accentIndex: 1 },
+      { scene: "interior", caption: "IN THE GARAGE", tone: "cool", props: ["car", "crate", "shelf", "screen"] },
+      {
+        scene: "config",
+        caption: "HANDLING TUNE",
+        rows: [
+          { label: "TOP SPEED", fill: 0.78, value: "142" },
+          { label: "ACCELERATION", fill: 0.7, value: "0.34" },
+          { label: "BRAKE FORCE", fill: 0.82, value: "1.05" },
+          { label: "TRACTION", fill: 0.66, value: "2.1" },
+          { label: "MASS", fill: 0.55, value: "2100kg" },
+        ],
+      },
+    ],
+    version: "4.2.0",
+    lastUpdated: "2026-08-24",
+    releasedAt: "2025-09-12",
+    featured: true,
+    bestseller: true,
+    features: [
+      "Fourteen vehicles across police, fire and EMS",
+      "Layered 4K liveries supplied as source files for rebranding",
+      "ELS-compatible lighting with realistic patterns per unit type",
+      "Handling tuned per role — pursuit units differ from heavy apparatus",
+      "Working extras: light bars, push bars, equipment and unit numbers",
+    ],
+    included: ["14 vehicle models", "Livery source files (PSD)", "handling.meta entries", "carcols / carvariations", "Installation notes"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Copy the `ds_emergency_vehicles` folder into your server's `resources` directory.",
+      "Add `ensure ds_emergency_vehicles` to `server.cfg`.",
+      "Merge the supplied `handling.meta`, `carcols.meta` and `carvariations.meta` entries with your existing vehicle metas — do not replace the files wholesale.",
+      "Rebrand the liveries with the supplied source files and re-export as YTD at the same resolution.",
+      "Restart the server and spawn one vehicle from each category to confirm lighting and extras work.",
+    ],
+    changelog: [
+      {
+        version: "4.2.0",
+        date: "2026-08-24",
+        notes: [
+          "Rebuilt ELS patterns for all fire apparatus after reports of stuttering on high-population servers.",
+          "Added two unmarked pursuit units.",
+          "Liveries re-exported at 4K, up from 2K.",
+        ],
+      },
+      {
+        version: "4.0.0",
+        date: "2026-03-06",
+        notes: ["Retuned handling across the whole fleet against role rather than one shared profile.", "Added working push bars and equipment extras."],
+      },
+      { version: "1.0.0", date: "2025-09-12", notes: ["Initial release with nine vehicles."] },
+    ],
+    faq: [
+      {
+        question: "Can I put my own department branding on these?",
+        answer:
+          "Yes — that is what the layered source files are for. Swap the department name, crest and unit numbering, re-export, and the rest of the livery stays intact.",
+      },
+      {
+        question: "Do I need ELS?",
+        answer:
+          "No. The lighting is ELS-compatible but falls back to standard siren behaviour if you do not run ELS. Both paths are covered in the notes.",
+      },
+      LICENCE_FAQ,
+    ],
+    tags: ["vehicles", "emergency", "police", "els"],
+  },
+  {
+    id: "gp-022",
+    title: "Tuner Car Pack",
+    slug: "tuner-car-pack",
+    shortDescription: "Twelve tunable street cars with full mod support, custom wheels and engine audio.",
+    description:
+      "Twelve street cars built for a server with a tuning scene. Every model supports the full mod menu — body kits, spoilers, bumpers, wheels, liveries and engine swaps — with LODs at four levels so a full car meet does not tank frames. Includes matching engine audio and a wheel pack that works across the whole set.",
+    price: 39.99,
+    category: "vehicles",
+    subcategory: "Street and tuner",
+    art: [
+      { scene: "lineup", caption: "TUNER LINEUP", subject: "vehicle", count: 12, accentIndex: 2 },
+      {
+        scene: "config",
+        caption: "MOD SUPPORT",
+        rows: [
+          { label: "BODY KITS", fill: 0.9, value: "6" },
+          { label: "SPOILERS", fill: 0.75, value: "5" },
+          { label: "WHEEL SETS", fill: 1, value: "18" },
+          { label: "LIVERY SLOTS", fill: 0.62, value: "8" },
+          { label: "ENGINE TIERS", fill: 0.8, value: "4" },
+        ],
+      },
+    ],
+    version: "3.1.0",
+    lastUpdated: "2026-07-18",
+    releasedAt: "2025-11-28",
+    popular: true,
+    features: [
+      "Twelve cars with full mod-menu support",
+      "Six body kits, five spoilers and eighteen wheel sets across the pack",
+      "Four LOD levels — built for car meets, not single spawns",
+      "Matching engine audio per vehicle",
+      "Eight livery slots per car with template files",
+    ],
+    included: ["12 vehicle models", "Shared wheel pack", "Engine audio set", "Livery templates", "Meta entries"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Copy `ds_tuner_pack` into your server's `resources` directory.",
+      "Add `ensure ds_tuner_pack` to `server.cfg`.",
+      "Merge the supplied meta entries with your existing vehicle metas rather than overwriting them.",
+      "Add the shared wheel pack entries to `carcols.meta` — the wheels are referenced by every car in the set.",
+      "Restart, spawn one car, and confirm the mod menu lists kits, wheels and engine tiers.",
+    ],
+    changelog: [
+      {
+        version: "3.1.0",
+        date: "2026-07-18",
+        notes: ["Added a fourth LOD level to the six heaviest models.", "Fixed wheel offset on two cars at maximum camber."],
+      },
+      { version: "3.0.0", date: "2026-02-14", notes: ["Added engine audio for all twelve.", "Expanded to eight livery slots per car."] },
+      { version: "1.0.0", date: "2025-11-28", notes: ["Initial release with eight cars."] },
+    ],
+    faq: [
+      {
+        question: "Will a full car meet hurt performance?",
+        answer:
+          "That is the case these were built for. Four LOD levels and tuned poly budgets mean twenty of these on screen costs roughly what eight untuned models would.",
+      },
+      {
+        question: "Are these replace or add-on?",
+        answer: "Add-on, so they sit alongside base game vehicles rather than overwriting them. Nothing in your existing fleet changes.",
+      },
+      SUPPORT_FAQ,
+    ],
+    tags: ["vehicles", "tuner", "cars", "mods"],
+  },
+  {
+    id: "gp-023",
+    title: "Emergency Services EUP Pack",
+    slug: "emergency-services-eup-pack",
+    shortDescription: "Police, fire and EMS uniforms for both genders with rank variants and patches.",
+    description:
+      "A uniform set covering the three emergency services, drawn to one standard so a joint scene does not look like three different servers. Includes patrol, tactical, dress and utility variants, rank insignia from officer to command, and separate male and female meshes that actually fit rather than being scaled copies. Patches are on their own layer for rebranding.",
+    price: 34.99,
+    category: "clothing",
+    subcategory: "Emergency uniforms",
+    art: [
+      { scene: "lineup", caption: "UNIFORM SET", subject: "character", count: 48, accentIndex: 2 },
+      {
+        scene: "screen",
+        caption: "CLOTHING MENU",
+        app: "WARDROBE",
+        tabs: ["TORSO", "LEGS", "VEST", "BADGE", "HAT"],
+        activeTab: 0,
+        slots: 15,
+      },
+    ],
+    version: "2.6.0",
+    lastUpdated: "2026-08-07",
+    releasedAt: "2026-01-22",
+    bestseller: true,
+    features: [
+      "Police, fire and EMS covered in one consistent set",
+      "Patrol, tactical, dress and utility variants",
+      "Rank insignia from officer through command",
+      "Separate male and female meshes, not scaled copies",
+      "Patches on their own layer for rebranding",
+    ],
+    included: ["EUP clothing set", "Patch source files", "Rank reference chart", "Installation notes"],
+    requirements: [
+      "A FiveM server with file and console access",
+      "An EUP-compatible clothing resource already installed",
+      "A clothing menu resource for players to select items",
+    ],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Copy the supplied streaming folders into your existing EUP resource.",
+      "Merge the provided clothing metas with your current ones — component IDs are listed in the reference chart.",
+      "Rebrand the patches using the source files if you run a custom department.",
+      "Restart the server and open the clothing menu to confirm every variant appears under the right component.",
+      "Set rank-gated access in your job resource if you want insignia restricted.",
+    ],
+    changelog: [
+      {
+        version: "2.6.0",
+        date: "2026-08-07",
+        notes: ["Added command-rank dress uniforms for all three services.", "Fixed vest clipping on two female torso variants."],
+      },
+      { version: "2.0.0", date: "2026-04-19", notes: ["Rebuilt female meshes from scratch rather than scaling the male set.", "Patches moved to their own layer."] },
+      { version: "1.0.0", date: "2026-01-22", notes: ["Initial release."] },
+    ],
+    faq: [
+      {
+        question: "Does this need EUP installed already?",
+        answer:
+          "Yes. This is a clothing set that streams into an existing EUP-compatible resource — it does not replace your clothing framework.",
+      },
+      {
+        question: "Can I use my own department patches?",
+        answer: "Yes, the patches are a separate layer with source files supplied. Swap them and re-export.",
+      },
+      LICENCE_FAQ,
+    ],
+    tags: ["clothing", "eup", "uniforms", "emergency"],
+  },
+  {
+    id: "gp-024",
+    title: "Civilian Clothing Collection",
+    slug: "civilian-clothing-collection",
+    shortDescription: "Over 200 civilian clothing items across tops, legs, shoes and accessories.",
+    description:
+      "A civilian wardrobe with enough range that players stop looking like the same six characters. Over 200 items across tops, jackets, legwear, footwear and accessories, split between male and female with correct meshes for each. Everything shares one texture standard, so mixing items from different sets does not produce a resolution mismatch.",
+    price: 29.99,
+    category: "clothing",
+    subcategory: "Civilian wardrobe",
+    art: [
+      { scene: "lineup", caption: "WARDROBE", subject: "character", count: 214, accentIndex: 3 },
+      {
+        scene: "screen",
+        caption: "ITEM BROWSER",
+        app: "CLOTHING",
+        tabs: ["TOPS", "JACKETS", "LEGS", "SHOES", "ACCESSORIES"],
+        activeTab: 1,
+        slots: 20,
+      },
+    ],
+    version: "5.4.0",
+    lastUpdated: "2026-08-16",
+    releasedAt: "2025-06-05",
+    popular: true,
+    features: [
+      "200+ items across five component categories",
+      "Correct male and female meshes throughout",
+      "One texture standard so mixed outfits stay consistent",
+      "Colour variants on the majority of items",
+      "Component ID reference so nothing collides with your existing sets",
+    ],
+    included: ["Clothing streaming set", "Component ID reference", "Texture variant sheets", "Installation notes"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Copy the streaming folders into your clothing resource.",
+      "Check the component ID reference against your existing sets and shift the supplied IDs if anything collides.",
+      "Merge the clothing metas with your current ones.",
+      "Restart the server and page through the clothing menu to confirm all categories populate.",
+      "Rebuild your clothing cache if your menu resource keeps one.",
+    ],
+    changelog: [
+      {
+        version: "5.4.0",
+        date: "2026-08-16",
+        notes: ["Added 34 items across jackets and footwear.", "Normalised texture resolution across the older sets."],
+      },
+      { version: "5.0.0", date: "2026-03-30", notes: ["Reissued every item against one texture standard.", "Added the component ID reference."] },
+      { version: "1.0.0", date: "2025-06-05", notes: ["Initial release with 90 items."] },
+    ],
+    faq: [
+      {
+        question: "Will these clash with clothing packs I already run?",
+        answer:
+          "Component IDs are documented so you can check before installing, and shifting the supplied range is a config change rather than a re-export.",
+      },
+      {
+        question: "Are all items available for both genders?",
+        answer:
+          "The large majority are, with correct meshes for each rather than a scaled copy. The reference chart marks the handful that are single-gender.",
+      },
+      SUPPORT_FAQ,
+    ],
+    tags: ["clothing", "civilian", "wardrobe", "roleplay"],
+  },
+  {
+    id: "gp-025",
+    title: "Custom Ped Model Pack",
+    slug: "custom-ped-model-pack",
+    shortDescription: "Ten original character models with rigged faces, LODs and clothing component support.",
+    description:
+      "Ten original peds built to the game's own rig, so they animate correctly rather than sliding through emotes. Each has a rigged face with working expressions, three LOD levels, and clothing component support so players can dress them from your existing wardrobe rather than being stuck with a baked outfit.",
+    price: 32.99,
+    category: "characters",
+    subcategory: "Player models",
+    art: [
+      { scene: "lineup", caption: "PED MODELS", subject: "character", count: 10, accentIndex: 1 },
+      {
+        scene: "config",
+        caption: "MODEL BUDGET",
+        rows: [
+          { label: "TRIANGLES", fill: 0.52, value: "24k" },
+          { label: "LOD LEVELS", fill: 0.75, value: "3" },
+          { label: "FACE BONES", fill: 0.88, value: "FULL" },
+          { label: "COMPONENTS", fill: 0.7, value: "11" },
+          { label: "TEXTURE SIZE", fill: 0.6, value: "2K" },
+        ],
+      },
+    ],
+    version: "2.3.0",
+    lastUpdated: "2026-06-25",
+    releasedAt: "2026-02-11",
+    features: [
+      "Ten original models built to the game rig",
+      "Rigged faces with working expressions",
+      "Three LOD levels each",
+      "Clothing component support — not a baked outfit",
+      "Freemode-compatible skeletons for standard animations",
+    ],
+    included: ["10 ped models", "Component reference", "LOD notes", "Installation guide"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Copy `ds_peds` into your server's `resources` directory.",
+      "Add `ensure ds_peds` to `server.cfg`.",
+      "Register the model names with your character or spawn resource using the supplied reference.",
+      "Restart the server and load each model once to confirm the face rig and LODs stream correctly.",
+      "Add the models to your clothing menu if you want players selecting them directly.",
+    ],
+    changelog: [
+      {
+        version: "2.3.0",
+        date: "2026-06-25",
+        notes: ["Added three models.", "Rebuilt LOD1 on the original seven — noticeable pop-in at mid distance is gone."],
+      },
+      { version: "2.0.0", date: "2026-04-08", notes: ["Added full face rigging so expressions work with standard emote resources."] },
+      { version: "1.0.0", date: "2026-02-11", notes: ["Initial release with seven models."] },
+    ],
+    faq: [
+      {
+        question: "Can players wear my existing clothing on these?",
+        answer:
+          "Yes — they support clothing components rather than shipping a baked outfit, so your existing wardrobe applies to them.",
+      },
+      {
+        question: "Do standard emote packs work?",
+        answer: "They use freemode-compatible skeletons, so anything built for the standard rig plays correctly.",
+      },
+      LICENCE_FAQ,
+    ],
+    tags: ["peds", "characters", "models", "roleplay"],
+  },
+  {
+    id: "gp-026",
+    title: "Modern Weapon Pack",
+    slug: "modern-weapon-pack",
+    shortDescription: "Fifteen weapon models with attachments, custom audio and balanced ballistics.",
+    description:
+      "Fifteen weapons modelled to a consistent standard with working attachment points for optics, suppressors, grips and lights. Ballistics are balanced against each other rather than each weapon being tuned alone, so damage, range and recoil form a coherent ladder. Includes custom firing audio and correct animations for each class.",
+    price: 34.99,
+    category: "weapons",
+    subcategory: "Weapon models",
+    art: [
+      { scene: "lineup", caption: "WEAPON SET", subject: "weapon", count: 15, accentIndex: 1 },
+      {
+        scene: "config",
+        caption: "BALLISTICS",
+        rows: [
+          { label: "DAMAGE", fill: 0.68, value: "42" },
+          { label: "RANGE", fill: 0.74, value: "180m" },
+          { label: "RECOIL", fill: 0.42, value: "LOW" },
+          { label: "FIRE RATE", fill: 0.8, value: "720rpm" },
+          { label: "MAG SIZE", fill: 0.6, value: "30" },
+        ],
+      },
+    ],
+    version: "3.3.0",
+    lastUpdated: "2026-07-27",
+    releasedAt: "2025-12-14",
+    features: [
+      "Fifteen weapons modelled to one standard",
+      "Attachment points for optics, suppressors, grips and lights",
+      "Ballistics balanced as a ladder, not weapon by weapon",
+      "Custom firing and reload audio",
+      "Correct animation sets per weapon class",
+    ],
+    included: ["15 weapon models", "Attachment meshes", "Audio set", "weapons.meta entries", "Balance notes"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Copy `ds_weapons` into your server's `resources` directory.",
+      "Add `ensure ds_weapons` to `server.cfg`.",
+      "Merge the supplied `weapons.meta` and `pedpersonality.meta` entries with your existing files.",
+      "Register the weapon hashes with your inventory resource so they can be given and stored.",
+      "Restart, then read the balance notes before adjusting damage — the values are set relative to each other.",
+    ],
+    changelog: [
+      {
+        version: "3.3.0",
+        date: "2026-07-27",
+        notes: ["Added four weapons and rebalanced the ladder around them.", "Suppressor attachment now affects audio as well as muzzle flash."],
+      },
+      { version: "3.0.0", date: "2026-03-21", notes: ["Replaced all firing audio.", "Rebuilt attachment points so optics align correctly at all zoom levels."] },
+      { version: "1.0.0", date: "2025-12-14", notes: ["Initial release with eleven weapons."] },
+    ],
+    faq: [
+      {
+        question: "Can I change the damage values?",
+        answer:
+          "Yes, but read the balance notes first — the values are set relative to one another, so changing one in isolation tends to break the ladder.",
+      },
+      {
+        question: "Do these work with my inventory system?",
+        answer:
+          "They register as standard weapon hashes, so any inventory that handles base game weapons handles these. The hash list is included.",
+      },
+      SUPPORT_FAQ,
+    ],
+    tags: ["weapons", "attachments", "ballistics", "combat"],
+  },
+  {
+    id: "gp-027",
+    title: "Emote & Animation Pack",
+    slug: "emote-animation-pack",
+    shortDescription: "Over 300 emotes and animations with a searchable in-game menu and keybinds.",
+    description:
+      "More than 300 animations covering everyday actions, social emotes, props, dances and paired interactions. The menu is searchable and supports favourites and keybinds, so players are not scrolling a wall of names mid-scene. Paired emotes have a consent prompt rather than snapping another player into position.",
+    price: 19.99,
+    category: "animations",
+    subcategory: "Emotes",
+    art: [
+      { scene: "lineup", caption: "EMOTE SET", subject: "character", count: 312, accentIndex: 2 },
+      {
+        scene: "screen",
+        caption: "EMOTE MENU",
+        app: "EMOTES",
+        tabs: ["FAVOURITES", "SOCIAL", "PROPS", "DANCES", "PAIRED"],
+        activeTab: 1,
+        slots: 20,
+      },
+    ],
+    version: "6.1.0",
+    lastUpdated: "2026-08-19",
+    releasedAt: "2025-08-30",
+    popular: true,
+    features: [
+      "300+ animations across everyday, social, prop and paired categories",
+      "Searchable menu with favourites and keybinds",
+      "Paired emotes ask the other player before moving them",
+      "Prop emotes with correct attachment points",
+      "Walk styles and idle overrides included",
+    ],
+    included: ["Emote resource", "Animation dictionary list", "Keybind config", "Prop attachment reference"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Copy `ds_emotes` into your server's `resources` directory.",
+      "Add `ensure ds_emotes` to `server.cfg`.",
+      "Set the menu keybind and default favourites in `config.lua`.",
+      "Disable any existing emote resource — two menus bound to the same key is the most common install problem.",
+      "Restart and confirm prop emotes attach correctly, since those depend on your prop streaming.",
+    ],
+    changelog: [
+      {
+        version: "6.1.0",
+        date: "2026-08-19",
+        notes: ["Added 42 animations, mostly paired and prop.", "Search now matches on category as well as name."],
+      },
+      { version: "6.0.0", date: "2026-05-07", notes: ["Rewrote the menu with search and favourites.", "Paired emotes now require consent from the second player."] },
+      { version: "1.0.0", date: "2025-08-30", notes: ["Initial release with 180 animations."] },
+    ],
+    faq: [
+      {
+        question: "Do paired emotes need both players to agree?",
+        answer:
+          "Yes. The second player gets a prompt and can decline. Snapping someone into an animation without consent causes more moderation work than it is worth.",
+      },
+      {
+        question: "Will this conflict with my current emote menu?",
+        answer:
+          "Only if both stay enabled — they will fight over the keybind. Disable the old resource, which is step five of the installation.",
+      },
+      LICENCE_FAQ,
+    ],
+    tags: ["emotes", "animations", "roleplay", "menu"],
+  },
+  {
+    id: "gp-028",
+    title: "Roleplay Job Animations",
+    slug: "roleplay-job-animations",
+    shortDescription: "Job-specific animation sets for mechanics, medics, police and service work.",
+    description:
+      "Animation sets built for the jobs servers actually run. Mechanics get repair, inspection and tyre-change sequences with the right props; medics get treatment and stretcher animations; police get search, cuff and evidence actions. Each set is scripted as a sequence rather than a single loop, so an action reads as a task being performed.",
+    price: 24.99,
+    category: "animations",
+    subcategory: "Job animations",
+    art: [
+      { scene: "lineup", caption: "JOB ACTIONS", subject: "character", count: 64, accentIndex: 2 },
+      { scene: "system", caption: "SEQUENCE", stages: ["APPROACH", "PERFORM", "COMPLETE", "RESET"], activeStage: 1 },
+    ],
+    version: "2.8.0",
+    lastUpdated: "2026-07-03",
+    releasedAt: "2026-01-15",
+    features: [
+      "Sets for mechanic, medic, police and service roles",
+      "Sequenced actions rather than single looping animations",
+      "Correct prop attachment for every action",
+      "Cancellable mid-sequence without leaving the player stuck",
+      "Exports so your job scripts can trigger any sequence directly",
+    ],
+    included: ["Animation resource", "Job sequence reference", "Prop list", "Integration examples"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Copy `ds_job_anims` into your server's `resources` directory.",
+      "Add `ensure ds_job_anims` to `server.cfg`, before the job resources that will call it.",
+      "Wire your job scripts to the supplied exports using the integration examples.",
+      "Confirm the required props stream on your server — the prop list names each one.",
+      "Restart and test one sequence per job, including cancelling it midway.",
+    ],
+    changelog: [
+      {
+        version: "2.8.0",
+        date: "2026-07-03",
+        notes: ["Added the service worker set.", "Cancelling mid-sequence now always restores control — previously it could strand the player."],
+      },
+      { version: "2.0.0", date: "2026-03-12", notes: ["Converted single loops into full sequences.", "Added exports for direct triggering."] },
+      { version: "1.0.0", date: "2026-01-15", notes: ["Initial release."] },
+    ],
+    faq: [
+      {
+        question: "Do I need a specific job framework?",
+        answer:
+          "No. The animations are exposed as exports, so any job resource can trigger them. Worked examples for the common frameworks are included.",
+      },
+      {
+        question: "What happens if a player cancels midway?",
+        answer:
+          "Control returns immediately and props are cleaned up. That path was the main fix in 2.8.0, so it is well covered.",
+      },
+      SUPPORT_FAQ,
+    ],
+    tags: ["animations", "jobs", "roleplay", "props"],
+  },
+  {
+    id: "gp-029",
+    title: "Emergency Siren Pack",
+    slug: "emergency-siren-pack",
+    shortDescription: "Twenty-four siren tones with realistic falloff, horn layers and per-vehicle mapping.",
+    description:
+      "Twenty-four siren tones sampled and mixed for in-game use rather than lifted from stock libraries. Each has correct distance falloff so a siren four blocks away sounds like it, plus a separate horn layer that can be triggered independently. Mapping is per vehicle, so your fire apparatus does not share a tone with the patrol fleet.",
+    price: 14.99,
+    category: "audio",
+    subcategory: "Sirens",
+    art: [
+      {
+        scene: "audio",
+        caption: "SIREN TONES",
+        tracks: [
+          { label: "WAIL", fill: 0.82, value: "0 dB" },
+          { label: "YELP", fill: 0.64, value: "-3 dB" },
+          { label: "PHASER", fill: 0.5, value: "-6 dB" },
+          { label: "AIR HORN", fill: 0.88, value: "+2 dB" },
+        ],
+      },
+      {
+        scene: "config",
+        caption: "FALLOFF",
+        rows: [
+          { label: "MAX DISTANCE", fill: 0.7, value: "180m" },
+          { label: "ROLLOFF", fill: 0.55, value: "LINEAR" },
+          { label: "OCCLUSION", fill: 0.62, value: "ON" },
+          { label: "HORN LAYER", fill: 0.8, value: "SEPARATE" },
+        ],
+      },
+    ],
+    version: "2.4.0",
+    lastUpdated: "2026-05-16",
+    releasedAt: "2025-10-24",
+    features: [
+      "24 siren tones mixed for in-game use",
+      "Realistic distance falloff with occlusion",
+      "Separate horn layer, independently triggerable",
+      "Per-vehicle mapping — fire, police and EMS differ",
+      "Volume balanced against base game audio",
+    ],
+    included: ["Audio resource", "Siren mapping config", "Falloff reference", "Installation notes"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Copy `ds_sirens` into your server's `resources` directory.",
+      "Add `ensure ds_sirens` to `server.cfg`.",
+      "Map tones to vehicles in `config.lua` — the supplied mapping covers the common emergency fleets.",
+      "Disable competing siren resources so two audio sources do not stack.",
+      "Restart, then test one vehicle per service at close and long range to confirm falloff.",
+    ],
+    changelog: [
+      {
+        version: "2.4.0",
+        date: "2026-05-16",
+        notes: ["Added six tones.", "Occlusion now applies indoors, so sirens muffle correctly through building walls."],
+      },
+      { version: "2.0.0", date: "2026-01-08", notes: ["Split the horn onto its own layer.", "Rebalanced every tone against base game audio levels."] },
+      { version: "1.0.0", date: "2025-10-24", notes: ["Initial release with 14 tones."] },
+    ],
+    faq: [
+      {
+        question: "Will this replace my existing siren audio?",
+        answer:
+          "It runs as its own resource with its own mapping. Disable the old one so the two do not stack — that is step five.",
+      },
+      {
+        question: "Do these work with ELS?",
+        answer: "Yes. Mapping is per vehicle and independent of the lighting resource you run.",
+      },
+      LICENCE_FAQ,
+    ],
+    tags: ["audio", "sirens", "emergency", "sound"],
+  },
+  {
+    id: "gp-030",
+    title: "Vehicle Engine Sound Pack",
+    slug: "vehicle-engine-sound-pack",
+    shortDescription: "Forty engine audio profiles covering four-cylinder through V12 and electric.",
+    description:
+      "Forty engine profiles spanning small four-cylinders, tuned turbos, big-displacement V8s, V12s and electric drivetrains. Each has correct load and RPM layers so the sound changes with what the car is doing rather than just getting louder. Includes turbo spool, blow-off and exhaust pop layers you can enable per profile.",
+    price: 19.99,
+    category: "audio",
+    subcategory: "Engine audio",
+    art: [
+      {
+        scene: "audio",
+        caption: "ENGINE PROFILE",
+        tracks: [
+          { label: "IDLE", fill: 0.3, value: "800rpm" },
+          { label: "MID LOAD", fill: 0.62, value: "3.4k" },
+          { label: "REDLINE", fill: 0.94, value: "7.2k" },
+          { label: "TURBO SPOOL", fill: 0.7, value: "ON" },
+        ],
+      },
+      { scene: "lineup", caption: "MAPPED VEHICLES", subject: "vehicle", count: 40, accentIndex: 3 },
+    ],
+    version: "3.0.0",
+    lastUpdated: "2026-06-19",
+    releasedAt: "2025-07-09",
+    features: [
+      "40 profiles from four-cylinder to V12 and electric",
+      "Load and RPM layers, not a single looping sample",
+      "Turbo spool, blow-off and exhaust pop layers",
+      "Per-vehicle mapping config",
+      "Balanced against base game engine volume",
+    ],
+    included: ["Audio resource", "Vehicle mapping config", "Profile reference sheet", "Installation notes"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Copy `ds_engine_audio` into your server's `resources` directory.",
+      "Add `ensure ds_engine_audio` to `server.cfg`.",
+      "Map profiles to vehicles in `config.lua` using the reference sheet.",
+      "Enable turbo and exhaust layers per profile where you want them — they are off by default.",
+      "Restart and drive one vehicle per engine class through its full rev range to confirm the layers cross over cleanly.",
+    ],
+    changelog: [
+      {
+        version: "3.0.0",
+        date: "2026-06-19",
+        notes: ["Added electric drivetrain profiles.", "Rebuilt load layers so mid-throttle no longer jumps between samples."],
+      },
+      { version: "2.2.0", date: "2026-02-02", notes: ["Added turbo spool and blow-off layers.", "Expanded to 32 profiles."] },
+      { version: "1.0.0", date: "2025-07-09", notes: ["Initial release with 18 profiles."] },
+    ],
+    faq: [
+      {
+        question: "Can I map these to add-on vehicles?",
+        answer: "Yes — mapping is by model name, so add-on and base game vehicles are handled the same way.",
+      },
+      {
+        question: "Why do the turbo layers default to off?",
+        answer:
+          "Because they are wrong on a naturally aspirated car. Enable them per profile where the vehicle actually has forced induction.",
+      },
+      SUPPORT_FAQ,
+    ],
+    tags: ["audio", "engines", "vehicles", "sound"],
+  },
+  {
+    id: "gp-031",
+    title: "FiveM Anticheat Suite",
+    slug: "fivem-anticheat-suite",
+    shortDescription: "Server-side cheat detection with event validation, injection blocking and an admin log.",
+    description:
+      "Detection that runs server-side, because anything living on the client is negotiable. Validates events against what the player could actually have triggered, blocks the common injection vectors, catches resource tampering, and logs every action with enough context to review a decision later. Ships with sane defaults and a tuning guide so you are not banning your own staff on day one.",
+    price: 59.99,
+    category: "security",
+    subcategory: "Cheat detection",
+    art: [
+      { scene: "system", caption: "DETECTION PIPELINE", stages: ["OBSERVE", "VALIDATE", "SCORE", "ACT"], activeStage: 1 },
+      {
+        scene: "screen",
+        caption: "ADMIN LOG",
+        app: "ANTICHEAT",
+        tabs: ["LIVE", "FLAGGED", "BANNED", "RULES", "AUDIT"],
+        activeTab: 1,
+        slots: 16,
+      },
+      {
+        scene: "config",
+        caption: "THRESHOLDS",
+        rows: [
+          { label: "EVENT RATE", fill: 0.6, value: "MED" },
+          { label: "TELEPORT DELTA", fill: 0.72, value: "STRICT" },
+          { label: "RESOURCE HASH", fill: 0.9, value: "ON" },
+          { label: "AUTO-BAN SCORE", fill: 0.5, value: "80" },
+          { label: "STAFF BYPASS", fill: 0.35, value: "ON" },
+        ],
+      },
+    ],
+    version: "5.2.0",
+    lastUpdated: "2026-08-28",
+    releasedAt: "2025-10-30",
+    featured: true,
+    features: [
+      "Server-side validation — detection does not live on the client",
+      "Event validation against what the player could actually have triggered",
+      "Resource tampering and injection detection",
+      "Scored flagging with a configurable auto-action threshold",
+      "Full admin log with enough context to review a ban later",
+    ],
+    included: ["Anticheat resource", "Admin log interface", "Tuning guide", "Default rule set", "SQL schema"],
+    requirements: [
+      "A FiveM server with file and console access",
+      "A database for the audit log",
+      "Admin identifiers configured so staff are not flagged by their own tools",
+    ],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Run the included `schema.sql` to create the log and ban tables.",
+      "Copy `ds_anticheat` into your server's `resources` directory.",
+      "Add `ensure ds_anticheat` to `server.cfg` as early as possible — it should start before the resources it watches.",
+      "Add your staff identifiers to the bypass list before enabling auto-action, or admin tooling will flag itself.",
+      "Run in log-only mode for a week, read the flagged list, then raise the auto-action threshold from the tuning guide.",
+    ],
+    changelog: [
+      {
+        version: "5.2.0",
+        date: "2026-08-28",
+        notes: [
+          "Added resource hash verification to catch client-side resource tampering.",
+          "Scoring rebalanced after false positives on high-latency connections.",
+        ],
+      },
+      { version: "5.0.0", date: "2026-04-14", notes: ["Moved all detection server-side.", "Added the scored flagging model and log-only mode."] },
+      { version: "1.0.0", date: "2025-10-30", notes: ["Initial release."] },
+    ],
+    faq: [
+      {
+        question: "Will this ban legitimate players?",
+        answer:
+          "It can if you enable auto-action on day one. Run log-only for a week first, read what it flags, then set a threshold — the tuning guide walks through it and step six of the installation says the same.",
+      },
+      {
+        question: "Does it slow the server down?",
+        answer:
+          "Validation runs server-side on events you already process. Overhead is measurable but small; the tuning guide includes the benchmark method so you can check on your own hardware.",
+      },
+      SUPPORT_FAQ,
+    ],
+    tags: ["anticheat", "security", "moderation", "server"],
+  },
+  {
+    id: "gp-032",
+    title: "Hospital MLO",
+    slug: "hospital-mlo",
+    shortDescription: "A working hospital: emergency bays, surgery, wards, morgue and a helipad.",
+    description:
+      "A hospital laid out the way medical roleplay actually runs. Ambulance bays open directly onto triage, surgery and imaging sit on the same corridor, and the ward block is sized for multiple simultaneous patients rather than one bed in a room. Includes a morgue, a pharmacy store with lockable points, staff areas and a rooftop helipad.",
+    price: 37.99,
+    category: "maps-mlos",
+    subcategory: "Emergency services",
+    art: [
+      { scene: "interior", caption: "EMERGENCY BAY", tone: "clinical", props: ["desk", "screen", "shelf", "locker"] },
+      { scene: "interior", caption: "SURGERY", tone: "clinical", props: ["table", "screen", "shelf", "crate"] },
+      { scene: "interior", caption: "WARD BLOCK", tone: "cool", props: ["sofa", "table", "screen", "plant"] },
+    ],
+    version: "2.1.0",
+    lastUpdated: "2026-08-13",
+    releasedAt: "2026-02-28",
+    bestseller: true,
+    features: [
+      "Ambulance bays opening directly onto triage",
+      "Surgery and imaging on one corridor",
+      "Ward block sized for simultaneous patients",
+      "Morgue, pharmacy store and staff areas",
+      "Rooftop helipad with air-ambulance clearance",
+    ],
+    included: ["Hospital MLO", "Door-lock config", "Coordinate reference", "Prop placement file", "Installation notes"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Copy `ds_hospital_mlo` into your server's `resources` directory.",
+      "Add `ensure ds_hospital_mlo` to `server.cfg`, above any medical job resource that references its coordinates.",
+      "Travel to the coordinates in the reference file and confirm the interior streams in.",
+      "Import the door-lock definitions and set which grades hold pharmacy and morgue access.",
+      "Point your medical job at the supplied triage, surgery and respawn markers.",
+    ],
+    changelog: [
+      {
+        version: "2.1.0",
+        date: "2026-08-13",
+        notes: ["Widened the ambulance bay entry for the larger van models.", "Added four more ward beds after feedback about capacity on busy servers."],
+      },
+      { version: "2.0.0", date: "2026-05-21", notes: ["Added the rooftop helipad and lift access.", "Rebuilt the surgery wing onto the imaging corridor."] },
+      { version: "1.0.0", date: "2026-02-28", notes: ["Initial release."] },
+    ],
+    faq: [
+      {
+        question: "Does it include a medical script?",
+        answer:
+          "No — it is the building. Markers for triage, surgery and respawn are placed and documented so your medical job can use them.",
+      },
+      {
+        question: "How many patients can the ward hold?",
+        answer: "Sixteen beds across the ward block after 2.1.0, plus four trauma bays off triage.",
+      },
+      LICENCE_FAQ,
+    ],
+    tags: ["mlo", "hospital", "medical", "emergency"],
+  },
+  {
+    id: "gp-033",
+    title: "Mechanic Workshop MLO",
+    slug: "mechanic-workshop-mlo",
+    shortDescription: "A working garage with lifts, a paint booth, parts store and customer desk.",
+    description:
+      "A mechanic workshop built around the job loop: vehicles come in through a roller door, go onto one of four lifts, and the parts store and paint booth are both a short walk from the bay. Includes a customer-facing desk and waiting area so repair roleplay does not happen in a corner of an empty warehouse.",
+    price: 27.99,
+    category: "maps-mlos",
+    subcategory: "Commercial interiors",
+    art: [
+      { scene: "interior", caption: "REPAIR BAY", tone: "cool", props: ["car", "crate", "shelf", "screen"] },
+      { scene: "interior", caption: "PAINT BOOTH", tone: "showroom", props: ["car", "shelf", "crate", "plant"] },
+    ],
+    version: "1.7.0",
+    lastUpdated: "2026-07-15",
+    releasedAt: "2025-12-19",
+    features: [
+      "Four working lifts with animated travel",
+      "Paint booth with its own roller door",
+      "Parts store with lockable prop points",
+      "Customer desk and waiting area",
+      "Exterior forecourt with brandable signage",
+    ],
+    included: ["Workshop MLO", "Lift coordinate list", "Signage template", "Door-lock config", "Installation notes"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Copy `ds_mechanic_mlo` into your server's `resources` directory.",
+      "Add `ensure ds_mechanic_mlo` to `server.cfg`.",
+      "Confirm the interior streams in at the coordinates in the reference file.",
+      "Feed the lift coordinate list into your mechanic job so vehicles align on the ramps.",
+      "Rebrand the forecourt signage with the supplied template.",
+    ],
+    changelog: [
+      {
+        version: "1.7.0",
+        date: "2026-07-15",
+        notes: ["Lift animation now travels rather than snapping between two states.", "Added a fourth bay."],
+      },
+      { version: "1.4.0", date: "2026-03-25", notes: ["Added the paint booth with a separate roller door.", "Parts store prop points made lockable."] },
+      { version: "1.0.0", date: "2025-12-19", notes: ["Initial release."] },
+    ],
+    faq: [
+      {
+        question: "Will vehicles align on the lifts automatically?",
+        answer:
+          "The lift coordinates ship with the package; the alignment itself is done by your mechanic job. Paste the list into its config.",
+      },
+      {
+        question: "Can I brand the forecourt?",
+        answer: "Yes, a layered signage template is included.",
+      },
+      SUPPORT_FAQ,
+    ],
+    tags: ["mlo", "mechanic", "garage", "job"],
+  },
+  {
+    id: "gp-034",
+    title: "Banking System",
+    slug: "banking-system",
+    shortDescription: "Accounts, transfers, cards, loans and an ATM network with a full transaction log.",
+    description:
+      "A banking layer for servers running a real economy. Players get personal and business accounts, transfers with a searchable history, physical cards that can be lost or stolen, and loans with interest that actually accrues. ATMs are placed across the map with configurable limits, and every movement of money is logged so staff can investigate a dispute.",
+    price: 29.99,
+    category: "scripts-systems",
+    subcategory: "Economy",
+    art: [
+      {
+        scene: "screen",
+        caption: "ACCOUNT VIEW",
+        app: "BANK",
+        tabs: ["ACCOUNTS", "TRANSFER", "CARDS", "LOANS", "HISTORY"],
+        activeTab: 0,
+        slots: 12,
+        meter: { label: "CREDIT USED - 3,400 / 10,000", fill: 0.34 },
+      },
+      { scene: "system", caption: "TRANSACTION FLOW", stages: ["REQUEST", "VALIDATE", "SETTLE", "LOG"], activeStage: 2 },
+    ],
+    version: "4.0.1",
+    lastUpdated: "2026-08-22",
+    releasedAt: "2026-01-06",
+    popular: true,
+    features: [
+      "Personal and business accounts with separate permissions",
+      "Transfers with a searchable, filterable history",
+      "Physical cards that can be lost, stolen or frozen",
+      "Loans with accruing interest and a repayment schedule",
+      "ATM network with per-location withdrawal limits",
+    ],
+    included: ["Banking resource", "ATM placement config", "SQL schema", "Admin audit tools", "config.lua"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Run the included `schema.sql` against your server database.",
+      "Copy `ds_banking` into your server's `resources` directory.",
+      "Add `ensure ds_banking` to `server.cfg`, after your framework and before any job resource that pays wages.",
+      "Point it at your existing economy account in `config.lua` — it layers on top rather than replacing balances.",
+      "Restart, make a test transfer, and confirm the row lands in the transaction log before going live.",
+    ],
+    changelog: [
+      {
+        version: "4.0.1",
+        date: "2026-08-22",
+        notes: ["Fixed interest compounding twice on loans repaid the same in-game day."],
+      },
+      {
+        version: "4.0.0",
+        date: "2026-06-11",
+        notes: ["Added business accounts with role permissions.", "Cards can now be frozen by staff.", "Transaction log made searchable."],
+      },
+      { version: "1.0.0", date: "2026-01-06", notes: ["Initial release."] },
+    ],
+    faq: [
+      {
+        question: "Does it replace my economy resource?",
+        answer:
+          "No. It layers banking on top of the balances your economy resource already holds, so money stays in one place.",
+      },
+      {
+        question: "Can staff investigate a disputed transfer?",
+        answer:
+          "Yes — every movement is logged with both parties, the amount, the source and a timestamp, and the admin tools let you search by player or account.",
+      },
+      LICENCE_FAQ,
+    ],
+    tags: ["banking", "economy", "system", "roleplay"],
+  },
+  {
+    id: "gp-035",
+    title: "Loading Screen Pack",
+    slug: "loading-screen-pack",
+    shortDescription: "Six animated loading screens with music, server rules and a rotating tip feed.",
+    description:
+      "Six loading screens that give players something to read instead of a static logo. Each has a rotating tip and rules feed you edit as plain text, a music player with volume control that remembers the setting, and a live connection progress indicator. All six share one editable brand layer, so changing your colours and logo is done once.",
+    price: 14.99,
+    category: "graphics",
+    subcategory: "Loading screens",
+    art: [
+      {
+        scene: "screen",
+        caption: "LOADING SCREEN",
+        app: "CONNECTING",
+        tabs: ["RULES", "TIPS", "STAFF", "SOCIALS"],
+        activeTab: 1,
+        slots: 9,
+        meter: { label: "CONNECTING - 68%", fill: 0.68 },
+      },
+      { scene: "palette", caption: "BRAND LAYER", kind: "brand" },
+    ],
+    version: "3.2.0",
+    lastUpdated: "2026-06-08",
+    releasedAt: "2025-09-04",
+    features: [
+      "Six distinct animated screens",
+      "Rotating tips and rules edited as plain text",
+      "Music player that remembers the volume setting",
+      "Live connection progress indicator",
+      "One shared brand layer across all six",
+    ],
+    included: ["6 loading screens", "Brand source files", "Tip and rules config", "Music licence notes"],
+    requirements: [
+      "A FiveM server with file and console access",
+      "Your own music files, or use the supplied royalty-free tracks",
+      "An image editor for the brand layer",
+    ],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Pick one of the six screens and copy its folder into your `resources` directory as `ds_loadingscreen`.",
+      "Add `ensure ds_loadingscreen` to `server.cfg`.",
+      "Edit `tips.json` and `rules.json` — both are plain text and take your own content directly.",
+      "Replace the brand layer with your logo and colours using the supplied source files.",
+      "Drop your own music into the `audio` folder, or keep the supplied royalty-free tracks, then restart and reconnect to check it.",
+    ],
+    changelog: [
+      {
+        version: "3.2.0",
+        date: "2026-06-08",
+        notes: ["Volume setting now persists between sessions.", "Added two screens."],
+      },
+      { version: "3.0.0", date: "2026-02-17", notes: ["Unified all screens onto one brand layer.", "Tips and rules moved to plain JSON."] },
+      { version: "1.0.0", date: "2025-09-04", notes: ["Initial release with three screens."] },
+    ],
+    faq: [
+      {
+        question: "Can I use my own music?",
+        answer:
+          "Yes — drop your files into the audio folder. Royalty-free tracks are supplied if you would rather not source your own, with the licence terms included.",
+      },
+      {
+        question: "Do I install all six?",
+        answer: "No, pick one. They are alternatives, not a set to run simultaneously.",
+      },
+      SUPPORT_FAQ,
+    ],
+    tags: ["loading-screen", "graphics", "branding", "server"],
+  },
+  {
+    id: "gp-036",
+    title: "Complete FiveM Server Package",
+    slug: "complete-fivem-server-package",
+    shortDescription: "A full server in one purchase: MLOs, vehicles, clothing, systems, UI and anticheat.",
+    description:
+      "The widest FiveM package DistroSource sells, aimed at launching a serious roleplay server rather than assembling one over six months. Combines the core MLOs, the emergency and tuner vehicle packs, EUP and civilian clothing, the inventory and phone interfaces, the banking and garage systems, the anticheat suite and a loading screen — pre-configured to work together, with a setup guide that sequences the whole build.",
+    price: 199.99,
+    originalPrice: 379.99,
+    category: "bundles",
+    subcategory: "Complete server",
+    art: [
+      {
+        scene: "pack",
+        caption: "COMPLETE PACKAGE",
+        items: ["Core MLO set", "Vehicle packs", "Clothing & EUP", "Systems & UI", "Anticheat suite"],
+      },
+      { scene: "system", caption: "BUILD ORDER", stages: ["FOUNDATION", "CONTENT", "SYSTEMS", "HARDENING"], activeStage: 2 },
+      {
+        scene: "config",
+        caption: "WHAT YOU SAVE",
+        rows: [
+          { label: "BOUGHT SEPARATELY", fill: 1, value: "$379.99" },
+          { label: "PACKAGE PRICE", fill: 0.53, value: "$199.99" },
+          { label: "PRODUCTS INCLUDED", fill: 0.8, value: "11" },
+          { label: "UPDATE STREAM", fill: 1, value: "ONE" },
+        ],
+      },
+    ],
+    version: "2.0.0",
+    lastUpdated: "2026-08-30",
+    releasedAt: "2026-04-25",
+    featured: true,
+    bestseller: true,
+    features: [
+      "Eleven products in one purchase, pre-configured to work together",
+      "Roughly 47% cheaper than buying the parts separately",
+      "Sequenced setup guide from bare server to open doors",
+      "One update stream for everything in the package",
+      "Anticheat included and configured before launch, not after an incident",
+    ],
+    included: [
+      "Core MLO set",
+      "Emergency and tuner vehicle packs",
+      "EUP and civilian clothing",
+      "Inventory, phone and HUD interfaces",
+      "Banking, garage and business systems",
+      "Anticheat suite and loading screen",
+      "Combined configuration and setup guide",
+    ],
+    installation: [
+      "Download the package from your DistroSource account and unzip it — it is large, so allow time.",
+      "Read the setup guide first. It sequences everything below and assumes a bare server.",
+      "Run the combined `schema.sql`, which covers every database-backed resource in the package in one pass.",
+      "Copy the resource folders in and add the `ensure` lines in the exact order the guide gives — order matters across eleven resources.",
+      "Set your framework, currency, units and branding once in `ds_package_config.lua`; every resource reads from it.",
+      "Start the anticheat in log-only mode, walk the verification checklist, then raise it to enforcing before you open.",
+    ],
+    changelog: [
+      {
+        version: "2.0.0",
+        date: "2026-08-30",
+        notes: [
+          "Added the anticheat suite and the tuner vehicle pack.",
+          "Single shared config replaces per-resource configuration.",
+          "Setup guide rewritten around build order rather than an alphabetical resource list.",
+        ],
+      },
+      { version: "1.3.0", date: "2026-06-30", notes: ["Added EUP and civilian clothing.", "Rolled up Inventory 5.0 and Banking 4.0."] },
+      { version: "1.0.0", date: "2026-04-25", notes: ["Initial release with seven products."] },
+    ],
+    faq: [
+      {
+        question: "What if I already own some of these?",
+        answer:
+          "Contact DistroSource support before buying. We will work out the difference rather than charging you twice for resources you already have.",
+      },
+      {
+        question: "How long does a full setup take?",
+        answer:
+          "A focused day if you follow the build order, longer if you rebrand everything as you go. The guide marks which steps you can defer until after launch.",
+      },
+      {
+        question: "Do the components still update individually?",
+        answer:
+          "They update as one stream. When a component ships a fix it is rolled into the next package release, and the changelog names the versions included.",
+      },
+    ],
+    tags: ["bundle", "complete", "server", "launch"],
+  },
 ]
 
 /* -------------------------------------------------------------- Minecraft */
@@ -1452,6 +2553,573 @@ const MINECRAFT_DRAFTS: Draft[] = [
     ],
     tags: ["permissions", "ranks", "moderation", "server"],
   },
+  {
+    id: "gp-037",
+    title: "Custom Enchantments Plugin",
+    slug: "custom-enchantments-plugin",
+    shortDescription: "Eighty custom enchantments with an enchanter GUI, tiers and full config control.",
+    description:
+      "Eighty enchantments that go beyond the vanilla set, grouped into tiers so progression means something. Players use an enchanter GUI rather than memorising commands, and every enchantment has its own config block — chance, tier, applicable items, conflicts and cost — so you can retune the whole system without touching code. Conflicts are declared, so incompatible enchantments cannot stack.",
+    price: 24.99,
+    category: "plugins",
+    subcategory: "Gameplay",
+    art: [
+      {
+        scene: "screen",
+        caption: "ENCHANTER GUI",
+        app: "ENCHANTS",
+        tabs: ["COMMON", "RARE", "EPIC", "LEGENDARY", "BOOKS"],
+        activeTab: 2,
+        slots: 20,
+        meter: { label: "XP COST - 34 LEVELS", fill: 0.55 },
+      },
+      {
+        scene: "config",
+        caption: "TIER BALANCE",
+        rows: [
+          { label: "COMMON CHANCE", fill: 0.85, value: "62%" },
+          { label: "RARE CHANCE", fill: 0.5, value: "24%" },
+          { label: "EPIC CHANCE", fill: 0.28, value: "11%" },
+          { label: "LEGENDARY", fill: 0.1, value: "3%" },
+          { label: "XP MULTIPLIER", fill: 0.6, value: "1.4x" },
+        ],
+      },
+    ],
+    version: "4.5.0",
+    lastUpdated: "2026-08-06",
+    releasedAt: "2025-10-16",
+    bestseller: true,
+    features: [
+      "80 enchantments across four tiers",
+      "Enchanter GUI — no command memorisation",
+      "Per-enchantment config: chance, tier, items, conflicts and cost",
+      "Declared conflicts so incompatible enchantments cannot stack",
+      "Enchantment books tradeable and sellable through shop plugins",
+    ],
+    included: ["Plugin JAR", "Default config set", "Enchantment reference sheet", "Permission node list"],
+    requirements: [
+      "Paper, Spigot or Purpur 1.20 or newer",
+      "A permissions plugin for tier and command access",
+      "At least 4 GB allocated RAM on a populated server",
+    ],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Stop the server before adding the plugin.",
+      "Drop the JAR into your `plugins` folder.",
+      "Start the server once to generate the config, then stop it again.",
+      "Edit `enchantments.yml` to set tier chances and disable anything you do not want, using the reference sheet.",
+      "Assign the permission nodes to your ranks and restart, then test one enchantment per tier.",
+    ],
+    changelog: [
+      {
+        version: "4.5.0",
+        date: "2026-08-06",
+        notes: ["Added 14 enchantments and a legendary tier.", "Conflicts are now declared in config rather than hardcoded."],
+      },
+      { version: "4.0.0", date: "2026-04-02", notes: ["Replaced commands with the enchanter GUI.", "Every enchantment given its own config block."] },
+      { version: "1.0.0", date: "2025-10-16", notes: ["Initial release with 40 enchantments."] },
+    ],
+    faq: [
+      {
+        question: "Can I disable individual enchantments?",
+        answer: "Yes, each has its own config block with an enable flag, so you can run any subset of the 80.",
+      },
+      {
+        question: "Do enchantment books work with shop plugins?",
+        answer: "They are standard items with NBT, so any shop or trade plugin that handles books handles these.",
+      },
+      LICENCE_FAQ,
+    ],
+    tags: ["plugin", "enchantments", "gameplay", "gui"],
+  },
+  {
+    id: "gp-038",
+    title: "Crates & Rewards Plugin",
+    slug: "crates-rewards-plugin",
+    shortDescription: "Animated crates with weighted loot tables, keys, previews and milestone rewards.",
+    description:
+      "A crate system with animations players will actually stop to watch and loot tables you can reason about. Weights are declared as numbers rather than percentages that drift, every crate has a preview GUI so players see the pool before spending a key, and milestone rewards give something back for repeated opens. Keys are items, so they trade and sell like anything else.",
+    price: 19.99,
+    category: "plugins",
+    subcategory: "Rewards",
+    art: [
+      {
+        scene: "screen",
+        caption: "CRATE PREVIEW",
+        app: "CRATES",
+        tabs: ["VOTE", "COMMON", "RARE", "SEASONAL", "MILESTONE"],
+        activeTab: 2,
+        slots: 20,
+      },
+      {
+        scene: "config",
+        caption: "LOOT WEIGHTS",
+        rows: [
+          { label: "COMMON", fill: 0.9, value: "600" },
+          { label: "UNCOMMON", fill: 0.55, value: "250" },
+          { label: "RARE", fill: 0.3, value: "110" },
+          { label: "EPIC", fill: 0.14, value: "35" },
+          { label: "MYTHIC", fill: 0.05, value: "5" },
+        ],
+      },
+    ],
+    version: "3.7.0",
+    lastUpdated: "2026-07-24",
+    releasedAt: "2025-11-11",
+    popular: true,
+    features: [
+      "Animated opening with three selectable styles",
+      "Weighted loot tables declared as numbers, not drifting percentages",
+      "Preview GUI so players see the pool before spending a key",
+      "Milestone rewards for repeated opens",
+      "Keys are real items — tradeable, sellable, giveable",
+    ],
+    included: ["Plugin JAR", "Five example crate configs", "Animation style reference", "Permission node list"],
+    requirements: [
+      "Paper, Spigot or Purpur 1.20 or newer",
+      "A permissions plugin for crate and command access",
+      "A holograms plugin if you want floating crate labels",
+    ],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Stop the server and drop the JAR into `plugins`.",
+      "Start once to generate configs, then stop.",
+      "Copy one of the five example crate configs and edit its loot table — weights are plain numbers that need not sum to anything.",
+      "Place the physical crate in world and bind it with the in-game command from the setup notes.",
+      "Restart, open a test crate as staff, and confirm the preview matches what actually drops.",
+    ],
+    changelog: [
+      {
+        version: "3.7.0",
+        date: "2026-07-24",
+        notes: ["Added milestone rewards.", "Preview GUI now shows the real weight-derived chance rather than a static label."],
+      },
+      { version: "3.0.0", date: "2026-03-18", notes: ["Rewrote loot tables to use weights rather than percentages.", "Added two animation styles."] },
+      { version: "1.0.0", date: "2025-11-11", notes: ["Initial release."] },
+    ],
+    faq: [
+      {
+        question: "Why weights instead of percentages?",
+        answer:
+          "Percentages have to sum to 100, so adding one item means editing every other. Weights are independent — add an item, set its weight, done.",
+      },
+      {
+        question: "Can players see the odds?",
+        answer:
+          "Yes. The preview GUI shows the real chance derived from the weights, so the displayed odds cannot drift out of sync with the table.",
+      },
+      SUPPORT_FAQ,
+    ],
+    tags: ["plugin", "crates", "rewards", "loot"],
+  },
+  {
+    id: "gp-039",
+    title: "Player Shops Plugin",
+    slug: "player-shops-plugin",
+    shortDescription: "Chest shops with a searchable market, price history and transaction logging.",
+    description:
+      "A player-to-player economy that scales past a wall of signs. Players create chest shops with one command, and every shop is indexed into a searchable market GUI so buyers find stock without walking the map. Price history is tracked per item, so both sides can see what things actually sell for, and every transaction is logged for dispute resolution.",
+    price: 22.99,
+    category: "plugins",
+    subcategory: "Economy",
+    art: [
+      {
+        scene: "screen",
+        caption: "MARKET SEARCH",
+        app: "SHOPS",
+        tabs: ["SEARCH", "MY SHOPS", "HISTORY", "TOP SELLERS"],
+        activeTab: 0,
+        slots: 20,
+        meter: { label: "LISTINGS - 1,284 ACTIVE", fill: 0.72 },
+      },
+      { scene: "system", caption: "TRADE FLOW", stages: ["LIST", "SEARCH", "PURCHASE", "LOG"], activeStage: 2 },
+    ],
+    version: "2.9.0",
+    lastUpdated: "2026-08-01",
+    releasedAt: "2026-01-27",
+    features: [
+      "Chest shops created with one command",
+      "Searchable market GUI indexing every shop on the server",
+      "Per-item price history so both sides see real values",
+      "Full transaction log for dispute resolution",
+      "Shop limits per rank, so one player cannot flood the market",
+    ],
+    included: ["Plugin JAR", "Default config", "Permission node list", "Database schema notes"],
+    requirements: [
+      "Paper, Spigot or Purpur 1.20 or newer",
+      "An economy plugin already installed",
+      "MySQL or SQLite for the transaction log and price history",
+    ],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Stop the server and drop the JAR into `plugins`.",
+      "Start once to generate the config, then stop.",
+      "Set your database connection in `config.yml` — SQLite works for small servers, MySQL for anything busy.",
+      "Set per-rank shop limits and link your economy plugin, then assign permission nodes.",
+      "Restart, create a test shop, and confirm it appears in the market search before announcing it.",
+    ],
+    changelog: [
+      {
+        version: "2.9.0",
+        date: "2026-08-01",
+        notes: ["Added per-item price history.", "Market search now filters by price range as well as item."],
+      },
+      { version: "2.5.0", date: "2026-04-29", notes: ["Added the searchable market GUI — previously shops were findable only in world."] },
+      { version: "1.0.0", date: "2026-01-27", notes: ["Initial release."] },
+    ],
+    faq: [
+      {
+        question: "Does it need MySQL?",
+        answer:
+          "SQLite is fine on a small server. MySQL is worth it once you have a busy market, because price history and the transaction log grow quickly.",
+      },
+      {
+        question: "Can one player flood the market?",
+        answer: "Shop limits are set per rank, so you control how many listings any player can hold.",
+      },
+      LICENCE_FAQ,
+    ],
+    tags: ["plugin", "shops", "economy", "market"],
+  },
+  {
+    id: "gp-040",
+    title: "Minigame Framework",
+    slug: "minigame-framework",
+    shortDescription: "An arena framework with queues, teams, scoreboards and four ready-made games.",
+    description:
+      "The plumbing every minigame server ends up writing badly: queues, arena resets, team assignment, scoreboards, spectating and rewards, all handled once. Four complete games ship with it, and the API is documented so you can add your own without touching framework internals. Arenas reset from schematics, so a broken round leaves nothing behind.",
+    price: 44.99,
+    category: "plugins",
+    subcategory: "Minigames",
+    art: [
+      {
+        scene: "screen",
+        caption: "ARENA MANAGER",
+        app: "MINIGAMES",
+        tabs: ["ARENAS", "QUEUES", "TEAMS", "REWARDS", "STATS"],
+        activeTab: 1,
+        slots: 16,
+        meter: { label: "QUEUE - 14 / 24 PLAYERS", fill: 0.58 },
+      },
+      { scene: "world", caption: "ARENA", sky: "dusk", structures: ["arena", "tower", "path", "pine", "portal", "tree"] },
+      { scene: "system", caption: "ROUND LIFECYCLE", stages: ["QUEUE", "START", "PLAY", "RESET"], activeStage: 3 },
+    ],
+    version: "3.4.0",
+    lastUpdated: "2026-08-26",
+    releasedAt: "2025-12-08",
+    featured: true,
+    features: [
+      "Queues, team assignment, scoreboards and spectating handled once",
+      "Schematic-based arena reset — a broken round leaves nothing behind",
+      "Four complete games included",
+      "Documented API for adding your own games",
+      "Per-game reward configuration tied to your economy",
+    ],
+    included: ["Framework JAR", "4 game modules", "API documentation", "Example arena schematics", "Permission node list"],
+    requirements: [
+      "Paper or Purpur 1.20 or newer",
+      "WorldEdit or FAWE for arena reset",
+      "An economy plugin if you want reward payouts",
+    ],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Stop the server, then drop the framework JAR and the game modules you want into `plugins`.",
+      "Start once to generate configs, then stop.",
+      "Paste the example arena schematics, or define your own arena bounds with the in-game wand.",
+      "Register each arena against a game module and set queue sizes in `arenas.yml`.",
+      "Restart, run one round of each game with staff, and confirm the arena resets cleanly afterwards.",
+    ],
+    changelog: [
+      {
+        version: "3.4.0",
+        date: "2026-08-26",
+        notes: ["Arena reset now restores from schematic rather than replaying block changes — far faster on large arenas.", "Added spectator mode."],
+      },
+      { version: "3.0.0", date: "2026-05-13", notes: ["Published the game API so custom modules do not need framework forks.", "Added the fourth game."] },
+      { version: "1.0.0", date: "2025-12-08", notes: ["Initial release with two games."] },
+    ],
+    faq: [
+      {
+        question: "Can I write my own game on top of this?",
+        answer:
+          "That is what the API is for — queues, teams, scoreboards and resets are handled by the framework, so a new module is game logic only. Documentation and a worked example are included.",
+      },
+      {
+        question: "How does arena reset work?",
+        answer:
+          "From a schematic, so no matter how badly a round breaks the arena, the reset restores the original state rather than undoing changes one by one.",
+      },
+      SUPPORT_FAQ,
+    ],
+    tags: ["plugin", "minigames", "arena", "framework"],
+  },
+  {
+    id: "gp-041",
+    title: "Skyblock Island Pack",
+    slug: "skyblock-island-pack",
+    shortDescription: "Twelve starter island schematics with balanced resources and progression notes.",
+    description:
+      "Twelve island designs for a skyblock server, each with a different resource profile so island choice is an actual decision rather than cosmetic. Progression is documented — what each island gives you early, where it bottlenecks and what the intended route out is — so you can balance your own generators and shop prices against them.",
+    price: 19.99,
+    category: "maps-mlos",
+    subcategory: "Skyblock",
+    art: [
+      { scene: "world", caption: "STARTER ISLAND", sky: "day", structures: ["tree", "house", "path", "water", "pine"] },
+      { scene: "world", caption: "ADVANCED ISLAND", sky: "dusk", structures: ["hall", "tree", "path", "water", "tower", "pine"] },
+    ],
+    version: "2.0.0",
+    lastUpdated: "2026-05-30",
+    releasedAt: "2025-09-18",
+    features: [
+      "Twelve islands with genuinely different resource profiles",
+      "Documented progression: early gains, bottleneck and intended route out",
+      "Balanced against each other so no island is strictly best",
+      "Schematics sized for standard island grid spacing",
+      "Nether companion island for each design",
+    ],
+    included: ["12 island schematics", "12 nether companions", "Progression and balance notes", "Grid spacing reference"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Stop the server before adding schematics.",
+      "Copy the `.schem` files into your skyblock plugin's schematics folder.",
+      "Register each island as a selectable starter in your plugin config using the supplied names.",
+      "Check the grid spacing reference against your island distance setting so neighbouring islands do not overlap.",
+      "Start the server, create one test island per design, and confirm the nether companion generates alongside it.",
+    ],
+    changelog: [
+      {
+        version: "2.0.0",
+        date: "2026-05-30",
+        notes: ["Added four islands and a nether companion for every design.", "Rebalanced early resources after three designs proved strictly better."],
+      },
+      { version: "1.2.0", date: "2026-01-20", notes: ["Added progression notes documenting each island's bottleneck."] },
+      { version: "1.0.0", date: "2025-09-18", notes: ["Initial release with eight islands."] },
+    ],
+    faq: [
+      {
+        question: "Which skyblock plugins are supported?",
+        answer:
+          "These are plain schematics, so any plugin that accepts a schematic as an island template works. The grid spacing reference covers the common ones.",
+      },
+      {
+        question: "Are the islands balanced against each other?",
+        answer:
+          "That was the point of 2.0.0 — three designs were strictly better and got retuned. The balance notes explain the reasoning per island.",
+      },
+      LICENCE_FAQ,
+    ],
+    tags: ["skyblock", "islands", "schematic", "progression"],
+  },
+  {
+    id: "gp-042",
+    title: "Prison Server Map",
+    slug: "prison-server-map",
+    shortDescription: "A full prison build with mine tiers, cell blocks, plots and a guard tower.",
+    description:
+      "A prison map laid out for the gamemode's actual loop: rank up through mine tiers, move to a better cell block, eventually get plot access. Mines are sized so higher tiers feel like progress, cell blocks are numbered for plugin assignment, and the shop, plot and PvP areas are separated so a fight does not spill into the trading floor.",
+    price: 29.99,
+    category: "maps-mlos",
+    subcategory: "Prison",
+    art: [
+      { scene: "world", caption: "PRISON YARD", sky: "day", structures: ["tower", "hall", "path", "house", "arena", "tree"] },
+      { scene: "world", caption: "MINE TIERS", sky: "cave", structures: ["arena", "path", "tower", "water", "portal"] },
+    ],
+    version: "1.8.0",
+    lastUpdated: "2026-07-06",
+    releasedAt: "2025-11-02",
+    features: [
+      "Eight mine tiers, each visibly larger than the last",
+      "Numbered cell blocks for direct plugin assignment",
+      "Separate shop, plot and PvP areas",
+      "Guard tower with sightlines over the yard",
+      "Plot region marked for one-command setup",
+    ],
+    included: ["World folder", "Mine region coordinates", "Cell block reference", "Region setup notes"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Stop the server before copying the world folder in.",
+      "Add the world to your multiworld plugin.",
+      "Register the eight mine regions with your mine reset plugin using the supplied coordinates.",
+      "Assign cell blocks in your prison plugin from the numbered reference, then run the plot region command from the setup notes.",
+      "Start the server and confirm each mine resets and each cell block assigns correctly.",
+    ],
+    changelog: [
+      {
+        version: "1.8.0",
+        date: "2026-07-06",
+        notes: ["Enlarged tiers six through eight so late-game progression reads visually.", "Separated PvP from the trading floor."],
+      },
+      { version: "1.4.0", date: "2026-02-24", notes: ["Numbered every cell block for direct plugin assignment.", "Added the plot area."] },
+      { version: "1.0.0", date: "2025-11-02", notes: ["Initial release."] },
+    ],
+    faq: [
+      {
+        question: "Does it come with a prison plugin?",
+        answer:
+          "No, it is the build. Mine regions and cell blocks are documented with coordinates so your prison and mine-reset plugins can be pointed straight at them.",
+      },
+      {
+        question: "How many players does it hold?",
+        answer:
+          "Cell blocks cover 240 assignments across eight blocks, and the yard and mines are sized for that population.",
+      },
+      SUPPORT_FAQ,
+    ],
+    tags: ["prison", "map", "mines", "gamemode"],
+  },
+  {
+    id: "gp-043",
+    title: "Minecraft Anticheat Configuration",
+    slug: "minecraft-anticheat-configuration",
+    shortDescription: "Tuned anticheat configs for the common plugins, with false-positive notes per check.",
+    description:
+      "Anticheat plugins ship with defaults tuned for nobody in particular, and the result is either a wall of false positives or nothing caught at all. This is a tuned configuration set for the common anticheat plugins, with every check documented: what it catches, what legitimately trips it, and how far you can tighten it before your own players start getting flagged.",
+    price: 24.99,
+    category: "security",
+    subcategory: "Anticheat tuning",
+    art: [
+      {
+        scene: "config",
+        caption: "CHECK SENSITIVITY",
+        rows: [
+          { label: "MOVEMENT", fill: 0.68, value: "MED" },
+          { label: "COMBAT REACH", fill: 0.82, value: "STRICT" },
+          { label: "AUTOCLICKER", fill: 0.6, value: "MED" },
+          { label: "FLIGHT", fill: 0.88, value: "STRICT" },
+          { label: "PACKET RATE", fill: 0.45, value: "LENIENT" },
+          { label: "VL DECAY", fill: 0.5, value: "120s" },
+        ],
+      },
+      { scene: "system", caption: "VIOLATION HANDLING", stages: ["DETECT", "SCORE", "NOTIFY", "ACT"], activeStage: 1 },
+    ],
+    version: "3.1.0",
+    lastUpdated: "2026-08-04",
+    releasedAt: "2026-02-18",
+    features: [
+      "Tuned configs for the common anticheat plugins",
+      "Every check documented: what it catches and what trips it falsely",
+      "Separate profiles for survival, PvP and minigame servers",
+      "Violation level decay tuned so one lag spike is not a ban",
+      "Staff bypass configured before enforcement is enabled",
+    ],
+    included: ["Config sets for three anticheat plugins", "Per-check documentation", "Three server profiles", "Rollout guide"],
+    requirements: [
+      "An anticheat plugin already installed",
+      "Console access for staff bypass setup",
+      "A test account that is not staff, for verification",
+    ],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Back up your existing anticheat config before replacing anything.",
+      "Stop the server and copy the config set matching your anticheat plugin and server type.",
+      "Add your staff identifiers to the bypass list before you enable enforcement.",
+      "Run in notify-only mode for a week and read what it flags — the rollout guide explains how to read violation levels.",
+      "Tighten checks one at a time using the per-check notes rather than raising everything at once.",
+    ],
+    changelog: [
+      {
+        version: "3.1.0",
+        date: "2026-08-04",
+        notes: ["Added the minigame profile, where movement checks need to be far more lenient.", "Retuned packet rate after false positives on high-latency regions."],
+      },
+      { version: "3.0.0", date: "2026-05-09", notes: ["Split into three server profiles.", "Documented every check individually."] },
+      { version: "1.0.0", date: "2026-02-18", notes: ["Initial release."] },
+    ],
+    faq: [
+      {
+        question: "Which anticheat plugins are covered?",
+        answer:
+          "Config sets ship for the three most widely used. The per-check documentation is plugin-agnostic, so the reasoning transfers even if yours is not one of them.",
+      },
+      {
+        question: "Will this stop all cheating?",
+        answer:
+          "No configuration will. This tunes detection so you catch far more without drowning staff in false positives — the rollout guide is explicit that notify-only comes first.",
+      },
+      LICENCE_FAQ,
+    ],
+    tags: ["anticheat", "security", "configuration", "moderation"],
+  },
+  {
+    id: "gp-044",
+    title: "Ambient Music Pack",
+    slug: "ambient-music-pack",
+    shortDescription: "Thirty original ambient tracks with biome triggers and smooth crossfading.",
+    description:
+      "Thirty original ambient tracks written for a server rather than lifted from a stock library, covering exploration, settlement, tension and night. Biome and region triggers switch tracks based on where the player actually is, with crossfading so the change is not a hard cut. All tracks are cleared for commercial server use, including monetised servers.",
+    price: 12.99,
+    category: "audio",
+    subcategory: "Music",
+    art: [
+      {
+        scene: "audio",
+        caption: "AMBIENT TRACKS",
+        tracks: [
+          { label: "EXPLORATION", fill: 0.7, value: "12 TRACKS" },
+          { label: "SETTLEMENT", fill: 0.55, value: "8 TRACKS" },
+          { label: "TENSION", fill: 0.4, value: "6 TRACKS" },
+          { label: "NIGHT", fill: 0.3, value: "4 TRACKS" },
+        ],
+      },
+      {
+        scene: "config",
+        caption: "TRIGGER RULES",
+        rows: [
+          { label: "CROSSFADE", fill: 0.6, value: "4s" },
+          { label: "BIOME TRIGGER", fill: 0.85, value: "ON" },
+          { label: "REGION TRIGGER", fill: 0.7, value: "ON" },
+          { label: "MIN GAP", fill: 0.35, value: "90s" },
+        ],
+      },
+    ],
+    version: "2.5.0",
+    lastUpdated: "2026-06-14",
+    releasedAt: "2025-08-21",
+    features: [
+      "30 original tracks across four moods",
+      "Biome and region triggers, not a shuffled playlist",
+      "Crossfading so track changes are not hard cuts",
+      "Minimum gap setting so music does not run constantly",
+      "Cleared for commercial and monetised server use",
+    ],
+    included: ["30 audio tracks", "Resource pack wrapper", "Trigger config", "Licence documentation"],
+    requirements: [
+      "A Minecraft Java server with file access",
+      "A resource pack host, or `require-resource-pack` enabled",
+      "A plugin capable of triggering sounds by region if you want region rules",
+    ],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Host the supplied resource pack wrapper and set `resource-pack` and `resource-pack-sha1` in `server.properties`.",
+      "Set `require-resource-pack=true` if the music is meant to be guaranteed rather than optional.",
+      "Copy the trigger config into your sound-triggering plugin and map biomes to track groups.",
+      "Set crossfade duration and minimum gap — 4 seconds and 90 seconds are the supplied defaults.",
+      "Reload the pack in-game with F3+T and walk between two biomes to confirm the crossfade.",
+    ],
+    changelog: [
+      {
+        version: "2.5.0",
+        date: "2026-06-14",
+        notes: ["Added six tracks and the night mood group.", "Minimum gap added after feedback that continuous music got tiring."],
+      },
+      { version: "2.0.0", date: "2026-01-31", notes: ["Added crossfading.", "Rewrote triggers to use biome and region rather than a shuffle."] },
+      { version: "1.0.0", date: "2025-08-21", notes: ["Initial release with 18 tracks."] },
+    ],
+    faq: [
+      {
+        question: "Can I use this on a monetised server?",
+        answer:
+          "Yes. The tracks are original and cleared for commercial server use, including monetised servers. The licence documentation states the terms in full.",
+      },
+      {
+        question: "Do I need a plugin?",
+        answer:
+          "Biome triggers work from the resource pack alone. Region triggers need a plugin that can fire sounds by region — the config covers both paths.",
+      },
+      LICENCE_FAQ,
+    ],
+    tags: ["audio", "music", "ambient", "atmosphere"],
+  },
 ]
 
 /* ------------------------------------------------------------ Game servers */
@@ -1606,10 +3274,144 @@ const OTHER_DRAFTS: Draft[] = [
     ],
     tags: ["starter", "bundle", "launch", "community"],
   },
+  {
+    id: "gp-045",
+    title: "Discord Bot Suite",
+    slug: "discord-bot-suite",
+    shortDescription: "Server status, application forms, tickets and in-game linking in one bot.",
+    description:
+      "The four Discord bots most gaming communities end up running badly, replaced by one that does them properly: live server status with player count, staff and whitelist application forms with a review queue, a ticket system with transcripts, and account linking so Discord roles reflect in-game rank. Self-hosted, so your member data stays yours.",
+    price: 34.99,
+    category: "plugins",
+    subcategory: "Discord integration",
+    art: [
+      {
+        scene: "screen",
+        caption: "BOT DASHBOARD",
+        app: "DISCORD BOT",
+        tabs: ["STATUS", "APPLICATIONS", "TICKETS", "LINKING", "LOGS"],
+        activeTab: 1,
+        slots: 16,
+        meter: { label: "OPEN TICKETS - 7", fill: 0.3 },
+      },
+      { scene: "system", caption: "APPLICATION FLOW", stages: ["SUBMIT", "REVIEW", "DECIDE", "SYNC ROLE"], activeStage: 1 },
+    ],
+    version: "3.6.0",
+    lastUpdated: "2026-08-18",
+    releasedAt: "2026-02-09",
+    popular: true,
+    features: [
+      "Live server status with player count and uptime",
+      "Application forms with a reviewable queue and decision log",
+      "Ticket system with full transcripts on close",
+      "Account linking so Discord roles follow in-game rank",
+      "Self-hosted — member data never leaves your infrastructure",
+    ],
+    included: ["Bot source", "Docker compose file", "Command reference", "Role mapping guide", "Setup walkthrough"],
+    requirements: [
+      "Node.js 20+ or Docker on a host you control",
+      "A Discord application and bot token",
+      "Query access to your game server for the status module",
+    ],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Create a Discord application and bot, and copy the token into `.env` — never commit that file.",
+      "Set your game server query address and the guild ID in `config.json`.",
+      "Start with `docker compose up -d`, or `npm start` if you are running it directly.",
+      "Invite the bot with the permission scope listed in the setup walkthrough, then run the slash-command sync.",
+      "Map Discord roles to in-game ranks using the role mapping guide, then submit a test application end to end.",
+    ],
+    changelog: [
+      {
+        version: "3.6.0",
+        date: "2026-08-18",
+        notes: ["Added ticket transcripts on close.", "Application queue now records who decided and when."],
+      },
+      { version: "3.0.0", date: "2026-05-25", notes: ["Merged four separate bots into one process.", "Added account linking with role sync."] },
+      { version: "1.0.0", date: "2026-02-09", notes: ["Initial release."] },
+    ],
+    faq: [
+      {
+        question: "Is my member data sent anywhere?",
+        answer:
+          "No. It is self-hosted on infrastructure you control — there is no DistroSource service in the loop and no telemetry.",
+      },
+      {
+        question: "Does role sync work both ways?",
+        answer:
+          "Discord roles follow in-game rank by default. Reverse sync is available but off by default, because promoting from Discord is a larger trust decision.",
+      },
+      SUPPORT_FAQ,
+    ],
+    tags: ["discord", "bot", "community", "integration"],
+  },
+  {
+    id: "gp-046",
+    title: "Esports Team Brand Kit",
+    slug: "esports-team-brand-kit",
+    shortDescription: "A full competitive team identity: logo system, kits, socials and broadcast overlays.",
+    description:
+      "A complete visual identity for a competitive team or organisation. Includes a logo system that works from a 16px favicon to a jersey chest print, player card and roster templates, social layouts sized for every current platform, and broadcast overlays for streams. Everything is built from one grid and palette, and every file is editable.",
+    price: 39.99,
+    category: "graphics",
+    subcategory: "Team branding",
+    art: [
+      {
+        scene: "pack",
+        caption: "BRAND KIT",
+        items: ["Logo system", "Player card templates", "Social layouts", "Broadcast overlays", "Editable source files"],
+      },
+      { scene: "palette", caption: "TEAM PALETTE", kind: "brand" },
+    ],
+    version: "1.9.0",
+    lastUpdated: "2026-08-11",
+    releasedAt: "2026-04-17",
+    features: [
+      "Logo system scaling from favicon to jersey print",
+      "Player card and roster templates",
+      "Social layouts at current platform sizes",
+      "Broadcast overlays with safe areas marked",
+      "One grid and palette across every asset",
+    ],
+    included: ["Logo system", "Player card set", "Social template set", "Broadcast overlays", "Source files", "Brand guide"],
+    installation: [
+      "Download the package from your DistroSource account and unzip it.",
+      "Open the source files — Photoshop, Affinity and Figma versions are all supplied.",
+      "Replace the placeholder team name and mark on the shared brand layer; every template inherits from it.",
+      "Set your team colours in the palette swatch file rather than recolouring templates individually.",
+      "Export socials from the pre-set artboards, which are already at current platform dimensions.",
+      "Import the broadcast overlays into your streaming software and align to the marked safe areas.",
+    ],
+    changelog: [
+      {
+        version: "1.9.0",
+        date: "2026-08-11",
+        notes: ["Added broadcast overlays.", "Social artboards updated to current platform dimensions."],
+      },
+      { version: "1.5.0", date: "2026-06-20", notes: ["Added player card and roster templates.", "Logo system extended down to favicon size."] },
+      { version: "1.0.0", date: "2026-04-17", notes: ["Initial release."] },
+    ],
+    faq: [
+      {
+        question: "Will the logo hold up on a jersey?",
+        answer:
+          "That is what the logo system is for — the mark has full, compact and icon variants, so it stays legible at chest print and at 16px.",
+      },
+      {
+        question: "Can I use this for a sponsored team?",
+        answer:
+          "Yes, including sponsored and monetised organisations. You cannot resell the source files or redistribute them as a template pack.",
+      },
+      LICENCE_FAQ,
+    ],
+    tags: ["branding", "esports", "team", "broadcast"],
+  },
 ]
 
 export const GAMING_PRODUCTS: GamingProduct[] = [
+  // Index drives the placeholder Tebex package id, so it must stay unique
+  // across all three groups as each one grows.
   ...FIVEM_DRAFTS.map((d, i) => build(d, FIVEM_DEFAULTS, i)),
-  ...MINECRAFT_DRAFTS.map((d, i) => build(d, MINECRAFT_DEFAULTS, i + 10)),
-  ...OTHER_DRAFTS.map((d, i) => build(d, OTHER_DEFAULTS, i + 18)),
+  ...MINECRAFT_DRAFTS.map((d, i) => build(d, MINECRAFT_DEFAULTS, FIVEM_DRAFTS.length + i)),
+  ...OTHER_DRAFTS.map((d, i) => build(d, OTHER_DEFAULTS, FIVEM_DRAFTS.length + MINECRAFT_DRAFTS.length + i)),
 ]

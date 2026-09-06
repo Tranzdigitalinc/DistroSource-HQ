@@ -63,10 +63,43 @@ export default function FivemPage() {
           tone="muted"
         />
         <GamingRail
+          title="Vehicles"
+          subtitle="Fleets, tuners and handling tuned per role."
+          href="/gaming/products?platform=fivem&category=vehicles"
+          products={pick("vehicles")}
+        />
+        <GamingRail
+          title="Clothing & Characters"
+          subtitle="Uniforms, wardrobes and player models."
+          href="/gaming/products?platform=fivem&category=clothing"
+          products={[...pick("clothing"), ...pick("characters")]}
+          tone="muted"
+        />
+        <GamingRail
+          title="Weapons & Animations"
+          subtitle="Balanced ballistics and animations that read as actions."
+          href="/gaming/products?platform=fivem&category=weapons"
+          products={[...pick("weapons"), ...pick("animations")]}
+        />
+        <GamingRail
+          title="Sounds & Audio"
+          subtitle="Sirens and engine audio mixed for in-game use."
+          href="/gaming/products?platform=fivem&category=audio"
+          products={pick("audio")}
+          tone="muted"
+        />
+        <GamingRail
+          title="Anticheat & Security"
+          subtitle="Server-side detection, tuned before you need it."
+          href="/gaming/products?platform=fivem&category=security"
+          products={pick("security")}
+        />
+        <GamingRail
           title="Server Essentials"
           subtitle="Bundled cores for a new server."
           href="/gaming/products?platform=fivem&category=bundles"
           products={pick("bundles")}
+          tone="muted"
         />
         <GamingRail
           title="Latest Releases"

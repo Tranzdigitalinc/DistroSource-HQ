@@ -44,6 +44,23 @@ const CATEGORY_ART: Record<GamingCategory, GamingArt> = {
     ],
     chips: ["STATUS", "ALERT", "MODE"],
   },
+  vehicles: { scene: "lineup", caption: "VEHICLES", subject: "vehicle", count: 4, accentIndex: 1 },
+  clothing: { scene: "lineup", caption: "CLOTHING & EUP", subject: "character", count: 4, accentIndex: 2 },
+  characters: { scene: "lineup", caption: "CHARACTERS", subject: "character", count: 5, accentIndex: 1 },
+  weapons: { scene: "lineup", caption: "WEAPONS", subject: "weapon", count: 4, accentIndex: 1 },
+  animations: { scene: "lineup", caption: "ANIMATIONS", subject: "character", count: 4, accentIndex: 3 },
+  audio: {
+    scene: "audio",
+    caption: "SOUNDS & AUDIO",
+    tracks: [
+      { label: "SIRENS", fill: 0.8 },
+      { label: "ENGINES", fill: 0.62 },
+      { label: "AMBIENCE", fill: 0.44 },
+      { label: "MUSIC", fill: 0.55 },
+    ],
+  },
+  plugins: { scene: "system", caption: "PLUGINS", stages: ["LOAD", "REGISTER", "SERVE"], activeStage: 1 },
+  security: { scene: "system", caption: "ANTICHEAT", stages: ["OBSERVE", "VALIDATE", "SCORE", "ACT"], activeStage: 1 },
   "server-resources": {
     scene: "config",
     caption: "SERVER SETUP",

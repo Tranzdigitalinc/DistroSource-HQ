@@ -1003,6 +1003,237 @@ function Palette({ kind, id }: { kind: "blocks" | "brand"; id: string }) {
   )
 }
 
+/* ---------------------------------------------------------------- lineup */
+
+/** Body colours for a display row — a pack should look like a pack. */
+const LINEUP_HUES = [8, 205, 42, 150, 280, 0, 190, 96]
+
+function LineupItem({
+  subject,
+  x,
+  y,
+  scale,
+  hue,
+  accent,
+}: {
+  subject: "vehicle" | "character" | "weapon"
+  x: number
+  y: number
+  scale: number
+  hue: number
+  accent: boolean
+}) {
+  const body = accent ? ACCENT : `hsl(${hue} 52% 50%)`
+  const shade = accent ? "#a8410f" : `hsl(${hue} 48% 34%)`
+  const light = accent ? "#ffb185" : `hsl(${hue} 60% 66%)`
+
+  if (subject === "vehicle") {
+    const w = 46 * scale
+    const h = 26 * scale
+    return (
+      <g>
+        <ellipse cx={x} cy={y + 3} rx={w * 0.94} ry={5 * scale} fill="#000" opacity="0.34" />
+        <path
+          d={`M ${x - w} ${y} q 0 ${-h * 0.52} ${w * 0.32} ${-h * 0.6} l ${w * 0.28} ${-h * 0.44} q ${w * 0.42} ${-h * 0.12} ${w * 0.78} 0 l ${w * 0.3} ${h * 0.46} q ${w * 0.32} ${h * 0.1} ${w * 0.32} ${h * 0.58} z`}
+          fill={body}
+        />
+        <path
+          d={`M ${x - w * 0.4} ${y - h * 0.6} l ${w * 0.22} ${-h * 0.36} q ${w * 0.36} ${-h * 0.1} ${w * 0.62} 0 l ${w * 0.22} ${h * 0.36} z`}
+          fill={light}
+          opacity="0.55"
+        />
+        <circle cx={x - w * 0.54} cy={y} r={7 * scale} fill="#10131a" />
+        <circle cx={x + w * 0.56} cy={y} r={7 * scale} fill="#10131a" />
+        <circle cx={x - w * 0.54} cy={y} r={3 * scale} fill={shade} />
+        <circle cx={x + w * 0.56} cy={y} r={3 * scale} fill={shade} />
+      </g>
+    )
+  }
+
+  if (subject === "weapon") {
+    const w = 54 * scale
+    return (
+      <g>
+        <rect x={x - w * 0.9} y={y - 26 * scale} width={w * 1.5} height={8 * scale} rx={2 * scale} fill={body} />
+        <rect x={x - w * 0.2} y={y - 30 * scale} width={w * 0.5} height={16 * scale} rx={2 * scale} fill={shade} />
+        <path
+          d={`M ${x - w * 0.5} ${y - 18 * scale} l ${-w * 0.14} ${18 * scale} h ${w * 0.24} z`}
+          fill={shade}
+        />
+        <rect x={x + w * 0.34} y={y - 24 * scale} width={w * 0.26} height={5 * scale} rx={2 * scale} fill={light} />
+        <rect x={x - w * 0.86} y={y - 32 * scale} width={w * 0.3} height={6 * scale} rx={2 * scale} fill={light} opacity="0.8" />
+      </g>
+    )
+  }
+
+  // character
+  const s = scale
+  return (
+    <g>
+      <ellipse cx={x} cy={y + 3} rx={17 * s} ry={5 * s} fill="#000" opacity="0.34" />
+      <circle cx={x} cy={y - 62 * s} r={10 * s} fill="#d9a06f" />
+      <path d={`M ${x - 13 * s} ${y - 50 * s} h ${26 * s} l ${4 * s} ${34 * s} h ${-34 * s} z`} fill={body} />
+      <rect x={x - 17 * s} y={y - 50 * s} width={6 * s} height={30 * s} rx={3 * s} fill={shade} />
+      <rect x={x + 11 * s} y={y - 50 * s} width={6 * s} height={30 * s} rx={3 * s} fill={shade} />
+      <rect x={x - 11 * s} y={y - 17 * s} width={9 * s} height={18 * s} fill={shade} />
+      <rect x={x + 2 * s} y={y - 17 * s} width={9 * s} height={18 * s} fill={shade} />
+      <rect x={x - 13 * s} y={y - 44 * s} width={26 * s} height={5 * s} fill={light} opacity="0.7" />
+    </g>
+  )
+}
+
+function Lineup({
+  subject,
+  count,
+  accentIndex = 1,
+  id,
+}: {
+  subject: "vehicle" | "character" | "weapon"
+  count: number
+  accentIndex?: number
+  id: string
+}) {
+  // Four at a readable size beats five cramped — the badge carries the real count.
+  const n = Math.max(1, Math.min(count, 4))
+  return (
+    <g>
+      <defs>
+        <linearGradient id={`stage-${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#1b2536" />
+          <stop offset="55%" stopColor="#141c2a" />
+          <stop offset="100%" stopColor="#080b11" />
+        </linearGradient>
+        <radialGradient id={`spot-${id}`} cx="50%" cy="30%" r="62%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.16" />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+        </radialGradient>
+        {/* Soft wash behind the subjects. A flat-opacity ellipse leaves a
+            visible hard edge; this fades out properly. */}
+        <radialGradient id={`wash-${id}`} cx="50%" cy="58%" r="50%">
+          <stop offset="0%" stopColor={ACCENT} stopOpacity="0.16" />
+          <stop offset="55%" stopColor={ACCENT} stopOpacity="0.05" />
+          <stop offset="100%" stopColor={ACCENT} stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="400" height="300" fill={`url(#stage-${id})`} />
+      <rect width="400" height="300" fill={`url(#spot-${id})`} />
+
+      {/* Display floor. Horizon sits high so the subjects fill the frame
+          rather than lining up along the bottom edge. */}
+      <polygon points="0,300 400,300 344,168 56,168" fill="#0d1219" />
+      <line x1="56" y1="168" x2="344" y2="168" stroke="rgba(255,255,255,0.16)" strokeWidth="1.5" />
+      {[0.34, 0.68].map((f) => (
+        <line
+          key={f}
+          x1={56 - 56 * f}
+          y1={168 + 132 * f}
+          x2={344 + 56 * f}
+          y2={168 + 132 * f}
+          stroke="rgba(255,255,255,0.07)"
+          strokeWidth="1"
+        />
+      ))}
+
+      {/* Lit ceiling band, and a wash behind the subjects so the upper half of
+          the frame is not dead space. */}
+      <rect x="40" y="52" width="320" height="10" rx="5" fill="rgba(255,255,255,0.10)" />
+      {[0, 1, 2].map((i) => (
+        <rect key={i} x={54 + i * 110} y={54} width="92" height="6" rx="3" fill={ACCENT} opacity={i === 1 ? 0.85 : 0.32} />
+      ))}
+      <rect width="400" height="300" fill={`url(#wash-${id})`} />
+
+      {/* Weapons rack vertically: they are long and thin, so a horizontal row
+          overlaps them into an unreadable blob. Everything else lines up. */}
+      {Array.from({ length: n }, (_, i) => {
+        const racked = subject === "weapon"
+        const spread = subject === "vehicle" ? 84 : 72
+        // The weapon shape is asymmetric about its origin, so nudge to centre.
+        const x = racked ? 212 : 200 + (i - (n - 1) / 2) * spread
+        const y = racked ? 118 + i * 48 : subject === "vehicle" ? 232 : 240
+        const scale = racked ? 1.35 : subject === "vehicle" ? 1.16 : 1.24
+        return (
+          <LineupItem
+            key={i}
+            subject={subject}
+            x={x}
+            y={y}
+            scale={scale}
+            hue={LINEUP_HUES[i % LINEUP_HUES.length]}
+            accent={i === accentIndex}
+          />
+        )
+      })}
+
+      {/* Count badge */}
+      <rect x="292" y="252" width="86" height="30" rx="6" fill="rgba(6,10,16,0.82)" stroke={ACCENT} strokeWidth="1.25" />
+      <text x="335" y="272" textAnchor="middle" fill="#fff" fontSize="12" fontFamily={MONO} fontWeight="700">
+        {count} ITEMS
+      </text>
+    </g>
+  )
+}
+
+/* ----------------------------------------------------------------- audio */
+
+function Audio({ tracks, id }: { tracks: GamingArtBar[]; id: string }) {
+  // Deterministic waveform: a fixed envelope, no randomness.
+  const bars = Array.from({ length: 56 }, (_, i) => {
+    const env = Math.sin((i / 56) * Math.PI)
+    const detail = 0.45 + 0.55 * Math.abs(Math.sin(i * 1.7) * Math.cos(i * 0.6))
+    return Math.max(4, env * detail * 62)
+  })
+  const shown = tracks.slice(0, 4)
+  return (
+    <g>
+      <defs>
+        <linearGradient id={`aud-${id}`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#1a2130" />
+          <stop offset="100%" stopColor="#080c12" />
+        </linearGradient>
+      </defs>
+      <rect width="400" height="300" fill={`url(#aud-${id})`} />
+      <circle cx="60" cy="46" r="96" fill={ACCENT} opacity="0.06" />
+
+      {/* Waveform */}
+      <rect x="24" y="42" width="352" height="104" rx="8" fill="rgba(6,10,16,0.7)" stroke="rgba(255,255,255,0.12)" strokeWidth="1.25" />
+      <line x1="34" y1="94" x2="366" y2="94" stroke="rgba(255,255,255,0.14)" strokeWidth="1" />
+      {bars.map((h, i) => (
+        <rect
+          key={i}
+          x={34 + i * 5.95}
+          y={94 - h / 2}
+          width="3.6"
+          height={h}
+          rx="1.8"
+          fill={i > 12 && i < 30 ? ACCENT : "rgba(255,255,255,0.42)"}
+        />
+      ))}
+      {/* Playhead */}
+      <line x1="212" y1="46" x2="212" y2="142" stroke="#fff" strokeWidth="1.5" opacity="0.75" />
+      <polygon points="206,46 218,46 212,54" fill="#fff" opacity="0.75" />
+
+      {/* Channel strips */}
+      {shown.map((track, i) => {
+        const y = 168 + i * 30
+        return (
+          <g key={track.label}>
+            <text x="34" y={y + 11} fill="rgba(255,255,255,0.66)" fontSize="8.5" fontFamily={MONO} letterSpacing="0.4">
+              {track.label}
+            </text>
+            <rect x="176" y={y + 3} width="150" height="9" rx="4.5" fill="rgba(255,255,255,0.08)" />
+            <rect x="176" y={y + 3} width={150 * track.fill} height="9" rx="4.5" fill={i === 0 ? ACCENT : "rgba(255,255,255,0.5)"} />
+            {track.value && (
+              <text x="366" y={y + 11} textAnchor="end" fill="rgba(255,255,255,0.45)" fontSize="8" fontFamily={MONO}>
+                {track.value}
+              </text>
+            )}
+          </g>
+        )
+      })}
+    </g>
+  )
+}
+
 /* ------------------------------------------------------------------ pack */
 
 function Pack({ items, id }: { items: string[]; id: string }) {
@@ -1095,6 +1326,10 @@ export function GamingPreview({
       {art.scene === "system" && <System stages={art.stages} activeStage={art.activeStage} id={id} />}
       {art.scene === "config" && <Config rows={art.rows} id={id} />}
       {art.scene === "palette" && <Palette kind={art.kind} id={id} />}
+      {art.scene === "lineup" && (
+        <Lineup subject={art.subject} count={art.count} accentIndex={art.accentIndex} id={id} />
+      )}
+      {art.scene === "audio" && <Audio tracks={art.tracks} id={id} />}
       {art.scene === "pack" && <Pack items={art.items} id={id} />}
 
       <g className="preview-caption">

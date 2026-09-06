@@ -17,6 +17,14 @@ export type GamingCategory =
   | "maps-mlos"
   | "scripts-systems"
   | "ui-hud"
+  | "vehicles"
+  | "clothing"
+  | "characters"
+  | "weapons"
+  | "animations"
+  | "audio"
+  | "plugins"
+  | "security"
   | "server-resources"
   | "textures"
   | "graphics"
@@ -112,6 +120,16 @@ export type GamingArt =
   | { scene: "config"; caption: string; rows: GamingArtBar[] }
   /** A texture sheet — game block textures or a brand palette. */
   | { scene: "palette"; caption: string; kind: "blocks" | "brand" }
+  /** A row of assets on a display stage — vehicles, characters or weapons. */
+  | {
+      scene: "lineup"
+      caption: string
+      subject: "vehicle" | "character" | "weapon"
+      count: number
+      accentIndex?: number
+    }
+  /** A waveform over labelled channel strips. Sound and music packs. */
+  | { scene: "audio"; caption: string; tracks: GamingArtBar[] }
   /** What a multi-product pack contains, as thumbnailed cards. */
   | { scene: "pack"; caption: string; items: string[] }
 
@@ -183,6 +201,14 @@ export const GAMING_CATEGORIES: { id: GamingCategory; label: string; blurb: stri
   { id: "maps-mlos", label: "Maps & MLOs", blurb: "Interiors, environments and playable worlds." },
   { id: "scripts-systems", label: "Scripts & Systems", blurb: "Gameplay systems and server-side logic." },
   { id: "ui-hud", label: "UI & HUD", blurb: "Interfaces, HUDs and in-game menus." },
+  { id: "vehicles", label: "Vehicles", blurb: "Vehicle packs, liveries and handling." },
+  { id: "clothing", label: "Clothing & EUP", blurb: "Uniforms and civilian clothing sets." },
+  { id: "characters", label: "Characters & Peds", blurb: "Player models, peds and character art." },
+  { id: "weapons", label: "Weapons", blurb: "Weapon packs, attachments and ballistics." },
+  { id: "animations", label: "Animations & Emotes", blurb: "Emotes, job animations and interactions." },
+  { id: "audio", label: "Sounds & Audio", blurb: "Sirens, engines, ambience and music." },
+  { id: "plugins", label: "Plugins", blurb: "Server-side plugins and gameplay features." },
+  { id: "security", label: "Anticheat & Security", blurb: "Cheat detection and server hardening." },
   { id: "server-resources", label: "Server Resources", blurb: "Everything needed to stand a server up." },
   { id: "textures", label: "Textures", blurb: "Resource packs and texture sets." },
   { id: "graphics", label: "Graphics", blurb: "Branding and community graphics." },

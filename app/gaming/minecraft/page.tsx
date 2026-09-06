@@ -43,17 +43,30 @@ export default function MinecraftPage() {
           products={pick("maps-mlos")}
         />
         <GamingRail
+          title="Plugins"
+          subtitle="Gameplay features that carry their own configuration."
+          href="/gaming/products?platform=minecraft&category=plugins"
+          products={pick("plugins")}
+          tone="muted"
+        />
+        <GamingRail
           title="Server Packs"
           subtitle="The unglamorous half of running a server, already configured."
           href="/gaming/products?platform=minecraft&category=server-resources"
           products={pick("server-resources")}
-          tone="muted"
         />
         <GamingRail
           title="Resource Packs"
           subtitle="Texture sets drawn to a single palette."
           href="/gaming/products?platform=minecraft&category=textures"
           products={pick("textures")}
+          tone="muted"
+        />
+        <GamingRail
+          title="Sounds & Security"
+          subtitle="Ambient music, and anticheat tuned before you need it."
+          href="/gaming/products?platform=minecraft&category=audio"
+          products={[...pick("audio"), ...pick("security")]}
         />
         <GamingRail
           title="Server Configurations"
