@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "motion/react"
@@ -46,6 +46,13 @@ export function PurchasePanel({
 
   const selected = licenses.find((l) => l.id === selectedId) ?? licenses[0]
 
+  useEffect(() => {
+    trackWhopEvent("view_content", {
+      product_id: productId,
+      event_id: `view-product-${productId}`,
+    })
+  }, [productId])
+
   async function add() {
     await addToCart(productId, selected.id, 1)
     trackWhopEvent("add_to_cart", {
@@ -75,6 +82,12 @@ export function PurchasePanel({
     startBuy(async () => {
       try {
         await add()
+        trackWhopEvent("checkout_started", {
+          value: Number.parseFloat(selected.price),
+          currency: "USD",
+          product_id: productId,
+          event_id: `checkout-${productId}-${Date.now()}`,
+        })
         router.push("/checkout")
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Couldn't start checkout. Please try again.")
