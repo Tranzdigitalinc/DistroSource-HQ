@@ -1,18 +1,18 @@
 import { getCategoryTree } from "@/lib/queries/catalog"
-import { SiteHeaderClient } from "@/components/header/site-header-client"
+import { V4StorefrontHeader } from "@/components/v4/storefront-header"
 
 export async function SiteHeader() {
   let departments: Awaited<ReturnType<typeof getCategoryTree>> = []
   try {
-    // Navigation only lists shelves that hold a visible product. A department
-    // whose every subcategory is empty (e.g. Bundles while all bundles are
-    // drafts) would otherwise link straight to a "0 products" page.
     departments = (await getCategoryTree())
-      .map((d) => ({ ...d, subcategories: d.subcategories.filter((s) => s.productCount > 0) }))
-      .filter((d) => d.subcategories.length > 0)
+      .map((department) => ({
+        ...department,
+        subcategories: department.subcategories.filter((subcategory) => subcategory.productCount > 0),
+      }))
+      .filter((department) => department.productCount > 0)
   } catch {
-    // DB unavailable at build time — nav renders without categories
+    // The shell still renders if catalog data is unavailable at build time.
   }
 
-  return <SiteHeaderClient departments={departments} />
+  return <V4StorefrontHeader departments={departments} />
 }
