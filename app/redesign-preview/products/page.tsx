@@ -1,9 +1,9 @@
 import { RedesignHeader } from "@/components/redesign/redesign-header"
 import { RedesignFooter } from "@/components/redesign/redesign-footer"
+import { RedesignProductCard } from "@/components/redesign/redesign-product-card"
 import { CatalogFilters } from "@/components/catalog/catalog-filters"
 import { CatalogToolbar } from "@/components/catalog/catalog-toolbar"
 import { CategoryPillBar } from "@/components/catalog/category-pill-bar"
-import { ProductGrid } from "@/components/catalog/product-grid"
 import { CatalogPagination } from "@/components/catalog/catalog-pagination"
 import {
   getAvailableFileFormats,
@@ -20,6 +20,7 @@ import {
 export const metadata = {
   title: "Redesign preview — Digital products — DistroSource",
   description: "Preview of the redesigned DistroSource digital product catalog.",
+  robots: { index: false, follow: false },
 }
 
 const PAGE_SIZE = 24
@@ -98,7 +99,23 @@ export default async function RedesignProductsPage({ searchParams }: { searchPar
             />
             <div className="min-w-0 flex-1">
               <CatalogToolbar resultCount={totalCount} />
-              <ProductGrid items={products} clearHref={filtered ? "/redesign-preview/products" : undefined} />
+              {products.length > 0 ? (
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
+                  {products.map((item) => (
+                    <RedesignProductCard key={item.product.id} item={item} />
+                  ))}
+                </div>
+              ) : (
+                <div className="border border-dashed border-border px-6 py-16 text-center">
+                  <p className="font-display text-xl font-bold text-foreground">Nothing matches this shelf.</p>
+                  <p className="mt-2 text-sm text-muted-foreground">Clear a filter or try a broader search.</p>
+                  {filtered && (
+                    <a href="/redesign-preview/products" className="mt-5 inline-flex min-h-11 items-center border border-border px-4 py-2 text-sm font-semibold hover:border-primary hover:text-primary">
+                      Clear all filters
+                    </a>
+                  )}
+                </div>
+              )}
               <CatalogPagination currentPage={safePage} totalPages={totalPages} params={params} />
             </div>
           </div>
