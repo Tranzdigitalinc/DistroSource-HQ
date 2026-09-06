@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { motion } from "motion/react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
 import type { getCategories } from "@/lib/queries/catalog"
@@ -22,31 +23,39 @@ export function CategoryPillBar({ categories }: Props) {
     return `${pathname}?${params.toString()}`
   }
 
-  const pill = (active: boolean) =>
-    cn(
-      "shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      active ? "border-foreground bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:border-border-strong hover:text-foreground",
-    )
+  const visible = categories.filter((category) => category.productCount > 0 || category.slug === activeCategory)
 
   return (
-    <nav aria-label="Filter by category" className="-mx-4 mb-6 overflow-x-auto px-4 sm:-mx-6 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <div className="flex gap-2 pb-1">
-        <Link href={buildHref(null)} className={pill(!activeCategory)} aria-current={!activeCategory ? "page" : undefined}>
-          All
-        </Link>
-        {/* Empty categories are not offered as filters — the active one stays so its pill can be cleared. */}
-        {categories.filter((c) => c.productCount > 0 || c.slug === activeCategory).map((category) => (
-          <Link
+    <nav aria-label="Filter by category" className="-mx-4 mb-8 overflow-x-auto px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex min-w-max items-center gap-1.5 pb-1">
+        <CategoryLink href={buildHref(null)} active={!activeCategory} label="All products" />
+        {visible.map((category) => (
+          <CategoryLink
             key={category.slug}
             href={buildHref(category.slug)}
-            className={pill(activeCategory === category.slug)}
-            aria-current={activeCategory === category.slug ? "page" : undefined}
-          >
-            {category.name}
-          </Link>
+            active={activeCategory === category.slug}
+            label={category.name}
+            count={category.productCount}
+          />
         ))}
       </div>
     </nav>
+  )
+}
+
+function CategoryLink({ href, active, label, count }: { href: string; active: boolean; label: string; count?: number }) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "relative inline-flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        active ? "text-background" : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+      )}
+    >
+      {active && <motion.span layoutId="catalog-category-active" className="absolute inset-0 -z-10 rounded-full bg-foreground" transition={{ type: "spring", stiffness: 470, damping: 36 }} />}
+      <span>{label}</span>
+      {count !== undefined && <span className={cn("font-mono text-[9px]", active ? "text-background/55" : "text-muted-foreground/55")}>{count}</span>}
+    </Link>
   )
 }
