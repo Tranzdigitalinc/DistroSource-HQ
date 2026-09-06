@@ -42,6 +42,10 @@ export function TeamLicensingForm() {
           email: contactEmail.trim().toLowerCase(),
           event_id: `team-license-${Date.now()}`,
         })
+        trackWhopEvent("submit_application", {
+          email: contactEmail.trim().toLowerCase(),
+          event_id: `team-application-${Date.now()}`,
+        })
         trackWhopEvent("team_license_request", {
           email: contactEmail.trim().toLowerCase(),
           event_id: `team-license-request-${Date.now()}`,

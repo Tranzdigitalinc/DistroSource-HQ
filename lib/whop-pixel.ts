@@ -5,6 +5,7 @@ export type WhopTrackProperties = {
   event_id?: string
   product_id?: string | number
   product_name?: string
+  [key: string]: string | number | undefined
 }
 
 type WhopPixel = {
