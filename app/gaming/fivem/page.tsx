@@ -1,117 +1,19 @@
 import type { Metadata } from "next"
-import { SiteHeader } from "@/components/header/site-header"
-import { SiteFooter } from "@/components/footer/site-footer"
-import { GamingHero } from "@/components/gaming/gaming-hero"
-import { GamingRail } from "@/components/gaming/gaming-rail"
-import { GamingTrustStrip } from "@/components/gaming/gaming-trust-strip"
-import { filterGamingProducts } from "@/lib/gaming/queries"
+import { V4GamingPlatformPage } from "@/components/v4/gaming-platform-page"
 
 export const metadata: Metadata = {
   title: "FiveM Maps, MLOs, UI & Server Resources | DistroSource",
-  description:
-    "Premium FiveM maps, MLOs, interfaces, gameplay systems and server resources for modern FiveM communities. Every product sold directly by DistroSource.",
+  description: "Premium FiveM maps, MLOs, interfaces, gameplay systems and server resources for modern FiveM communities.",
   alternates: { canonical: "/gaming/fivem" },
-  openGraph: {
-    title: "FiveM Maps, MLOs, UI & Server Resources | DistroSource",
-    description: "Premium maps, interfaces, systems and server resources for modern FiveM communities.",
-    url: "/gaming/fivem",
-    type: "website",
-  },
 }
 
 export default function FivemPage() {
-  const all = filterGamingProducts({ platform: "fivem" })
-  const pick = (category: string) => all.filter((p) => p.category === category)
-
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex-1">
-        <GamingHero
-          eyebrow="FiveM Resources"
-          title="Build a better FiveM server."
-          description="Premium maps, interfaces, systems and server resources for modern FiveM communities."
-          primary={{ label: "Browse FiveM Products", href: "/gaming/products?platform=fivem" }}
-          secondary={{ label: "All Gaming", href: "/gaming" }}
-          trustLine="Secure checkout powered by Tebex"
-        />
-
-        <GamingRail
-          title="Featured FiveM Products"
-          subtitle="The products we would start a server with."
-          href="/gaming/products?platform=fivem"
-          products={all.filter((p) => p.featured || p.bestseller)}
-        />
-        <GamingRail
-          title="Maps & MLOs"
-          subtitle="Interiors and environments built to one consistent standard."
-          href="/gaming/products?platform=fivem&category=maps-mlos"
-          products={pick("maps-mlos")}
-          tone="muted"
-        />
-        <GamingRail
-          title="Scripts & Systems"
-          subtitle="Gameplay systems that persist what players do."
-          href="/gaming/products?platform=fivem&category=scripts-systems"
-          products={pick("scripts-systems")}
-        />
-        <GamingRail
-          title="UI & HUD"
-          subtitle="Interfaces that stay readable at speed."
-          href="/gaming/products?platform=fivem&category=ui-hud"
-          products={pick("ui-hud")}
-          tone="muted"
-        />
-        <GamingRail
-          title="Vehicles"
-          subtitle="Fleets, tuners and handling tuned per role."
-          href="/gaming/products?platform=fivem&category=vehicles"
-          products={pick("vehicles")}
-        />
-        <GamingRail
-          title="Clothing & Characters"
-          subtitle="Uniforms, wardrobes and player models."
-          href="/gaming/products?platform=fivem&category=clothing"
-          products={[...pick("clothing"), ...pick("characters")]}
-          tone="muted"
-        />
-        <GamingRail
-          title="Weapons & Animations"
-          subtitle="Balanced ballistics and animations that read as actions."
-          href="/gaming/products?platform=fivem&category=weapons"
-          products={[...pick("weapons"), ...pick("animations")]}
-        />
-        <GamingRail
-          title="Sounds & Audio"
-          subtitle="Sirens and engine audio mixed for in-game use."
-          href="/gaming/products?platform=fivem&category=audio"
-          products={pick("audio")}
-          tone="muted"
-        />
-        <GamingRail
-          title="Anticheat & Security"
-          subtitle="Server-side detection, tuned before you need it."
-          href="/gaming/products?platform=fivem&category=security"
-          products={pick("security")}
-        />
-        <GamingRail
-          title="Server Essentials"
-          subtitle="Bundled cores for a new server."
-          href="/gaming/products?platform=fivem&category=bundles"
-          products={pick("bundles")}
-          tone="muted"
-        />
-        <GamingRail
-          title="Latest Releases"
-          subtitle="Most recently added to the FiveM catalogue."
-          href="/gaming/products?platform=fivem&sort=newest"
-          products={filterGamingProducts({ platform: "fivem", sort: "newest" })}
-          tone="muted"
-        />
-
-        <GamingTrustStrip />
-      </main>
-      <SiteFooter />
-    </div>
+    <V4GamingPlatformPage
+      platform="fivem"
+      eyebrow="FiveM resources"
+      title="Build a FiveM world worth staying in."
+      description="Maps, interfaces, gameplay systems, server infrastructure and visual resources for modern FiveM communities — curated inside DistroSource Gaming."
+    />
   )
 }
