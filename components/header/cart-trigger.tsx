@@ -11,13 +11,15 @@ export function CartTrigger() {
 
   return (
     <button
+      id="cart-anchor"
       type="button"
       onClick={openCart}
       aria-label={count > 0 ? `Open cart, ${count} ${count === 1 ? "item" : "items"}` : "Open cart"}
-      className="relative flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="relative ml-1 flex h-10 items-center gap-2 rounded-full bg-foreground pl-3 pr-3.5 text-sm font-semibold text-background transition-[background-color,transform] hover:bg-primary hover:text-primary-foreground active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
-      <ShoppingBag size={ICON_SIZE.nav} aria-hidden="true" />
-      <AnimatePresence>
+      <ShoppingBag size={ICON_SIZE.base} weight="bold" aria-hidden="true" />
+      <span className="hidden sm:inline">Cart</span>
+      <AnimatePresence mode="popLayout" initial={false}>
         {count > 0 && (
           <motion.span
             key={count}
@@ -26,7 +28,7 @@ export function CartTrigger() {
             exit={{ scale: 0.5, opacity: 0 }}
             transition={{ type: "spring", stiffness: 500, damping: 26 }}
             aria-hidden="true"
-            className="absolute -right-0.5 -top-0.5 flex min-w-[1.125rem] items-center justify-center rounded-full bg-primary px-1 font-mono text-[10px] font-bold leading-[1.125rem] text-primary-foreground ring-2 ring-background"
+            className="flex min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1 font-mono text-[10px] font-bold leading-5 text-primary-foreground"
           >
             {count > 9 ? "9+" : count}
           </motion.span>

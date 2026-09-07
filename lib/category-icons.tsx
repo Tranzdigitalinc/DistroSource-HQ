@@ -1,100 +1,92 @@
-import type { ComponentProps, ReactNode } from "react"
-import { HugeiconsIcon } from "@hugeicons/react"
+import type { ReactNode } from "react"
+import type { Icon as PhosphorIcon, IconProps } from "@phosphor-icons/react"
 import {
-  Briefcase01Icon,
-  SourceCodeIcon,
-  PaletteIcon,
-  TextFontIcon,
-  Album01Icon,
-  CubeIcon,
-  Package02Icon,
-  File01Icon,
-  PaintBrush02Icon,
-  CodeIcon,
-  Grid2X2Icon,
-  TypeIcon,
-  MusicNote01Icon,
-  Camera01Icon,
-  Diamond01Icon,
-  Rocket01Icon,
-  GiftIcon,
-  BrowserIcon,
-  Layout01Icon,
-  DashboardCircleIcon,
-  WebDesign01Icon,
-  ShoppingCart01Icon,
-  ReactIcon,
-  HtmlFiveIcon,
-  Briefcase02Icon,
-  Presentation01Icon,
-  IdCardIcon,
-  Share01Icon,
-  Image01Icon,
-  Grid3X3Icon,
-  SmartPhone01Icon,
-  BulbIcon,
-  Notion01Icon,
-  Table01Icon,
-  Package01Icon,
-  PackageIcon,
-} from "@hugeicons/core-free-icons"
+  Atom,
+  Briefcase,
+  Browser,
+  Browsers,
+  Camera,
+  ChartPieSlice,
+  Code,
+  Cube,
+  DeviceMobile,
+  Diamond,
+  DotsNine,
+  FileHtml,
+  FileText,
+  FilmSlate,
+  Gift,
+  GridFour,
+  IdentificationCard,
+  Image,
+  Layout,
+  Lightbulb,
+  MusicNotes,
+  NotionLogo,
+  Package,
+  PaintBrush,
+  Palette,
+  Presentation,
+  Rocket,
+  ShareNetwork,
+  ShoppingCart,
+  Table,
+  TextAa,
+  TextT,
+} from "@phosphor-icons/react/dist/ssr"
 
-type IconProps = Omit<ComponentProps<typeof HugeiconsIcon>, "icon">
 export type IconComponent = (props: IconProps) => ReactNode
 
-function createIcon(icon: Parameters<typeof HugeiconsIcon>[0]["icon"]): IconComponent {
-  const Icon: IconComponent & { displayName?: string } = (props) => <HugeiconsIcon icon={icon} {...props} />
-  Icon.displayName = "CategoryIcon"
-  return Icon
+function createIcon(Icon: PhosphorIcon): IconComponent {
+  const Wrapped: IconComponent & { displayName?: string } = (props) => <Icon weight="duotone" {...props} />
+  Wrapped.displayName = "CategoryIcon"
+  return Wrapped
 }
 
-// Top-level department icons.
 const departmentIconMap: Record<string, IconComponent> = {
-  "business-office": createIcon(Briefcase01Icon),
-  "web-development": createIcon(SourceCodeIcon),
-  "design-resources": createIcon(PaletteIcon),
-  "fonts-typography": createIcon(TextFontIcon),
-  media: createIcon(Album01Icon),
-  "3d-and-print": createIcon(CubeIcon),
-  "product-bundles": createIcon(Package02Icon),
+  "business-office": createIcon(Briefcase),
+  "web-development": createIcon(Code),
+  "design-resources": createIcon(Palette),
+  "fonts-typography": createIcon(TextAa),
+  media: createIcon(FilmSlate),
+  "3d-and-print": createIcon(Cube),
+  "product-bundles": createIcon(Package),
 }
 
-// Subcategory icons, kept distinct from one another and from their parent
-// department icon so the mega menu and category grid stay scannable.
 const subcategoryIconMap: Record<string, IconComponent> = {
-  "templates-documents": createIcon(File01Icon),
-  "design-branding": createIcon(PaintBrush02Icon),
-  "code-templates": createIcon(CodeIcon),
-  "graphics-icons": createIcon(Grid2X2Icon),
-  fonts: createIcon(TypeIcon),
-  audio: createIcon(MusicNote01Icon),
-  photography: createIcon(Camera01Icon),
-  "3d-print": createIcon(Diamond01Icon),
-  productivity: createIcon(Rocket01Icon),
-  bundles: createIcon(GiftIcon),
-  "website-templates": createIcon(BrowserIcon),
-  "ui-ux-kits": createIcon(Layout01Icon),
-  "admin-dashboards": createIcon(DashboardCircleIcon),
-  "landing-pages": createIcon(WebDesign01Icon),
-  "ecommerce-templates": createIcon(ShoppingCart01Icon),
-  "react-nextjs-templates": createIcon(ReactIcon),
-  "html-templates": createIcon(HtmlFiveIcon),
-  "business-templates": createIcon(Briefcase02Icon),
-  "presentation-templates": createIcon(Presentation01Icon),
-  "resume-cv-templates": createIcon(IdCardIcon),
-  "social-media-templates": createIcon(Share01Icon),
-  graphics: createIcon(Image01Icon),
-  icons: createIcon(Grid3X3Icon),
-  "fonts-typefaces": createIcon(TextFontIcon),
-  mockups: createIcon(SmartPhone01Icon),
-  "3d-assets": createIcon(CubeIcon),
-  "productivity-tools": createIcon(BulbIcon),
-  "notion-workspace-templates": createIcon(Notion01Icon),
-  "excel-spreadsheet-templates": createIcon(Table01Icon),
-  "digital-bundles": createIcon(Package01Icon),
+  "templates-documents": createIcon(FileText),
+  "design-branding": createIcon(PaintBrush),
+  "code-templates": createIcon(Code),
+  "graphics-icons": createIcon(GridFour),
+  fonts: createIcon(TextT),
+  audio: createIcon(MusicNotes),
+  photography: createIcon(Camera),
+  "3d-print": createIcon(Diamond),
+  productivity: createIcon(Rocket),
+  bundles: createIcon(Gift),
+  "website-templates": createIcon(Browser),
+  "ui-ux-kits": createIcon(Layout),
+  "admin-dashboards": createIcon(ChartPieSlice),
+  "landing-pages": createIcon(Browsers),
+  "ecommerce-templates": createIcon(ShoppingCart),
+  "react-nextjs-templates": createIcon(Atom),
+  "html-templates": createIcon(FileHtml),
+  "business-templates": createIcon(Briefcase),
+  "presentation-templates": createIcon(Presentation),
+  "resume-cv-templates": createIcon(IdentificationCard),
+  "social-media-templates": createIcon(ShareNetwork),
+  graphics: createIcon(Image),
+  icons: createIcon(DotsNine),
+  "fonts-typefaces": createIcon(TextAa),
+  mockups: createIcon(DeviceMobile),
+  "3d-assets": createIcon(Cube),
+  "productivity-tools": createIcon(Lightbulb),
+  "notion-workspace-templates": createIcon(NotionLogo),
+  "excel-spreadsheet-templates": createIcon(Table),
+  "digital-bundles": createIcon(Package),
 }
 
-const fallbackIcon = createIcon(PackageIcon)
+const fallbackIcon = createIcon(Package)
 
 export function getCategoryIcon(value: string | null | undefined): IconComponent {
   if (!value) return fallbackIcon

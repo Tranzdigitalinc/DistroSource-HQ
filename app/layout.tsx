@@ -6,6 +6,8 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { CartDrawerProvider } from '@/components/cart/cart-drawer-provider'
 import { CartDrawer } from '@/components/cart/cart-drawer'
 import { SearchProvider } from '@/components/header/search-command'
+import { LenisProvider } from '@/components/motion/lenis-provider'
+import NextTopLoader from 'nextjs-toploader'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion/motion-provider'
@@ -76,12 +78,13 @@ export default async function RootLayout({
           <VisitorTracker />
         </Suspense>
         <ResizeObserverErrorGuard />
+        <NextTopLoader color="var(--primary)" height={2} showSpinner={false} shadow={false} />
         <MotionProvider>
           <ThemeProvider>
             <TooltipProvider>
               <CartDrawerProvider>
                 <SearchProvider>
-                  {children}
+                  <LenisProvider>{children}</LenisProvider>
                   <CartDrawer />
                 </SearchProvider>
               </CartDrawerProvider>

@@ -1,121 +1,121 @@
-import type { ComponentProps, ReactNode } from "react"
-import { HugeiconsIcon } from "@hugeicons/react"
+import type { ReactNode } from "react"
+import type { Icon as PhosphorIcon, IconProps as PhosphorProps, IconWeight } from "@phosphor-icons/react"
+// The `ssr` entry has no context provider, so it renders identically in
+// Server and Client Components.
 import {
-  Add01Icon,
-  ArrowDataTransferHorizontalIcon,
-  ArrowUpRight01Icon,
-  Alert02Icon,
-  AlertCircleIcon,
-  ArrowDown01Icon,
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
-  ArrowTurnBackwardIcon,
-  ArrowUp01Icon,
-  Book01Icon,
-  Bookmark01Icon,
-  Briefcase01Icon,
-  BriefcaseBusinessIcon,
-  Building01Icon,
-  Calendar01Icon,
-  Camera01Icon,
-  Cancel01Icon,
-  CheckmarkCircle02Icon,
-  Clock01Icon,
-  CompassIcon,
-  Copy01Icon,
-  CreditCardIcon,
-  CubeIcon,
-  CustomerSupportIcon,
-  DashboardSquare01Icon,
-  Delete02Icon,
-  Download01Icon,
-  File01Icon,
-  FileValidationIcon,
-  FilterIcon,
-  FireIcon,
-  FlashIcon,
-  GiftIcon,
-  Globe02Icon,
-  GameController01Icon,
-  GridViewIcon,
-  HeadphonesIcon as HeadphonesIcon_,
-  HandshakeIcon,
-  HeartIcon,
-  HelpCircleIcon,
-  Home01Icon,
-  ImageNotFound01Icon,
-  LifebuoyIcon,
-  Login01Icon,
-  Logout01Icon,
-  InformationCircleIcon,
-  Invoice01Icon,
-  Layers01Icon,
-  LayoutTableIcon,
-  LibraryIcon,
-  Loading03Icon,
-  LockKeyIcon,
-  Mail01Icon,
-  MailValidation01Icon,
-  MagicWand01Icon,
-  Menu01Icon,
-  Message01Icon,
-  Message02Icon,
-  MinusSignIcon,
-  Moon02Icon,
-  MoreHorizontalIcon,
-  MusicNote01Icon,
-  Notification01Icon,
-  PackageIcon,
-  PackageSearchIcon,
-  PaintBoardIcon,
-  PrinterIcon,
-  RefreshIcon,
-  Search01Icon,
-  SearchRemoveIcon,
-  SecurityCheckIcon,
-  SentIcon,
-  Share08Icon,
-  Settings01Icon,
-  ShoppingBag01Icon,
-  ShoppingCart01Icon,
-  SourceCodeIcon,
-  SquareLock02Icon,
-  SparklesIcon,
-  StarIcon,
-  Sun03Icon,
-  Store01Icon,
-  Tag01Icon,
-  TextFontIcon,
-  Tick02Icon,
-  UserIcon,
-  UserMultipleIcon,
-  ViewIcon,
-  ViewOffIcon,
-  Wallet01Icon,
-} from "@hugeicons/core-free-icons"
+  ArrowRight as PArrowRight,
+  ArrowLeft as PArrowLeft,
+  ArrowUp as PArrowUp,
+  ArrowDown as PArrowDown,
+  ArrowUpRight as PArrowUpRight,
+  ArrowUUpLeft,
+  ArrowsClockwise,
+  ArrowsLeftRight,
+  Bell as PBell,
+  BookOpen,
+  BookmarkSimple,
+  Briefcase as PBriefcase,
+  Buildings,
+  CalendarBlank,
+  Camera as PCamera,
+  CaretDown,
+  CaretLeft,
+  CaretRight,
+  CaretUp,
+  ChatCircle,
+  ChatCircleDots,
+  Check as PCheck,
+  CheckCircle as PCheckCircle,
+  CircleNotch,
+  Clock as PClock,
+  Code,
+  Compass as PCompass,
+  Copy as PCopy,
+  CreditCard as PCreditCard,
+  Cube as PCube,
+  DotsThree,
+  DownloadSimple,
+  EnvelopeSimple,
+  EnvelopeSimpleOpen,
+  Eye as PEye,
+  EyeSlash,
+  FileText as PFileText,
+  Flame as PFlame,
+  FunnelSimple,
+  GameController as PGameController,
+  Gauge,
+  GearSix,
+  Gift as PGift,
+  Globe,
+  Handbag,
+  Handshake,
+  Headphones as PHeadphones,
+  Headset,
+  Heart as PHeart,
+  House,
+  ImageBroken,
+  Info as PInfo,
+  Layout,
+  Lifebuoy,
+  Lightning,
+  List,
+  Lock as PLock,
+  LockKey,
+  MagicWand,
+  MagnifyingGlass,
+  MagnifyingGlassMinus,
+  Minus as PMinus,
+  Moon as PMoon,
+  MusicNote as PMusicNote,
+  Package as PPackage,
+  Palette,
+  PaperPlaneTilt,
+  Plus as PPlus,
+  Printer as PPrinter,
+  Question,
+  Receipt,
+  SealCheck,
+  ShareNetwork,
+  ShieldCheck as PShieldCheck,
+  ShoppingCart as PShoppingCart,
+  SignIn,
+  SignOut,
+  Sparkle,
+  SquaresFour,
+  Stack,
+  Star as PStar,
+  Storefront,
+  Sun as PSun,
+  Tag as PTag,
+  TextAa,
+  Trash as PTrash,
+  User as PUser,
+  UsersThree,
+  Wallet as PWallet,
+  Warning,
+  WarningCircle,
+  X as PX,
+  Books,
+} from "@phosphor-icons/react/dist/ssr"
 
 /**
- * The storefront icon system — Hugeicons, one glyph per meaning.
+ * Storefront icon set: Phosphor. One barrel, semantic names, so a glyph
+ * change is a one-line edit here.
  *
- * This module previously mapped ~90 names onto ~25 glyphs, which is why no
- * component ever adopted it: `AlertTriangle` rendered a checkmark, `Loader2`
- * rendered sparkles, and all four chevron directions pointed the same way.
- * Every export below is now a distinct, semantically correct icon.
- *
- * SIZING — use the `size` prop, not ad-hoc classNames, so icon scale stays
- * consistent across the storefront:
+ * SIZING — use the `size` prop, not ad-hoc classNames:
  *   16  inline with body text, dense table/list rows
  *   18  default for buttons and controls
  *   20  navigation, header actions
  *   24  feature, department and empty-state icons
  *
- * Hugeicons renders an SVG that inherits `currentColor` and takes
- * `strokeWidth` (default 1.5, which matches the UI's hairline borders).
+ * `strokeWidth` is accepted for call-site compatibility: ≥ 2 maps to the
+ * bold weight, otherwise regular. `weight="duotone"` is the feature style.
  */
 
-type HugeiconProps = ComponentProps<typeof HugeiconsIcon>
-type IconProps = Omit<HugeiconProps, "icon">
-
+export interface IconProps extends Omit<PhosphorProps, "weight"> {
+  strokeWidth?: number
+  weight?: IconWeight
+}
 export type IconComponent = (props: IconProps) => ReactNode
 
 /** Canonical icon sizes. Prefer these over arbitrary values. */
@@ -126,135 +126,130 @@ export const ICON_SIZE = {
   feature: 24,
 } as const
 
-function createIcon(icon: HugeiconProps["icon"]): IconComponent {
-  const Icon = ({ size = ICON_SIZE.base, strokeWidth = 1.5, ...props }: IconProps) => (
-    <HugeiconsIcon icon={icon} size={size} strokeWidth={strokeWidth} {...props} />
+function createIcon(Icon: PhosphorIcon): IconComponent {
+  const Wrapped = ({ size = ICON_SIZE.base, strokeWidth, weight, ...props }: IconProps) => (
+    <Icon size={size} weight={weight ?? (strokeWidth !== undefined && strokeWidth >= 2 ? "bold" : "regular")} {...props} />
   )
-  return Icon
+  return Wrapped
 }
 
 // --- Direction -------------------------------------------------------------
-export const ArrowRight = createIcon(ArrowRight01Icon)
-export const ArrowLeft = createIcon(ArrowLeft01Icon)
-export const ArrowUp = createIcon(ArrowUp01Icon)
-export const ArrowDown = createIcon(ArrowDown01Icon)
-export const ChevronRight = createIcon(ArrowRight01Icon)
-export const ChevronLeft = createIcon(ArrowLeft01Icon)
-export const ChevronDown = createIcon(ArrowDown01Icon)
-export const ChevronUp = createIcon(ArrowUp01Icon)
-export const Undo = createIcon(ArrowTurnBackwardIcon)
+export const ArrowRight = createIcon(PArrowRight)
+export const ArrowLeft = createIcon(PArrowLeft)
+export const ArrowUp = createIcon(PArrowUp)
+export const ArrowDown = createIcon(PArrowDown)
+export const ChevronRight = createIcon(CaretRight)
+export const ChevronLeft = createIcon(CaretLeft)
+export const ChevronDown = createIcon(CaretDown)
+export const ChevronUp = createIcon(CaretUp)
+export const Undo = createIcon(ArrowUUpLeft)
 
 // --- Status ----------------------------------------------------------------
-export const Check = createIcon(Tick02Icon)
-export const CheckCircle = createIcon(CheckmarkCircle02Icon)
-export const AlertTriangle = createIcon(Alert02Icon)
-export const AlertCircle = createIcon(AlertCircleIcon)
-export const Info = createIcon(InformationCircleIcon)
-export const HelpCircle = createIcon(HelpCircleIcon)
-export const Spinner = createIcon(Loading03Icon)
-export const Clock = createIcon(Clock01Icon)
+export const Check = createIcon(PCheck)
+export const CheckCircle = createIcon(PCheckCircle)
+export const AlertTriangle = createIcon(Warning)
+export const AlertCircle = createIcon(WarningCircle)
+export const Info = createIcon(PInfo)
+export const HelpCircle = createIcon(Question)
+export const Spinner = createIcon(CircleNotch)
+export const Clock = createIcon(PClock)
 
 // --- Commerce --------------------------------------------------------------
-export const ShoppingCart = createIcon(ShoppingCart01Icon)
-export const ShoppingBag = createIcon(ShoppingBag01Icon)
-export const Package = createIcon(PackageIcon)
-export const Gift = createIcon(GiftIcon)
-export const Tag = createIcon(Tag01Icon)
-export const Wallet = createIcon(Wallet01Icon)
-export const CreditCard = createIcon(CreditCardIcon)
-export const Invoice = createIcon(Invoice01Icon)
-export const Store = createIcon(Store01Icon)
+export const ShoppingCart = createIcon(PShoppingCart)
+export const ShoppingBag = createIcon(Handbag)
+export const Package = createIcon(PPackage)
+export const Gift = createIcon(PGift)
+export const Tag = createIcon(PTag)
+export const Wallet = createIcon(PWallet)
+export const CreditCard = createIcon(PCreditCard)
+export const Invoice = createIcon(Receipt)
+export const Store = createIcon(Storefront)
 
 // --- Trust and security ----------------------------------------------------
-export const ShieldCheck = createIcon(SecurityCheckIcon)
-export const Lock = createIcon(LockKeyIcon)
+export const ShieldCheck = createIcon(PShieldCheck)
+export const Lock = createIcon(LockKey)
 
 // --- Library and files -----------------------------------------------------
-export const Download = createIcon(Download01Icon)
-export const Library = createIcon(LibraryIcon)
-export const FileText = createIcon(File01Icon)
-export const FileCheck = createIcon(FileValidationIcon)
-export const Book = createIcon(Book01Icon)
-export const Printer = createIcon(PrinterIcon)
+export const Download = createIcon(DownloadSimple)
+export const Library = createIcon(Books)
+export const FileText = createIcon(PFileText)
+export const FileCheck = createIcon(SealCheck)
+export const Book = createIcon(BookOpen)
+export const Printer = createIcon(PPrinter)
 
 // --- Navigation and layout -------------------------------------------------
-export const Search = createIcon(Search01Icon)
-export const SearchEmpty = createIcon(SearchRemoveIcon)
-export const Menu = createIcon(Menu01Icon)
-export const Close = createIcon(Cancel01Icon)
-export const Plus = createIcon(Add01Icon)
-export const Trash = createIcon(Delete02Icon)
-export const Filter = createIcon(FilterIcon)
-export const Grid = createIcon(GridViewIcon)
-export const GameController = createIcon(GameController01Icon)
-export const LayoutTemplate = createIcon(LayoutTableIcon)
-export const Dashboard = createIcon(DashboardSquare01Icon)
-export const Home = createIcon(Home01Icon)
-export const MoreHorizontal = createIcon(MoreHorizontalIcon)
-export const Layers = createIcon(Layers01Icon)
-export const Settings = createIcon(Settings01Icon)
+export const Search = createIcon(MagnifyingGlass)
+export const SearchEmpty = createIcon(MagnifyingGlassMinus)
+export const Menu = createIcon(List)
+export const Close = createIcon(PX)
+export const Plus = createIcon(PPlus)
+export const Trash = createIcon(PTrash)
+export const Filter = createIcon(FunnelSimple)
+export const Grid = createIcon(SquaresFour)
+export const GameController = createIcon(PGameController)
+export const LayoutTemplate = createIcon(Layout)
+export const Dashboard = createIcon(Gauge)
+export const Home = createIcon(House)
+export const MoreHorizontal = createIcon(DotsThree)
+export const Layers = createIcon(Stack)
+export const Settings = createIcon(GearSix)
 
 // --- Account and people ----------------------------------------------------
-export const User = createIcon(UserIcon)
-export const Users = createIcon(UserMultipleIcon)
-export const Building = createIcon(Building01Icon)
-export const Heart = createIcon(HeartIcon)
-export const Bookmark = createIcon(Bookmark01Icon)
-export const Star = createIcon(StarIcon)
-export const Bell = createIcon(Notification01Icon)
+export const User = createIcon(PUser)
+export const Users = createIcon(UsersThree)
+export const Building = createIcon(Buildings)
+export const Heart = createIcon(PHeart)
+export const Bookmark = createIcon(BookmarkSimple)
+export const Star = createIcon(PStar)
+export const Bell = createIcon(PBell)
 
 // --- Communication ---------------------------------------------------------
-export const Mail = createIcon(Mail01Icon)
-export const MailCheck = createIcon(MailValidation01Icon)
-export const Message = createIcon(Message01Icon)
-export const Send = createIcon(SentIcon)
-export const Support = createIcon(CustomerSupportIcon)
-export const Headphones = createIcon(HeadphonesIcon_)
+export const Mail = createIcon(EnvelopeSimple)
+export const MailCheck = createIcon(EnvelopeSimpleOpen)
+export const Message = createIcon(ChatCircle)
+export const Send = createIcon(PaperPlaneTilt)
+export const Support = createIcon(Headset)
+export const Headphones = createIcon(PHeadphones)
 
-// --- Content and category --------------------------------------------------
-export const Sparkles = createIcon(SparklesIcon)
-export const Flash = createIcon(FlashIcon)
-export const Refresh = createIcon(RefreshIcon)
-export const Copy = createIcon(Copy01Icon)
-export const Eye = createIcon(ViewIcon)
-export const EyeOff = createIcon(ViewOffIcon)
-export const ImageOff = createIcon(ImageNotFound01Icon)
-export const Calendar = createIcon(Calendar01Icon)
-export const PaintBoard = createIcon(PaintBoardIcon)
-export const SourceCode = createIcon(SourceCodeIcon)
-export const Cube = createIcon(CubeIcon)
-export const TextFont = createIcon(TextFontIcon)
-export const MusicNote = createIcon(MusicNote01Icon)
-export const Camera = createIcon(Camera01Icon)
+// --- Misc ------------------------------------------------------------------
+export const Sparkles = createIcon(Sparkle)
+export const Flash = createIcon(Lightning)
+export const Refresh = createIcon(ArrowsClockwise)
+export const Copy = createIcon(PCopy)
+export const Eye = createIcon(PEye)
+export const EyeOff = createIcon(EyeSlash)
+export const ImageOff = createIcon(ImageBroken)
+export const Calendar = createIcon(CalendarBlank)
+export const PaintBoard = createIcon(Palette)
+export const SourceCode = createIcon(Code)
+export const Cube = createIcon(PCube)
+export const TextFont = createIcon(TextAa)
+export const MusicNote = createIcon(PMusicNote)
+export const Camera = createIcon(PCamera)
 
-// --- Compatibility aliases -------------------------------------------------
-// Names the storefront already imports. Kept as named exports so existing
-// call sites keep working, each pointing at a semantically correct glyph.
-export const Loader2 = createIcon(Loading03Icon)
-export const Minus = createIcon(MinusSignIcon)
-export const X = createIcon(Cancel01Icon)
-export const ArrowUpRight = createIcon(ArrowUpRight01Icon)
-export const LockKeyhole = createIcon(SquareLock02Icon)
-export const Zap = createIcon(FlashIcon)
-export const PackageSearch = createIcon(PackageSearchIcon)
-export const LifeBuoy = createIcon(LifebuoyIcon)
-export const LogOut = createIcon(Logout01Icon)
-export const LogIn = createIcon(Login01Icon)
-export const BriefcaseBusiness = createIcon(BriefcaseBusinessIcon)
-export const Briefcase = createIcon(Briefcase01Icon)
-export const CircleHelp = createIcon(HelpCircleIcon)
-export const Moon = createIcon(Moon02Icon)
-export const Sun = createIcon(Sun03Icon)
-export const Globe2 = createIcon(Globe02Icon)
-export const HeadphonesIcon = createIcon(HeadphonesIcon_)
-export const Compass = createIcon(CompassIcon)
-export const Flame = createIcon(FireIcon)
-export const WandSparkles = createIcon(MagicWand01Icon)
-export const GitCompareArrows = createIcon(ArrowDataTransferHorizontalIcon)
-export const Share2 = createIcon(Share08Icon)
-
-// Aliases for Lucide names still present at existing call sites. Each maps to
-// the same glyph as its canonical export above, so the two never diverge.
+// --- Lucide-style aliases used at existing call sites ----------------------
+export const Loader2 = createIcon(CircleNotch)
+export const Minus = createIcon(PMinus)
+export const X = createIcon(PX)
+export const ArrowUpRight = createIcon(PArrowUpRight)
+export const LockKeyhole = createIcon(PLock)
+export const Zap = createIcon(Lightning)
+export const PackageSearch = createIcon(PPackage)
+export const LifeBuoy = createIcon(Lifebuoy)
+export const LogOut = createIcon(SignOut)
+export const LogIn = createIcon(SignIn)
+export const BriefcaseBusiness = createIcon(PBriefcase)
+export const Briefcase = createIcon(PBriefcase)
+export const CircleHelp = createIcon(Question)
+export const Moon = createIcon(PMoon)
+export const Sun = createIcon(PSun)
+export const Globe2 = createIcon(Globe)
+export const HeadphonesIcon = createIcon(PHeadphones)
+export const Compass = createIcon(PCompass)
+export const Flame = createIcon(PFlame)
+export const WandSparkles = createIcon(MagicWand)
+export const GitCompareArrows = createIcon(ArrowsLeftRight)
+export const Share2 = createIcon(ShareNetwork)
 export const ArrowRightIcon = ArrowRight
 export const Building2 = Building
 export const CheckCircle2 = CheckCircle
@@ -262,5 +257,5 @@ export const FileCheck2 = FileCheck
 export const LayoutDashboard = Dashboard
 export const RefreshCw = Refresh
 export const RefreshCcw = Refresh
-export const HeartHandshake = createIcon(HandshakeIcon)
-export const MessageCircle = createIcon(Message02Icon)
+export const HeartHandshake = createIcon(Handshake)
+export const MessageCircle = createIcon(ChatCircleDots)

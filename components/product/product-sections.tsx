@@ -43,7 +43,7 @@ export function ProductSections({ sections }: { sections: ProductSection[] }) {
     <div className="flex flex-col gap-8">
       <nav
         aria-label="On this page"
-        className="sticky top-16 z-20 -mx-5 border-y border-border bg-background/90 px-5 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:top-[4.5rem] md:mx-0 md:rounded-full md:border md:px-2"
+        className="sticky top-[4.75rem] z-20 -mx-5 border-y border-border bg-background/90 px-5 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:top-[5rem] md:mx-0 md:rounded-full md:border md:px-2"
       >
         <ul className="flex gap-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {sections.map((s) => (

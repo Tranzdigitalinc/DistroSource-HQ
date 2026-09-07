@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { motion, AnimatePresence } from "motion/react"
+import { motion, AnimatePresence, useInView } from "motion/react"
 import { Check, Download, FileText, Heart, Loader2, Lock, ShoppingBag, ICON_SIZE } from "@/lib/storefront-icons"
 import { Button } from "@/components/ui/button"
 import { PriceDisplay } from "@/components/price-display"
@@ -44,6 +44,9 @@ export function PurchasePanel({
   const [isBuying, startBuy] = useTransition()
   const [isSaving, startSaving] = useTransition()
   const [justAdded, setJustAdded] = useState(false)
+  const panelRef = useRef<HTMLDivElement>(null)
+  // The sticky bar shows on small screens whenever the panel is scrolled away.
+  const panelInView = useInView(panelRef, { margin: "-64px 0px 0px 0px" })
 
   const selected = licenses.find((l) => l.id === selectedId) ?? licenses[0]
 
@@ -104,7 +107,8 @@ export function PurchasePanel({
   ].filter((r): r is [string, string] => Boolean(r))
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-e1)]">
+    <>
+    <div ref={panelRef} className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-e1)]">
       <div className="px-5 pt-5">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
@@ -195,5 +199,29 @@ export function PurchasePanel({
         ))}
       </ul>
     </div>
+
+    <AnimatePresence>
+      {!panelInView && !isPreviewOnly && (
+        <motion.div
+          initial={{ y: 80, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 80, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 320, damping: 32 }}
+          className="fixed inset-x-3 bottom-3 z-40 flex items-center gap-3 rounded-full border border-border bg-background/90 p-2 pl-5 shadow-[var(--shadow-e3)] backdrop-blur-xl lg:hidden"
+        >
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-lg font-bold tabular-nums leading-tight tracking-tight">
+              <PriceDisplay usdAmount={price} />
+            </p>
+            <p className="truncate text-[11px] text-muted-foreground">{licenseLabel(selected.licenseType)} licence</p>
+          </div>
+          <Button onClick={handleAddToCart} disabled={busy || justAdded} className={cn("h-11 rounded-full px-5 font-semibold", justAdded && "bg-success hover:bg-success")}>
+            {isAdding ? <Loader2 size={ICON_SIZE.base} className="animate-spin" aria-hidden="true" /> : justAdded ? <Check size={ICON_SIZE.base} aria-hidden="true" /> : <ShoppingBag size={ICON_SIZE.base} aria-hidden="true" />}
+            {justAdded ? "Added" : "Add to cart"}
+          </Button>
+        </motion.div>
+      )}
+    </AnimatePresence>
+    </>
   )
 }
