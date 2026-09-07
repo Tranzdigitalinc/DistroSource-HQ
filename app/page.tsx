@@ -1,84 +1,73 @@
 import { unstable_cache } from "next/cache"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
-import { Hero } from "@/components/home/hero"
-import { CategoryGrid } from "@/components/home/category-grid"
-import { ProductRail } from "@/components/home/product-rail"
-import { FAQSection } from "@/components/home/faq-section"
-import { TrustBadges } from "@/components/home/trust-badges"
-import {
-  getCategoryTree,
-  getFeaturedProducts,
-  getProducts,
-  getStorefrontStats,
-} from "@/lib/queries/catalog"
-import { ShopByGoal } from "@/components/home/shop-by-goal"
-import { GamingTeaser } from "@/components/home/gaming-teaser"
+import { V5Hero } from "@/components/v5/hero"
+import { V5Departments } from "@/components/v5/departments"
+import { V5ProductShowcase } from "@/components/v5/product-showcase"
+import { V5GamingTakeover } from "@/components/v5/gaming-takeover"
+import { getCategoryTree, getFeaturedProducts, getProducts } from "@/lib/queries/catalog"
 
-const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["homepage", key], { revalidate: 300 })
+const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["homepage-v5", key], { revalidate: 300 })
 
 export default async function HomePage() {
-  const [departments, featured, newArrivals, businessProducts, webDevProducts, designProducts, bundleProducts, stats] =
-    await Promise.all([
-      cache(getCategoryTree, "departments")(),
-      cache(() => getFeaturedProducts(12), "featured")(),
-      cache(() => getProducts({ sort: "newest", limit: 12 }), "new-arrivals")(),
-      cache(() => getProducts({ categorySlug: "business-office", sort: "featured", limit: 8 }), "business-office")(),
-      cache(() => getProducts({ categorySlug: "web-development", sort: "featured", limit: 8 }), "web-development")(),
-      cache(() => getProducts({ categorySlug: "design-resources", sort: "featured", limit: 8 }), "design-resources")(),
-      cache(() => getProducts({ categorySlug: "product-bundles", sort: "featured", limit: 8 }), "product-bundles")(),
-      cache(getStorefrontStats, "stats")(),
-    ])
+  const [departments, featured, newArrivals, business, design] = await Promise.all([
+    cache(getCategoryTree, "departments")(),
+    cache(() => getFeaturedProducts(8), "featured")(),
+    cache(() => getProducts({ sort: "newest", limit: 8 }), "new")(),
+    cache(() => getProducts({ categorySlug: "business-office", sort: "featured", limit: 6 }), "business")(),
+    cache(() => getProducts({ categorySlug: "design-resources", sort: "featured", limit: 6 }), "design")(),
+  ])
+
+  const visibleDepartments = departments.filter((department) => department.productCount > 0)
+  const productCount = visibleDepartments.reduce((sum, department) => sum + department.productCount, 0)
+  const categoryCount = visibleDepartments.reduce((sum, department) => sum + department.subcategories.filter((subcategory) => subcategory.productCount > 0).length, 0)
+  const heroProducts = featured.slice(0, 3).map((item) => ({
+    slug: item.product.slug,
+    name: item.product.name,
+    category: item.category.name,
+    imageUrl: item.product.coverImageUrl ?? item.images[0]?.url ?? item.product.thumbnailUrl ?? null,
+  }))
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <main className="flex-1">
-        <Hero
-          stats={stats}
-          products={featured.slice(0, 3).map((item) => ({
-            slug: item.product.slug,
-            name: item.product.name,
-            imageUrl: item.product.coverImageUrl ?? item.images[0]?.url ?? item.product.thumbnailUrl ?? null,
-          }))}
+        <V5Hero products={heroProducts} productCount={productCount} categoryCount={categoryCount} />
+        <V5Departments departments={visibleDepartments} />
+        <V5ProductShowcase
+          eyebrow="DistroSource edit"
+          title="Products worth opening twice."
+          description="A tighter edit of the catalog: useful, well-presented digital products selected to help you move from idea to finished work faster."
+          href="/products"
+          items={featured.slice(0, 5)}
         />
-        {/* Departments with nothing published are not advertised on the home page. */}
-        <CategoryGrid categories={departments.filter((d) => d.productCount > 0)} />
-        <ProductRail title="Featured products" href="/products" items={featured} />
-        <ProductRail
-          title="New releases"
-          subtitle="Fresh templates, fonts, and assets just added to the catalog"
+        <V5ProductShowcase
+          eyebrow="Just landed"
+          title="Fresh into the catalog."
+          description="New templates, systems, graphics and tools—organized without the noise."
           href="/products?sort=newest"
-          items={newArrivals}
+          items={newArrivals.slice(0, 5)}
+          tone="dark"
         />
-        <ProductRail
-          title="Business essentials"
-          subtitle="Documents, spreadsheets, and systems that make the everyday work lighter"
-          href="/categories/business-office"
-          items={businessProducts}
-        />
-        <ProductRail
-          title="Web & development"
-          subtitle="Site templates, UI kits, and code starters for your next build"
-          href="/categories/web-development"
-          items={webDevProducts}
-        />
-        <ProductRail
-          title="Design resources"
-          subtitle="Graphics, mockups, and brand assets with a point of view"
-          href="/categories/design-resources"
-          items={designProducts}
-        />
-        <ShopByGoal />
-        <GamingTeaser />
-        <ProductRail
-          title="Digital bundles"
-          subtitle="Curated collections that cost less than buying each file on its own"
-          href="/categories/product-bundles"
-          items={bundleProducts}
-        />
-        <TrustBadges />
-        <FAQSection />
+        {business.length > 0 && (
+          <V5ProductShowcase
+            eyebrow="Work, upgraded"
+            title="Business tools that don’t look like office software."
+            description="Professional documents, spreadsheet systems and practical resources designed to make everyday operations lighter."
+            href="/categories/business-office"
+            items={business.slice(0, 5)}
+          />
+        )}
+        {design.length > 0 && (
+          <V5ProductShowcase
+            eyebrow="For visual work"
+            title="Design resources with a point of view."
+            description="Graphics, presentation assets and visual systems that help finished work feel considered—not assembled."
+            href="/categories/design-resources"
+            items={design.slice(0, 5)}
+          />
+        )}
+        <V5GamingTakeover />
       </main>
       <SiteFooter />
     </div>
