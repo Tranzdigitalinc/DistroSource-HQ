@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { AlertCircle, Eye, EyeOff, Loader2, ICON_SIZE } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
+import { trackWhopEvent } from "@/lib/whop-pixel"
 
 const MIN_PASSWORD = 8
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -100,6 +101,10 @@ export function AuthForm({ mode, redirectTo: providedRedirectTo }: { mode: "sign
     // your email" wall. The site-wide VerifyEmailBanner keeps nudging them
     // to verify without blocking anything.
     if (isSignUp) {
+      trackWhopEvent("complete_registration", {
+        email: email.trim().toLowerCase(),
+        event_id: `registration-${Date.now()}`,
+      })
       toast.success("Account created", { description: `We sent a verification link to ${email.trim()}.` })
     }
 

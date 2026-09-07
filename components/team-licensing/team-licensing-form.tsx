@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { submitTeamLicenseRequest } from "@/lib/actions/account"
+import { trackWhopEvent } from "@/lib/whop-pixel"
 
 export function TeamLicensingForm() {
   const [isPending, startTransition] = useTransition()
@@ -36,6 +37,18 @@ export function TeamLicensingForm() {
           seatsEstimate: seatsEstimateRaw ? Number(seatsEstimateRaw) : undefined,
           budgetUsd: budgetUsdRaw ? Number(budgetUsdRaw) : undefined,
           message: message || undefined,
+        })
+        trackWhopEvent("lead", {
+          email: contactEmail.trim().toLowerCase(),
+          event_id: `team-license-${Date.now()}`,
+        })
+        trackWhopEvent("submit_application", {
+          email: contactEmail.trim().toLowerCase(),
+          event_id: `team-application-${Date.now()}`,
+        })
+        trackWhopEvent("team_license_request", {
+          email: contactEmail.trim().toLowerCase(),
+          event_id: `team-license-request-${Date.now()}`,
         })
         setSubmitted(true)
         form.reset()

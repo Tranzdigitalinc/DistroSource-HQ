@@ -24,7 +24,9 @@ type TampaySubMethod = "togo" | "lahza" | "stripe"
 // The action itself (lib/actions/checkout.ts) has the matching server-side
 // guard, so this only controls whether the picker is shown.
 const TAMPAY_ENABLED = true
-const WHOP_ENABLED = true
+// Whop checkout is temporarily unavailable while it is under maintenance.
+// Keep the server-side guard in lib/actions/checkout.ts in sync with this flag.
+const WHOP_ENABLED = false
 
 const TAMPAY_METHODS: { id: TampaySubMethod; label: string; description: string }[] = [
   { id: "togo", label: "Togo", description: "Cards, Apple Pay & Google Pay" },
@@ -328,7 +330,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
 
             {/* 2 · Payment method */}
             <Section step={2} title="Payment" description="Choose how to pay. You'll confirm on the next screen.">
-              <div className={cn("grid grid-cols-1 gap-3", (WHOP_ENABLED || TAMPAY_ENABLED) && "sm:grid-cols-2", WHOP_ENABLED && TAMPAY_ENABLED && "lg:grid-cols-3")}>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <button type="button" onClick={() => setPaymentProvider("polar")} aria-pressed={paymentProvider === "polar"} className={optionClass(paymentProvider === "polar")}>
                   <Radio active={paymentProvider === "polar"} />
                   <span className="min-w-0 flex-1">
@@ -347,6 +349,19 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                     <span className="mt-1 block text-xs text-muted-foreground">Apple Pay, Google Pay & cards via Polar</span>
                   </span>
                 </button>
+                {!WHOP_ENABLED && (
+                  <button type="button" disabled aria-disabled="true" className="relative flex cursor-not-allowed items-start gap-3 rounded-xl border border-border bg-secondary/30 px-4 py-3.5 text-left opacity-70">
+                    <Radio active={false} />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                        <Zap size={ICON_SIZE.base} weight="duotone" aria-hidden="true" />
+                        Whop
+                        <span className="rounded-full border border-border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-muted-foreground">Maintenance</span>
+                      </span>
+                      <span className="mt-1 block text-xs text-muted-foreground">Whop checkout is temporarily unavailable.</span>
+                    </span>
+                  </button>
+                )}
                 {WHOP_ENABLED && (
                   <button type="button" onClick={() => setPaymentProvider("whop")} aria-pressed={paymentProvider === "whop"} className={optionClass(paymentProvider === "whop")}>
                     <Radio active={paymentProvider === "whop"} />

@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState, useTransition } from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { motion, AnimatePresence, useInView } from "motion/react"
@@ -14,6 +14,7 @@ import { addToCart } from "@/lib/actions/cart"
 import { toggleWishlist } from "@/lib/actions/wishlist"
 import { licenseLabel } from "@/lib/licenses"
 import { cn } from "@/lib/utils"
+import { trackWhopEvent } from "@/lib/whop-pixel"
 
 export interface PurchaseMeta {
   formats?: string[]
@@ -51,8 +52,13 @@ export function PurchasePanel({
 
   const selected = licenses.find((l) => l.id === selectedId) ?? licenses[0]
 
+  useEffect(() => {
+    trackWhopEvent("view_content", { product_id: productId, event_id: `view-product-${productId}` })
+  }, [productId])
+
   async function add() {
     await addToCart(productId, selected.id, 1)
+    trackWhopEvent("add_to_cart", { value: Number.parseFloat(selected.price), currency: "USD", product_id: productId })
     await refreshCart()
   }
 
@@ -75,6 +81,7 @@ export function PurchasePanel({
     startBuy(async () => {
       try {
         await add()
+        trackWhopEvent("checkout_started", { value: Number.parseFloat(selected.price), currency: "USD", product_id: productId, event_id: `checkout-${productId}-${Date.now()}` })
         router.push("/checkout")
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Couldn't start checkout. Please try again.")

@@ -417,11 +417,15 @@ const WHOP_MIN_USD = 0.5
  * opens `url` in a new tab; the original tab shows a waiting screen with no
  * polling loop (see components/checkout/whop-waiting.tsx).
  */
+const WHOP_ENABLED = false
+
 export async function createWhopCheckout(input: {
   billingEmail: string
   billingName: string
   couponCode?: string
 }): Promise<{ url: string; orderNumber: string } | { error: string }> {
+  if (!WHOP_ENABLED) return { error: "Whop payments are temporarily under maintenance. Please choose another payment method." }
+
   try {
     const billingEmail = input.billingEmail.trim()
     const billingName = input.billingName.trim()

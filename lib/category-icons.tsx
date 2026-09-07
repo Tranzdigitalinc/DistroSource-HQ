@@ -39,9 +39,10 @@ export type IconComponent = (props: IconProps) => ReactNode
 
 /** Department and subcategory glyphs: the same Hugeicons stroke set as the storefront. */
 function createIcon(icon: IconSvg): IconComponent {
-  const Wrapped: IconComponent & { displayName?: string } = ({ size = 20, strokeWidth = 1.5, weight: _weight, ...props }) => (
-    <HugeiconsIcon icon={icon as never} size={size} strokeWidth={Number(strokeWidth)} {...props} />
-  )
+  const Wrapped: IconComponent & { displayName?: string } = ({ size = 20, strokeWidth = 1.5, weight, ...props }) => {
+    void weight // accepted for API compatibility; the free set has one weight
+    return <HugeiconsIcon icon={icon as never} size={size} strokeWidth={Number(strokeWidth)} {...props} />
+  }
   Wrapped.displayName = "CategoryIcon"
   return Wrapped
 }

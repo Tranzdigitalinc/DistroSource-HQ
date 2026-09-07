@@ -527,3 +527,52 @@ export const rateLimits = pgTable("rate_limits", {
   count: integer("count").notNull().default(0),
   windowStart: timestamp("windowStart").notNull().defaultNow(),
 })
+
+export const gamingProducts = pgTable("gaming_products", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  name: text("name").notNull(),
+  tagline: text("tagline"),
+  description: text("description").notNull(),
+  platform: text("platform").notNull(),
+  categoryId: integer("categoryId").notNull(),
+  status: text("status").notNull().default("draft"),
+  price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  compareAtPrice: numeric("compareAtPrice", { precision: 10, scale: 2 }),
+  thumbnailUrl: text("thumbnailUrl"),
+  coverImageUrl: text("coverImageUrl"),
+  version: text("version"),
+  compatibility: text("compatibility"),
+  features: text("features").array().notNull().default([]),
+  requirements: text("requirements").array().notNull().default([]),
+  tags: text("tags").array().notNull().default([]),
+  installationGuide: text("installationGuide"),
+  changelog: jsonb("changelog"),
+  faq: jsonb("faq"),
+  isFeatured: boolean("isFeatured").notNull().default(false),
+  isBestseller: boolean("isBestseller").notNull().default(false),
+  isNew: boolean("isNew").notNull().default(false),
+  isUpdated: boolean("isUpdated").notNull().default(false),
+  tebexPackageId: text("tebexPackageId"),
+  tebexPackageUrl: text("tebexPackageUrl"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+})
+
+export const gamingProductImages = pgTable("gaming_product_images", {
+  id: serial("id").primaryKey(),
+  gamingProductId: integer("gamingProductId").notNull(),
+  url: text("url").notNull(),
+  alt: text("alt"),
+  sortOrder: integer("sortOrder").notNull().default(0),
+})
+
+export const gamingCategories = pgTable("gaming_categories", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  icon: text("icon"),
+  sortOrder: integer("sortOrder").notNull().default(0),
+})
+
