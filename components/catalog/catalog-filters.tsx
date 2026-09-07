@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
+import { AnimatePresence, motion } from "motion/react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useState } from "react"
-import { Filter, Star, X, ICON_SIZE } from "@/lib/storefront-icons"
+import { Filter, Star, X } from "@/lib/storefront-icons"
 import { licenseLabel } from "@/lib/licenses"
 import { getSourceTypeLabel } from "@/lib/format"
 import { cn } from "@/lib/utils"
@@ -14,45 +15,21 @@ const priceOptions = [
   { label: "Under $50", value: "50" },
   { label: "Under $100", value: "100" },
 ]
-
 const ratingOptions = [4, 3, 2]
 
-export interface CatalogTypeCounts {
-  free: number
-  bundle: number
-  deal: number
-}
+export interface CatalogTypeCounts { free: number; bundle: number; deal: number }
+export interface CatalogFacet { value: string; count: number }
 
-export interface CatalogFacet {
-  value: string
-  count: number
-}
-
-/**
- * Catalog filter sidebar. Every option is data-driven: a group is offered
- * only when the catalog has products that match it, so no filter can return
- * an empty grid on first click. The active option is always kept so it can
- * be cleared.
- */
-export function CatalogFilters({
-  formats = [],
-  software = [],
-  sources = [],
-  licenses = [],
-  reviewCount = 0,
-  typeCounts,
-}: {
+export function CatalogFilters({ formats = [], software = [], sources = [], licenses = [], reviewCount = 0, typeCounts }: {
   formats?: { format: string; count: number }[]
   software?: { name: string; count: number }[]
   sources?: CatalogFacet[]
   licenses?: CatalogFacet[]
-  /** Total reviews in the catalog. The rating filter is hidden at zero. */
   reviewCount?: number
   typeCounts?: CatalogTypeCounts
 }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  // Collapsed by default on mobile. Always open on lg+.
   const [mobileOpen, setMobileOpen] = useState(false)
 
   function buildHref(key: string, value: string | null) {
@@ -60,10 +37,11 @@ export function CatalogFilters({
     if (value) params.set(key, value)
     else params.delete(key)
     params.delete("page")
-    return `${pathname}?${params.toString()}`
+    const qs = params.toString()
+    return qs ? `${pathname}?${qs}` : pathname
   }
 
-  const get = (k: string) => searchParams.get(k)
+  const get = (key: string) => searchParams.get(key)
   const activeMaxPrice = get("maxPrice")
   const activeFree = get("free")
   const activeBundle = get("bundle")
@@ -73,146 +51,74 @@ export function CatalogFilters({
   const activeSource = get("source")
   const activeLicense = get("license")
   const activeMinRating = get("minRating")
-  const hasActiveFilters = Boolean(
-    activeMaxPrice || activeFree || activeBundle || activeDeal || activeFormat || activeSoftware || activeSource || activeLicense || activeMinRating,
-  )
+  const hasActive = Boolean(activeMaxPrice || activeFree || activeBundle || activeDeal || activeFormat || activeSoftware || activeSource || activeLicense || activeMinRating)
 
-  const show = (n: number | undefined, active: boolean) => n === undefined || n > 0 || active
+  const show = (count: number | undefined, active: boolean) => count === undefined || count > 0 || active
   const typeOptions = [
     { key: "free", label: "Free", active: activeFree === "true", count: typeCounts?.free },
     { key: "bundle", label: "Bundles", active: activeBundle === "true", count: typeCounts?.bundle },
     { key: "deal", label: "On sale", active: activeDeal === "true", count: typeCounts?.deal },
-  ].filter((o) => show(o.count, o.active))
+  ].filter((option) => show(option.count, option.active))
+  const licenseOptions = licenses.filter((item) => item.count > 0)
+  const sourceOptions = sources.filter((item) => item.count > 0)
 
-  // Facets with only one value carry no information as a filter.
-  const licenseOptions = licenses.filter((l) => l.count > 0)
-  const sourceOptions = sources.filter((s) => s.count > 0)
+  const groups = (
+    <div className="space-y-7">
+      <FilterGroup title="Price">
+        <FilterLink href={buildHref("maxPrice", null)} active={!activeMaxPrice} label="Any price" />
+        {priceOptions.map((option) => <FilterLink key={option.value} href={buildHref("maxPrice", option.value)} active={activeMaxPrice === option.value} label={option.label} />)}
+      </FilterGroup>
+
+      {typeOptions.length > 0 && <FilterGroup title="Type">{typeOptions.map((option) => <FilterLink key={option.key} href={buildHref(option.key, option.active ? null : "true")} active={option.active} label={option.label} count={option.count} />)}</FilterGroup>}
+      {formats.length > 0 && <FilterGroup title="Format"><FilterLink href={buildHref("format", null)} active={!activeFormat} label="All formats" />{formats.map((item) => <FilterLink key={item.format} href={buildHref("format", item.format)} active={activeFormat === item.format} label={item.format.toUpperCase()} count={item.count} />)}</FilterGroup>}
+      {software.length > 0 && <FilterGroup title="Software"><FilterLink href={buildHref("software", null)} active={!activeSoftware} label="Any software" />{software.map((item) => <FilterLink key={item.name} href={buildHref("software", item.name)} active={activeSoftware === item.name} label={item.name} count={item.count} />)}</FilterGroup>}
+      {licenseOptions.length > 1 && <FilterGroup title="Licence"><FilterLink href={buildHref("license", null)} active={!activeLicense} label="Any licence" />{licenseOptions.map((item) => <FilterLink key={item.value} href={buildHref("license", item.value)} active={activeLicense === item.value} label={licenseLabel(item.value)} count={item.count} />)}</FilterGroup>}
+      {sourceOptions.length > 1 && <FilterGroup title="Source"><FilterLink href={buildHref("source", null)} active={!activeSource} label="Any source" />{sourceOptions.map((item) => <FilterLink key={item.value} href={buildHref("source", item.value)} active={activeSource === item.value} label={getSourceTypeLabel(item.value)} count={item.count} />)}</FilterGroup>}
+      {reviewCount > 0 && <FilterGroup title="Rating"><FilterLink href={buildHref("minRating", null)} active={!activeMinRating} label="Any rating" />{ratingOptions.map((stars) => <FilterLink key={stars} href={buildHref("minRating", String(stars))} active={activeMinRating === String(stars)} label={`${stars}+ stars`} icon={<Star size={12} className="fill-current" />} />)}</FilterGroup>}
+    </div>
+  )
 
   return (
-    <aside className="flex w-full flex-col gap-3 lg:w-60">
-      <button
-        type="button"
-        onClick={() => setMobileOpen((v) => !v)}
-        aria-expanded={mobileOpen}
-        aria-controls="catalog-filter-panel"
-        className="flex h-11 items-center justify-between rounded-lg border border-border bg-card px-4 text-sm font-semibold text-foreground transition-colors hover:bg-secondary lg:hidden"
-      >
-        <span className="flex items-center gap-2">
-          <Filter size={ICON_SIZE.base} aria-hidden="true" />
-          Filters
-          {hasActiveFilters && <span className="rounded-full bg-foreground px-1.5 py-0.5 text-[10px] font-bold text-background">On</span>}
-        </span>
-        <span className="text-xs font-medium text-muted-foreground">{mobileOpen ? "Hide" : "Show"}</span>
+    <aside className="w-full lg:w-[250px]">
+      <button type="button" onClick={() => setMobileOpen(true)} className="flex h-12 w-full items-center justify-between border border-border px-4 text-sm font-semibold lg:hidden">
+        <span className="flex items-center gap-2"><Filter size={16} /> Refine results</span>
+        {hasActive && <span className="font-mono text-[9px] font-black uppercase tracking-[0.08em] text-primary">Active</span>}
       </button>
 
-      <div id="catalog-filter-panel" className={cn("rounded-lg border border-border bg-card lg:sticky lg:top-24 lg:block", mobileOpen ? "block" : "hidden")}>
-        <div className="flex h-11 items-center justify-between border-b border-border px-4">
-          <h2 className="text-sm font-semibold">Filters</h2>
-          {hasActiveFilters && (
-            <Link href={pathname} className="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground">
-              <X size={12} aria-hidden="true" />
-              Clear all
-            </Link>
-          )}
+      <div className="hidden lg:sticky lg:top-24 lg:block">
+        <div className="mb-6 flex items-end justify-between border-b border-border pb-3">
+          <div><p className="font-mono text-[9px] font-black uppercase tracking-[0.12em] text-muted-foreground">Refine</p><h2 className="mt-1 font-display text-lg font-black tracking-[-0.03em]">Filters</h2></div>
+          {hasActive && <Link href={pathname} className="text-xs font-semibold text-muted-foreground hover:text-foreground">Clear</Link>}
         </div>
-
-        <div className="flex flex-col gap-5 p-4">
-          <FilterGroup title="Price">
-            <FilterLink href={buildHref("maxPrice", null)} active={!activeMaxPrice} label="Any price" />
-            {priceOptions.map((opt) => (
-              <FilterLink key={opt.value} href={buildHref("maxPrice", opt.value)} active={activeMaxPrice === opt.value} label={opt.label} />
-            ))}
-          </FilterGroup>
-
-          {typeOptions.length > 0 && (
-            <FilterGroup title="Type">
-              {typeOptions.map((opt) => (
-                <FilterLink key={opt.key} href={buildHref(opt.key, opt.active ? null : "true")} active={opt.active} label={opt.label} />
-              ))}
-            </FilterGroup>
-          )}
-
-          {formats.length > 0 && (
-            <FilterGroup title="Format">
-              <FilterLink href={buildHref("format", null)} active={!activeFormat} label="All formats" />
-              {formats.map((f) => (
-                <FilterLink key={f.format} href={buildHref("format", f.format)} active={activeFormat === f.format} label={f.format.toUpperCase()} count={f.count} />
-              ))}
-            </FilterGroup>
-          )}
-
-          {software.length > 0 && (
-            <FilterGroup title="Software">
-              <FilterLink href={buildHref("software", null)} active={!activeSoftware} label="Any software" />
-              {software.map((s) => (
-                <FilterLink key={s.name} href={buildHref("software", s.name)} active={activeSoftware === s.name} label={s.name} count={s.count} />
-              ))}
-            </FilterGroup>
-          )}
-
-          {licenseOptions.length > 1 && (
-            <FilterGroup title="Licence">
-              <FilterLink href={buildHref("license", null)} active={!activeLicense} label="Any licence" />
-              {licenseOptions.map((l) => (
-                <FilterLink key={l.value} href={buildHref("license", l.value)} active={activeLicense === l.value} label={licenseLabel(l.value)} count={l.count} />
-              ))}
-            </FilterGroup>
-          )}
-
-          {sourceOptions.length > 1 && (
-            <FilterGroup title="Source">
-              <FilterLink href={buildHref("source", null)} active={!activeSource} label="Any source" />
-              {sourceOptions.map((s) => (
-                <FilterLink key={s.value} href={buildHref("source", s.value)} active={activeSource === s.value} label={getSourceTypeLabel(s.value)} count={s.count} />
-              ))}
-            </FilterGroup>
-          )}
-
-          {/* Hidden at zero reviews: a rating filter over an empty review set implies ratings exist. */}
-          {reviewCount > 0 && (
-            <FilterGroup title="Rating">
-              <FilterLink href={buildHref("minRating", null)} active={!activeMinRating} label="Any rating" />
-              {ratingOptions.map((stars) => (
-                <FilterLink
-                  key={stars}
-                  href={buildHref("minRating", String(stars))}
-                  active={activeMinRating === String(stars)}
-                  label={`${stars}+ stars`}
-                  icon={<Star className="size-3.5 fill-current" />}
-                />
-              ))}
-            </FilterGroup>
-          )}
-        </div>
+        {groups}
       </div>
+
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div className="fixed inset-0 z-[100] lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <button type="button" aria-label="Close filters" onClick={() => setMobileOpen(false)} className="absolute inset-0 bg-black/35 backdrop-blur-[2px]" />
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }} className="absolute inset-x-0 bottom-0 max-h-[86vh] overflow-hidden rounded-t-[28px] bg-background shadow-[0_-30px_80px_-30px_rgba(0,0,0,.35)]">
+              <div className="flex items-center justify-between border-b border-border px-5 py-4"><div><p className="font-mono text-[9px] font-black uppercase tracking-[0.12em] text-primary">Refine catalog</p><h2 className="mt-1 font-display text-xl font-black">Filters</h2></div><button type="button" onClick={() => setMobileOpen(false)} className="flex size-10 items-center justify-center rounded-full border border-border"><X size={16} /></button></div>
+              <div className="max-h-[calc(86vh-76px)] overflow-y-auto px-5 py-6 pb-[max(28px,env(safe-area-inset-bottom))]">{groups}{hasActive && <Link href={pathname} onClick={() => setMobileOpen(false)} className="mt-8 flex h-12 items-center justify-center bg-foreground text-sm font-semibold text-background">Clear all filters</Link>}</div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </aside>
   )
 }
 
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <h3 className="mb-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{title}</h3>
-      <div className="flex flex-col gap-0.5">{children}</div>
-    </div>
-  )
+  return <div><h3 className="mb-2.5 font-mono text-[9px] font-black uppercase tracking-[0.12em] text-muted-foreground">{title}</h3><div className="space-y-0.5">{children}</div></div>
 }
 
 function FilterLink({ href, active, label, icon, count }: { href: string; active: boolean; label: string; icon?: React.ReactNode; count?: number }) {
   return (
-    <Link
-      href={href}
-      aria-current={active ? "true" : undefined}
-      className={cn(
-        "group flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        active ? "bg-secondary font-medium text-foreground" : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
-      )}
-    >
-      <span className={cn("size-1.5 shrink-0 rounded-full transition-colors", active ? "bg-primary" : "bg-transparent group-hover:bg-border-strong")} aria-hidden="true" />
-      {icon && <span className={cn("shrink-0", active ? "text-primary" : "text-muted-foreground")}>{icon}</span>}
+    <Link href={href} aria-current={active ? "true" : undefined} className={cn("group flex min-h-9 items-center gap-2 border-b border-transparent py-2 text-sm transition-colors", active ? "font-semibold text-foreground" : "text-muted-foreground hover:text-foreground")}>
+      <span className={cn("h-px w-4 shrink-0 transition-[width,background-color]", active ? "w-7 bg-primary" : "bg-border group-hover:w-6 group-hover:bg-foreground")} />
+      {icon && <span className={active ? "text-primary" : "text-muted-foreground"}>{icon}</span>}
       <span className="truncate">{label}</span>
-      {count !== undefined && <span className="ml-auto font-mono text-[10px] tabular-nums text-muted-foreground/70">{count}</span>}
+      {count !== undefined && <span className="ml-auto font-mono text-[9px] tabular-nums text-muted-foreground/60">{count}</span>}
     </Link>
   )
 }
