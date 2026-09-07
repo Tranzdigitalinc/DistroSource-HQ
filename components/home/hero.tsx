@@ -3,13 +3,12 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useRef } from "react"
-import { motion, useReducedMotion, useScroll, useTransform } from "motion/react"
-import NumberFlow from "@number-flow/react"
+import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react"
 import { SearchTrigger } from "@/components/header/search-command"
-import { SplitText } from "@/components/motion/split-text"
 import { Magnetic } from "@/components/motion/magnetic"
 import { Marquee } from "@/components/motion/marquee"
 import { EASE_OUT } from "@/components/motion/reveal"
+import { CountUp, JustAddedTicker, RotatingWord, useTypewriter } from "@/components/home/hero-live"
 import { ArrowRight, Download, ShieldCheck, ICON_SIZE } from "@/lib/storefront-icons"
 
 interface HeroStats {
@@ -26,17 +25,25 @@ export interface HeroProduct {
   categoryName?: string
 }
 
+const line = (delay: number) => ({
+  initial: { opacity: 0, y: 14 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.55, delay, ease: EASE_OUT },
+})
+
 /**
- * Cinematic hero on navy: animated mesh light, film grain, a headline that
- * typesets itself, the search pill, two CTAs, live counts — and a tilted
- * wall of real product covers drifting in two directions behind a fade.
- * Scroll-linked: as the page scrolls the copy recedes and the wall
- * flattens and rises, so the hero hands off to the page instead of
- * simply sliding away.
+ * Cinematic hero on navy that stays alive after it loads: a light that
+ * follows the cursor, a headline word that keeps changing, a search pill
+ * that types example queries, counts that tick up, a ticker of what was
+ * just added, and a tilted wall of real product covers that pauses and
+ * lifts under the pointer while a light sweep crosses it. Everything is
+ * scroll-linked and every motion is disabled under reduced-motion.
  */
-export function Hero({ stats, products = [] }: { stats: HeroStats; products?: HeroProduct[] }) {
+export function Hero({ stats, products = [], latest = [] }: { stats: HeroStats; products?: HeroProduct[]; latest?: HeroProduct[] }) {
   const ref = useRef<HTMLElement>(null)
   const reduced = useReducedMotion()
+
+  // Scroll: copy recedes, wall flattens and rises.
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] })
   const copyScale = useTransform(scrollYProgress, [0, 0.6], [1, 0.92])
   const copyOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0])
@@ -45,58 +52,75 @@ export function Hero({ stats, products = [] }: { stats: HeroStats; products?: He
   const wallY = useTransform(scrollYProgress, [0, 1], [0, -120])
   const wallScale = useTransform(scrollYProgress, [0, 1], [1.08, 1.18])
 
+  // Pointer: a soft orange light follows the cursor across the band.
+  const mx = useMotionValue(-1000)
+  const my = useMotionValue(-1000)
+  const sx = useSpring(mx, { stiffness: 80, damping: 22, mass: 0.6 })
+  const sy = useSpring(my, { stiffness: 80, damping: 22, mass: 0.6 })
+  const spotlight = useMotionTemplate`radial-gradient(34rem circle at ${sx}px ${sy}px, color-mix(in oklab, var(--primary) 32%, transparent), transparent 62%)`
+
+  const placeholder = useTypewriter(!reduced)
+
   const covers = products.filter((p) => p.imageUrl)
   const rowA = covers.filter((_, i) => i % 2 === 0)
   const rowB = covers.filter((_, i) => i % 2 === 1)
 
   return (
-    <section ref={ref} className="grain relative overflow-hidden bg-navy-deep text-navy-foreground">
+    <section
+      ref={ref}
+      onPointerMove={(e) => {
+        if (reduced) return
+        const r = e.currentTarget.getBoundingClientRect()
+        mx.set(e.clientX - r.left)
+        my.set(e.clientY - r.top)
+      }}
+      onPointerLeave={() => {
+        mx.set(-1000)
+        my.set(-1000)
+      }}
+      className="grain relative overflow-hidden bg-navy-deep text-navy-foreground"
+    >
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="mesh-blob animate-mesh-1 left-[-10%] top-[-20%] h-[40rem] w-[40rem] bg-primary/25" />
         <div className="mesh-blob animate-mesh-2 right-[-15%] top-[10%] h-[36rem] w-[36rem] bg-[oklch(0.5_0.12_260)]/40" />
         <div className="mesh-blob animate-mesh-3 bottom-[-30%] left-[30%] h-[30rem] w-[30rem] bg-primary/15" />
       </div>
       <div aria-hidden className="paper-grid pointer-events-none absolute inset-0 opacity-[0.12] [mask-image:radial-gradient(70%_60%_at_50%_0%,black,transparent_80%)]" />
+      {!reduced && <motion.div aria-hidden className="pointer-events-none absolute inset-0 mix-blend-screen" style={{ background: spotlight }} />}
 
-      <div className="container-x relative pb-10 pt-16 sm:pt-24 lg:pt-28">
-        <motion.div
-          style={reduced ? undefined : { scale: copyScale, opacity: copyOpacity, y: copyY }}
-          className="mx-auto flex max-w-4xl origin-top flex-col items-center text-center"
-        >
-          <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: EASE_OUT }} className="eyebrow text-navy-foreground/60">
-            The department store for digital work
-          </motion.p>
+      <div className="container-x relative pb-6 pt-12 sm:pt-16 lg:pt-16">
+        <motion.div style={reduced ? undefined : { scale: copyScale, opacity: copyOpacity, y: copyY }} className="mx-auto flex max-w-4xl origin-top flex-col items-center text-center">
+          <motion.div {...line(0)} className="flex items-center gap-3">
+            <p className="eyebrow text-navy-foreground/60">The department store for digital work</p>
+          </motion.div>
 
-          <SplitText
-            text="Everything digital. One source."
-            accentFrom={2}
-            className="text-display mt-6 text-center text-[2.9rem] leading-[0.95] sm:text-6xl lg:text-[5.5rem]"
-            delay={0.15}
-          />
+          <motion.h1 {...line(0.12)} className="text-display mt-5 text-center text-[2.9rem] leading-[0.98] sm:text-6xl lg:text-[4.75rem]" aria-label="Everything digital. One source.">
+            <span className="block">Everything</span>
+            <span className="block">
+              <RotatingWord />
+            </span>
+            <span className="block">One source.</span>
+          </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.55, ease: EASE_OUT }}
-            className="mt-6 max-w-2xl text-pretty text-base leading-relaxed text-navy-foreground/70 sm:text-lg"
-          >
+          <motion.p {...line(0.3)} className="mt-5 max-w-2xl text-pretty text-base leading-relaxed text-navy-foreground/70 sm:text-lg">
             Templates, fonts, systems, code and game-server resources — picked for how they hold up in real work, delivered the instant you pay, licence stated up front.
           </motion.p>
 
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.65, ease: EASE_OUT }} className="mt-8 w-full max-w-xl">
+          <motion.div {...line(0.42)} className="mt-6 w-full max-w-xl">
             <SearchTrigger
               size="lg"
-              placeholder="Search templates, fonts, dashboards, gaming…"
-              className="border-navy-foreground/15 bg-navy-foreground/[0.07] text-navy-foreground/60 shadow-[0_20px_60px_-20px_rgba(0,0,0,.6)] hover:border-primary/60 hover:bg-navy-foreground/[0.1] [&_kbd]:border-navy-foreground/15 [&_kbd]:bg-navy-foreground/10 [&_kbd]:text-navy-foreground/60 [&_svg]:text-navy-foreground/60"
+              placeholder={placeholder}
+              className="border-navy-foreground/15 bg-navy-foreground/[0.07] text-navy-foreground/70 shadow-[0_20px_60px_-20px_rgba(0,0,0,.6)] hover:border-primary/60 hover:bg-navy-foreground/[0.1] [&_kbd]:border-navy-foreground/15 [&_kbd]:bg-navy-foreground/10 [&_kbd]:text-navy-foreground/60 [&_svg]:text-navy-foreground/60"
             />
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.75, ease: EASE_OUT }} className="mt-5 flex flex-wrap items-center justify-center gap-3">
+          <motion.div {...line(0.52)} className="mt-4 flex flex-wrap items-center justify-center gap-3">
             <Magnetic>
               <Link
                 href="/products"
-                className="group inline-flex h-12 items-center gap-2 rounded-full bg-primary px-6 text-[15px] font-semibold text-primary-foreground shadow-[0_12px_40px_-10px_var(--primary)] transition-[transform,box-shadow] hover:shadow-[0_18px_50px_-10px_var(--primary)] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-navy-deep"
+                className="group relative inline-flex h-12 items-center gap-2 overflow-hidden rounded-full bg-primary px-6 text-[15px] font-semibold text-primary-foreground shadow-[0_12px_40px_-10px_var(--primary)] transition-[transform,box-shadow] hover:shadow-[0_18px_50px_-10px_var(--primary)] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-navy-deep"
               >
+                <span aria-hidden className="absolute inset-y-0 -left-1/2 w-1/3 -skew-x-12 bg-white/25 opacity-0 transition-all duration-700 group-hover:left-[120%] group-hover:opacity-100" />
                 Explore the catalog
                 <ArrowRight size={ICON_SIZE.base} weight="bold" className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
               </Link>
@@ -111,18 +135,13 @@ export function Hero({ stats, products = [] }: { stats: HeroStats; products?: He
             </Magnetic>
           </motion.div>
 
-          <motion.ul
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.95 }}
-            className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 font-mono text-[11px] uppercase tracking-[0.12em] text-navy-foreground/55"
-          >
+          <motion.ul {...line(0.7)} className="mt-7 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 font-mono text-[11px] uppercase tracking-[0.12em] text-navy-foreground/55">
             <li className="flex items-baseline gap-2">
-              <NumberFlow value={stats.productCount} className="font-display text-2xl font-bold normal-case tracking-tight text-navy-foreground" />
+              <CountUp value={stats.productCount} className="font-display text-2xl font-bold normal-case tracking-tight text-navy-foreground" />
               products
             </li>
             <li className="flex items-baseline gap-2">
-              <NumberFlow value={stats.categoryCount} className="font-display text-2xl font-bold normal-case tracking-tight text-navy-foreground" />
+              <CountUp value={stats.categoryCount} delay={1050} className="font-display text-2xl font-bold normal-case tracking-tight text-navy-foreground" />
               categories
             </li>
             <li className="flex items-center gap-1.5">
@@ -134,6 +153,12 @@ export function Hero({ stats, products = [] }: { stats: HeroStats; products?: He
               Licence up front
             </li>
           </motion.ul>
+
+          {latest.length > 0 && (
+            <motion.div {...line(0.85)} className="mt-4 flex w-full max-w-md justify-center">
+              <JustAddedTicker items={latest} />
+            </motion.div>
+          )}
         </motion.div>
       </div>
 
@@ -141,22 +166,28 @@ export function Hero({ stats, products = [] }: { stats: HeroStats; products?: He
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.9, ease: EASE_OUT }}
-          aria-hidden="true"
-          className="perspective-wall relative mt-6 h-[22rem] overflow-hidden sm:h-[26rem] lg:h-[30rem]"
+          transition={{ duration: 0.9, delay: 0.8, ease: EASE_OUT }}
+          className="perspective-wall relative mt-2 h-[22rem] overflow-hidden sm:h-[26rem] lg:h-[30rem]"
         >
-          <div className="absolute inset-x-0 top-0 z-10 h-24 bg-gradient-to-b from-navy-deep to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 z-10 h-32 bg-gradient-to-t from-navy-deep to-transparent" />
-          <motion.div
-            style={reduced ? { rotateX: 28, scale: 1.08 } : { rotateX: wallRotate, y: wallY, scale: wallScale }}
-            className="absolute inset-0 origin-top"
-          >
-            <Marquee duration={70} gap="1.25rem" className="mb-5">
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-gradient-to-b from-navy-deep to-transparent" />
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-32 bg-gradient-to-t from-navy-deep to-transparent" />
+          {/* periodic light sweep across the wall */}
+          {!reduced && (
+            <motion.div
+              aria-hidden
+              initial={{ x: "-40%" }}
+              animate={{ x: "140%" }}
+              transition={{ duration: 3.2, repeat: Infinity, repeatDelay: 4.5, ease: [0.4, 0, 0.2, 1] }}
+              className="pointer-events-none absolute inset-y-0 z-10 w-[26%] -skew-x-12 bg-gradient-to-r from-transparent via-navy-foreground/[0.09] to-transparent mix-blend-screen"
+            />
+          )}
+          <motion.div style={reduced ? { rotateX: 28, scale: 1.08 } : { rotateX: wallRotate, y: wallY, scale: wallScale }} className="absolute inset-0 origin-top">
+            <Marquee duration={70} gap="1.25rem" pauseOnHover className="mb-5">
               {rowA.map((p) => (
                 <Cover key={p.slug} product={p} />
               ))}
             </Marquee>
-            <Marquee duration={84} gap="1.25rem" reverse>
+            <Marquee duration={84} gap="1.25rem" reverse pauseOnHover>
               {rowB.map((p) => (
                 <Cover key={p.slug} product={p} />
               ))}
@@ -170,11 +201,19 @@ export function Hero({ stats, products = [] }: { stats: HeroStats; products?: He
 
 function Cover({ product }: { product: HeroProduct }) {
   return (
-    <Link href={`/products/${product.slug}`} tabIndex={-1} className="relative block aspect-[16/10] w-[17rem] shrink-0 overflow-hidden rounded-2xl border border-navy-foreground/10 bg-navy shadow-[0_30px_60px_-20px_rgba(0,0,0,.6)] sm:w-[20rem]">
-      <Image src={product.imageUrl!} alt="" fill sizes="20rem" className="object-cover" />
+    <Link
+      href={`/products/${product.slug}`}
+      tabIndex={-1}
+      aria-label={product.name}
+      className="group/cover relative block aspect-[16/10] w-[17rem] shrink-0 overflow-hidden rounded-2xl border border-navy-foreground/10 bg-navy shadow-[0_30px_60px_-20px_rgba(0,0,0,.6)] transition-[transform,border-color,box-shadow] duration-300 hover:z-10 hover:-translate-y-2 hover:scale-[1.04] hover:border-primary/60 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,.7),0_0_0_1px_var(--primary)] motion-reduce:hover:translate-y-0 motion-reduce:hover:scale-100 sm:w-[20rem]"
+    >
+      <Image src={product.imageUrl!} alt="" fill sizes="20rem" className="object-cover transition-transform duration-700 group-hover/cover:scale-[1.06] motion-reduce:transition-none" />
       <span className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-navy-deep/90 to-transparent px-3 pb-2.5 pt-8 text-[11px] font-semibold text-navy-foreground">
         <span className="truncate">{product.name}</span>
         {product.categoryName && <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.1em] text-primary">{product.categoryName}</span>}
+      </span>
+      <span aria-hidden className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity group-hover/cover:opacity-100">
+        <ArrowRight size={12} weight="bold" />
       </span>
     </Link>
   )

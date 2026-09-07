@@ -46,13 +46,15 @@ export default async function HomePage() {
     .slice(0, 14)
     .map((item) => ({ slug: item.product.slug, name: item.product.name, imageUrl: cover(item), categoryName: item.category.name }))
 
+  const latest = newArrivals.slice(0, 6).map((item) => ({ slug: item.product.slug, name: item.product.name, imageUrl: cover(item), categoryName: item.category.name }))
+
   const gaming = getFeaturedGamingProducts(4)
 
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <Hero stats={stats} products={wall} />
+        <Hero stats={stats} products={wall} latest={latest} />
         <DepartmentShowcase departments={tiles} />
         <EditorsPicks items={featured} />
         <ProductCarousel eyebrow="Just added" title="New releases" subtitle="Fresh templates, fonts and assets, newest first." href="/products?sort=newest" items={newArrivals} />
