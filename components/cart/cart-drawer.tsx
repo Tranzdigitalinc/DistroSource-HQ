@@ -126,8 +126,8 @@ export function CartDrawer() {
             <div className="border-t border-border px-5 py-5">
               <p className="eyebrow">{items.length > 0 ? "Goes well with" : "Popular right now"}</p>
               <ul className="mt-3 flex flex-col gap-2">
-                {recs.map((rec) => (
-                  <RecommendationRow key={rec.product.id} rec={rec} onNavigate={close} />
+                {recs.map((rec, i) => (
+                  <RecommendationRow key={rec.product.id} rec={rec} onNavigate={close} highlight={i === 0 && items.length > 0} />
                 ))}
               </ul>
             </div>
@@ -190,7 +190,7 @@ function Subtotal({ amount }: { amount: number }) {
   )
 }
 
-function RecommendationRow({ rec, onNavigate }: { rec: Recs[number]; onNavigate: () => void }) {
+function RecommendationRow({ rec, onNavigate, highlight = false }: { rec: Recs[number]; onNavigate: () => void; highlight?: boolean }) {
   const [isPending, startTransition] = useTransition()
   const image = rec.product.coverImageUrl ?? rec.images[0]?.url ?? rec.product.thumbnailUrl ?? null
   const cheapest = rec.licenses.length ? rec.licenses.reduce((m, l) => (Number.parseFloat(l.price) < Number.parseFloat(m.price) ? l : m), rec.licenses[0]) : null
@@ -209,7 +209,8 @@ function RecommendationRow({ rec, onNavigate }: { rec: Recs[number]; onNavigate:
   }
 
   return (
-    <li className="flex items-center gap-3 rounded-xl border border-border p-2 transition-colors hover:border-border-strong">
+    <li className={cn("relative flex items-center gap-3 rounded-xl border p-2 transition-colors hover:border-border-strong", highlight ? "border-primary/40 bg-primary/[0.04]" : "border-border")}>
+      {highlight && <span className="absolute -top-2 left-3 rounded-full bg-primary px-2 font-mono text-[9px] font-bold uppercase leading-4 tracking-[0.08em] text-primary-foreground">Completes the set</span>}
       <Link href={`/products/${rec.product.slug}`} onClick={onNavigate} className="relative aspect-[16/10] w-20 shrink-0 overflow-hidden rounded-lg bg-secondary/60">
         {image && <Image src={image} alt="" fill sizes="80px" className="object-cover" />}
       </Link>
@@ -274,10 +275,10 @@ function DrawerLine({
   return (
     <motion.li
       layout
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: isPending ? 0.5 : 1, y: 0 }}
-      exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0 }}
-      transition={{ duration: 0.2 }}
+      initial={{ opacity: 0, y: -22, scale: 0.96 }}
+      animate={{ opacity: isPending ? 0.5 : 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0, transition: { duration: 0.2 } }}
+      transition={{ type: "spring", stiffness: 420, damping: 22 }}
       className="flex gap-4 py-4"
     >
       <Link href={`/products/${slug}`} onClick={onNavigate} className="relative aspect-[16/10] w-24 shrink-0 overflow-hidden rounded-xl border border-border bg-secondary/60">

@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useRef, useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
+import { AnimatePresence, motion } from "motion/react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PolarInlineCheckout } from "@/components/checkout/polar-inline-checkout"
@@ -14,7 +14,8 @@ import { CheckoutLineItem, type CheckoutItem } from "@/components/checkout/check
 import { OrderSummary } from "@/components/checkout/order-summary"
 import { saveAbandonedCart } from "@/lib/actions/recovery"
 import { createPolarCheckout, createTampayCheckout, createWhopCheckout } from "@/lib/actions/checkout"
-import { Download, Lock, CreditCard, Wallet, Zap, ICON_SIZE } from "@/lib/storefront-icons"
+import { formatUsd } from "@/lib/format"
+import { Check, ChevronDown, CreditCard, Download, Lock, User, Wallet, Zap, ICON_SIZE } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
 
 type PaymentProvider = "polar" | "tampay" | "whop"
@@ -23,8 +24,6 @@ type TampaySubMethod = "togo" | "lahza" | "stripe"
 // The action itself (lib/actions/checkout.ts) has the matching server-side
 // guard, so this only controls whether the picker is shown.
 const TAMPAY_ENABLED = true
-// Whop is live — the picker below only renders when more than one provider
-// is enabled, which now includes Whop by default.
 const WHOP_ENABLED = true
 
 const TAMPAY_METHODS: { id: TampaySubMethod; label: string; description: string }[] = [
@@ -32,6 +31,8 @@ const TAMPAY_METHODS: { id: TampaySubMethod; label: string; description: string 
   { id: "lahza", label: "Lahza", description: "Cards only, lower fee" },
   { id: "stripe", label: "Stripe", description: "Cards via Stripe" },
 ]
+
+const CARD_ICONS = ["visa", "mastercard", "american-express", "apple-pay", "google-pay"]
 
 interface CheckoutFormProps {
   defaultEmail: string
@@ -42,86 +43,47 @@ interface CheckoutFormProps {
   orderItems: CheckoutItem[]
 }
 
+function Radio({ active }: { active: boolean }) {
+  return (
+    <span className={cn("mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors", active ? "border-primary bg-primary text-primary-foreground" : "border-border-strong")}>
+      {active && <Check size={11} weight="bold" aria-hidden="true" />}
+    </span>
+  )
+}
+
 const FORM_ID = "checkout-form"
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-type WizardStep = 1 | 2 | 3
-
-const WIZARD_STEPS: { id: WizardStep; label: string }[] = [
-  { id: 1, label: "Account" },
-  { id: 2, label: "Review" },
-  { id: 3, label: "Payment" },
-]
-
-/**
- * Step indicator for the 3-step checkout wizard (Account → Review →
- * Payment). Purely presentational — `activeStep` drives which step is
- * highlighted as current vs. already completed.
- */
-function StepIndicator({ activeStep }: { activeStep: WizardStep }) {
+function Section({ step, title, description, aside, children, className }: { step: number; title: string; description?: string; aside?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
-    <ol aria-label="Checkout steps" className="flex items-center gap-1.5 sm:gap-2">
-      {WIZARD_STEPS.map((step, index) => {
-        const isComplete = step.id < activeStep
-        const isCurrent = step.id === activeStep
-        return (
-          <li key={step.id} className="flex items-center gap-1.5 sm:gap-2">
-            {index > 0 && <span aria-hidden="true" className="h-px w-4 shrink-0 bg-border sm:w-6" />}
-            <span
-              aria-current={isCurrent ? "step" : undefined}
-              className="flex items-center gap-1.5"
-            >
-              <span
-                className={cn(
-                  "flex size-6 shrink-0 items-center justify-center rounded-full font-mono text-[11px] font-bold transition-colors",
-                  isCurrent && "bg-foreground text-background",
-                  isComplete && "bg-secondary text-foreground",
-                  !isCurrent && !isComplete && "bg-secondary/50 text-muted-foreground",
-                )}
-              >
-                {step.id}
-              </span>
-              <span
-                className={cn(
-                  "hidden font-mono text-[11px] font-semibold uppercase tracking-[0.08em] sm:inline",
-                  isCurrent ? "text-foreground" : "text-muted-foreground",
-                )}
-              >
-                {step.label}
-              </span>
-            </span>
-          </li>
-        )
-      })}
-    </ol>
-  )
-}
-
-function Section({
-  title,
-  description,
-  aside,
-  children,
-}: {
-  title: string
-  description?: string
-  aside?: React.ReactNode
-  children: React.ReactNode
-}) {
-  return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-card">
-      <div className="flex flex-col gap-2 border-b border-border px-5 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-        <div>
-          <h2 className="font-display text-base font-bold text-foreground">{title}</h2>
-          {description && <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">{description}</p>}
+    <motion.section
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: step * 0.06, ease: [0.16, 1, 0.3, 1] }}
+      className={cn("overflow-hidden rounded-2xl border border-border bg-card", className)}
+    >
+      <div className="flex items-start justify-between gap-4 px-5 py-4">
+        <div className="flex items-start gap-3">
+          <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-foreground font-mono text-[11px] font-bold text-background">{step}</span>
+          <div>
+            <h2 className="font-display text-base font-bold text-foreground">{title}</h2>
+            {description && <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">{description}</p>}
+          </div>
         </div>
         {aside}
       </div>
-      <div className="px-5 py-4">{children}</div>
-    </section>
+      <div className="border-t border-border px-5 py-4">{children}</div>
+    </motion.section>
   )
 }
 
+/**
+ * Express one-page checkout. Contact, payment method and the order sit on
+ * one screen with a single "Pay" button; signed-in shoppers see their
+ * details collapsed and go straight to paying. Provider logic is the same
+ * as before: Polar opens inline, TamPay and Whop open in a new tab with a
+ * waiting screen here.
+ */
 export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPercent, isGuest, orderItems }: CheckoutFormProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -129,6 +91,8 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const [email, setEmail] = useState(defaultEmail)
   const [name, setName] = useState(defaultName)
   const [fieldError, setFieldError] = useState<{ name?: string; email?: string }>({})
+  const [editingContact, setEditingContact] = useState(isGuest || !defaultEmail)
+  const [showItems, setShowItems] = useState(orderItems.length <= 3)
   const [isPending, startTransition] = useTransition()
   const [polarCheckoutUrl, setPolarCheckoutUrl] = useState<string | null>(null)
   const [paymentProvider, setPaymentProvider] = useState<PaymentProvider>("polar")
@@ -136,48 +100,31 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const [tampayPhone, setTampayPhone] = useState("")
   const [tampayCity, setTampayCity] = useState("")
   const [tampayFieldError, setTampayFieldError] = useState<{ phone?: string; city?: string }>({})
-  // Set once TamPay has accepted the payment link; drives the "waiting for
-  // payment" screen. `tampayPaymentUrl` lets that screen reopen the tab if
-  // the buyer closed it without paying.
   const [tampayOrder, setTampayOrder] = useState<{ orderNumber: string; url: string } | null>(null)
-  // Set once Whop has accepted the checkout configuration; drives the
-  // "payment in progress" screen. Unlike tampayOrder, this never polls —
-  // Whop's redirect + webhook combo confirms payment on its own.
   const [whopOrder, setWhopOrder] = useState<{ orderNumber: string; url: string } | null>(null)
-  // Signed-in shoppers already have an account, so they start on Review
-  // (step 2). Guests confirm the name/email their order and receipt go to
-  // first (step 1) — no account or password is required to pay. Guests get
-  // a chance to turn this into a real account afterward, on the success page.
-  const [step, setStep] = useState<WizardStep>(isGuest ? 1 : 2)
+  const nameRef = useRef<HTMLInputElement>(null)
+  const emailRef = useRef<HTMLInputElement>(null)
 
   const discount = Math.round(subtotal * (discountPercent / 100) * 100) / 100
   const total = Math.max(0, subtotal - discount)
   const itemCount = orderItems.reduce((n, i) => n + i.quantity, 0)
-  const isBusy = isPending
-  // The account step is only ever shown to a guest; once contact details are
-  // confirmed (or the shopper was already signed in) it collapses into a
-  // summary row on the Review step instead of disappearing entirely.
-  const accountConfirmed = step > 1
+  const paymentInProgress = Boolean(polarCheckoutUrl) || Boolean(tampayOrder) || Boolean(whopOrder)
+  const payLabel = `Pay ${formatUsd(total)}`
 
-  /** Validates the contact fields. Returns false (with field errors shown) instead of throwing. */
-  function validateAccountStep(): boolean {
+  function validateContact(): boolean {
     const errors: typeof fieldError = {}
     if (!name.trim()) errors.name = "Enter the name for this order."
     if (!EMAIL.test(email.trim())) errors.email = "Enter a valid email address."
     setFieldError(errors)
+    if (errors.name) nameRef.current?.focus()
+    else if (errors.email) emailRef.current?.focus()
+    if (Object.keys(errors).length > 0) setEditingContact(true)
     return Object.keys(errors).length === 0
   }
 
-  /** Step 1 (Account) → Step 2 (Review). No account is created here. */
-  function handleContinueFromAccount(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!validateAccountStep()) return
-    setStep(2)
-  }
-
-  /** Step 2 (Review) → Step 3 (Payment). Creates the Polar checkout session. */
-  function handleContinueFromReview(e: React.FormEvent) {
-    e.preventDefault()
+    if (!validateContact()) return
 
     if (TAMPAY_ENABLED && paymentProvider === "tampay") {
       const errors: typeof tampayFieldError = {}
@@ -198,17 +145,12 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             ...(tampaySubMethod === "togo" ? { phone: tampayPhone.trim(), city: tampayCity.trim() } : {}),
           })
           if ("error" in checkout) {
-            // TamPay only accepts the link (and clears the cart) after it's
-            // created, so it's safe to just let the buyer retry.
             await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
             toast.error(checkout.error)
             return
           }
-          // TamPay has no return URL, so the buyer pays in a separate tab
-          // while this tab shows the waiting/poll screen below.
           window.open(checkout.url, "_blank", "noopener,noreferrer")
           setTampayOrder({ orderNumber: checkout.orderNumber, url: checkout.url })
-          setStep(3)
         } catch (error) {
           await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
           toast.error(error instanceof Error ? error.message : "Could not start TamPay checkout.")
@@ -222,18 +164,12 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
         try {
           const checkout = await createWhopCheckout({ billingEmail: email.trim(), billingName: name.trim(), couponCode })
           if ("error" in checkout) {
-            // Whop only accepts the checkout (and clears the cart) after
-            // it's created, so it's safe to just let the buyer retry.
             await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
             toast.error(checkout.error)
             return
           }
-          // Whop has a real return URL, but opening it in a new tab keeps
-          // the review + waiting-screen UX identical to TamPay, and means
-          // an abandoned tab never leaves the buyer stuck on a blank page.
           window.open(checkout.url, "_blank", "noopener,noreferrer")
           setWhopOrder({ orderNumber: checkout.orderNumber, url: checkout.url })
-          setStep(3)
         } catch (error) {
           await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
           toast.error(error instanceof Error ? error.message : "Could not start Whop checkout.")
@@ -246,15 +182,11 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
       try {
         const checkout = await createPolarCheckout({ billingEmail: email.trim(), billingName: name.trim(), couponCode })
         if ("error" in checkout) {
-          // The cart was never touched when this happens — createPolarCheckout
-          // only clears it after Polar accepts the checkout — so it's safe to
-          // just let the buyer retry.
           await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
           toast.error(checkout.error)
           return
         }
         setPolarCheckoutUrl(checkout.url)
-        setStep(3)
       } catch (error) {
         await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
         toast.error(error instanceof Error ? error.message : "Could not start secure checkout.")
@@ -262,254 +194,33 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
     })
   }
 
-  /** Resets the in-progress payment attempt (any provider) back to Review. */
   function handleCancelPayment() {
     setPolarCheckoutUrl(null)
     setTampayOrder(null)
     setWhopOrder(null)
-    setStep(2)
   }
 
-  const inputClass = "h-11"
-  // True once any provider has actually accepted a checkout attempt —
-  // drives the shared "payment in progress" chrome (hides the step
-  // indicator/CTA, shows the "Paying as" bar) regardless of which one.
-  const paymentInProgress = Boolean(polarCheckoutUrl) || Boolean(tampayOrder) || Boolean(whopOrder)
-
-  // Step 1 submits its own form to create/confirm the account; step 2 submits
-  // its own form to create the Polar checkout session. Only one is ever
-  // mounted at a time, so both can safely reuse FORM_ID for the mobile sticky
-  // CTA and the OrderSummary's submit button to target.
-  const activeStepSubmit = step === 1 ? handleContinueFromAccount : handleContinueFromReview
-  const ctaLabel = step === 1 ? "Continue to review" : "Continue to secure payment"
+  const optionClass = (active: boolean) =>
+    cn(
+      "relative flex items-start gap-3 rounded-xl border px-4 py-3.5 text-left transition-[border-color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+      active ? "border-primary bg-primary/[0.05]" : "border-border hover:border-border-strong hover:bg-secondary/40",
+    )
 
   return (
     <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-8">
-      <div className="flex flex-col gap-5">
-        {!paymentInProgress && (
-          <div className="rounded-lg border border-border bg-card px-5 py-3">
-            <StepIndicator activeStep={step} />
-          </div>
-        )}
-
-        <form id={FORM_ID} onSubmit={activeStepSubmit} className="flex flex-col gap-5" noValidate>
-          {paymentInProgress ? (
-            <div className="flex items-center justify-between rounded-lg border border-border bg-secondary/40 px-4 py-3 text-sm">
+      <div className="flex flex-col gap-4">
+        {paymentInProgress ? (
+          <>
+            <div className="flex items-center justify-between rounded-2xl border border-border bg-secondary/40 px-5 py-3 text-sm">
               <p className="min-w-0 truncate">
                 <span className="text-muted-foreground">Paying as </span>
                 <span className="font-medium text-foreground">{email.trim()}</span>
               </p>
-              <button
-                type="button"
-                onClick={() => {
-                  handleCancelPayment()
-                  setStep(1)
-                }}
-                className="shrink-0 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-              >
+              <button type="button" onClick={handleCancelPayment} className="shrink-0 text-xs font-semibold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
                 Edit details
               </button>
             </div>
-          ) : step === 1 ? (
-            <Section
-              title="Customer"
-              description="Your receipt and download access are tied to this email."
-              aside={
-                isGuest ? (
-                  <Link href={`/sign-in?next=${encodeURIComponent("/checkout")}`} className="shrink-0 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
-                    Have an account? Sign in
-                  </Link>
-                ) : undefined
-              }
-            >
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="checkout-name">Full name</Label>
-                  <Input id="checkout-name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" aria-invalid={!!fieldError.name} className={inputClass} />
-                  {fieldError.name && <p className="text-xs text-destructive" role="alert">{fieldError.name}</p>}
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="checkout-email">Email</Label>
-                  <Input id="checkout-email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" aria-invalid={!!fieldError.email} className={inputClass} readOnly={!isGuest && !!defaultEmail} />
-                  {fieldError.email && <p className="text-xs text-destructive" role="alert">{fieldError.email}</p>}
-                </div>
-              </div>
-
-              {isGuest && (
-                <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-                  No account or password needed to check out — you can save this order to an account afterward.
-                </p>
-              )}
-            </Section>
-          ) : (
-            <>
-              {/* Step 1 is done (account exists / already signed in). Collapse it into a summary row instead of hiding it outright. */}
-              {accountConfirmed && (
-                <div className="flex items-center justify-between rounded-lg border border-border bg-secondary/30 px-5 py-3">
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground">Account</p>
-                    <p className="truncate text-sm text-foreground">
-                      <span className="font-medium">{name.trim() || "—"}</span>
-                      <span className="text-muted-foreground"> · {email.trim()}</span>
-                    </p>
-                  </div>
-                  {isGuest && (
-                    <button
-                      type="button"
-                      onClick={() => setStep(1)}
-                      className="shrink-0 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                    >
-                      Edit
-                    </button>
-                  )}
-                </div>
-              )}
-
-              <Section
-                title="Your products"
-                aside={
-                  <Link href="/cart" className="shrink-0 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
-                    Edit cart
-                  </Link>
-                }
-              >
-                <ul className="divide-y divide-border">
-                  {orderItems.map((item) => (
-                    <CheckoutLineItem key={`${item.productId}-${item.licenseId}`} item={item} />
-                  ))}
-                </ul>
-              </Section>
-
-              {(TAMPAY_ENABLED || WHOP_ENABLED) && (
-              <Section title="Payment method">
-                <div className={cn("grid grid-cols-1 gap-3 sm:grid-cols-2", WHOP_ENABLED && TAMPAY_ENABLED && "lg:grid-cols-3")}>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentProvider("polar")}
-                    aria-pressed={paymentProvider === "polar"}
-                    className={cn(
-                      "flex items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors",
-                      paymentProvider === "polar" ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
-                    )}
-                  >
-                    <CreditCard size={ICON_SIZE.base} className="mt-0.5 shrink-0 text-foreground" aria-hidden="true" />
-                    <span>
-                      <span className="block text-sm font-semibold text-foreground">Card</span>
-                      <span className="block text-xs text-muted-foreground">Apple Pay, Google Pay & cards via Polar</span>
-                    </span>
-                  </button>
-                  {WHOP_ENABLED && (
-                    <button
-                      type="button"
-                      onClick={() => setPaymentProvider("whop")}
-                      aria-pressed={paymentProvider === "whop"}
-                      className={cn(
-                        "flex items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors",
-                        paymentProvider === "whop" ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
-                      )}
-                    >
-                      <Zap size={ICON_SIZE.base} className="mt-0.5 shrink-0 text-foreground" aria-hidden="true" />
-                      <span>
-                        <span className="block text-sm font-semibold text-foreground">Whop</span>
-                        <span className="block text-xs text-muted-foreground">Pay with Whop&apos;s hosted checkout</span>
-                      </span>
-                    </button>
-                  )}
-                  {TAMPAY_ENABLED && (
-                    <button
-                      type="button"
-                      onClick={() => setPaymentProvider("tampay")}
-                      aria-pressed={paymentProvider === "tampay"}
-                      className={cn(
-                        "flex items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors",
-                        paymentProvider === "tampay" ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
-                      )}
-                    >
-                      <Wallet size={ICON_SIZE.base} className="mt-0.5 shrink-0 text-foreground" aria-hidden="true" />
-                      <span>
-                        <span className="block text-sm font-semibold text-foreground">TamPay</span>
-                        <span className="block text-xs text-muted-foreground">Regional cards & wallets</span>
-                      </span>
-                    </button>
-                  )}
-                </div>
-
-                {paymentProvider === "tampay" && (
-                  <div className="mt-4 flex flex-col gap-4 border-t border-border pt-4">
-                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                      {TAMPAY_METHODS.map((method) => (
-                        <button
-                          key={method.id}
-                          type="button"
-                          onClick={() => setTampaySubMethod(method.id)}
-                          aria-pressed={tampaySubMethod === method.id}
-                          className={cn(
-                            "rounded-lg border px-3 py-2.5 text-left transition-colors",
-                            tampaySubMethod === method.id ? "border-foreground bg-secondary/40" : "border-border hover:bg-secondary/20",
-                          )}
-                        >
-                          <span className="block text-sm font-semibold text-foreground">{method.label}</span>
-                          <span className="block text-xs text-muted-foreground">{method.description}</span>
-                        </button>
-                      ))}
-                    </div>
-
-                    {tampaySubMethod === "togo" && (
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div className="flex flex-col gap-1.5">
-                          <Label htmlFor="tampay-phone">Phone (international format)</Label>
-                          <Input
-                            id="tampay-phone"
-                            type="tel"
-                            value={tampayPhone}
-                            onChange={(e) => setTampayPhone(e.target.value)}
-                            aria-invalid={!!tampayFieldError.phone}
-                            className={inputClass}
-                          />
-                          {tampayFieldError.phone && <p className="text-xs text-destructive" role="alert">{tampayFieldError.phone}</p>}
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <Label htmlFor="tampay-city">City</Label>
-                          <Input
-                            id="tampay-city"
-                            value={tampayCity}
-                            onChange={(e) => setTampayCity(e.target.value)}
-                            aria-invalid={!!tampayFieldError.city}
-                            className={inputClass}
-                          />
-                          {tampayFieldError.city && <p className="text-xs text-destructive" role="alert">{tampayFieldError.city}</p>}
-                        </div>
-                      </div>
-                    )}
-
-                    <p className="text-xs leading-relaxed text-muted-foreground">
-                      TamPay adds a small processing fee on top of the total shown here — it&rsquo;s calculated and disclosed on TamPay&rsquo;s payment page before you pay.
-                    </p>
-                  </div>
-                )}
-              </Section>
-              )}
-
-              <div className="flex items-start gap-3 rounded-lg border border-border bg-secondary/30 px-5 py-4">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-card text-foreground">
-                  <Download size={ICON_SIZE.sm} aria-hidden="true" />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">Digital delivery</p>
-                  <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
-                    A receipt is emailed to {email.trim() || "your address"}. Once payment is confirmed, you can create a
-                    password to save this order to My Library — or download straight from the confirmation page.
-                  </p>
-                </div>
-              </div>
-            </>
-          )}
-        </form>
-
-        {/* The order review stays visible behind the Polar overlay / TamPay waiting screen so the buyer can always see what they are paying for. The Polar overlay renders directly into document.body — this component has no visual output of its own. */}
-        {paymentInProgress && (
-          <>
-            <Section title="Your products">
+            <Section step={1} title="Your products">
               <ul className="divide-y divide-border">
                 {orderItems.map((item) => (
                   <CheckoutLineItem key={`${item.productId}-${item.licenseId}`} item={item} />
@@ -525,7 +236,6 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 }}
                 onClose={(reason) => {
                   setPolarCheckoutUrl(null)
-                  setStep(2)
                   if (reason === "failed") {
                     toast.error(
                       "We couldn't open secure payment. This can happen if this site isn't yet allow-listed in Polar's embedding settings — please try again in a moment.",
@@ -542,39 +252,237 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 onCancel={handleCancelPayment}
               />
             )}
-            {WHOP_ENABLED && whopOrder && (
-              <WhopWaiting orderNumber={whopOrder.orderNumber} paymentUrl={whopOrder.url} onCancel={handleCancelPayment} />
-            )}
+            {WHOP_ENABLED && whopOrder && <WhopWaiting orderNumber={whopOrder.orderNumber} paymentUrl={whopOrder.url} onCancel={handleCancelPayment} />}
           </>
+        ) : (
+          <form id={FORM_ID} onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+            {/* 1 · Contact */}
+            <Section
+              step={1}
+              title="Contact"
+              description={editingContact ? "Your receipt and download access are tied to this email." : undefined}
+              aside={
+                isGuest ? (
+                  <Link href={`/sign-in?next=${encodeURIComponent("/checkout")}`} className="shrink-0 whitespace-nowrap text-xs font-semibold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+                    Sign in
+                  </Link>
+                ) : !editingContact ? (
+                  <button type="button" onClick={() => setEditingContact(true)} className="shrink-0 text-xs font-semibold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+                    Edit
+                  </button>
+                ) : undefined
+              }
+            >
+              {editingContact ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="checkout-name">Full name</Label>
+                    <Input
+                      ref={nameRef}
+                      id="checkout-name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      onBlur={() => name.trim() && setFieldError((f) => ({ ...f, name: undefined }))}
+                      autoComplete="name"
+                      autoFocus={isGuest && !name}
+                      aria-invalid={!!fieldError.name}
+                      className="h-12 rounded-xl"
+                    />
+                    {fieldError.name && <p className="text-xs text-destructive" role="alert">{fieldError.name}</p>}
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="checkout-email">Email</Label>
+                    <Input
+                      ref={emailRef}
+                      id="checkout-email"
+                      type="email"
+                      inputMode="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      onBlur={() => EMAIL.test(email.trim()) && setFieldError((f) => ({ ...f, email: undefined }))}
+                      autoComplete="email"
+                      aria-invalid={!!fieldError.email}
+                      className="h-12 rounded-xl"
+                      readOnly={!isGuest && !!defaultEmail}
+                    />
+                    {fieldError.email && <p className="text-xs text-destructive" role="alert">{fieldError.email}</p>}
+                  </div>
+                  {isGuest && <p className="text-xs leading-relaxed text-muted-foreground sm:col-span-2">No account or password needed. You can save this order to an account after paying.</p>}
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <span className="flex size-10 items-center justify-center rounded-full bg-secondary text-foreground">
+                    <User size={ICON_SIZE.base} weight="duotone" aria-hidden="true" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-foreground">{name.trim() || "—"}</p>
+                    <p className="truncate text-xs text-muted-foreground">{email.trim()}</p>
+                  </div>
+                  <span className="ml-auto flex items-center gap-1 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-success">
+                    <Check size={12} weight="bold" aria-hidden="true" />
+                    Signed in
+                  </span>
+                </div>
+              )}
+            </Section>
+
+            {/* 2 · Payment method */}
+            <Section step={2} title="Payment" description="Choose how to pay. You'll confirm on the next screen.">
+              <div className={cn("grid grid-cols-1 gap-3", (WHOP_ENABLED || TAMPAY_ENABLED) && "sm:grid-cols-2", WHOP_ENABLED && TAMPAY_ENABLED && "lg:grid-cols-3")}>
+                <button type="button" onClick={() => setPaymentProvider("polar")} aria-pressed={paymentProvider === "polar"} className={optionClass(paymentProvider === "polar")}>
+                  <Radio active={paymentProvider === "polar"} />
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                      <CreditCard size={ICON_SIZE.base} weight="duotone" className="text-primary" aria-hidden="true" />
+                      Card
+                    </span>
+                    <span className="mt-1.5 flex flex-wrap gap-1">
+                      {CARD_ICONS.map((c) => (
+                        <span key={c} className="flex h-5 items-center rounded border border-border bg-background px-0.5">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={`/payment-icons/${c}.svg`} alt="" className="h-3 w-auto" loading="lazy" />
+                        </span>
+                      ))}
+                    </span>
+                    <span className="mt-1 block text-xs text-muted-foreground">Apple Pay, Google Pay & cards via Polar</span>
+                  </span>
+                </button>
+                {WHOP_ENABLED && (
+                  <button type="button" onClick={() => setPaymentProvider("whop")} aria-pressed={paymentProvider === "whop"} className={optionClass(paymentProvider === "whop")}>
+                    <Radio active={paymentProvider === "whop"} />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                        <Zap size={ICON_SIZE.base} weight="duotone" className="text-primary" aria-hidden="true" />
+                        Whop
+                      </span>
+                      <span className="mt-1 block text-xs text-muted-foreground">Whop&apos;s hosted checkout, opens in a new tab</span>
+                    </span>
+                  </button>
+                )}
+                {TAMPAY_ENABLED && (
+                  <button type="button" onClick={() => setPaymentProvider("tampay")} aria-pressed={paymentProvider === "tampay"} className={optionClass(paymentProvider === "tampay")}>
+                    <Radio active={paymentProvider === "tampay"} />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                        <Wallet size={ICON_SIZE.base} weight="duotone" className="text-primary" aria-hidden="true" />
+                        TamPay
+                      </span>
+                      <span className="mt-1 block text-xs text-muted-foreground">Regional cards & wallets</span>
+                    </span>
+                  </button>
+                )}
+              </div>
+
+              <AnimatePresence initial={false}>
+                {TAMPAY_ENABLED && paymentProvider === "tampay" && (
+                  <motion.div
+                    key="tampay"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-4 flex flex-col gap-4 border-t border-border pt-4">
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                        {TAMPAY_METHODS.map((method) => (
+                          <button key={method.id} type="button" onClick={() => setTampaySubMethod(method.id)} aria-pressed={tampaySubMethod === method.id} className={cn(optionClass(tampaySubMethod === method.id), "flex-col gap-0 px-3 py-2.5")}>
+                            <span className="block text-sm font-semibold text-foreground">{method.label}</span>
+                            <span className="block text-xs text-muted-foreground">{method.description}</span>
+                          </button>
+                        ))}
+                      </div>
+                      {tampaySubMethod === "togo" && (
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                          <div className="flex flex-col gap-1.5">
+                            <Label htmlFor="tampay-phone">Phone (international format)</Label>
+                            <Input id="tampay-phone" type="tel" value={tampayPhone} onChange={(e) => setTampayPhone(e.target.value)} aria-invalid={!!tampayFieldError.phone} className="h-12 rounded-xl" />
+                            {tampayFieldError.phone && <p className="text-xs text-destructive" role="alert">{tampayFieldError.phone}</p>}
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <Label htmlFor="tampay-city">City</Label>
+                            <Input id="tampay-city" value={tampayCity} onChange={(e) => setTampayCity(e.target.value)} aria-invalid={!!tampayFieldError.city} className="h-12 rounded-xl" />
+                            {tampayFieldError.city && <p className="text-xs text-destructive" role="alert">{tampayFieldError.city}</p>}
+                          </div>
+                        </div>
+                      )}
+                      <p className="text-xs leading-relaxed text-muted-foreground">
+                        TamPay adds a small processing fee on top of the total shown here — it&rsquo;s calculated and disclosed on TamPay&rsquo;s payment page before you pay.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </Section>
+
+            {/* 3 · Order */}
+            <Section
+              step={3}
+              title={`Your order · ${itemCount} ${itemCount === 1 ? "item" : "items"}`}
+              aside={
+                <div className="flex shrink-0 items-center gap-3">
+                  <Link href="/cart" className="text-xs font-semibold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+                    Edit cart
+                  </Link>
+                  {orderItems.length > 3 && (
+                    <button type="button" onClick={() => setShowItems((v) => !v)} aria-expanded={showItems} className="flex items-center gap-1 text-xs font-semibold text-foreground">
+                      {showItems ? "Hide" : "Show"}
+                      <ChevronDown size={14} weight="bold" className={cn("transition-transform", showItems && "rotate-180")} aria-hidden="true" />
+                    </button>
+                  )}
+                </div>
+              }
+            >
+              <AnimatePresence initial={false}>
+                {showItems ? (
+                  <motion.ul key="items" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} className="divide-y divide-border overflow-hidden">
+                    {orderItems.map((item) => (
+                      <CheckoutLineItem key={`${item.productId}-${item.licenseId}`} item={item} />
+                    ))}
+                  </motion.ul>
+                ) : (
+                  <motion.div key="thumbs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                    {orderItems.slice(0, 6).map((item) => (
+                      <span key={`${item.productId}-${item.licenseId}`} className="relative aspect-[16/10] w-16 overflow-hidden rounded-lg border border-border bg-secondary/60">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        {item.imageUrl && <img src={item.imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />}
+                      </span>
+                    ))}
+                    {orderItems.length > 6 && <span className="text-xs text-muted-foreground">+{orderItems.length - 6} more</span>}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </Section>
+
+            <div className="flex items-start gap-3 rounded-2xl border border-border bg-secondary/30 px-5 py-4">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-card text-primary">
+                <Download size={ICON_SIZE.base} weight="duotone" aria-hidden="true" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Instant digital delivery</p>
+                <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
+                  Files unlock in My Library the moment payment is confirmed. A receipt goes to {email.trim() || "your email"}.
+                </p>
+              </div>
+            </div>
+          </form>
         )}
       </div>
 
       <div className="lg:sticky lg:top-24">
-        <OrderSummary
-          subtotal={subtotal}
-          discount={discount}
-          discountPercent={discountPercent}
-          total={total}
-          itemCount={itemCount}
-          isSubmitting={isBusy}
-          hideAction={paymentInProgress}
-          submitLabel={ctaLabel}
-          formId={FORM_ID}
-        />
+        <OrderSummary subtotal={subtotal} discount={discount} discountPercent={discountPercent} total={total} itemCount={itemCount} isSubmitting={isPending} hideAction={paymentInProgress} submitLabel={payLabel} formId={FORM_ID} />
       </div>
 
       {!paymentInProgress && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 shadow-[var(--shadow-e3)] backdrop-blur supports-[backdrop-filter]:bg-background/90 lg:hidden">
-          <div className="mx-auto flex max-w-lg items-center gap-4">
-            <div className="min-w-0">
-              <p className="text-[11px] uppercase tracking-[0.06em] text-muted-foreground">Total</p>
-              <p className="font-display text-lg font-bold tabular-nums leading-tight">${total.toFixed(2)}</p>
-            </div>
-            <Button type="submit" form={FORM_ID} size="lg" disabled={isBusy} aria-busy={isBusy} className="h-12 flex-1 font-semibold">
-              <Lock size={ICON_SIZE.sm} aria-hidden="true" />
-              {isBusy ? "Preparing…" : ctaLabel}
-            </Button>
+        <div className="fixed inset-x-3 bottom-3 z-30 flex items-center gap-3 rounded-full border border-border bg-background/90 p-2 pl-5 shadow-[var(--shadow-e3)] backdrop-blur-xl lg:hidden">
+          <div className="min-w-0">
+            <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Total</p>
+            <p className="font-display text-lg font-bold tabular-nums leading-tight">{formatUsd(total)}</p>
           </div>
+          <button type="submit" form={FORM_ID} disabled={isPending} aria-busy={isPending} className="ml-auto flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-6 text-[15px] font-semibold text-primary-foreground shadow-[0_10px_30px_-10px_var(--primary)] active:scale-[0.98] disabled:opacity-80">
+            <Lock size={ICON_SIZE.sm} weight="bold" aria-hidden="true" />
+            {isPending ? "Opening…" : payLabel}
+          </button>
         </div>
       )}
     </div>

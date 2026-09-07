@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { motion } from "motion/react"
+import { useRef } from "react"
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react"
 import NumberFlow from "@number-flow/react"
 import { SearchTrigger } from "@/components/header/search-command"
 import { SplitText } from "@/components/motion/split-text"
@@ -29,15 +30,27 @@ export interface HeroProduct {
  * Cinematic hero on navy: animated mesh light, film grain, a headline that
  * typesets itself, the search pill, two CTAs, live counts — and a tilted
  * wall of real product covers drifting in two directions behind a fade.
+ * Scroll-linked: as the page scrolls the copy recedes and the wall
+ * flattens and rises, so the hero hands off to the page instead of
+ * simply sliding away.
  */
 export function Hero({ stats, products = [] }: { stats: HeroStats; products?: HeroProduct[] }) {
+  const ref = useRef<HTMLElement>(null)
+  const reduced = useReducedMotion()
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] })
+  const copyScale = useTransform(scrollYProgress, [0, 0.6], [1, 0.92])
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0])
+  const copyY = useTransform(scrollYProgress, [0, 0.6], [0, -60])
+  const wallRotate = useTransform(scrollYProgress, [0, 1], [28, 10])
+  const wallY = useTransform(scrollYProgress, [0, 1], [0, -120])
+  const wallScale = useTransform(scrollYProgress, [0, 1], [1.08, 1.18])
+
   const covers = products.filter((p) => p.imageUrl)
   const rowA = covers.filter((_, i) => i % 2 === 0)
   const rowB = covers.filter((_, i) => i % 2 === 1)
 
   return (
-    <section className="grain relative overflow-hidden bg-navy-deep text-navy-foreground">
-      {/* mesh light */}
+    <section ref={ref} className="grain relative overflow-hidden bg-navy-deep text-navy-foreground">
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="mesh-blob animate-mesh-1 left-[-10%] top-[-20%] h-[40rem] w-[40rem] bg-primary/25" />
         <div className="mesh-blob animate-mesh-2 right-[-15%] top-[10%] h-[36rem] w-[36rem] bg-[oklch(0.5_0.12_260)]/40" />
@@ -46,7 +59,10 @@ export function Hero({ stats, products = [] }: { stats: HeroStats; products?: He
       <div aria-hidden className="paper-grid pointer-events-none absolute inset-0 opacity-[0.12] [mask-image:radial-gradient(70%_60%_at_50%_0%,black,transparent_80%)]" />
 
       <div className="container-x relative pb-10 pt-16 sm:pt-24 lg:pt-28">
-        <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
+        <motion.div
+          style={reduced ? undefined : { scale: copyScale, opacity: copyOpacity, y: copyY }}
+          className="mx-auto flex max-w-4xl origin-top flex-col items-center text-center"
+        >
           <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: EASE_OUT }} className="eyebrow text-navy-foreground/60">
             The department store for digital work
           </motion.p>
@@ -54,7 +70,7 @@ export function Hero({ stats, products = [] }: { stats: HeroStats; products?: He
           <SplitText
             text="Everything digital. One source."
             accentFrom={2}
-            className="text-display mt-6 justify-center text-[2.9rem] leading-[0.95] sm:text-6xl lg:text-[5.5rem]"
+            className="text-display mt-6 text-center text-[2.9rem] leading-[0.95] sm:text-6xl lg:text-[5.5rem]"
             delay={0.15}
           />
 
@@ -118,10 +134,9 @@ export function Hero({ stats, products = [] }: { stats: HeroStats; products?: He
               Licence up front
             </li>
           </motion.ul>
-        </div>
+        </motion.div>
       </div>
 
-      {/* product wall */}
       {covers.length >= 6 && (
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -132,7 +147,10 @@ export function Hero({ stats, products = [] }: { stats: HeroStats; products?: He
         >
           <div className="absolute inset-x-0 top-0 z-10 h-24 bg-gradient-to-b from-navy-deep to-transparent" />
           <div className="absolute inset-x-0 bottom-0 z-10 h-32 bg-gradient-to-t from-navy-deep to-transparent" />
-          <div className="absolute inset-0 origin-top [transform:rotateX(28deg)_scale(1.08)]">
+          <motion.div
+            style={reduced ? { rotateX: 28, scale: 1.08 } : { rotateX: wallRotate, y: wallY, scale: wallScale }}
+            className="absolute inset-0 origin-top"
+          >
             <Marquee duration={70} gap="1.25rem" className="mb-5">
               {rowA.map((p) => (
                 <Cover key={p.slug} product={p} />
@@ -143,7 +161,7 @@ export function Hero({ stats, products = [] }: { stats: HeroStats; products?: He
                 <Cover key={p.slug} product={p} />
               ))}
             </Marquee>
-          </div>
+          </motion.div>
         </motion.div>
       )}
     </section>

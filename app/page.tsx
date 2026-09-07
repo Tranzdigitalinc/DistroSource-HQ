@@ -8,6 +8,8 @@ import { ProductCarousel } from "@/components/home/product-carousel"
 import { GamingTeaser } from "@/components/home/gaming-teaser"
 import { DepartmentTabs } from "@/components/home/department-tabs"
 import { Confidence } from "@/components/home/confidence"
+import { RecentlyViewed } from "@/components/home/recently-viewed"
+import { Suspense } from "react"
 import { getCategoryTree, getFeaturedProducts, getProducts, getStorefrontStats } from "@/lib/queries/catalog"
 import { getFeaturedGamingProducts } from "@/lib/gaming/queries"
 
@@ -62,6 +64,9 @@ export default async function HomePage() {
             { slug: "design-resources", name: "Design Resources", description: "Graphics, icons, mockups and brand assets with a point of view.", items: designProducts },
           ]}
         />
+        <Suspense fallback={null}>
+          <RecentlyViewed />
+        </Suspense>
         {bundleProducts.length > 0 && (
           <ProductCarousel eyebrow="Bundles" title="Curated collections" subtitle="Sets that cost less than buying each file on its own." href="/categories/product-bundles" items={bundleProducts} />
         )}

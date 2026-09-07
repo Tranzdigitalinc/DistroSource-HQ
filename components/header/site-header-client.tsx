@@ -73,10 +73,10 @@ export function SiteHeaderClient({ departments = [] }: { departments?: Departmen
             <ThemeToggle />
             <Link
               href="/account/wishlist"
-              className="hidden size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex"
+              className="group hidden size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex"
               aria-label="Wishlist"
             >
-              <Heart size={ICON_SIZE.nav} aria-hidden="true" />
+              <Heart size={ICON_SIZE.nav} className="icon-pop" aria-hidden="true" />
             </Link>
             <AccountMenu />
             <CartTrigger />

@@ -45,5 +45,6 @@ export function flyToCart(source: HTMLElement | null) {
   anim.onfinish = () => {
     clone.remove()
     target.animate([{ transform: "scale(1)" }, { transform: "scale(1.25)" }, { transform: "scale(1)" }], { duration: 360, easing: "ease-out" })
+    window.dispatchEvent(new CustomEvent("ds:cart-burst"))
   }
 }

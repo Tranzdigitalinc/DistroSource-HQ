@@ -51,14 +51,14 @@ export function OrderItemsList({ items, showActions = true }: { items: OrderItem
             <div className="col-span-2 flex items-center gap-2 sm:col-span-1">
               <Link
                 href="/account/library"
-                className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="group inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-3.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <Download size={ICON_SIZE.sm} aria-hidden="true" />
+                <Download size={ICON_SIZE.sm} weight="bold" className="icon-nudge" aria-hidden="true" />
                 Download
               </Link>
               <Link
                 href="/account/library"
-                className="inline-flex h-9 items-center rounded-md border border-border px-3 text-xs font-semibold text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="inline-flex h-9 items-center rounded-full border border-border px-3.5 text-xs font-semibold text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 View in My Library
               </Link>

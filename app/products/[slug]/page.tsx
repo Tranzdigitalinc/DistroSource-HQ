@@ -23,6 +23,9 @@ import { Reveal } from "@/components/motion/reveal"
 import { ShareProductButton } from "@/components/product/share-product-button"
 import { CompareButton } from "@/components/product/compare-button"
 import { RecentlyViewedTracker } from "@/components/product/recently-viewed-tracker"
+import { CompleteTheSet, type SetItem } from "@/components/product/complete-the-set"
+import { RecentlyViewed } from "@/components/home/recently-viewed"
+import { Suspense } from "react"
 import { formatDate, getSourceTypeLabel } from "@/lib/format"
 
 function resolveProductImageUrl(url: string): string {
@@ -66,6 +69,22 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     getWishlistProductIds(),
     getReviewEligibility(product.id),
   ])
+
+  // "Complete the set": this product plus the first related product that is
+  // purchasable and has a cover, both at their cheapest licence.
+  const cheapestOf = (ls: { id: number; price: string }[]) =>
+    ls.length ? ls.reduce((m, l) => (Number.parseFloat(l.price) < Number.parseFloat(m.price) ? l : m), ls[0]) : null
+  const ownCheapest = cheapestOf(licenses)
+  const purchasable = product.assetStatus === "ready" && APPROVED_RIGHTS.includes(product.rightsStatus)
+  const partnerRow = related.find((r) => r.licenses.length > 0 && (r.product.coverImageUrl ?? r.images[0]?.url) && !r.product.isFree)
+  const partnerCheapest = partnerRow ? cheapestOf(partnerRow.licenses) : null
+  const setPair: { current: SetItem; partner: SetItem } | null =
+    purchasable && ownCheapest && partnerRow && partnerCheapest && !product.isFree
+      ? {
+          current: { id: product.id, slug: product.slug, name: product.name, image: product.coverImageUrl ?? images[0]?.url ?? product.thumbnailUrl ?? null, licenseId: ownCheapest.id, price: Number.parseFloat(ownCheapest.price) },
+          partner: { id: partnerRow.product.id, slug: partnerRow.product.slug, name: partnerRow.product.name, image: partnerRow.product.coverImageUrl ?? partnerRow.images[0]?.url ?? null, licenseId: partnerCheapest.id, price: Number.parseFloat(partnerCheapest.price) },
+        }
+      : null
 
   const rawGallery = Array.from(
     new Set([product.coverImageUrl, ...images.map((i) => i.url), product.thumbnailUrl].filter((u): u is string => Boolean(u))),
@@ -240,6 +259,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   hasDocumentation: Boolean(product.documentation),
                 }}
               />
+              {setPair && (
+                <div className="mt-4">
+                  <CompleteTheSet current={setPair.current} partner={setPair.partner} />
+                </div>
+              )}
             </div>
 
             {/* ---- Left, below gallery: anchored sections ---- */}
@@ -255,6 +279,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </Reveal>
           )}
         </div>
+        <Suspense fallback={null}>
+          <RecentlyViewed excludeId={product.id} />
+        </Suspense>
       </main>
       <SiteFooter />
     </div>

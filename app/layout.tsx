@@ -8,6 +8,7 @@ import { CartDrawer } from '@/components/cart/cart-drawer'
 import { SearchProvider } from '@/components/header/search-command'
 import { LenisProvider } from '@/components/motion/lenis-provider'
 import NextTopLoader from 'nextjs-toploader'
+import { BrandCurtain } from '@/components/motion/brand-curtain'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion/motion-provider'
@@ -79,6 +80,7 @@ export default async function RootLayout({
         </Suspense>
         <ResizeObserverErrorGuard />
         <NextTopLoader color="var(--primary)" height={2} showSpinner={false} shadow={false} />
+        <BrandCurtain />
         <MotionProvider>
           <ThemeProvider>
             <TooltipProvider>

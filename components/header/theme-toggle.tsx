@@ -18,12 +18,12 @@ export function ThemeToggle({ className }: { className?: string }) {
       type="button"
       className={
         className ??
-        "hidden size-10 shrink-0 items-center justify-center rounded-full text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex"
+        "group hidden size-10 shrink-0 items-center justify-center rounded-full text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex"
       }
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
-      {isDark ? <Sun size={20} aria-hidden="true" /> : <Moon size={20} aria-hidden="true" />}
+      {isDark ? <Sun size={20} className="icon-spin-once" aria-hidden="true" /> : <Moon size={20} className="icon-spin-once" aria-hidden="true" />}
     </button>
   )
 }

@@ -1,11 +1,13 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
+import { SplitText } from "@/components/motion/split-text"
 import { cn } from "@/lib/utils"
 
 /**
  * Editorial page/section header: mono eyebrow, heavy title, one line of
  * support copy, optional action on the right. Used by every storefront
- * listing so titles line up the same way everywhere.
+ * listing so titles line up the same way everywhere. String titles typeset
+ * themselves word by word as they scroll into view.
  */
 export function PageHeader({
   eyebrow,
@@ -22,15 +24,21 @@ export function PageHeader({
   size?: "page" | "section"
   className?: string
 }) {
+  const titleClass = size === "page" ? "text-display text-3xl sm:text-4xl lg:text-5xl" : "text-title text-2xl sm:text-3xl"
+  const heading =
+    typeof title === "string" ? (
+      <SplitText as={size === "page" ? "h1" : "h2"} text={title} className={titleClass} inView={size !== "page"} stagger={0.04} />
+    ) : size === "page" ? (
+      <h1 className={titleClass}>{title}</h1>
+    ) : (
+      <h2 className={titleClass}>{title}</h2>
+    )
+
   return (
     <div className={cn("flex flex-wrap items-end justify-between gap-x-8 gap-y-4", className)}>
       <div className="min-w-0 max-w-2xl">
         {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
-        {size === "page" ? (
-          <h1 className="text-display text-3xl sm:text-4xl lg:text-5xl">{title}</h1>
-        ) : (
-          <h2 className="text-title text-2xl sm:text-3xl">{title}</h2>
-        )}
+        {heading}
         {description && <p className="mt-3 max-w-xl text-pretty text-sm leading-relaxed text-muted-foreground sm:text-[15px]">{description}</p>}
       </div>
       {action && <div className="flex shrink-0 items-center gap-2">{action}</div>}

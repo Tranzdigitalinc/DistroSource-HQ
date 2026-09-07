@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { motion, AnimatePresence, useInView } from "motion/react"
+import NumberFlow from "@number-flow/react"
 import { Check, Download, FileText, Heart, Loader2, Lock, ShoppingBag, ICON_SIZE } from "@/lib/storefront-icons"
 import { Button } from "@/components/ui/button"
 import { PriceDisplay } from "@/components/price-display"
@@ -110,26 +111,15 @@ export function PurchasePanel({
     <>
     <div ref={panelRef} className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-e1)]">
       <div className="px-5 pt-5">
-        <AnimatePresence mode="popLayout" initial={false}>
-          <motion.div
-            key={selected.id}
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 4 }}
-            transition={{ duration: 0.16 }}
-            className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1"
-          >
-            <span className="font-display text-4xl font-bold tabular-nums tracking-tight text-foreground">
-              <PriceDisplay usdAmount={price} />
-            </span>
+        <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+            <NumberFlow value={price} format={{ style: "currency", currency: "USD" }} className="font-display text-4xl font-bold tabular-nums tracking-tight text-foreground" />
             {onSale && (
               <span className="text-base text-muted-foreground line-through">
                 <PriceDisplay usdAmount={compareAtPrice!} />
               </span>
             )}
             <span className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">USD · one-time</span>
-          </motion.div>
-        </AnimatePresence>
+        </div>
         <p className="mt-1 text-xs text-muted-foreground">{licenseLabel(selected.licenseType)} licence. Instant download after payment.</p>
       </div>
 

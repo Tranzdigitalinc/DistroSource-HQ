@@ -113,11 +113,11 @@ export function SearchTrigger({ className, size = "default", placeholder = "Sear
         onClick={() => setOpen(true)}
         aria-label="Search"
         className={cn(
-          "flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "group flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           className,
         )}
       >
-        <Search size={ICON_SIZE.nav} aria-hidden="true" />
+        <Search size={ICON_SIZE.nav} className="icon-sweep" aria-hidden="true" />
       </button>
     )
   }
@@ -131,7 +131,7 @@ export function SearchTrigger({ className, size = "default", placeholder = "Sear
         className,
       )}
     >
-      <Search size={size === "lg" ? ICON_SIZE.nav : ICON_SIZE.base} className="shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" aria-hidden="true" />
+      <Search size={size === "lg" ? ICON_SIZE.nav : ICON_SIZE.base} className="icon-sweep shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" aria-hidden="true" />
       <span className="flex-1 truncate">{placeholder}</span>
       <kbd className="hidden shrink-0 items-center gap-0.5 rounded-md border border-border bg-secondary px-1.5 py-0.5 font-mono text-[10px] font-semibold text-muted-foreground sm:flex">
         <span className="text-[11px]">⌘</span>K

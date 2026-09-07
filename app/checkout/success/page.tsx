@@ -11,8 +11,9 @@ import { Button } from "@/components/ui/button"
 import { CheckoutHeader } from "@/components/checkout/checkout-header"
 import { ClaimAccountCard } from "@/components/checkout/claim-account-card"
 import { Reveal } from "@/components/motion/reveal"
+import { SuccessHero } from "@/components/order/celebration"
 import { ResendConfirmationButton } from "@/components/order/resend-confirmation-button"
-import { ArrowRight, CheckCircle, Clock, Library, Mail, Undo, ICON_SIZE } from "@/lib/storefront-icons"
+import { ArrowRight, Clock, Library, Mail, Undo, ICON_SIZE } from "@/lib/storefront-icons"
 
 export const metadata = {
   title: "Order confirmation — DistroSource",
@@ -167,17 +168,9 @@ export default async function CheckoutSuccessPage({
 
       <main className="flex-1">
         <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-          <Reveal className="flex flex-col items-center gap-4 text-center">
-            <span className="flex size-14 items-center justify-center rounded-full bg-success/10 text-success">
-              <CheckCircle size={28} aria-hidden="true" />
-            </span>
-            <h1 className="font-display text-3xl font-bold tracking-tight md:text-4xl">Your order is ready.</h1>
-            <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-              Everything you bought is unlocked in My Library and ready to download.
-            </p>
-          </Reveal>
+          <SuccessHero total={paid} email={order.billingEmail} />
 
-          <Reveal delay={0.05} className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-4">
+          <Reveal delay={0.05} className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-4">
             {[
               { label: "Order", value: <CopyOrderNumber orderNumber={order.orderNumber} /> },
               { label: "Email", value: <span className="truncate">{order.billingEmail}</span> },
@@ -191,7 +184,7 @@ export default async function CheckoutSuccessPage({
             ))}
           </Reveal>
 
-          <Reveal delay={0.1} className="mt-6 rounded-lg border border-border bg-card">
+          <Reveal delay={0.1} className="mt-6 rounded-2xl border border-border bg-card">
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <h2 className="font-display text-base font-bold text-foreground">Your products</h2>
               <span className="text-xs text-muted-foreground">{items.length} {items.length === 1 ? "item" : "items"}</span>
@@ -223,11 +216,11 @@ export default async function CheckoutSuccessPage({
           )}
 
           <Reveal delay={0.2} className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button size="lg" render={<Link href="/account/library" />} nativeButton={false} className="h-12 px-6 font-semibold">
+            <Button size="lg" render={<Link href="/account/library" />} nativeButton={false} className="h-12 rounded-full px-6 font-semibold">
               <Library size={ICON_SIZE.base} aria-hidden="true" />
               Go to My Library
             </Button>
-            <Button size="lg" variant="outline" className="h-12 bg-transparent px-6 font-semibold" render={<Link href="/products" />} nativeButton={false}>
+            <Button size="lg" variant="outline" className="h-12 rounded-full bg-transparent px-6 font-semibold" render={<Link href="/products" />} nativeButton={false}>
               Continue shopping
               <ArrowRight size={ICON_SIZE.base} aria-hidden="true" />
             </Button>

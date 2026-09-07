@@ -5,7 +5,8 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { motion } from "motion/react"
-import { Check, Eye, Gift, ImageOff, Loader2, ShieldCheck, ShoppingBag, Star, ICON_SIZE } from "@/lib/storefront-icons"
+import { Eye, Gift, ImageOff, Loader2, ShieldCheck, ShoppingBag, Star, ICON_SIZE } from "@/lib/storefront-icons"
+import { DrawnCheck } from "@/components/motion/cart-burst"
 import { PriceDisplay } from "@/components/price-display"
 import { WishlistButton } from "@/components/product/wishlist-button"
 import { QuickPreviewDialog } from "@/components/product/quick-preview-dialog"
@@ -236,7 +237,7 @@ export function ProductCard({
               {isPending ? (
                 <Loader2 size={14} className="animate-spin" aria-hidden="true" />
               ) : justAdded ? (
-                <Check size={14} weight="bold" aria-hidden="true" />
+                <DrawnCheck size={14} />
               ) : isFree ? (
                 <Gift size={14} weight="bold" aria-hidden="true" />
               ) : (
