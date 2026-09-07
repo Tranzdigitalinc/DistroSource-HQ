@@ -21,11 +21,13 @@ export function V5Footer() {
   function submit(event: React.FormEvent) {
     event.preventDefault()
     startTransition(async () => {
-      const result = await subscribeToNewsletter(email)
-      if (result.success) {
+      try {
+        await subscribeToNewsletter(email)
         setSubscribed(true)
         setEmail("")
-      } else toast.error(result.error ?? "Could not subscribe")
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Could not subscribe")
+      }
     })
   }
 
@@ -45,7 +47,7 @@ export function V5Footer() {
               <div className="mt-5 flex items-center gap-2 border border-white/10 bg-white/[0.05] px-4 py-4 text-sm"><Check size={15} className="text-primary" /> You’re on the list.</div>
             ) : (
               <form onSubmit={submit} className="mt-5 flex border border-white/15 bg-white/[0.04] p-1.5">
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm text-white outline-none placeholder:text-white/30" />
+                <input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm text-white outline-none placeholder:text-white/30" />
                 <button type="submit" disabled={pending} className="flex h-11 items-center gap-2 bg-white px-4 text-sm font-bold text-[#111827] disabled:opacity-60">Join <ArrowRight size={14} /></button>
               </form>
             )}
