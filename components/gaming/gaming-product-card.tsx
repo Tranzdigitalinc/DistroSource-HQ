@@ -6,106 +6,31 @@ import { TebexBuyButton } from "@/components/gaming/tebex-buy-button"
 import { getGamingBadges } from "@/lib/gaming/queries"
 import { CATEGORY_LABEL, PLATFORM_LABEL, type GamingProduct } from "@/lib/gaming/types"
 import { formatUsd } from "@/lib/format"
+import { ArrowRight } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
 
-/**
- * A Gaming product card. Carries platform, category, price and — where the
- * data supports it — a badge, and nothing else: no seller, creator, vendor,
- * author, rating or avatar. Every product here is sold by DistroSource.
- */
 export function GamingProductCard({ product, className }: { product: GamingProduct; className?: string }) {
   const href = `/gaming/product/${product.slug}`
   const badges = getGamingBadges(product)
+  const discounted = product.originalPrice && product.originalPrice > product.price
 
   return (
-    <article
-      className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card",
-        "transition-[border-color,box-shadow] duration-200 hover:border-border-strong hover:shadow-[var(--shadow-e2)]",
-        className,
-      )}
-    >
-      <Link href={href} className="relative block aspect-[4/3] overflow-hidden" tabIndex={-1} aria-hidden="true">
-        {/* A real capture wins over the illustration whenever one exists.
-            No caption on the illustrated fallback: the badges take the
-            top-left corner it would caption. */}
-        {hasRealImages(product.images) ? (
-          <Image
-            src={resolveGamingImage(product.images[0])}
-            alt=""
-            fill
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          />
-        ) : (
-          <GamingPreview
-            art={product.art[0]}
-            caption={false}
-            className="transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-          />
-        )}
-        {badges.length > 0 && (
-          <div className="pointer-events-none absolute left-2.5 top-2.5 flex flex-wrap gap-1.5">
-            {badges.map((badge) => (
-              <span
-                key={badge}
-                className={cn(
-                  "rounded px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.04em]",
-                  badge === "Bestseller" || badge === "Popular"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-background/95 text-foreground",
-                )}
-              >
-                {badge}
-              </span>
-            ))}
-          </div>
-        )}
-      </Link>
-
-      <div className="flex flex-1 flex-col gap-2 p-3.5">
-        <p className="flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-          {/* The platform chip never wraps; the category gives way instead,
-              so a two-word platform like "Game Servers" stays on one line. */}
-          <span className="shrink-0 whitespace-nowrap rounded bg-secondary px-1.5 py-0.5 text-foreground">
-            {PLATFORM_LABEL[product.platform]}
-          </span>
-          <span className="min-w-0 truncate">{CATEGORY_LABEL[product.category]}</span>
-        </p>
-
-        <h3 className="line-clamp-2 text-[13.5px] font-semibold leading-snug text-foreground">
-          <Link href={href} className="transition-colors after:absolute after:inset-0 hover:text-primary focus-visible:outline-none">
-            {product.title}
-          </Link>
-        </h3>
-
-        <p className="mt-auto line-clamp-2 pt-1 text-xs leading-relaxed text-muted-foreground">{product.shortDescription}</p>
+    <article className={cn("group min-w-0", className)}>
+      <div className="relative overflow-hidden border border-white/10 bg-white/[0.04]">
+        <Link href={href} className="relative block aspect-[4/3] overflow-hidden">
+          {hasRealImages(product.images) ? <Image src={resolveGamingImage(product.images[0])} alt={product.title} fill sizes="(max-width:640px) 50vw, (max-width:1100px) 33vw, 25vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.035]" /> : <GamingPreview art={product.art[0]} caption={false} className="absolute inset-0 h-full w-full transition-transform duration-700 group-hover:scale-[1.035]" />}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent opacity-70" />
+          {badges.length > 0 && <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">{badges.slice(0, 2).map((badge) => <span key={badge} className="bg-primary px-2 py-1 font-mono text-[8px] font-black uppercase tracking-[0.1em] text-primary-foreground">{badge}</span>)}</div>}
+          <div className="absolute inset-x-0 bottom-0 p-4"><p className="font-mono text-[8px] font-black uppercase tracking-[0.1em] text-white/55">{PLATFORM_LABEL[product.platform]} · {CATEGORY_LABEL[product.category]}</p></div>
+        </Link>
       </div>
 
-      {/* Two-up on a phone leaves ~160px of card: price, View and Buy cannot
-          share a row there, so the footer stacks and Buy takes the full width.
-          From sm up the original single row returns. */}
-      <div className="flex flex-col gap-2 border-t border-border px-3.5 py-2.5 sm:flex-row sm:items-center sm:justify-between">
-        {/* flex-wrap: a long pair like "$199.99 $379.99" otherwise runs into
-            the View button. When tight, the struck-through price drops a line. */}
-        <div className="flex min-w-0 flex-wrap items-baseline gap-x-1.5">
-          <span className="font-display text-base font-bold tabular-nums text-foreground">{formatUsd(product.price)}</span>
-          {product.originalPrice && product.originalPrice > product.price && (
-            <span className="text-xs text-muted-foreground line-through">{formatUsd(product.originalPrice)}</span>
-          )}
+      <div className="pt-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0"><h3 className="font-display text-[15px] font-black leading-[1.05] tracking-[-0.035em] text-foreground"><Link href={href} className="hover:text-primary">{product.title}</Link></h3><p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">{product.shortDescription}</p></div>
+          <Link href={href} aria-label={`Open ${product.title}`} className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border transition-colors hover:bg-foreground hover:text-background"><ArrowRight size={13} /></Link>
         </div>
-
-        <div className="relative z-10 flex shrink-0 items-center gap-1">
-          {/* The whole card already links to the product, so View is a
-              convenience that can stand down when there is no room for it. */}
-          <Link
-            href={href}
-            className="hidden h-8 items-center rounded-md border border-border px-2.5 text-xs font-semibold text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex"
-          >
-            View
-          </Link>
-          <TebexBuyButton product={product} size="sm" className="h-8 w-full sm:w-auto" label="Buy" />
-        </div>
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3"><div className="flex items-baseline gap-2"><span className="font-display text-lg font-black">{formatUsd(product.price)}</span>{discounted && <span className="text-xs text-muted-foreground line-through">{formatUsd(product.originalPrice!)}</span>}</div><TebexBuyButton product={product} size="sm" label="Buy" className="h-9 rounded-none px-4" /></div>
       </div>
     </article>
   )

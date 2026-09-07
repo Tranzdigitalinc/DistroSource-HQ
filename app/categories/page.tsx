@@ -1,87 +1,55 @@
 import Link from "next/link"
-import { ArrowRight, ICON_SIZE } from "@/lib/storefront-icons"
-import { getCategoryIcon } from "@/lib/category-icons"
+import { ArrowRight } from "@/lib/storefront-icons"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
-import { RevealGroup, RevealItem } from "@/components/motion/reveal"
 import { getCategoryTree } from "@/lib/queries/catalog"
 
 export const metadata = {
-  title: "Categories — DistroSource",
-  description: "Browse every department and category in the DistroSource catalog.",
+  title: "Departments — DistroSource",
+  description: "Browse every DistroSource department and active digital-product category.",
 }
 
 export default async function CategoriesPage() {
-  // Departments and subcategories that currently hold a visible product.
-  // Empty shelves are not linked — a category page that says "0 products"
-  // is a dead end, not a promise.
   const tree = (await getCategoryTree())
-    .map((d) => ({ ...d, subcategories: d.subcategories.filter((s) => s.productCount > 0) }))
-    .filter((d) => d.subcategories.length > 0)
-  const total = tree.reduce((n, d) => n + d.subcategories.length, 0)
+    .map((department) => ({ ...department, subcategories: department.subcategories.filter((subcategory) => subcategory.productCount > 0) }))
+    .filter((department) => department.subcategories.length > 0)
+  const total = tree.reduce((count, department) => count + department.subcategories.length, 0)
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <main className="flex-1">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-10">
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Browse</p>
-          <h1 className="mt-2 font-display text-3xl font-bold tracking-tight">All categories</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {total} {total === 1 ? "category" : "categories"} across {tree.length} {tree.length === 1 ? "department" : "departments"}
-          </p>
+        <section className="border-b border-border bg-[#111827] text-white">
+          <div className="mx-auto max-w-[1600px] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+            <p className="font-mono text-[10px] font-black uppercase tracking-[0.16em] text-primary">The directory</p>
+            <div className="mt-4 grid gap-7 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+              <h1 className="font-display text-[clamp(3.7rem,8vw,8rem)] font-black leading-[0.84] tracking-[-0.08em]">Find your aisle.</h1>
+              <div className="lg:justify-self-end"><p className="max-w-xl text-sm leading-7 text-white/48">Browse DistroSource by what you are trying to make—not by an endless list of file types.</p><p className="mt-5 font-mono text-[9px] uppercase tracking-[0.1em] text-white/35">{tree.length} departments · {total} active categories</p></div>
+            </div>
+          </div>
+        </section>
 
-          <div className="mt-8 flex flex-col gap-10">
-            {tree.map((department) => {
-              const Icon = getCategoryIcon(department.slug)
-              return (
-                <section key={department.slug} aria-labelledby={`dept-${department.slug}`}>
-                  <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="flex size-9 items-center justify-center rounded-md bg-secondary text-foreground">
-                        <Icon aria-hidden="true" className="size-4" />
-                      </span>
-                      <div>
-                        <h2 id={`dept-${department.slug}`} className="font-display text-lg font-bold text-foreground">{department.name}</h2>
-                        <p className="text-xs text-muted-foreground">{department.productCount.toLocaleString()} products</p>
-                      </div>
-                    </div>
-                    <Link href={`/categories/${department.slug}`} className="flex items-center gap-1 text-xs font-semibold text-foreground hover:underline">
-                      View all
-                      <ArrowRight size={12} aria-hidden="true" />
+        <div className="mx-auto max-w-[1600px] px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+          <div className="space-y-20 lg:space-y-28">
+            {tree.map((department, departmentIndex) => (
+              <section key={department.slug} aria-labelledby={`dept-${department.slug}`} className="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-14 xl:grid-cols-[380px_minmax(0,1fr)]">
+                <div className="lg:sticky lg:top-24 lg:self-start">
+                  <p className="font-mono text-[9px] font-black uppercase tracking-[0.12em] text-muted-foreground">0{departmentIndex + 1} · {department.productCount} products</p>
+                  <h2 id={`dept-${department.slug}`} className="mt-4 font-display text-4xl font-black leading-[0.92] tracking-[-0.055em] sm:text-5xl">{department.name}</h2>
+                  {department.description && <p className="mt-4 max-w-sm text-sm leading-7 text-muted-foreground">{department.description}</p>}
+                  <Link href={`/categories/${department.slug}`} className="group mt-6 inline-flex items-center gap-2 text-sm font-semibold">Explore department <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" /></Link>
+                </div>
+
+                <div className="grid border-l border-t border-border sm:grid-cols-2 xl:grid-cols-3">
+                  {department.subcategories.map((category, index) => (
+                    <Link key={category.slug} href={`/categories/${category.slug}`} className={`group relative min-h-[230px] border-b border-r border-border p-5 transition-colors ${index === 0 ? "bg-primary/[0.07]" : "hover:bg-secondary/40"}`}>
+                      <div className="flex items-start justify-between"><span className="font-mono text-[9px] font-black text-muted-foreground">{String(index + 1).padStart(2, "0")}</span><span className="font-mono text-[9px] text-muted-foreground">{category.productCount}</span></div>
+                      <div className="absolute inset-x-5 bottom-5"><h3 className="font-display text-2xl font-black leading-[0.98] tracking-[-0.045em]">{category.name}</h3>{category.description && <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{category.description}</p>}<span className="mt-5 inline-flex size-9 items-center justify-center rounded-full bg-foreground text-background transition-transform group-hover:translate-x-1"><ArrowRight size={13} /></span></div>
                     </Link>
-                  </div>
-                  <RevealGroup className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" stagger={0.03}>
-                    {department.subcategories.map((category) => {
-                      const SubIcon = getCategoryIcon(category.slug)
-                      return (
-                        <RevealItem key={category.slug} className="h-full">
-                          <Link
-                            href={`/categories/${category.slug}`}
-                            className="group flex h-full flex-col rounded-lg border border-border bg-card p-4 transition-colors hover:border-border-strong hover:bg-secondary/40"
-                          >
-                            <span className="flex size-9 items-center justify-center rounded-md bg-secondary text-muted-foreground group-hover:text-foreground">
-                              <SubIcon aria-hidden="true" className="size-4" />
-                            </span>
-                            <span className="mt-3 flex items-baseline justify-between gap-2">
-                              <span className="font-display text-sm font-bold text-foreground">{category.name}</span>
-                              <span className="font-mono text-[11px] tabular-nums text-muted-foreground">{category.productCount}</span>
-                            </span>
-                            {category.description && (
-                              <span className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{category.description}</span>
-                            )}
-                            <span className="mt-auto flex items-center gap-1 pt-3 text-xs font-medium text-foreground">
-                              Browse
-                              <ArrowRight size={ICON_SIZE.sm} className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-                            </span>
-                          </Link>
-                        </RevealItem>
-                      )
-                    })}
-                  </RevealGroup>
-                </section>
-              )
-            })}
+                  ))}
+                </div>
+              </section>
+            ))}
           </div>
         </div>
       </main>
