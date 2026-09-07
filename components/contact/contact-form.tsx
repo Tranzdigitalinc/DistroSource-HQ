@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { submitContactMessage } from "@/lib/actions/contact"
-import { trackWhopEvent } from "@/lib/whop-pixel"
 
 const topics = [
   { value: "order", label: "Order" },
@@ -44,7 +43,6 @@ export function ContactForm({ defaultTopic = "order" }: { defaultTopic?: string 
     startTransition(async () => {
       try {
         await submitContactMessage({ name, email, topic, message: body })
-        trackWhopEvent("lead", { email: email.trim().toLowerCase(), event_id: `contact-${Date.now()}` })
         setSubmitted(true)
         toast.success("Message sent.")
       } catch (error) {

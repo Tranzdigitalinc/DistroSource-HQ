@@ -6,7 +6,7 @@ const points = [
   { n: "01", title: "Instant delivery", body: "Paid products unlock in My Library the moment the payment is confirmed." },
   { n: "02", title: "Licence stated up front", body: "Personal, commercial or extended — the terms are on the product page, not in an email." },
   { n: "03", title: "Re-download anytime", body: "Purchases stay in your library. Lost a file or switched machines? Download it again." },
-  { n: "04", title: "Secure checkout", body: "Payments are handled by Polar, TamPay or Whop. DistroSource never stores card details." },
+  { n: "04", title: "Secure checkout", body: "Payments are handled by Polar or TamPay. DistroSource never stores card details." },
 ]
 
 /** Compact closing strip: numerals, not icons; facts, not slogans. */

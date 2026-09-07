@@ -13,7 +13,7 @@ const points = [
   { icon: Download, title: "Instant delivery", body: "Paid products unlock in My Library the moment the payment is confirmed. No waiting, no emails to dig through." },
   { icon: ShieldCheck, title: "Licence stated up front", body: "Personal, commercial or agency — the terms are on the product page before you pay, not in a PDF afterwards." },
   { icon: Refresh, title: "Re-download anytime", body: "Purchases stay in your library. Lost a file or switched machines? Download it again, including updates." },
-  { icon: Lock, title: "Secure checkout", body: "Payments are handled by Polar, TamPay or Whop. DistroSource never sees or stores your card details." },
+  { icon: Lock, title: "Secure checkout", body: "Payments are handled by Polar or TamPay. DistroSource never sees or stores your card details." },
 ]
 
 /**

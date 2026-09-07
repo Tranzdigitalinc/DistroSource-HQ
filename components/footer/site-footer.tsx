@@ -6,7 +6,6 @@ import { toast } from "sonner"
 import { ArrowRight, ArrowUp, Check, Download, Lock, Refresh, ShieldCheck, ICON_SIZE } from "@/lib/storefront-icons"
 import { BrandLogo } from "@/components/brand-logo"
 import { subscribeToNewsletter } from "@/lib/actions/newsletter"
-import { trackWhopEvent } from "@/lib/whop-pixel"
 
 const columns = [
   {
@@ -65,7 +64,7 @@ const promises = [
   { icon: Download, title: "Instant delivery", body: "Files unlock the moment you pay." },
   { icon: ShieldCheck, title: "Licence up front", body: "Terms shown before checkout." },
   { icon: Refresh, title: "Re-download anytime", body: "Everything stays in My Library." },
-  { icon: Lock, title: "Secure checkout", body: "Polar, TamPay or Whop handle payment." },
+  { icon: Lock, title: "Secure checkout", body: "Polar or TamPay handle payment." },
 ]
 
 function NewsletterForm() {
@@ -79,8 +78,6 @@ function NewsletterForm() {
     startTransition(async () => {
       try {
         await subscribeToNewsletter(email)
-        trackWhopEvent("lead", { email: email.trim().toLowerCase(), event_id: `newsletter-${Date.now()}` })
-        trackWhopEvent("newsletter_subscribe", { email: email.trim().toLowerCase(), event_id: `newsletter-signup-${Date.now()}` })
         setSubmitted(true)
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Could not subscribe. Please try again.")

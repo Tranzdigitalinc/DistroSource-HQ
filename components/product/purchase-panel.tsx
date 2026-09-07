@@ -14,7 +14,6 @@ import { addToCart } from "@/lib/actions/cart"
 import { toggleWishlist } from "@/lib/actions/wishlist"
 import { licenseLabel } from "@/lib/licenses"
 import { cn } from "@/lib/utils"
-import { trackWhopEvent } from "@/lib/whop-pixel"
 
 export interface PurchaseMeta {
   formats?: string[]
@@ -53,12 +52,10 @@ export function PurchasePanel({
   const selected = licenses.find((l) => l.id === selectedId) ?? licenses[0]
 
   useEffect(() => {
-    trackWhopEvent("view_content", { product_id: productId, event_id: `view-product-${productId}` })
   }, [productId])
 
   async function add() {
     await addToCart(productId, selected.id, 1)
-    trackWhopEvent("add_to_cart", { value: Number.parseFloat(selected.price), currency: "USD", product_id: productId })
     await refreshCart()
   }
 
@@ -81,7 +78,6 @@ export function PurchasePanel({
     startBuy(async () => {
       try {
         await add()
-        trackWhopEvent("checkout_started", { value: Number.parseFloat(selected.price), currency: "USD", product_id: productId, event_id: `checkout-${productId}-${Date.now()}` })
         router.push("/checkout")
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Couldn't start checkout. Please try again.")
@@ -187,7 +183,7 @@ export function PurchasePanel({
         {[
           { icon: Download, text: "Delivered to My Library after payment" },
           ...(meta?.hasDocumentation ? [{ icon: FileText, text: "Documentation included" }] : []),
-          { icon: Lock, text: "Secure checkout via Polar, TamPay or Whop" },
+          { icon: Lock, text: "Secure checkout via Polar or TamPay" },
         ].map(({ icon: Icon, text }) => (
           <li key={text} className="flex items-center gap-2 text-xs text-muted-foreground">
             <Icon size={ICON_SIZE.sm} className="shrink-0 text-success" aria-hidden="true" />

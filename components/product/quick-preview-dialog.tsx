@@ -15,7 +15,6 @@ import { addToCart } from "@/lib/actions/cart"
 import { getSourceTypeLabel } from "@/lib/format"
 import { licenseLabel } from "@/lib/licenses"
 import { cn } from "@/lib/utils"
-import { trackWhopEvent } from "@/lib/whop-pixel"
 import type { ProductCardData } from "@/components/product/product-card"
 
 /**
@@ -56,7 +55,6 @@ export function QuickPreviewDialog({ item, open, onOpenChange }: { item: Product
     startTransition(async () => {
       try {
         await addToCart(item.product.id, selected.id, 1)
-        trackWhopEvent("add_to_cart", { value: price, currency: "USD", product_id: item.product.id, product_name: item.product.name })
         await refreshCart()
         setJustAdded(true)
         onOpenChange(false)

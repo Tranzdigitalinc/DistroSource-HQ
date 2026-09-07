@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2, Send } from "@/lib/storefront-icons"
-import { trackWhopEvent } from "@/lib/whop-pixel"
 
 const categories = [
   { value: "order", label: "Order issue" },
@@ -31,8 +30,6 @@ export function SupportTicketForm() {
     startTransition(async () => {
       try {
         await submitSupportTicket({ subject, category, message, orderNumber: orderNumber || undefined })
-        trackWhopEvent("contact", { event_id: `support-${Date.now()}` })
-        trackWhopEvent("support_ticket_submitted", { event_id: `support-ticket-${Date.now()}` })
         setSubject("")
         setMessage("")
         setOrderNumber("")
