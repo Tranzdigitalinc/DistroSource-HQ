@@ -269,7 +269,7 @@ export function listingFor(p, gen, zipBytes) {
   const overview = p.pitch && p.pitch.length ? p.pitch : isNext
     ? [`${p.brand} is a Next.js 15 App Router starter for a ${p.vertical.replace(/ starter$/, "")}. It ships as a real project — typed site config, components for every section, metadata and sitemap wired up — with the same design you see in the preview.`, `Colours, radius and type live in one CSS file; copy, plans and FAQ live in one typed config. Rename, retheme, deploy.`]
     : isDash
-      ? [`${p.brand} is an admin dashboard template built for a ${p.vertical.replace(/ dashboard$/, "")}: a sidebar shell, KPI cards, charts, status tables and a settings page, all in plain HTML, CSS and JavaScript.`, `The sample data is written for the domain — ${site.kpis.map((k) => k[0].toLowerCase()).join(", ")} — so the layout reads as a finished product, not a placeholder.`]
+      ? [`${p.brand} is an admin dashboard template built for ${p.vertical.replace(/ dashboard$/, "")}: a sidebar shell, KPI cards, charts, status tables and a settings page, all in plain HTML, CSS and JavaScript.`, `The sample data is written for the domain — ${site.kpis.map((k) => k[0]).join(", ")} — so the layout reads as a finished product, not a placeholder.`]
       : isStore
         ? [`${p.brand} is a storefront template for a ${p.vertical}: home, shop grid, product page with variants, cart and about pages, styled with a ${p.palette} palette and generated product artwork you can replace with photography.`, `It is a complete front end ready to connect to the commerce platform of your choice; buttons and forms are wired for progressive enhancement.`]
         : kind === "landing"
@@ -279,7 +279,7 @@ export function listingFor(p, gen, zipBytes) {
   const bestFor = isNext
     ? [`Teams launching a ${p.vertical.replace(/ starter$/, "")} on Next.js`, "Developers who want typed config instead of a CMS on day one", "Agencies with a house design system to plug in", "Anyone who needs a fast, accessible site without a CSS framework"]
     : isDash
-      ? [`Product teams building a ${p.vertical.replace(/ dashboard$/, "")}`, "Developers who need a finished UI shell to wire to an API", "Internal tools that need to look like real software", "Prototypes and investor demos with realistic data"]
+      ? [`Product teams building ${p.vertical.replace(/ dashboard$/, "")} software`, "Developers who need a finished UI shell to wire to an API", "Internal tools that need to look like real software", "Prototypes and investor demos with realistic data"]
       : isStore
         ? [`A ${p.vertical} moving off a marketplace to its own site`, "Makers who need a storefront front end for their commerce platform", "Agencies building shops for small brands", "Anyone who wants product pages with variants done properly"]
         : kind === "landing"
