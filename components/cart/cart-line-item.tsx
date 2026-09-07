@@ -130,11 +130,11 @@ export function CartLineItem({
       animate={{ opacity: busy ? 0.55 : 1, y: 0 }}
       exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0 }}
       transition={{ duration: 0.2 }}
-      className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-4 border-b border-border py-5 last:border-0 sm:grid-cols-[6rem_minmax(0,1fr)_auto]"
+      className="grid grid-cols-[5rem_minmax(0,1fr)] gap-4 border-b border-border py-5 last:border-0 sm:grid-cols-[7.5rem_minmax(0,1fr)_auto]"
     >
       <Link
         href={`/products/${productSlug}`}
-        className="relative aspect-[4/3] w-full overflow-hidden rounded-md border border-border bg-secondary/40 transition-opacity hover:opacity-90"
+        className="relative aspect-[16/10] w-full overflow-hidden rounded-lg border border-border bg-secondary/40 transition-opacity hover:opacity-90"
         aria-label={`View ${productName}`}
       >
         {imageUrl ? (
@@ -173,7 +173,7 @@ export function CartLineItem({
             <PopoverTrigger
               disabled={busy || licenseOptions.length < 2}
               className={cn(
-                "inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-secondary/60 pl-2.5 pr-2 text-xs font-semibold text-foreground transition-colors",
+                "inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-secondary/60 pl-3 pr-2 text-xs font-semibold text-foreground transition-colors",
                 "hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default disabled:hover:border-border",
               )}
               aria-label={`Licence: ${licenseLabel(licenseType)}. Change licence`}

@@ -6,12 +6,15 @@ export function BrandLogo({
   href = "/",
   className,
   heightClassName = "h-14",
+  variant = "auto",
 }: {
   href?: string | null
   className?: string
   imgClassName?: string
   height?: number
   heightClassName?: string
+  /** "on-dark" always uses the light-on-navy artwork, e.g. in the footer. */
+  variant?: "auto" | "on-dark"
 }) {
   const mark = (
     <span className={cn("inline-flex items-center", heightClassName)}>
@@ -21,7 +24,7 @@ export function BrandLogo({
         width={2172}
         height={724}
         loading="lazy"
-        className="h-full w-auto max-w-[min(90vw,760px)] object-contain object-left dark:hidden"
+        className={cn("h-full w-auto max-w-[min(90vw,760px)] object-contain object-left", variant === "on-dark" ? "hidden" : "dark:hidden")}
       />
       <Image
         src="/images/distro-source-logo-dark.png"
@@ -30,7 +33,7 @@ export function BrandLogo({
         height={724}
         loading="lazy"
         aria-hidden="true"
-        className="hidden h-full w-auto max-w-[min(90vw,760px)] object-contain object-left dark:block"
+        className={cn("h-full w-auto max-w-[min(90vw,760px)] object-contain object-left", variant === "on-dark" ? "block" : "hidden dark:block")}
       />
     </span>
   )

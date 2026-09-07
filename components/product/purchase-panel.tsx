@@ -4,14 +4,14 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "motion/react"
-import { Check, Download, FileText, Heart, Loader2, Lock, ShoppingCart, ICON_SIZE } from "@/lib/storefront-icons"
+import { Check, Download, FileText, Heart, Loader2, Lock, ShoppingBag, ICON_SIZE } from "@/lib/storefront-icons"
 import { Button } from "@/components/ui/button"
 import { PriceDisplay } from "@/components/price-display"
 import { LicenseSelector, type LicenseOption } from "@/components/product/license-selector"
+import { openCartDrawer, refreshCart } from "@/components/cart/cart-drawer-provider"
 import { addToCart } from "@/lib/actions/cart"
 import { toggleWishlist } from "@/lib/actions/wishlist"
 import { licenseLabel } from "@/lib/licenses"
-import { mutate } from "swr"
 import { cn } from "@/lib/utils"
 
 export interface PurchaseMeta {
@@ -27,12 +27,14 @@ export function PurchasePanel({
   licenses,
   initialWishlisted,
   isPreviewOnly = false,
+  compareAtPrice,
   meta,
 }: {
   productId: number
   licenses: LicenseOption[]
   initialWishlisted: boolean
   isPreviewOnly?: boolean
+  compareAtPrice?: number | null
   meta?: PurchaseMeta
 }) {
   const router = useRouter()
@@ -47,7 +49,7 @@ export function PurchasePanel({
 
   async function add() {
     await addToCart(productId, selected.id, 1)
-    await mutate("/api/cart/summary")
+    await refreshCart()
   }
 
   function handleAddToCart() {
@@ -56,7 +58,7 @@ export function PurchasePanel({
         await add()
         router.refresh()
         setJustAdded(true)
-        toast.success("Added to cart", { description: `${licenseLabel(selected.licenseType)} licence` })
+        openCartDrawer()
         setTimeout(() => setJustAdded(false), 2000)
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Couldn't add this to your cart. Please try again.")
@@ -64,7 +66,7 @@ export function PurchasePanel({
     })
   }
 
-  /** Add the selected licence, then go straight to the cart review before payment. */
+  /** Add the selected licence, then go straight to checkout. */
   function handleBuyNow() {
     startBuy(async () => {
       try {
@@ -91,17 +93,19 @@ export function PurchasePanel({
 
   if (!selected) return null
   const busy = isAdding || isBuying
+  const price = Number.parseFloat(selected.price)
+  const onSale = compareAtPrice != null && compareAtPrice > price
 
   const facts = [
     meta?.formats?.length ? ["Formats", meta.formats.map((f) => f.toUpperCase()).join(", ")] : null,
-    meta?.software?.length ? ["Compatibility", meta.software.join(", ")] : null,
+    meta?.software?.length ? ["Works with", meta.software.join(", ")] : null,
     meta?.version ? ["Version", `v${meta.version}`] : null,
-    meta?.updatedAt ? ["Last updated", meta.updatedAt] : null,
+    meta?.updatedAt ? ["Updated", meta.updatedAt] : null,
   ].filter((r): r is [string, string] => Boolean(r))
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-e1)]">
-      <div className="border-b border-border px-5 py-4">
+    <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-e1)]">
+      <div className="px-5 pt-5">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
             key={selected.id}
@@ -109,35 +113,29 @@ export function PurchasePanel({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 4 }}
             transition={{ duration: 0.16 }}
-            className="flex items-baseline gap-2"
+            className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1"
           >
-            <span className="font-display text-3xl font-bold tabular-nums tracking-tight text-foreground">
-              <PriceDisplay usdAmount={Number.parseFloat(selected.price)} />
+            <span className="font-display text-4xl font-bold tabular-nums tracking-tight text-foreground">
+              <PriceDisplay usdAmount={price} />
             </span>
-            <span className="font-mono text-xs font-medium uppercase text-muted-foreground">USD</span>
+            {onSale && (
+              <span className="text-base text-muted-foreground line-through">
+                <PriceDisplay usdAmount={compareAtPrice!} />
+              </span>
+            )}
+            <span className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">USD · one-time</span>
           </motion.div>
         </AnimatePresence>
-        <p className="mt-0.5 text-xs text-muted-foreground">{licenseLabel(selected.licenseType)} licence · one-time payment</p>
+        <p className="mt-1 text-xs text-muted-foreground">{licenseLabel(selected.licenseType)} licence. Instant download after payment.</p>
       </div>
 
-      <div className="border-b border-border px-5 py-4">
+      <div className="px-5 py-5">
         <LicenseSelector licenses={licenses} value={selected.id} onChange={setSelectedId} />
       </div>
 
-      {facts.length > 0 && (
-        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 border-b border-border px-5 py-3.5 text-xs">
-          {facts.map(([k, v]) => (
-            <div key={k} className="contents">
-              <dt className="text-muted-foreground">{k}</dt>
-              <dd className="min-w-0 truncate text-foreground">{v}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
-
-      <div className="flex flex-col gap-2.5 px-5 py-4">
+      <div className="flex flex-col gap-2.5 px-5 pb-5">
         {isPreviewOnly && (
-          <p className="rounded-md border border-dashed border-border bg-secondary/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+          <p className="rounded-lg border border-dashed border-border bg-secondary/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
             This product&apos;s downloadable files are still being prepared, so it isn&apos;t purchasable yet.
           </p>
         )}
@@ -147,9 +145,9 @@ export function PurchasePanel({
             onClick={handleAddToCart}
             disabled={busy || justAdded || isPreviewOnly}
             size="lg"
-            className={cn("h-11 flex-1 font-semibold", justAdded && "bg-success hover:bg-success")}
+            className={cn("h-12 flex-1 rounded-full text-[15px] font-semibold", justAdded && "bg-success hover:bg-success")}
           >
-            {isAdding ? <Loader2 size={ICON_SIZE.base} className="animate-spin" aria-hidden="true" /> : justAdded ? <Check size={ICON_SIZE.base} aria-hidden="true" /> : <ShoppingCart size={ICON_SIZE.base} aria-hidden="true" />}
+            {isAdding ? <Loader2 size={ICON_SIZE.base} className="animate-spin" aria-hidden="true" /> : justAdded ? <Check size={ICON_SIZE.base} aria-hidden="true" /> : <ShoppingBag size={ICON_SIZE.base} aria-hidden="true" />}
             {justAdded ? "Added to cart" : isPreviewOnly ? "Not yet available" : "Add to cart"}
           </Button>
           <Button
@@ -157,7 +155,7 @@ export function PurchasePanel({
             disabled={isSaving}
             variant="outline"
             size="icon"
-            className="size-11 shrink-0 bg-transparent"
+            className="size-12 shrink-0 rounded-full bg-transparent"
             aria-label={wishlisted ? "Remove from wishlist" : "Save to wishlist"}
             aria-pressed={wishlisted}
           >
@@ -165,19 +163,30 @@ export function PurchasePanel({
           </Button>
         </div>
         {!isPreviewOnly && (
-          <Button onClick={handleBuyNow} disabled={busy} variant="outline" size="lg" className="h-11 w-full bg-transparent font-semibold">
+          <Button onClick={handleBuyNow} disabled={busy} variant="outline" size="lg" className="h-11 w-full rounded-full bg-transparent font-semibold">
             {isBuying ? <Loader2 size={ICON_SIZE.base} className="animate-spin" aria-hidden="true" /> : <Lock size={ICON_SIZE.sm} aria-hidden="true" />}
             Buy now
           </Button>
         )}
       </div>
 
+      {facts.length > 0 && (
+        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 border-t border-border px-5 py-4 text-xs">
+          {facts.map(([k, v]) => (
+            <div key={k} className="contents">
+              <dt className="font-mono text-[10px] uppercase tracking-[0.08em] text-muted-foreground">{k}</dt>
+              <dd className="min-w-0 truncate text-foreground">{v}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
       {/* Reassurance: only statements true for this product. */}
-      <ul className="flex flex-col gap-1.5 border-t border-border bg-secondary/30 px-5 py-3.5">
+      <ul className="flex flex-col gap-1.5 border-t border-border bg-secondary/40 px-5 py-4">
         {[
-          { icon: Download, text: "Digital delivery to My Library after payment" },
+          { icon: Download, text: "Delivered to My Library after payment" },
           ...(meta?.hasDocumentation ? [{ icon: FileText, text: "Documentation included" }] : []),
-          { icon: Lock, text: "Secure checkout by Polar" },
+          { icon: Lock, text: "Secure checkout via Polar, TamPay or Whop" },
         ].map(({ icon: Icon, text }) => (
           <li key={text} className="flex items-center gap-2 text-xs text-muted-foreground">
             <Icon size={ICON_SIZE.sm} className="shrink-0 text-success" aria-hidden="true" />

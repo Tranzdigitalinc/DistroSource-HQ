@@ -43,7 +43,7 @@ export function ProductSections({ sections }: { sections: ProductSection[] }) {
     <div className="flex flex-col gap-8">
       <nav
         aria-label="On this page"
-        className="sticky top-16 z-20 -mx-4 border-y border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/85 md:top-20 md:mx-0 md:rounded-lg md:border"
+        className="sticky top-16 z-20 -mx-5 border-y border-border bg-background/90 px-5 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:top-[4.5rem] md:mx-0 md:rounded-full md:border md:px-2"
       >
         <ul className="flex gap-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {sections.map((s) => (
@@ -52,9 +52,9 @@ export function ProductSections({ sections }: { sections: ProductSection[] }) {
                 href={`#section-${s.id}`}
                 aria-current={active === s.id ? "location" : undefined}
                 className={cn(
-                  "block whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                  "block whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  active === s.id ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
+                  active === s.id ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {s.title}
@@ -67,7 +67,7 @@ export function ProductSections({ sections }: { sections: ProductSection[] }) {
       <div className="flex flex-col divide-y divide-border">
         {sections.map((s) => (
           <section key={s.id} id={`section-${s.id}`} className="scroll-mt-32 py-8 first:pt-0 last:pb-0">
-            <h2 className="mb-4 font-display text-xl font-bold tracking-tight text-foreground">{s.title}</h2>
+            <h2 className="text-title mb-5 text-xl sm:text-2xl">{s.title}</h2>
             {typeof s.body === "string" ? <LiteMarkdown text={s.body} className="flex max-w-3xl flex-col gap-4" /> : s.body}
           </section>
         ))}

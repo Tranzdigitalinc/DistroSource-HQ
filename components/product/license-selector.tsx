@@ -51,8 +51,8 @@ export function LicenseSelector({
   return (
     <div className={cn("flex flex-col", className)}>
       {showCompareLink && (
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-xs font-semibold text-foreground">Licence</span>
+        <div className="mb-2.5 flex items-center justify-between">
+          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Licence</span>
           <Link href="/licenses" className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
             Compare licences
           </Link>
@@ -71,10 +71,10 @@ export function LicenseSelector({
               data-license-id={license.id}
               onClick={() => onChange(license.id)}
               className={cn(
-                "group flex w-full items-start gap-3 rounded-md border text-left transition-colors",
+                "group flex w-full items-start gap-3 rounded-xl border text-left transition-[border-color,background-color,box-shadow]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-                compact ? "px-2.5 py-2" : "px-3 py-2.5",
-                selected ? "border-primary bg-primary/5" : "border-border hover:border-border-strong",
+                compact ? "px-3 py-2.5" : "px-3.5 py-3",
+                selected ? "border-primary bg-primary/[0.06] ring-1 ring-primary" : "border-border hover:border-border-strong hover:bg-secondary/40",
               )}
             >
               <span
@@ -93,9 +93,7 @@ export function LicenseSelector({
                     <PriceDisplay usdAmount={Number.parseFloat(license.price)} />
                   </span>
                 </span>
-                <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">
-                  {licenseSummary(license.licenseType, license.description)}
-                </span>
+                <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">{licenseSummary(license.licenseType, license.description)}</span>
               </span>
             </button>
           )

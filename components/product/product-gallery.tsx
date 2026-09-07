@@ -92,7 +92,7 @@ export function ProductGallery({ images, alt }: ProductGalleryProps) {
     <div className="flex flex-col gap-3">
       {/* ---- Desktop: primary view ---- */}
       <div
-        className="group relative hidden aspect-[4/3] w-full overflow-hidden rounded-lg border border-border bg-secondary/40 md:block"
+        className="group relative hidden aspect-[16/10] w-full overflow-hidden rounded-2xl border border-border bg-secondary/40 md:block"
         role="region"
         aria-roledescription="image viewer"
         aria-label={`${alt} gallery`}
@@ -134,7 +134,7 @@ export function ProductGallery({ images, alt }: ProductGalleryProps) {
 
       {/* ---- Mobile: swipeable ---- */}
       <div className="md:hidden">
-        <Carousel setApi={setApi} opts={{ loop: available.length > 1 }} className="overflow-hidden rounded-lg border border-border bg-secondary/40">
+        <Carousel setApi={setApi} opts={{ loop: available.length > 1 }} className="overflow-hidden rounded-2xl border border-border bg-secondary/40">
           <CarouselContent className="-ml-0">
             {available.map((src, i) => (
               <CarouselItem key={src} className="pl-0">
@@ -167,7 +167,7 @@ export function ProductGallery({ images, alt }: ProductGalleryProps) {
 
       {/* ---- Thumbnail rail (all images) ---- */}
       {available.length > 1 && (
-        <div className="hidden gap-2 md:grid md:grid-cols-5" role="tablist" aria-label="Product previews">
+        <div className="hidden gap-2 md:grid md:grid-cols-6" role="tablist" aria-label="Product previews">
           {available.map((src, i) => {
             const active = i === safeIndex
             return (
@@ -179,9 +179,9 @@ export function ProductGallery({ images, alt }: ProductGalleryProps) {
                 aria-label={`Preview ${i + 1} of ${available.length}`}
                 onClick={() => setIndex(i)}
                 className={cn(
-                  "relative aspect-[4/3] overflow-hidden rounded-md border bg-secondary/40 transition-colors",
+                  "relative aspect-[16/10] overflow-hidden rounded-lg border bg-secondary/40 transition-colors",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-                  active ? "border-primary ring-1 ring-primary" : "border-border hover:border-border-strong",
+                  active ? "border-primary ring-1 ring-primary" : "border-border opacity-70 hover:border-border-strong hover:opacity-100",
                 )}
               >
                 <img src={src} alt="" className="h-full w-full object-contain" onError={() => markFailed(src)} />

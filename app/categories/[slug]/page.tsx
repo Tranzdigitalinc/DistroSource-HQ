@@ -90,31 +90,27 @@ export default async function CategoryDetailPage({
         }
         banner={
           <div className="border-b border-border bg-secondary/40">
-            <nav aria-label="Breadcrumb" className="mx-auto flex w-full max-w-7xl items-center gap-1.5 px-4 pt-4 text-xs text-muted-foreground sm:px-6">
-              <Link href="/" className="hover:text-foreground">Home</Link>
-              <ChevronRight size={12} aria-hidden="true" />
-              <Link href="/categories" className="hover:text-foreground">Departments</Link>
-              {department && !isDepartment && (
-                <>
-                  <ChevronRight size={12} aria-hidden="true" />
-                  <Link href={`/categories/${department.slug}`} className="hover:text-foreground">{department.name}</Link>
-                </>
-              )}
-              <ChevronRight size={12} aria-hidden="true" />
-              <span className="font-medium text-foreground">{category.name}</span>
-            </nav>
-            <div className="mx-auto flex w-full max-w-7xl items-center gap-4 px-4 py-5 sm:px-6 sm:py-6">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-foreground sm:size-14">
-                {categoryIcon}
-              </span>
-              <div className="min-w-0">
-                <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                  {isDepartment ? "Department" : department ? department.name : "Category"}
-                </p>
-                <h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{category.name}</h1>
-                {category.description ? (
-                  <p className="mt-1 max-w-xl text-sm text-muted-foreground text-pretty">{category.description}</p>
-                ) : null}
+            <div className="container-x pb-8 pt-6 sm:pb-10">
+              <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+                <Link href="/" className="hover:text-foreground">Home</Link>
+                <ChevronRight size={12} aria-hidden="true" />
+                <Link href="/categories" className="hover:text-foreground">Departments</Link>
+                {department && !isDepartment && (
+                  <>
+                    <ChevronRight size={12} aria-hidden="true" />
+                    <Link href={`/categories/${department.slug}`} className="hover:text-foreground">{department.name}</Link>
+                  </>
+                )}
+                <ChevronRight size={12} aria-hidden="true" />
+                <span className="text-foreground">{category.name}</span>
+              </nav>
+              <div className="mt-6 flex items-start gap-5">
+                <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-navy text-primary">{categoryIcon}</span>
+                <div className="min-w-0">
+                  <p className="eyebrow">{isDepartment ? "Department" : department ? department.name : "Category"}</p>
+                  <h1 className="text-display mt-2 text-3xl sm:text-4xl lg:text-5xl">{category.name}</h1>
+                  {category.description ? <p className="mt-3 max-w-xl text-pretty text-sm leading-relaxed text-muted-foreground sm:text-[15px]">{category.description}</p> : null}
+                </div>
               </div>
             </div>
           </div>

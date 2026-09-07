@@ -23,15 +23,11 @@ export default async function DealsPage({
 
   return (
     <CatalogPage
+      eyebrow="Deals"
       title="Today's deals"
       subtitle="Limited-time discounts across templates, fonts, and every other category"
       products={products}
       clearHref="/deals"
-      banner={
-        <div className="bg-primary py-3 text-center text-sm font-medium text-primary-foreground">
-          Deal prices update regularly — grab your favorite products before the discount ends
-        </div>
-      }
     />
   )
 }

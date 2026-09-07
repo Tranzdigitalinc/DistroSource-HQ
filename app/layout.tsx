@@ -3,13 +3,15 @@ import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
 import { Archivo, JetBrains_Mono } from 'next/font/google'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { CartDrawerProvider } from '@/components/cart/cart-drawer-provider'
+import { CartDrawer } from '@/components/cart/cart-drawer'
+import { SearchProvider } from '@/components/header/search-command'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion/motion-provider'
 import { ScrollToTop } from '@/components/scroll-to-top'
 import { ResizeObserverErrorGuard } from '@/components/resize-observer-error-guard'
 import { VisitorTracker } from '@/components/analytics/visitor-tracker'
-import { ScrollProgress } from '@/components/velora/scroll-progress'
 import './globals.css'
 
 const _archivo = Archivo({ subsets: ['latin'], variable: '--font-archivo', weight: ['400', '500', '600', '700', '800', '900'] })
@@ -51,8 +53,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   colorScheme: 'light dark',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fcfbf8' },
-    { media: '(prefers-color-scheme: dark)', color: '#211d19' },
+    { media: '(prefers-color-scheme: light)', color: '#fbfaf7' },
+    { media: '(prefers-color-scheme: dark)', color: '#151a24' },
   ],
 }
 
@@ -74,10 +76,16 @@ export default async function RootLayout({
           <VisitorTracker />
         </Suspense>
         <ResizeObserverErrorGuard />
-        <ScrollProgress />
         <MotionProvider>
           <ThemeProvider>
-            <TooltipProvider>{children}</TooltipProvider>
+            <TooltipProvider>
+              <CartDrawerProvider>
+                <SearchProvider>
+                  {children}
+                  <CartDrawer />
+                </SearchProvider>
+              </CartDrawerProvider>
+            </TooltipProvider>
             <Toaster position="bottom-right" richColors />
             <ScrollToTop />
           </ThemeProvider>

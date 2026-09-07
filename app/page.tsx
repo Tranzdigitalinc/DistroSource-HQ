@@ -2,18 +2,13 @@ import { unstable_cache } from "next/cache"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
 import { Hero } from "@/components/home/hero"
-import { CategoryGrid } from "@/components/home/category-grid"
+import { DepartmentStrip } from "@/components/home/department-strip"
+import { EditorsPicks } from "@/components/home/editors-picks"
 import { ProductRail } from "@/components/home/product-rail"
-import { FAQSection } from "@/components/home/faq-section"
-import { TrustBadges } from "@/components/home/trust-badges"
-import {
-  getCategoryTree,
-  getFeaturedProducts,
-  getProducts,
-  getStorefrontStats,
-} from "@/lib/queries/catalog"
-import { ShopByGoal } from "@/components/home/shop-by-goal"
 import { GamingTeaser } from "@/components/home/gaming-teaser"
+import { DepartmentTabs } from "@/components/home/department-tabs"
+import { WhyStrip } from "@/components/home/why-strip"
+import { getCategoryTree, getFeaturedProducts, getProducts, getStorefrontStats } from "@/lib/queries/catalog"
 
 const cache = <T,>(fn: () => Promise<T>, key: string) => unstable_cache(fn, ["homepage", key], { revalidate: 300 })
 
@@ -30,6 +25,8 @@ export default async function HomePage() {
       cache(getStorefrontStats, "stats")(),
     ])
 
+  const liveDepartments = departments.filter((d) => d.productCount > 0)
+
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
@@ -40,45 +37,22 @@ export default async function HomePage() {
             slug: item.product.slug,
             name: item.product.name,
             imageUrl: item.product.coverImageUrl ?? item.images[0]?.url ?? item.product.thumbnailUrl ?? null,
+            categoryName: item.category.name,
           }))}
         />
-        {/* Departments with nothing published are not advertised on the home page. */}
-        <CategoryGrid categories={departments.filter((d) => d.productCount > 0)} />
-        <ProductRail title="Featured products" href="/products" items={featured} />
-        <ProductRail
-          title="New releases"
-          subtitle="Fresh templates, fonts, and assets just added to the catalog"
-          href="/products?sort=newest"
-          items={newArrivals}
-        />
-        <ProductRail
-          title="Business essentials"
-          subtitle="Documents, spreadsheets, and systems that make the everyday work lighter"
-          href="/categories/business-office"
-          items={businessProducts}
-        />
-        <ProductRail
-          title="Web & development"
-          subtitle="Site templates, UI kits, and code starters for your next build"
-          href="/categories/web-development"
-          items={webDevProducts}
-        />
-        <ProductRail
-          title="Design resources"
-          subtitle="Graphics, mockups, and brand assets with a point of view"
-          href="/categories/design-resources"
-          items={designProducts}
-        />
-        <ShopByGoal />
+        <DepartmentStrip categories={liveDepartments} />
+        <EditorsPicks items={featured} />
+        <ProductRail eyebrow="Just added" title="New releases" subtitle="Fresh templates, fonts and assets, newest first." href="/products?sort=newest" items={newArrivals} />
         <GamingTeaser />
-        <ProductRail
-          title="Digital bundles"
-          subtitle="Curated collections that cost less than buying each file on its own"
-          href="/categories/product-bundles"
-          items={bundleProducts}
+        <DepartmentTabs
+          tabs={[
+            { slug: "business-office", name: "Business & Office", description: "Spreadsheets, documents, planners and Notion systems for everyday operations.", items: businessProducts },
+            { slug: "web-development", name: "Web & Development", description: "Site templates, admin dashboards, landing pages and React / Next.js starters.", items: webDevProducts },
+            { slug: "design-resources", name: "Design Resources", description: "Graphics, icons, mockups and brand assets with a point of view.", items: designProducts },
+          ]}
         />
-        <TrustBadges />
-        <FAQSection />
+        <ProductRail eyebrow="Bundles" title="Curated collections" subtitle="Sets that cost less than buying each file on its own." href="/categories/product-bundles" items={bundleProducts} />
+        <WhyStrip />
       </main>
       <SiteFooter />
     </div>

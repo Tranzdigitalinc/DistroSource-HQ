@@ -109,7 +109,7 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-lg border border-border bg-card">
+    <section className="overflow-hidden rounded-2xl border border-border bg-card">
       <div className="flex flex-col gap-2 border-b border-border px-5 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
           <h2 className="font-display text-base font-bold text-foreground">{title}</h2>

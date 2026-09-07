@@ -15,14 +15,14 @@ import {
 import { useSession, signOut } from "@/lib/auth-client"
 
 const triggerClass =
-  "flex h-10 items-center gap-2 rounded-md px-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+  "flex h-10 items-center gap-2 rounded-full px-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
 export function AccountMenu() {
   const { data: session, isPending } = useSession()
   const router = useRouter()
 
   if (isPending) {
-    return <div className="h-10 w-10 animate-pulse rounded-md bg-secondary xl:w-24" aria-hidden="true" />
+    return <div className="size-10 animate-pulse rounded-full bg-secondary" aria-hidden="true" />
   }
 
   if (!session?.user) {
@@ -51,13 +51,12 @@ export function AccountMenu() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={<button type="button" aria-label="Account menu" className={triggerClass} />}>
+      <DropdownMenuTrigger render={<button type="button" aria-label="Account menu" className="flex size-10 items-center justify-center rounded-full transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />}>
         <span className="flex size-7 items-center justify-center rounded-full bg-navy font-mono text-[11px] font-bold text-navy-foreground" aria-hidden="true">
           {initials}
         </span>
-        <span className="hidden xl:inline">Account</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60 rounded-lg">
+      <DropdownMenuContent align="end" sideOffset={8} className="w-60 rounded-xl">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="px-2 py-1.5">
             <p className="text-sm font-semibold text-foreground">{session.user.name}</p>

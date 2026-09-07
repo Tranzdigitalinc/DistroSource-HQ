@@ -4,8 +4,9 @@ import Link from "next/link"
 import Image from "next/image"
 import { motion } from "motion/react"
 import { Button } from "@/components/ui/button"
-import { HeaderSearch } from "@/components/header/header-search"
-import { ArrowRight, Download, Grid, ShieldCheck, ICON_SIZE } from "@/lib/storefront-icons"
+import { SearchTrigger } from "@/components/header/search-command"
+import { EASE_OUT } from "@/components/motion/reveal"
+import { ArrowRight, Download, ShieldCheck, ICON_SIZE } from "@/lib/storefront-icons"
 
 interface HeroStats {
   productCount: number
@@ -14,153 +15,130 @@ interface HeroStats {
   avgRating: number
 }
 
-/** Minimal shape needed to merchandise a real product in the hero collage. */
+/** Minimal shape needed to merchandise a real product in the hero shelf. */
 export interface HeroProduct {
   slug: string
   name: string
   imageUrl: string | null
+  categoryName?: string
 }
 
-const EASE = [0.16, 1, 0.3, 1] as const
 const item = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 0, y: 14 },
   visible: { opacity: 1, y: 0 },
 }
 
+/**
+ * Editorial hero: a heavy typographic statement on paper, one search pill
+ * (the fastest way into a catalog this size), and a shelf of three real
+ * product covers. Every number is read from the database.
+ */
 export function Hero({ stats, products = [] }: { stats: HeroStats; products?: HeroProduct[] }) {
-  // Only real catalog products are shown. If there is nothing to merchandise,
-  // the collage is omitted rather than filled with placeholder art.
-  const collage = products.filter((p) => p.imageUrl).slice(0, 3)
-  const hasCollage = collage.length === 3
+  const shelf = products.filter((p) => p.imageUrl).slice(0, 3)
 
   return (
     <section className="relative overflow-hidden border-b border-border bg-hero">
+      <div aria-hidden className="paper-grid pointer-events-none absolute inset-0 opacity-70 [mask-image:radial-gradient(90%_70%_at_30%_10%,black,transparent_75%)]" />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-40 [mask-image:radial-gradient(120%_90%_at_50%_0%,black,transparent_72%)]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, var(--border) 1px, transparent 1px), linear-gradient(to bottom, var(--border) 1px, transparent 1px)",
-          backgroundSize: "56px 56px",
-        }}
+        className="pointer-events-none absolute -top-40 right-[-10%] h-[36rem] w-[36rem] rounded-full opacity-60 blur-3xl"
+        style={{ background: "radial-gradient(closest-side, var(--glow), transparent 70%)" }}
       />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-16 lg:py-24">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          transition={{ staggerChildren: 0.05 }}
-          className="flex flex-col items-start gap-6 text-left"
-        >
+      <div className="container-x relative grid items-center gap-12 py-14 sm:py-20 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16 lg:py-28">
+        <motion.div initial="hidden" animate="visible" transition={{ staggerChildren: 0.06 }} className="flex flex-col items-start gap-7">
+          <motion.p variants={item} transition={{ duration: 0.4, ease: EASE_OUT }} className="eyebrow">
+            The department store for digital work
+          </motion.p>
+
           <motion.h1
             variants={item}
-            transition={{ duration: 0.35, ease: EASE }}
-            className="font-display text-4xl font-black leading-[1.02] tracking-tight text-hero-foreground text-balance sm:text-5xl lg:text-6xl"
+            transition={{ duration: 0.45, ease: EASE_OUT }}
+            className="text-display text-[2.75rem] text-hero-foreground sm:text-6xl lg:text-[4.75rem]"
           >
             Everything digital.
             <br />
-            One source.
+            <span className="text-primary">One source.</span>
           </motion.h1>
 
-          <motion.p
-            variants={item}
-            transition={{ duration: 0.35, ease: EASE }}
-            className="max-w-xl text-base leading-relaxed text-muted-foreground text-pretty sm:text-lg"
-          >
-            Premium digital products for business, design, development and everyday work — delivered
-            instantly, with clear licensing.
+          <motion.p variants={item} transition={{ duration: 0.4, ease: EASE_OUT }} className="max-w-lg text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+            Templates, fonts, systems, code and game-server resources — chosen for how they hold up in real work, delivered the moment you pay, with the licence stated up front.
           </motion.p>
 
-          <motion.div variants={item} transition={{ duration: 0.35, ease: EASE }} className="w-full max-w-xl">
-            <HeaderSearch className="w-full" />
+          <motion.div variants={item} transition={{ duration: 0.4, ease: EASE_OUT }} className="w-full max-w-lg">
+            <SearchTrigger size="lg" placeholder="Search templates, fonts, dashboards, gaming…" />
           </motion.div>
 
-          <motion.div
-            variants={item}
-            transition={{ duration: 0.35, ease: EASE }}
-            className="flex flex-wrap items-center gap-3"
-          >
-            <Button size="lg" render={<Link href="/products" />} nativeButton={false} className="h-11 font-semibold">
-              Explore products
+          <motion.div variants={item} transition={{ duration: 0.4, ease: EASE_OUT }} className="flex flex-wrap items-center gap-3">
+            <Button size="lg" render={<Link href="/products" />} nativeButton={false} className="h-11 rounded-full px-5 font-semibold">
+              Explore the catalog
               <ArrowRight size={ICON_SIZE.base} aria-hidden="true" />
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              render={<Link href="/categories" />}
-              nativeButton={false}
-              className="h-11 bg-transparent font-semibold"
-            >
-              <Grid size={ICON_SIZE.base} aria-hidden="true" />
+            <Button size="lg" variant="outline" render={<Link href="/categories" />} nativeButton={false} className="h-11 rounded-full bg-transparent px-5 font-semibold">
               Browse departments
             </Button>
           </motion.div>
 
-          {/* Every figure here is read from the database. */}
-          <motion.ul
-            variants={item}
-            transition={{ duration: 0.35, ease: EASE }}
-            className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1 text-xs text-muted-foreground"
-          >
-            <li className="flex items-center gap-1.5">
-              <Grid size={14} aria-hidden="true" />
-              {stats.productCount.toLocaleString()} products in {stats.categoryCount} categories
+          <motion.ul variants={item} transition={{ duration: 0.4, ease: EASE_OUT }} className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1 font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+            <li className="flex items-center gap-2">
+              <span className="font-display text-base font-bold normal-case tracking-tight text-foreground">{stats.productCount.toLocaleString()}</span>
+              products
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="font-display text-base font-bold normal-case tracking-tight text-foreground">{stats.categoryCount}</span>
+              categories
             </li>
             <li className="flex items-center gap-1.5">
-              <Download size={14} aria-hidden="true" />
-              Instant download
+              <Download size={13} aria-hidden="true" className="text-primary" />
+              Instant delivery
             </li>
             <li className="flex items-center gap-1.5">
-              <ShieldCheck size={14} aria-hidden="true" />
-              Secure checkout
+              <ShieldCheck size={13} aria-hidden="true" className="text-primary" />
+              Licence up front
             </li>
           </motion.ul>
         </motion.div>
 
-        {hasCollage && (
+        {shelf.length === 3 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: EASE, delay: 0.1 }}
-            className="hidden lg:block"
+            transition={{ duration: 0.6, ease: EASE_OUT, delay: 0.15 }}
+            className="relative hidden lg:block"
             aria-hidden="true"
           >
-            {/* Real product previews as merchandising. Decorative here — each
-                product is reachable through the rails below — so it is hidden
-                from assistive tech to avoid duplicate announcements. */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="col-span-2 overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-e2)]">
-                <div className="relative aspect-[16/10]">
-                  <Image
-                    src={collage[0].imageUrl!}
-                    alt=""
-                    fill
-                    priority
-                    sizes="(max-width: 1024px) 0px, 26rem"
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-              {collage.slice(1, 3).map((product) => (
-                <div
-                  key={product.slug}
-                  className="overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-e1)]"
-                >
-                  <div className="relative aspect-[4/3]">
-                    <Image
-                      src={product.imageUrl!}
-                      alt=""
-                      fill
-                      sizes="(max-width: 1024px) 0px, 13rem"
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
-              ))}
+            {/* Three real covers on a shelf. Decorative here — every product
+                is reachable below — so hidden from assistive tech. */}
+            <div className="relative aspect-[5/4]">
+              <ShelfCard product={shelf[1]} className="left-0 top-[8%] w-[46%] -rotate-3" delay={0.3} />
+              <ShelfCard product={shelf[2]} className="right-0 top-0 w-[48%] rotate-2" delay={0.4} />
+              <ShelfCard product={shelf[0]} className="left-[14%] top-[34%] w-[72%] shadow-[var(--shadow-e4)]" delay={0.2} priority caption />
+              <div className="absolute inset-x-[6%] bottom-0 h-3 rounded-full bg-foreground/10 blur-xl" />
             </div>
           </motion.div>
         )}
       </div>
     </section>
+  )
+}
+
+function ShelfCard({ product, className, delay, priority = false, caption = false }: { product: HeroProduct; className: string; delay: number; priority?: boolean; caption?: boolean }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.55, ease: EASE_OUT, delay }}
+      className={`absolute overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-e3)] ${className}`}
+    >
+      <div className="relative aspect-[16/10]">
+        <Image src={product.imageUrl!} alt="" fill priority={priority} sizes="(max-width: 1024px) 0px, 30rem" className="object-cover" />
+      </div>
+      {caption && (
+        <div className="flex items-center justify-between gap-3 px-3.5 py-2.5">
+          <span className="truncate text-xs font-semibold text-foreground">{product.name}</span>
+          {product.categoryName && <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.08em] text-muted-foreground">{product.categoryName}</span>}
+        </div>
+      )}
+    </motion.div>
   )
 }

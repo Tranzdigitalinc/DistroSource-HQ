@@ -65,7 +65,7 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
   const cta = (
     <Button
       size="lg"
-      className="h-12 w-full font-semibold"
+      className="h-12 w-full rounded-full text-[15px] font-semibold"
       onClick={handleCheckout}
       disabled={subtotal <= 0 || isNavigating}
       aria-busy={isNavigating}
@@ -82,7 +82,7 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
 
   return (
     <>
-      <section aria-labelledby="order-summary-heading" className="rounded-lg border border-border bg-card">
+      <section aria-labelledby="order-summary-heading" className="overflow-hidden rounded-2xl border border-border bg-card">
         <h2 id="order-summary-heading" className="border-b border-border px-5 py-4 font-display text-base font-bold">
           Order summary
         </h2>
@@ -182,7 +182,7 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
           {cta}
           <p className="text-center text-xs text-muted-foreground">Instant digital delivery after confirmed payment.</p>
           <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-            Pay by card via Polar or with TamPay at checkout.
+            Pay by card via Polar, or with TamPay or Whop at checkout.
           </p>
         </div>
       </section>

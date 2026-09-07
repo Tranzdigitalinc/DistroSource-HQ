@@ -1,55 +1,59 @@
-import Link from "next/link"
-import { ArrowRight, Flame, Sparkles } from "@/lib/storefront-icons"
+"use client"
+
 import { ProductCard } from "@/components/product/product-card"
-import { RevealGroup, RevealItem } from "@/components/motion/reveal"
+import { PageHeader, SectionLink } from "@/components/page-header"
+import { ScrollRail, RailControls } from "@/components/motion/scroll-rail"
+import { Reveal } from "@/components/motion/reveal"
 import type { getProducts } from "@/lib/queries/catalog"
 
+/**
+ * A horizontal product rail with a section header. Snap-scrolls on touch,
+ * arrows for pointer users, arrow keys when the rail is focused.
+ */
 export function ProductRail({
+  eyebrow,
   title,
   subtitle,
   href,
   items,
-  variant = "default",
+  limit = 12,
 }: {
+  eyebrow?: string
   title: string
   subtitle?: string
   href: string
   items: Awaited<ReturnType<typeof getProducts>>
-  variant?: "default" | "deals"
+  limit?: number
 }) {
   if (items.length === 0) return null
 
-  const Icon = variant === "deals" ? Flame : Sparkles
-
   return (
-    <section className="mx-auto max-w-7xl px-6 py-10 sm:px-8">
-      <div className="mb-6 flex items-end justify-between border-b border-border pb-5">
-        <div className="flex items-start gap-3">
-          {variant === "deals" && (
-            <span className="mt-1 flex size-8 items-center justify-center rounded-[4px] bg-primary/10">
-              <Icon className="size-4 text-primary" />
-            </span>
-          )}
-          <div>
-            <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">{title}</h2>
-            {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
+    <section className="container-x py-12 sm:py-16">
+      <ScrollRail
+        ariaLabel={title}
+        controls={(api) => (
+          <Reveal className="mb-8">
+            <PageHeader
+              size="section"
+              eyebrow={eyebrow}
+              title={title}
+              description={subtitle}
+              action={
+                <>
+                  <RailControls {...api} className="hidden sm:flex" />
+                  <SectionLink href={href}>View all</SectionLink>
+                </>
+              }
+            />
+          </Reveal>
+        )}
+      >
+        {items.slice(0, limit).map((item) => (
+          <div key={item.product.id} className="w-[16.5rem] sm:w-[17.5rem]">
+            <ProductCard item={item} sizes="18rem" />
           </div>
-        </div>
-        <Link
-          href={href}
-          className="flex shrink-0 items-center gap-1 border border-border px-3.5 py-1.5 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-foreground transition-colors hover:border-primary/40 hover:text-primary"
-        >
-          View all
-          <ArrowRight className="size-3.5" />
-        </Link>
-      </div>
-      <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6" stagger={0.05}>
-        {items.slice(0, 12).map((item) => (
-          <RevealItem key={item.product.id} className="h-full">
-            <ProductCard item={item} />
-          </RevealItem>
         ))}
-      </RevealGroup>
+      </ScrollRail>
     </section>
   )
 }

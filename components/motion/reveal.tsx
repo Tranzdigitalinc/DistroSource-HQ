@@ -3,17 +3,19 @@
 import type { ReactNode } from "react"
 import { motion, type Variants } from "motion/react"
 
-const EASE = [0.16, 1, 0.3, 1] as const
+export const EASE_OUT = [0.16, 1, 0.3, 1] as const
 
 /**
  * Fades and lifts content into place the first time it scrolls into view.
- * Use `delay` to stagger a sequence of siblings (e.g. index * 0.06).
+ * Short (≤ 0.45 s), small travel (12 px), once only — the content arrives,
+ * it does not perform. `MotionConfig reducedMotion="user"` in the provider
+ * disables it for users who ask.
  */
-// `delay` and `y` remain in the props type for call-site compatibility; the
-// current reveal is a plain fade-in that ignores them.
 export function Reveal({
   children,
-  duration = 0.55,
+  delay = 0,
+  y = 12,
+  duration = 0.45,
   className,
   once = true,
 }: {
@@ -26,10 +28,10 @@ export function Reveal({
 }) {
   return (
     <motion.div
-      initial={false}
+      initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once, margin: "-64px" }}
-      transition={{ duration: Math.min(duration, 0.2), delay: 0, ease: EASE }}
+      viewport={{ once, margin: "-48px" }}
+      transition={{ duration, delay, ease: EASE_OUT }}
       className={className}
     >
       {children}
@@ -38,7 +40,7 @@ export function Reveal({
 }
 
 export const revealItemVariants: Variants = {
-  hidden: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: 12 },
   visible: { opacity: 1, y: 0 },
 }
 
@@ -49,7 +51,7 @@ export const revealItemVariants: Variants = {
 export function RevealGroup({
   children,
   className,
-  stagger = 0.06,
+  stagger = 0.04,
 }: {
   children: ReactNode
   className?: string
@@ -57,10 +59,10 @@ export function RevealGroup({
 }) {
   return (
     <motion.div
-      initial={false}
+      initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-64px" }}
-      transition={{ staggerChildren: Math.min(stagger, 0.02) }}
+      viewport={{ once: true, margin: "-48px" }}
+      transition={{ staggerChildren: Math.min(stagger, 0.06) }}
       className={className}
     >
       {children}
@@ -71,14 +73,14 @@ export function RevealGroup({
 export function RevealItem({
   children,
   className,
-  duration = 0.5,
+  duration = 0.4,
 }: {
   children: ReactNode
   className?: string
   duration?: number
 }) {
   return (
-    <motion.div variants={revealItemVariants} transition={{ duration, ease: EASE }} className={className}>
+    <motion.div variants={revealItemVariants} transition={{ duration, ease: EASE_OUT }} className={className}>
       {children}
     </motion.div>
   )

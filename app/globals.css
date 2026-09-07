@@ -174,129 +174,133 @@
 
 :root {
   color-scheme: light;
-  /* Catalog identity: warm paper white surfaces, near-black ink, signal red-orange */
-  --background: oklch(0.987 0.004 75); /* warm paper white */
-  --foreground: oklch(0.17 0.006 55); /* near-black ink */
-  --card: oklch(0.995 0.002 75);
-  --card-foreground: oklch(0.17 0.006 55);
-  --popover: oklch(0.995 0.002 75);
-  --popover-foreground: oklch(0.17 0.006 55);
-  /* Velora amber theme — the one accent, spent deliberately */
-  --primary: oklch(0.666 0.179 58.318);
-  --primary-foreground: oklch(0.985 0 0);
-  /* Warm paper gray secondary surface */
-  --secondary: oklch(0.95 0.006 70);
-  --secondary-foreground: oklch(0.17 0.006 55);
-  /* Muted warm surface */
-  --muted: oklch(0.965 0.005 72);
-  --muted-foreground: oklch(0.45 0.012 55); /* warm gray ink */
-  /* Accent reserved for the same amber color at reduced use */
-  --accent: oklch(0.666 0.179 58.318);
-  --accent-foreground: oklch(0.985 0 0);
+  /* DistroSource identity: warm paper, navy ink, one saturated orange.
+     Orange is the signal colour — CTAs, active states, the eyebrow dot —
+     never a surface. Navy is the second surface (dark bands, footer). */
+  --background: oklch(0.985 0.004 80); /* warm paper */
+  --foreground: oklch(0.21 0.022 258); /* navy ink */
+  --card: oklch(0.995 0.002 80);
+  --card-foreground: oklch(0.21 0.022 258);
+  --popover: oklch(0.995 0.002 80);
+  --popover-foreground: oklch(0.21 0.022 258);
+  --primary: oklch(0.67 0.2 43); /* DistroSource orange */
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.955 0.006 78); /* warm paper grey */
+  --secondary-foreground: oklch(0.21 0.022 258);
+  --muted: oklch(0.965 0.005 78);
+  --muted-foreground: oklch(0.47 0.016 258); /* slate */
+  --accent: oklch(0.67 0.2 43);
+  --accent-foreground: oklch(0.99 0 0);
   --destructive: oklch(0.58 0.22 25);
-  --border: oklch(0.87 0.008 65); /* warm hairline */
-  --input: oklch(0.87 0.008 65);
-  --ring: oklch(0.666 0.179 58.318);
-  --chart-1: oklch(0.666 0.179 58.318); /* amber */
-  --chart-2: oklch(0.17 0.006 55); /* ink */
-  --chart-3: oklch(0.769 0.188 70.08); /* lighter amber */
-  --chart-4: oklch(0.6 0.13 145); /* green */
-  --chart-5: oklch(0.55 0.01 55); /* mid gray */
-  --radius: 0.5rem;
-  --sidebar: oklch(0.99 0.002 75);
-  --sidebar-foreground: oklch(0.17 0.006 55);
-  --sidebar-primary: oklch(0.666 0.179 58.318);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.95 0.006 70);
-  --sidebar-accent-foreground: oklch(0.17 0.006 55);
-  --sidebar-border: oklch(0.87 0.008 65);
-  --sidebar-ring: oklch(0.666 0.179 58.318);
+  --border: oklch(0.895 0.008 78); /* warm hairline */
+  --input: oklch(0.895 0.008 78);
+  --ring: oklch(0.67 0.2 43);
+  --chart-1: oklch(0.67 0.2 43);
+  --chart-2: oklch(0.25 0.035 258);
+  --chart-3: oklch(0.78 0.16 60);
+  --chart-4: oklch(0.6 0.13 145);
+  --chart-5: oklch(0.55 0.01 60);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.99 0.002 80);
+  --sidebar-foreground: oklch(0.21 0.022 258);
+  --sidebar-primary: oklch(0.67 0.2 43);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.955 0.006 78);
+  --sidebar-accent-foreground: oklch(0.21 0.022 258);
+  --sidebar-border: oklch(0.895 0.008 78);
+  --sidebar-ring: oklch(0.67 0.2 43);
   --success: oklch(0.55 0.13 150);
-  --success-foreground: oklch(0.99 0.004 75);
-  /* DistroSource catalog tokens */
-  --navy: oklch(0.17 0.006 55); /* ink-black, used for dark sections */
-  --navy-foreground: oklch(0.987 0.004 75);
-  --brand-blue: oklch(0.666 0.179 58.318); /* amber */
-  --brand-blue-bright: oklch(0.769 0.188 70.08); /* lighter amber */
-  --brand-cyan: oklch(0.17 0.006 55); /* ink, used where a second tone is needed */
-  --surface-soft: oklch(0.965 0.005 72);
-  --surface-alt: oklch(0.95 0.006 70);
-  --surface-warm: oklch(0.97 0.008 68);
-  --surface-blue: oklch(0.96 0.05 58); /* pale amber tint */
-  --border-strong: oklch(0.76 0.01 60); /* stronger hairline */
-  --hero: oklch(0.987 0.004 75);
-  --hero-foreground: oklch(0.17 0.006 55);
-  --hero-accent: oklch(0.666 0.179 58.318);
-  --glow: oklch(0.666 0.179 58.318 / 0.14);
-  /* Full Velora amber theme */
-  --brand: oklch(0.666 0.179 58.318);
-  --brand-foreground: oklch(0.985 0 0);
-  --brand-from: oklch(0.666 0.179 58.318);
-  --brand-via: oklch(0.769 0.188 70.08);
-  --brand-to: oklch(0.795 0.184 86.047);
+  --success-foreground: oklch(0.99 0.004 80);
+  /* Navy: the logo's dark mark, used for dark bands, footer and chips */
+  --navy: oklch(0.245 0.032 258);
+  --navy-foreground: oklch(0.975 0.005 80);
+  --navy-deep: oklch(0.19 0.03 258);
+  --navy-soft: oklch(0.32 0.035 258);
+  --brand-blue: oklch(0.67 0.2 43);
+  --brand-blue-bright: oklch(0.76 0.17 55);
+  --brand-cyan: oklch(0.245 0.032 258);
+  --surface-soft: oklch(0.965 0.005 78);
+  --surface-alt: oklch(0.955 0.006 78);
+  --surface-warm: oklch(0.975 0.01 70);
+  --surface-blue: oklch(0.96 0.04 50); /* pale orange tint */
+  --border-strong: oklch(0.78 0.012 70);
+  --hero: oklch(0.985 0.004 80);
+  --hero-foreground: oklch(0.21 0.022 258);
+  --hero-accent: oklch(0.67 0.2 43);
+  --glow: oklch(0.67 0.2 43 / 0.14);
+  --brand: oklch(0.67 0.2 43);
+  --brand-foreground: oklch(0.99 0 0);
+  --brand-from: oklch(0.67 0.2 43);
+  --brand-via: oklch(0.74 0.18 52);
+  --brand-to: oklch(0.8 0.16 68);
 }
 
 .dark {
   color-scheme: dark;
-  /* Same catalog identity inverted: ink background, paper text, signal red-orange */
-  --background: oklch(0.14 0.007 55);
-  --foreground: oklch(0.96 0.006 70);
-  --card: oklch(0.18 0.008 55);
-  --card-foreground: oklch(0.96 0.006 70);
-  --popover: oklch(0.19 0.008 55);
-  --popover-foreground: oklch(0.96 0.006 70);
-  --primary: oklch(0.828 0.189 84.429);
-  --primary-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.23 0.009 55);
-  --secondary-foreground: oklch(0.94 0.006 70);
-  --muted: oklch(0.21 0.008 55);
-  --muted-foreground: oklch(0.68 0.012 65);
-  --accent: oklch(0.828 0.189 84.429);
-  --accent-foreground: oklch(0.145 0 0);
-  --destructive: oklch(0.65 0.22 25);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.828 0.189 84.429);
-  --chart-1: oklch(0.828 0.189 84.429);
-  --chart-2: oklch(0.96 0.006 70);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.6 0.13 145);
+  /* The same identity at night: navy-black paper, warm text, brighter
+     orange so it still reads as the one signal against dark surfaces. */
+  --background: oklch(0.15 0.02 258);
+  --foreground: oklch(0.955 0.006 80);
+  --card: oklch(0.185 0.022 258);
+  --card-foreground: oklch(0.955 0.006 80);
+  --popover: oklch(0.2 0.022 258);
+  --popover-foreground: oklch(0.955 0.006 80);
+  --primary: oklch(0.74 0.185 48);
+  --primary-foreground: oklch(0.14 0.02 258);
+  --secondary: oklch(0.235 0.024 258);
+  --secondary-foreground: oklch(0.94 0.006 80);
+  --muted: oklch(0.215 0.022 258);
+  --muted-foreground: oklch(0.7 0.014 75);
+  --accent: oklch(0.74 0.185 48);
+  --accent-foreground: oklch(0.14 0.02 258);
+  --destructive: oklch(0.66 0.21 25);
+  --border: oklch(1 0 0 / 11%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.74 0.185 48);
+  --chart-1: oklch(0.74 0.185 48);
+  --chart-2: oklch(0.955 0.006 80);
+  --chart-3: oklch(0.78 0.16 60);
+  --chart-4: oklch(0.65 0.14 150);
   --chart-5: oklch(0.6 0.01 60);
-  --sidebar: oklch(0.16 0.008 55);
-  --sidebar-foreground: oklch(0.96 0.006 70);
-  --sidebar-primary: oklch(0.828 0.189 84.429);
-  --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.23 0.009 55);
-  --sidebar-accent-foreground: oklch(0.94 0.006 70);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.828 0.189 84.429);
-  --success: oklch(0.65 0.14 155);
-  --success-foreground: oklch(0.14 0.007 55);
-  --hero: oklch(0.12 0.007 55);
-  --hero-foreground: oklch(0.96 0.006 70);
-  --hero-accent: oklch(0.828 0.189 84.429);
-  --glow: oklch(0.828 0.189 84.429 / 0.35);
-  --navy: oklch(0.1 0.006 55);
-  --navy-foreground: oklch(0.96 0.006 70);
-  --brand-blue: oklch(0.828 0.189 84.429);
-  --brand-blue-bright: oklch(0.852 0.199 91.936);
-  --brand-cyan: oklch(0.96 0.006 70);
-  --surface-soft: oklch(0.18 0.008 55);
-  --surface-alt: oklch(0.21 0.008 55);
-  --surface-warm: oklch(0.19 0.008 55);
-  --surface-blue: oklch(0.22 0.05 84);
-  --border-strong: oklch(1 0 0 / 20%);
-  --brand: oklch(0.828 0.189 84.429);
-  --brand-foreground: oklch(0.145 0 0);
-  --brand-from: oklch(0.769 0.188 70.08);
-  --brand-via: oklch(0.828 0.189 84.429);
-  --brand-to: oklch(0.852 0.199 91.936);
+  --sidebar: oklch(0.17 0.022 258);
+  --sidebar-foreground: oklch(0.955 0.006 80);
+  --sidebar-primary: oklch(0.74 0.185 48);
+  --sidebar-primary-foreground: oklch(0.14 0.02 258);
+  --sidebar-accent: oklch(0.235 0.024 258);
+  --sidebar-accent-foreground: oklch(0.94 0.006 80);
+  --sidebar-border: oklch(1 0 0 / 11%);
+  --sidebar-ring: oklch(0.74 0.185 48);
+  --success: oklch(0.68 0.14 155);
+  --success-foreground: oklch(0.14 0.02 258);
+  --navy: oklch(0.115 0.02 258);
+  --navy-foreground: oklch(0.955 0.006 80);
+  --navy-deep: oklch(0.09 0.018 258);
+  --navy-soft: oklch(0.26 0.03 258);
+  --hero: oklch(0.13 0.02 258);
+  --hero-foreground: oklch(0.955 0.006 80);
+  --hero-accent: oklch(0.74 0.185 48);
+  --glow: oklch(0.74 0.185 48 / 0.3);
+  --brand-blue: oklch(0.74 0.185 48);
+  --brand-blue-bright: oklch(0.8 0.17 58);
+  --brand-cyan: oklch(0.955 0.006 80);
+  --surface-soft: oklch(0.185 0.022 258);
+  --surface-alt: oklch(0.215 0.022 258);
+  --surface-warm: oklch(0.2 0.024 258);
+  --surface-blue: oklch(0.24 0.05 50);
+  --border-strong: oklch(1 0 0 / 22%);
+  --brand: oklch(0.74 0.185 48);
+  --brand-foreground: oklch(0.14 0.02 258);
+  --brand-from: oklch(0.7 0.19 45);
+  --brand-via: oklch(0.76 0.18 52);
+  --brand-to: oklch(0.82 0.16 66);
 }
 
 @theme inline {
   --color-glow: var(--glow);
   --color-navy: var(--navy);
   --color-navy-foreground: var(--navy-foreground);
+  --color-navy-deep: var(--navy-deep);
+  --color-navy-soft: var(--navy-soft);
   --color-brand-blue: var(--brand-blue);
   --color-brand-blue-bright: var(--brand-blue-bright);
   --color-brand-cyan: var(--brand-cyan);
@@ -325,7 +329,67 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
+  /* Page gutter used by every storefront section. */
+  .container-x {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 84rem;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 640px) {
+    .container-x {
+      padding-inline: 2rem;
+    }
+  }
+  /* Mono eyebrow with the orange dot: the one label style for section kickers. */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .eyebrow::before {
+    content: "";
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 9999px;
+    background: var(--primary);
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Display type: tight, heavy, balanced. */
+  .text-display {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.98;
+    text-wrap: balance;
+  }
+  .text-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+  /* Fine paper grid, masked from the edges. */
+  .paper-grid {
+    background-image:
+      linear-gradient(to right, color-mix(in oklab, var(--border) 70%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--border) 70%, transparent) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
 }
+
 
 @keyframes marquee-scroll {
   from {

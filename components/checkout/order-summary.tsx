@@ -45,7 +45,7 @@ export function OrderSummary({
   className,
 }: OrderSummaryProps) {
   return (
-    <aside aria-labelledby="order-summary-heading" className={cn("rounded-lg border border-border bg-card", className)}>
+    <aside aria-labelledby="order-summary-heading" className={cn("overflow-hidden rounded-2xl border border-border bg-card", className)}>
       <div className="flex items-baseline justify-between border-b border-border px-5 py-4">
         <h2 id="order-summary-heading" className="font-display text-base font-bold text-foreground">Order summary</h2>
         {itemCount !== undefined && (
@@ -88,7 +88,7 @@ export function OrderSummary({
             onClick={onSubmit}
             disabled={isSubmitting}
             aria-busy={isSubmitting}
-            className="h-12 w-full font-semibold"
+            className="h-12 w-full rounded-full text-[15px] font-semibold"
           >
             <span className="relative flex items-center justify-center">
               <span className={cn("flex items-center gap-2 transition-opacity", isSubmitting && "opacity-0")}>

@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { mutate } from "swr"
+import { openCartDrawer, refreshCart } from "@/components/cart/cart-drawer-provider"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { PriceDisplay } from "@/components/price-display"
@@ -55,9 +55,10 @@ export function QuickPreviewDialog({ item, open, onOpenChange }: { item: Product
     startTransition(async () => {
       try {
         await addToCart(item.product.id, selected.id, 1)
-        await mutate("/api/cart/summary")
+        await refreshCart()
         setJustAdded(true)
-        toast.success("Added to cart", { description: `${item.product.name} · ${licenseLabel(selected.licenseType)} licence` })
+        onOpenChange(false)
+        openCartDrawer()
         router.refresh()
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Couldn't add this to your cart.")
@@ -67,7 +68,7 @@ export function QuickPreviewDialog({ item, open, onOpenChange }: { item: Product
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100%-2rem)] gap-0 overflow-hidden rounded-lg p-0 sm:max-w-3xl">
+      <DialogContent className="max-w-[calc(100%-2rem)] gap-0 overflow-hidden rounded-2xl border border-border p-0 shadow-[var(--shadow-e4)] ring-0 sm:max-w-3xl">
         <div className="grid gap-0 sm:grid-cols-[1.1fr_1fr]">
           <div className="flex flex-col bg-secondary">
             <div className="relative aspect-[4/3] w-full">
@@ -148,12 +149,12 @@ export function QuickPreviewDialog({ item, open, onOpenChange }: { item: Product
 
             <div className="flex gap-2">
               {!isFree && selected && (
-                <Button onClick={handleAdd} disabled={isPending || justAdded} className={cn("h-11 flex-1 font-semibold", justAdded && "bg-success hover:bg-success")}>
+                <Button onClick={handleAdd} disabled={isPending || justAdded} className={cn("h-11 flex-1 rounded-full font-semibold", justAdded && "bg-success hover:bg-success")}>
                   {isPending ? <Loader2 size={ICON_SIZE.base} className="animate-spin" aria-hidden="true" /> : justAdded ? <Check size={ICON_SIZE.base} aria-hidden="true" /> : <ShoppingCart size={ICON_SIZE.base} aria-hidden="true" />}
                   {justAdded ? "Added" : "Add to cart"}
                 </Button>
               )}
-              <Button variant={isFree ? "default" : "outline"} render={<Link href={href} />} nativeButton={false} className={cn("h-11 font-semibold", isFree ? "flex-1" : "bg-transparent")}>
+              <Button variant={isFree ? "default" : "outline"} render={<Link href={href} />} nativeButton={false} className={cn("h-11 rounded-full font-semibold", isFree ? "flex-1" : "bg-transparent")}>
                 View details
                 <ArrowRight size={ICON_SIZE.base} aria-hidden="true" />
               </Button>

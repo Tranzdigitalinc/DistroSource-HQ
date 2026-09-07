@@ -5,6 +5,7 @@ import { CatalogToolbar } from "@/components/catalog/catalog-toolbar"
 import { CategoryPillBar } from "@/components/catalog/category-pill-bar"
 import { ProductGrid } from "@/components/catalog/product-grid"
 import { CatalogPagination } from "@/components/catalog/catalog-pagination"
+import { PageHeader } from "@/components/page-header"
 import {
   getAvailableFileFormats,
   getAvailableSoftware,
@@ -61,27 +62,23 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-10">
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-            <div className="max-w-2xl">
-              <h1 className="font-display text-3xl font-bold tracking-tight md:text-4xl">
-                {params.q ? `Results for “${params.q}”` : "Digital products"}
-              </h1>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {params.q
-                  ? "Matches across product names, descriptions and categories."
-                  : "Templates, dashboards, UI kits, fonts, graphics and development resources. Every product is an instant download with the licence stated up front."}
-              </p>
-            </div>
-            {/* Real count from getProductsCount(), same visibility filter as the grid. */}
-            <p className="text-sm text-muted-foreground">
-              <span className="font-semibold tabular-nums text-foreground">{totalCount.toLocaleString()}</span> {totalCount === 1 ? "product" : "products"}
-            </p>
+        <div className="container-x py-10 sm:py-12">
+          <PageHeader
+            eyebrow={params.q ? "Search" : "Catalog"}
+            title={params.q ? `Results for “${params.q}”` : "Every digital product"}
+            description={
+              params.q
+                ? "Matches across product names, descriptions and categories."
+                : "Templates, dashboards, UI kits, fonts, graphics and development resources. Every product is an instant download with the licence stated up front."
+            }
+            className="mb-8"
+          />
+
+          <div className="mb-6">
+            <CategoryPillBar categories={categories} />
           </div>
 
-          <CategoryPillBar categories={categories} />
-
-          <div className="flex flex-col gap-8 lg:flex-row">
+          <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
             <CatalogFilters
               formats={formats}
               software={software}
@@ -91,7 +88,9 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
               typeCounts={{ free: stats.freeCount, bundle: stats.bundleCount, deal: stats.dealCount }}
             />
             <div className="min-w-0 flex-1">
-              <CatalogToolbar resultCount={totalCount} />
+              <div className="mb-6 border-b border-border pb-4">
+                <CatalogToolbar resultCount={totalCount} />
+              </div>
               <ProductGrid items={products} clearHref={filtered ? "/products" : undefined} />
               <CatalogPagination currentPage={safePage} totalPages={totalPages} params={params} />
             </div>

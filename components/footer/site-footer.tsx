@@ -5,28 +5,36 @@ import Link from "next/link"
 import { toast } from "sonner"
 import { ArrowRight, Check, ShieldCheck, ICON_SIZE } from "@/lib/storefront-icons"
 import { BrandLogo } from "@/components/brand-logo"
-import { Button } from "@/components/ui/button"
 import { subscribeToNewsletter } from "@/lib/actions/newsletter"
 
-// "Bundles" is absent on purpose: every bundle is a draft, so the listing
-// is empty. Add it back when the first bundle publishes.
 const columns = [
   {
     title: "Shop",
     links: [
+      { label: "All products", href: "/products" },
       { label: "Departments", href: "/categories" },
-      { label: "Products", href: "/products" },
+      { label: "Gaming", href: "/gaming" },
       { label: "Deals", href: "/deals" },
       { label: "New arrivals", href: "/products?sort=newest" },
     ],
   },
   {
-    title: "Resources",
+    title: "Help",
     links: [
       { label: "Help Center", href: "/help" },
       { label: "Licensing", href: "/licenses" },
       { label: "Team licensing", href: "/team-licensing" },
+      { label: "FAQ", href: "/faq" },
       { label: "Contact", href: "/contact" },
+    ],
+  },
+  {
+    title: "Account",
+    links: [
+      { label: "My Library", href: "/account/library" },
+      { label: "Orders", href: "/account/orders" },
+      { label: "Wishlist", href: "/account/wishlist" },
+      { label: "Settings", href: "/account/settings" },
     ],
   },
   {
@@ -36,14 +44,6 @@ const columns = [
       { label: "Terms", href: "/legal/terms" },
       { label: "Privacy", href: "/legal/privacy" },
       { label: "Refund Policy", href: "/legal/refund-policy" },
-    ],
-  },
-  {
-    title: "Account",
-    links: [
-      { label: "Orders", href: "/account/orders" },
-      { label: "Downloads", href: "/account/library" },
-      { label: "Wishlist", href: "/account/wishlist" },
     ],
   },
 ]
@@ -82,7 +82,7 @@ function NewsletterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full max-w-sm gap-2">
+    <form onSubmit={handleSubmit} className="flex w-full max-w-sm items-center rounded-full border border-navy-foreground/15 bg-navy-foreground/5 p-1 pl-4 focus-within:border-primary/60">
       <label htmlFor="footer-email" className="sr-only">
         Email address
       </label>
@@ -94,28 +94,32 @@ function NewsletterForm() {
         placeholder="you@example.com"
         autoComplete="email"
         required
-        className="h-10 min-w-0 flex-1 rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-3 text-sm text-navy-foreground placeholder:text-navy-foreground/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+        className="h-9 min-w-0 flex-1 bg-transparent text-sm text-navy-foreground placeholder:text-navy-foreground/40 focus:outline-none"
       />
-      <Button type="submit" size="sm" disabled={isPending} className="h-10 shrink-0 px-4 font-semibold">
+      <button
+        type="submit"
+        disabled={isPending}
+        className="flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-navy"
+      >
         Subscribe
         <ArrowRight size={ICON_SIZE.sm} aria-hidden="true" />
-      </Button>
+      </button>
     </form>
   )
 }
 
 export function SiteFooter() {
   return (
-    <footer className="bg-navy text-navy-foreground">
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,2fr)]">
-          <div className="flex max-w-sm flex-col gap-5">
-            <BrandLogo heightClassName="h-10" />
+    <footer className="relative overflow-hidden bg-navy text-navy-foreground">
+      <div className="container-x relative py-16">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+          <div className="flex max-w-sm flex-col gap-6">
+            <BrandLogo heightClassName="h-10" variant="on-dark" />
             <p className="text-sm leading-relaxed text-navy-foreground/65">
-              Professional downloadable digital products for business, design, development and everyday work.
+              Digital products for business, design, development and game servers — one department store, instant delivery, licence stated up front.
             </p>
             <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-navy-foreground/50">Newsletter</p>
+              <p className="eyebrow mb-3 text-navy-foreground/55">Newsletter</p>
               <NewsletterForm />
             </div>
           </div>
@@ -123,7 +127,7 @@ export function SiteFooter() {
           <nav aria-label="Footer" className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             {columns.map((column) => (
               <div key={column.title}>
-                <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-navy-foreground/50">{column.title}</h3>
+                <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-navy-foreground/50">{column.title}</h3>
                 <ul className="mt-4 flex flex-col gap-2.5">
                   {column.links.map((link) => (
                     <li key={link.href}>
@@ -138,7 +142,7 @@ export function SiteFooter() {
           </nav>
         </div>
 
-        <div className="mt-12 flex flex-col gap-4 border-t border-navy-foreground/15 pt-6 text-xs text-navy-foreground/55 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-14 flex flex-col gap-4 border-t border-navy-foreground/12 pt-6 text-xs text-navy-foreground/55 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <span>&copy; {new Date().getFullYear()} DistroSource</span>
             {legalLinks.map((l) => (
@@ -147,16 +151,18 @@ export function SiteFooter() {
               </Link>
             ))}
           </div>
-          {/* Text disclosure only — no card or wallet logos. Which methods
-              Polar exposes is configured in Polar, not knowable here.
-              "Merchant of Record" only applies to Polar orders — TamPay and
-              Whop are payment gateways, not a MoR — so this stays generic
-              rather than crediting Polar's status to all three. */}
           <p className="flex items-center gap-1.5">
             <ShieldCheck size={ICON_SIZE.sm} className="shrink-0 text-primary" aria-hidden="true" />
             Payments processed securely via Polar, TamPay, or Whop.
           </p>
         </div>
+      </div>
+
+      {/* Oversized wordmark, clipped at the bottom edge: the one signature. */}
+      <div aria-hidden="true" className="pointer-events-none relative select-none overflow-hidden">
+        <p className="container-x -mb-[0.28em] translate-y-[0.12em] font-display text-[clamp(4rem,14vw,13rem)] font-black leading-none tracking-[-0.04em] text-navy-foreground/[0.06]">
+          DistroSource
+        </p>
       </div>
     </footer>
   )

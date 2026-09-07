@@ -18,8 +18,8 @@ import {
   ICON_SIZE,
 } from "@/lib/storefront-icons"
 import { BrandLogo } from "@/components/brand-logo"
+import { ThemeToggle } from "@/components/header/theme-toggle"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { getCategoryIcon } from "@/lib/category-icons"
 import { cn } from "@/lib/utils"
@@ -34,21 +34,21 @@ interface Department extends Subcategory {
 }
 
 const rowClass =
-  "flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+  "flex min-h-12 items-center gap-3 rounded-xl px-3 text-[15px] font-medium text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
 function GroupLabel({ children }: { children: React.ReactNode }) {
-  return <p className="px-3 pb-1.5 pt-4 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{children}</p>
+  return <p className="px-3 pb-1.5 pt-5 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{children}</p>
 }
 
 function NavRow({ href, icon: Icon, label, onClick, badge }: { href: string; icon: React.ComponentType<{ size?: number; className?: string; "aria-hidden"?: boolean | "true" }>; label: string; onClick: () => void; badge?: string }) {
   return (
     <Link href={href} onClick={onClick} className={rowClass}>
-      <span className="flex size-8 items-center justify-center rounded-md bg-secondary text-muted-foreground">
+      <span className="flex size-8 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
         <Icon size={ICON_SIZE.sm} aria-hidden="true" />
       </span>
       <span className="flex-1">{label}</span>
       {badge && (
-        <span className="rounded bg-primary px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.04em] text-primary-foreground">
+        <span className="rounded-full bg-primary px-1.5 py-px font-mono text-[9px] font-bold uppercase leading-[1.4] tracking-[0.06em] text-primary-foreground">
           {badge}
         </span>
       )}
@@ -63,13 +63,22 @@ export function MobileNav({ departments }: { departments: Department[] }) {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger render={<Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu" />}>
+      <SheetTrigger
+        render={
+          <button
+            type="button"
+            className="flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
+            aria-label="Open menu"
+          />
+        }
+      >
         <Menu size={ICON_SIZE.nav} />
       </SheetTrigger>
-      <SheetContent side="left" className="flex w-[88vw] max-w-sm flex-col gap-0 border-r border-border bg-background p-0">
-        <SheetHeader className="border-b border-border px-5 pb-4 pt-6 text-left">
+      <SheetContent side="left" showCloseButton={false} className="flex w-[88vw] max-w-sm flex-col gap-0 border-r border-border bg-background p-0">
+        <SheetHeader className="flex-row items-center justify-between border-b border-border px-5 py-4 text-left">
           <SheetTitle className="sr-only">DistroSource navigation</SheetTitle>
           <BrandLogo href={null} heightClassName="h-8" />
+          <ThemeToggle className="flex size-9 items-center justify-center rounded-full text-foreground hover:bg-secondary" />
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto px-2 pb-6">
@@ -83,9 +92,9 @@ export function MobileNav({ departments }: { departments: Department[] }) {
               const DepartmentIcon = getCategoryIcon(department.slug)
               return (
                 <AccordionItem key={department.id} value={String(department.id)} className="border-b-0">
-                  <AccordionTrigger className="min-h-11 rounded-md px-3 py-0 text-sm font-medium text-foreground hover:bg-secondary hover:no-underline">
+                  <AccordionTrigger className="min-h-12 rounded-xl px-3 py-0 text-[15px] font-medium text-foreground hover:bg-secondary hover:no-underline">
                     <span className="flex flex-1 items-center gap-3">
-                      <span className="flex size-8 items-center justify-center rounded-md bg-secondary text-muted-foreground">
+                      <span className="flex size-8 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
                         <DepartmentIcon className="size-4" aria-hidden="true" />
                       </span>
                       <span className="flex-1 text-left">{department.name}</span>
@@ -98,16 +107,12 @@ export function MobileNav({ departments }: { departments: Department[] }) {
                           key={subcategory.id}
                           href={`/categories/${subcategory.slug}`}
                           onClick={close}
-                          className="flex min-h-9 items-center rounded-md px-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                          className="flex min-h-10 items-center rounded-lg px-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                         >
                           {subcategory.name}
                         </Link>
                       ))}
-                      <Link
-                        href={`/categories/${department.slug}`}
-                        onClick={close}
-                        className="flex min-h-9 items-center gap-1 px-2 text-xs font-semibold text-foreground hover:underline"
-                      >
+                      <Link href={`/categories/${department.slug}`} onClick={close} className="flex min-h-10 items-center gap-1 px-2 text-xs font-semibold text-foreground hover:underline">
                         View all {department.name}
                         <ArrowRight size={12} aria-hidden="true" />
                       </Link>
@@ -117,7 +122,6 @@ export function MobileNav({ departments }: { departments: Department[] }) {
               )
             })}
           </Accordion>
-          {/* No "Free" or "Bundles" shortcuts: every free product and bundle is currently a draft, so both listings are empty. */}
           <NavRow href="/gaming" icon={GameController} label="Gaming" onClick={close} badge="New" />
           <NavRow href="/deals" icon={Tag} label="Deals" onClick={close} />
 
@@ -133,9 +137,7 @@ export function MobileNav({ departments }: { departments: Department[] }) {
           <NavRow href="/legal/terms" icon={ShieldCheck} label="Legal" onClick={close} />
         </div>
 
-        <div className="border-t border-border px-5 py-3 text-xs text-muted-foreground">
-          Payments processed by Polar. Instant delivery to My Library.
-        </div>
+        <div className="border-t border-border px-5 py-3 text-xs text-muted-foreground">Instant delivery to My Library after payment.</div>
       </SheetContent>
     </Sheet>
   )

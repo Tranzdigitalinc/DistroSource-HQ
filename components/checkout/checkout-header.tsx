@@ -28,7 +28,7 @@ export function CheckoutHeader({ currentStep = "checkout" }: { currentStep?: Ste
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <VerifyEmailBanner />
 
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
+      <div className="container-x flex h-16 max-w-6xl items-center gap-4">
         <BrandLogo href="/" heightClassName="h-9 sm:h-10" />
 
         <nav aria-label="Checkout progress" className="mx-auto hidden sm:block">
@@ -63,7 +63,7 @@ export function CheckoutHeader({ currentStep = "checkout" }: { currentStep?: Ste
           </span>
           <Link
             href="/cart"
-            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           >
             <ArrowLeft size={ICON_SIZE.sm} aria-hidden="true" />
             <span className="hidden sm:inline">Back to cart</span>

@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
-import { ChevronRight, Download, FileText, RefreshCw, ShieldCheck, Star, ICON_SIZE } from "@/lib/storefront-icons"
+import { ChevronRight, FileText, ShieldCheck, Star } from "@/lib/storefront-icons"
+import { PageHeader, SectionLink } from "@/components/page-header"
 import { getProductBySlug, getRecommendedProducts } from "@/lib/queries/catalog"
 import { getWishlistProductIds } from "@/lib/actions/wishlist"
 import { getReviewEligibility } from "@/lib/actions/reviews"
@@ -107,7 +108,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     title: "File details",
     body: (
       <div className="max-w-3xl">
-        <dl className="divide-y divide-border rounded-lg border border-border">
+        <dl className="divide-y divide-border overflow-hidden rounded-xl border border-border">
           {fileDetails.map(([k, v]) => (
             <div key={k} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
               <dt className="w-36 shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">{k}</dt>
@@ -142,7 +143,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       id: "changelog",
       title: `Changelog (${versions.length})`,
       body: (
-        <ul className="max-w-3xl divide-y divide-border rounded-lg border border-border">
+        <ul className="max-w-3xl divide-y divide-border overflow-hidden rounded-xl border border-border">
           {versions.map((v) => (
             <li key={v.id} className="flex flex-col gap-1 px-4 py-3.5">
               <div className="flex items-center gap-2">
@@ -177,16 +178,16 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
 
       <main className="flex-1">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 md:py-8">
-          <nav className="mb-5 flex items-center gap-1.5 text-xs text-muted-foreground" aria-label="Breadcrumb">
+        <div className="container-x py-6 sm:py-8">
+          <nav className="mb-6 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground" aria-label="Breadcrumb">
             <Link href="/" className="transition-colors hover:text-foreground">Home</Link>
             <ChevronRight size={12} aria-hidden="true" />
             <Link href={`/categories/${category.slug}`} className="transition-colors hover:text-foreground">{category.name}</Link>
             <ChevronRight size={12} aria-hidden="true" />
-            <span className="truncate font-medium text-foreground">{product.name}</span>
+            <span className="truncate normal-case tracking-normal text-foreground">{product.name}</span>
           </nav>
 
-          <Reveal className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-12">
+          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-12">
             {/* ---- Left: gallery ---- */}
             <div className="flex flex-col gap-4 lg:col-start-1 lg:row-start-1">
               <ProductGallery images={gallery} alt={product.name} />
@@ -195,31 +196,29 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             {/* ---- Right: title + sticky purchase panel ---- */}
             <div className="flex flex-col gap-5 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-24">
               <div>
-                <Link href={`/categories/${category.slug}`} className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground hover:underline">
-                  {category.name}
-                </Link>
-                <h1 className="mt-2 font-display text-2xl font-bold leading-tight tracking-tight text-balance md:text-3xl">{product.name}</h1>
-                {product.tagline && <p className="mt-2 text-base leading-relaxed text-muted-foreground text-pretty">{product.tagline}</p>}
-                <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  {isOriginal && <ShieldCheck size={13} className="text-success" aria-hidden="true" />}
-                  <span>
+                <p className="eyebrow">
+                  <Link href={`/categories/${category.slug}`} className="hover:text-foreground">{category.name}</Link>
+                </p>
+                <h1 className="text-title mt-3 text-3xl sm:text-4xl">{product.name}</h1>
+                {product.tagline && <p className="mt-3 text-pretty text-base leading-relaxed text-muted-foreground">{product.tagline}</p>}
+
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    {isOriginal && <ShieldCheck size={13} className="text-success" aria-hidden="true" />}
                     By <span className="font-medium text-foreground">{getSourceTypeLabel(product.sourceType)}</span>
                   </span>
-                </p>
-
-                {reviewCount > 0 && (
-                  <div className="mt-3 flex items-center gap-2 text-sm">
-                    <span className="flex items-center gap-0.5" aria-label={`${avgRating?.toFixed(1)} out of 5 stars`}>
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} size={14} className={i < Math.round(avgRating ?? 0) ? "fill-primary text-primary" : "text-border"} aria-hidden="true" />
-                      ))}
-                    </span>
-                    <span className="font-semibold">{avgRating?.toFixed(1)}</span>
-                    <a href="#section-reviews" className="text-muted-foreground underline-offset-4 hover:underline">
-                      {reviewCount} review{reviewCount === 1 ? "" : "s"}
+                  {reviewCount > 0 && (
+                    <a href="#section-reviews" className="flex items-center gap-1.5 underline-offset-4 hover:underline">
+                      <span className="flex items-center gap-0.5" aria-label={`${avgRating?.toFixed(1)} out of 5 stars`}>
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star key={i} size={13} className={i < Math.round(avgRating ?? 0) ? "fill-primary text-primary" : "text-border"} aria-hidden="true" />
+                        ))}
+                      </span>
+                      <span className="font-semibold text-foreground">{avgRating?.toFixed(1)}</span>
+                      <span>({reviewCount})</span>
                     </a>
-                  </div>
-                )}
+                  )}
+                </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   <ShareProductButton name={product.name} />
@@ -232,6 +231,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 licenses={licenses}
                 initialWishlisted={wishlistIds.includes(product.id)}
                 isPreviewOnly={product.assetStatus !== "ready" || !APPROVED_RIGHTS.includes(product.rightsStatus)}
+                compareAtPrice={product.compareAtPrice ? Number.parseFloat(product.compareAtPrice) : null}
                 meta={{
                   formats: product.fileFormats,
                   software: product.softwareCompatibility,
@@ -240,38 +240,17 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   hasDocumentation: Boolean(product.documentation),
                 }}
               />
-
-              <ul className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border bg-border text-center">
-                {[
-                  { icon: Download, label: "Instant delivery" },
-                  { icon: ShieldCheck, label: "Polar checkout" },
-                  { icon: RefreshCw, label: "Re-download anytime" },
-                ].map(({ icon: Icon, label }) => (
-                  <li key={label} className="flex flex-col items-center gap-1.5 bg-card px-2 py-3">
-                    <Icon size={ICON_SIZE.base} className="text-foreground" aria-hidden="true" />
-                    <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
 
             {/* ---- Left, below gallery: anchored sections ---- */}
             <div className="lg:col-start-1 lg:row-start-2">
               <ProductSections sections={sections} />
             </div>
-          </Reveal>
+          </div>
 
           {related.length > 0 && (
-            <Reveal className="mt-16 border-t border-border pt-10">
-              <div className="mb-2 flex items-end justify-between gap-4">
-                <div>
-                  <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">You may also like</p>
-                  <h2 className="mt-1 font-display text-xl font-bold tracking-tight">More in {category.name}</h2>
-                </div>
-                <Link href={`/categories/${category.slug}`} className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
-                  View all
-                </Link>
-              </div>
+            <Reveal className="mt-20 border-t border-border pt-12">
+              <PageHeader size="section" eyebrow="You may also like" title={`More in ${category.name}`} action={<SectionLink href={`/categories/${category.slug}`}>View all</SectionLink>} className="mb-8" />
               <ProductGrid items={related} />
             </Reveal>
           )}
