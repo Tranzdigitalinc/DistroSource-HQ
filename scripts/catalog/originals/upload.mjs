@@ -9,7 +9,8 @@ import { createZip } from "../zip-writer.mjs"
 import { PRODUCTS } from "./catalog.mjs"
 import { BUILD_DIR, generateProduct } from "./generate.mjs"
 
-export const MANIFEST_PATH = path.resolve(".v0/catalog-originals-manifest.json")
+import { MANIFEST_PATH } from "./manifest.mjs"
+export { MANIFEST_PATH }
 
 export function zipFor(p) {
   const gen = generateProduct(p)
@@ -17,8 +18,9 @@ export function zipFor(p) {
   return { gen, zip: createZip(entries) }
 }
 
-const only = process.argv.slice(2)
-const list = only.length ? PRODUCTS.filter((p) => only.includes(p.slug) || only.includes(String(p.index))) : PRODUCTS
+const isMain = process.argv[1] && process.argv[1].endsWith("upload.mjs")
+const only = isMain ? process.argv.slice(2) : []
+const list = !isMain ? [] : only.length ? PRODUCTS.filter((p) => only.includes(p.slug) || only.includes(String(p.index))) : PRODUCTS
 const manifest = fs.existsSync(MANIFEST_PATH) ? JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf8")) : {}
 fs.mkdirSync(path.dirname(MANIFEST_PATH), { recursive: true })
 
@@ -37,4 +39,4 @@ for (const p of list) {
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2))
   console.log(`${p.sku} ${p.slug}: cover ${Math.round(cover.length / 1024)} KB, zip ${Math.round(zip.length / 1024)} KB`)
 }
-console.log(`Manifest: ${MANIFEST_PATH} (${Object.keys(manifest).length} entries)`)
+if (isMain) console.log(`Manifest: ${MANIFEST_PATH} (${Object.keys(manifest).length} entries)`)

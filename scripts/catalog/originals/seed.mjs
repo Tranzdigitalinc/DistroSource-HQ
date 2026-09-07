@@ -5,7 +5,7 @@ import fs from "node:fs"
 import { Pool } from "pg"
 import { PRODUCTS } from "./catalog.mjs"
 import { generateProduct, listingFor } from "./generate.mjs"
-import { MANIFEST_PATH } from "./upload.mjs"
+import { MANIFEST_PATH } from "./manifest.mjs"
 
 const LICENCES = [
   ["personal", "For your own private, non-commercial projects. Not for client work."],
