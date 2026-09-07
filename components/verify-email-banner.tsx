@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { MailWarning, X } from "lucide-react"
+import { Mail as MailWarning, X } from "@/lib/storefront-icons"
 import { authClient, useSession } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
