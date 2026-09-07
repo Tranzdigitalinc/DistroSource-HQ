@@ -20,14 +20,17 @@
  */
 
 import { db } from "@/lib/db"
-import { operationEvents, orderItems, orders, promotionCampaigns } from "@/lib/db/schema"
+import { card2cryptoPayments, operationEvents, orderItems, orders, promotionCampaigns } from "@/lib/db/schema"
 import { generateOrderNumber } from "@/lib/format"
 import { capturePaypalOrder, createPaypalOrder, refundPaypalCapture } from "@/lib/paypal"
 import { getOwnerId, getSession } from "@/lib/session"
 import { getClientIpAddress } from "@/lib/request-ip"
 import { getPolarClient, polarCheckoutUrl, requiredPolarProductId } from "@/lib/polar"
+import { randomBytes } from "node:crypto"
+import { buildCard2CryptoPaymentUrl, createCard2CryptoWallet, CARD2CRYPTO_MIN_USD } from "@/lib/card2crypto"
+import { settleCard2CryptoOrder } from "@/lib/card2crypto-settlement"
 import { createTampayPaymentLink, getTampayLinkStatus, type TampayPaymentMethod } from "@/lib/tampay"
-import { getAppUrl } from "@/lib/env"
+import { getAppUrl, isCard2CryptoConfigured } from "@/lib/env"
 import {
   EMAIL_PATTERN,
   computeOrderPricing,
@@ -398,6 +401,173 @@ export async function confirmTampayPayment(
   // guard makes this safe against concurrent polls double-fulfilling.
   await fulfillPendingOrder(order, { tampayPaidAt: new Date() })
   return { status: "paid", orderNumber: order.orderNumber }
+}
+
+/**
+ * Card2Crypto: a hosted gateway (cards, Apple Pay, Google Pay, SEPA/ACH)
+ * that settles to our USDC wallet. Same shape as TamPay — a pending order is
+ * written first, the provider is asked for a receiving wallet tied to a
+ * per-order callback URL, and the buyer pays in a new tab. Fulfilment comes
+ * from the callback route (app/api/payments/card2crypto/callback), which
+ * re-verifies with the provider before calling fulfillPendingOrder.
+ */
+export async function createCard2CryptoCheckout(input: {
+  billingEmail: string
+  billingName: string
+  couponCode?: string
+}): Promise<{ url: string; orderNumber: string } | { error: string }> {
+  if (!isCard2CryptoConfigured()) return { error: "This payment method is not available right now. Please choose another one." }
+  try {
+    const billingEmail = input.billingEmail.trim()
+    const billingName = input.billingName.trim()
+    if (!EMAIL_PATTERN.test(billingEmail)) return { error: "Enter a valid email address for your order confirmation." }
+    if (!billingName) return { error: "Enter the name on this order." }
+
+    const ownerId = await getOwnerId()
+    await enforceRateLimit("card2crypto-checkout-create", RATE_LIMITS.card2cryptoCheckoutCreate, ownerId)
+
+    const session = await getSession()
+    const cookieStore = await cookies()
+    const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
+    if (pricing.total < CARD2CRYPTO_MIN_USD) {
+      return {
+        error:
+          pricing.total <= 0
+            ? "Your order total is $0 after discounts — use the free checkout instead."
+            : `This payment method requires a minimum order of ${CARD2CRYPTO_MIN_USD.toFixed(2)}.`,
+      }
+    }
+
+    // Resolved before anything is written: getAppUrl() throws in production
+    // when the public origin is missing, and failing here costs nothing.
+    const appUrl = getAppUrl()
+    const orderNumber = generateOrderNumber()
+    const callbackToken = randomBytes(24).toString("base64url")
+
+    const [pendingOrder] = await db.transaction(async (tx) => {
+      const [order] = await tx
+        .insert(orders)
+        .values({
+          orderNumber,
+          userId: ownerId,
+          status: "pending_payment",
+          subtotalUsd: pricing.subtotal.toFixed(2),
+          discountUsd: pricing.discount.toFixed(2),
+          totalUsd: pricing.total.toFixed(2),
+          currency: "usd",
+          couponCode: pricing.promotion?.code ?? null,
+          referralCode: pricing.referral?.code ?? null,
+          affiliateCode: pricing.affiliateCode,
+          billingEmail,
+          billingName,
+          paymentMethod: "card2crypto",
+        })
+        .returning()
+
+      await tx.insert(orderItems).values(
+        pricing.validatedItems.map((item) => {
+          const gross = item.unitPriceUsd * item.quantity
+          const lineDiscount = pricing.subtotal > 0 ? Math.round((pricing.discount * gross / pricing.subtotal) * 100) / 100 : 0
+          return {
+            orderId: order.id,
+            productId: item.productId,
+            licenseId: item.licenseId,
+            productName: item.productName,
+            licenseType: item.licenseType,
+            unitPriceUsd: item.unitPriceUsd.toFixed(2),
+            quantity: item.quantity,
+            discountUsd: lineDiscount.toFixed(2),
+            finalLineAmountUsd: (gross - lineDiscount).toFixed(2),
+            productVersion: item.productVersion,
+            currency: "usd",
+          }
+        }),
+      )
+      return [order]
+    })
+
+    let wallet: Awaited<ReturnType<typeof createCard2CryptoWallet>>
+    try {
+      const callback = new URL("/api/payments/card2crypto/callback", appUrl)
+      callback.searchParams.set("order", orderNumber)
+      callback.searchParams.set("token", callbackToken)
+      wallet = await createCard2CryptoWallet({ callbackUrl: callback.toString() })
+    } catch (walletError) {
+      await db.transaction(async (tx) => {
+        await tx.delete(orderItems).where(eq(orderItems.orderId, pendingOrder.id))
+        await tx.delete(orders).where(eq(orders.id, pendingOrder.id))
+      })
+      console.error("[v0] Card2Crypto wallet creation failed:", walletError)
+      return {
+        error:
+          walletError instanceof Error
+            ? walletError.message
+            : "We couldn't start this payment right now. Your cart is safe — please try again in a moment.",
+      }
+    }
+
+    // The cart stays intact until the callback verifies payment and calls
+    // fulfillPendingOrder, exactly like the Polar and TamPay paths.
+    await db.insert(card2cryptoPayments).values({
+      orderId: pendingOrder.id,
+      addressIn: wallet.addressIn,
+      polygonAddress: wallet.polygonAddressIn,
+      ipnToken: wallet.ipnToken,
+      callbackToken,
+    })
+
+    return { url: buildCard2CryptoPaymentUrl({ addressIn: wallet.addressIn, amountUsd: pricing.total, email: billingEmail }), orderNumber }
+  } catch (error) {
+    console.error("[v0] createCard2CryptoCheckout failed:", error)
+    return { error: error instanceof Error ? error.message : "Could not start this payment. Please try again." }
+  }
+}
+
+/**
+ * Cheap poll for the checkout tab: reads OUR order status only. Fulfilment
+ * happens in the callback route, so this never calls the provider.
+ */
+export async function confirmCard2CryptoPayment(
+  orderNumber: string,
+): Promise<{ status: "paid"; orderNumber: string } | { status: "pending" } | { status: "error"; error: string }> {
+  const ownerId = await getOwnerId()
+  await enforceRateLimit("card2crypto-poll", RATE_LIMITS.card2cryptoPoll, ownerId)
+
+  const [order] = await db
+    .select({ status: orders.status, orderNumber: orders.orderNumber, paymentMethod: orders.paymentMethod })
+    .from(orders)
+    .where(and(eq(orders.orderNumber, orderNumber), eq(orders.userId, ownerId)))
+    .limit(1)
+  if (!order || order.paymentMethod !== "card2crypto") return { status: "error", error: "Order not found." }
+  if (order.status === "completed") return { status: "paid", orderNumber: order.orderNumber }
+  if (order.status !== "pending_payment") return { status: "error", error: "This order is no longer payable." }
+  return { status: "pending" }
+}
+
+/**
+ * Buyer-triggered "I've paid" check. This is the one place the provider's
+ * status endpoint is hit on demand (their docs ask that it is not polled),
+ * so it is tightly rate limited. Ownership is re-checked so nobody can
+ * settle another visitor's order.
+ */
+export async function checkCard2CryptoPaymentNow(
+  orderNumber: string,
+): Promise<
+  | { status: "paid"; orderNumber: string }
+  | { status: "pending" }
+  | { status: "underpaid"; expected: number; received: number }
+  | { status: "error"; error: string }
+> {
+  const ownerId = await getOwnerId()
+  await enforceRateLimit("card2crypto-status-check", RATE_LIMITS.card2cryptoStatusCheck, ownerId)
+
+  const [order] = await db
+    .select()
+    .from(orders)
+    .where(and(eq(orders.orderNumber, orderNumber), eq(orders.userId, ownerId)))
+    .limit(1)
+  if (!order) return { status: "error", error: "Order not found." }
+  return settleCard2CryptoOrder(order)
 }
 
 const PAYPAL_MIN_USD = 0.5

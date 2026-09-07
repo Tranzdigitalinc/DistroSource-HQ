@@ -170,6 +170,26 @@ export function getResendFromEmail(): string {
   return process.env.RESEND_FROM_EMAIL?.trim() || "DistroSource <support@distrosource.com>"
 }
 
+const POLYGON_ADDRESS = /^0x[a-fA-F0-9]{40}$/
+
+/**
+ * Merchant USDC (Polygon) wallet that Card2Crypto pays out to. The payment
+ * option only appears when this is set; a malformed address is rejected so a
+ * typo can never route customer money to the wrong wallet.
+ */
+export function getCard2CryptoPayoutAddress(): string {
+  const address = requireEnv("CARD2CRYPTO_PAYOUT_ADDRESS", "Set it to your USDC (Polygon) wallet to enable Card2Crypto checkout.")
+  if (!POLYGON_ADDRESS.test(address)) {
+    throw new Error("CARD2CRYPTO_PAYOUT_ADDRESS is not a valid Polygon address (expected 0x followed by 40 hex characters).")
+  }
+  return address
+}
+
+/** True when Card2Crypto can be offered at checkout. */
+export function isCard2CryptoConfigured(): boolean {
+  return POLYGON_ADDRESS.test(process.env.CARD2CRYPTO_PAYOUT_ADDRESS?.trim() ?? "")
+}
+
 /** Polar API mode. Defaults to sandbox so a misconfiguration cannot take real money. */
 export function getPolarServer(): "production" | "sandbox" {
   return process.env.POLAR_SERVER?.trim() === "production" ? "production" : "sandbox"

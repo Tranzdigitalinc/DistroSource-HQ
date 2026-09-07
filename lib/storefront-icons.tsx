@@ -2,6 +2,7 @@ import type { ReactNode, SVGProps } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   Alert02Icon,
+  BankIcon,
   AlertCircleIcon,
   ArrowDataTransferHorizontalIcon,
   ArrowDown02Icon,
@@ -186,6 +187,7 @@ export const Gift = createIcon(GiftIcon)
 export const Tag = createIcon(Tag01Icon)
 export const Wallet = createIcon(Wallet02Icon)
 export const CreditCard = createIcon(CreditCardIcon)
+export const Bank = createIcon(BankIcon)
 export const Invoice = createIcon(Invoice01Icon)
 export const Store = createIcon(Store01Icon)
 export const ShieldCheck = createIcon(ShieldCheckIcon)

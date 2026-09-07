@@ -260,6 +260,27 @@ export const orders = pgTable("orders", {
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
+// Card2Crypto (hosted gateway, settles in USDC) — one row per order started
+// with it. Kept in its own table so the orders table needs no new columns:
+// the temporary receiving wallet, the per-order callback token and the
+// ipn_token used to re-verify the callback all live here. See lib/card2crypto.ts.
+export const card2cryptoPayments = pgTable("card2crypto_payments", {
+  id: serial("id").primaryKey(),
+  orderId: integer("orderId").notNull().unique().references(() => orders.id),
+  /** URL-encoded, encrypted receiving address passed to the hosted pay page. */
+  addressIn: text("addressIn").notNull(),
+  /** Plain Polygon address of the temporary wallet; the callback echoes it back. */
+  polygonAddress: text("polygonAddress").notNull(),
+  /** Secret for payment-status.php. */
+  ipnToken: text("ipnToken").notNull(),
+  /** Random per-order token carried in our callback URL. */
+  callbackToken: text("callbackToken").notNull(),
+  paidAt: timestamp("paidAt"),
+  paidAmount: numeric("paidAmount", { precision: 10, scale: 2 }),
+  txid: text("txid"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
 // Records every processed Polar webhook delivery by its "webhook-id" header
 // (standardwebhooks/svix delivery id). Retried deliveries reuse the same id,
 // so inserting here first and skipping on conflict makes webhook processing

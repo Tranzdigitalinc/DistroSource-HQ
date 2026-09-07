@@ -183,7 +183,7 @@ export function PurchasePanel({
         {[
           { icon: Download, text: "Delivered to My Library after payment" },
           ...(meta?.hasDocumentation ? [{ icon: FileText, text: "Documentation included" }] : []),
-          { icon: Lock, text: "Secure checkout via Polar or TamPay" },
+          { icon: Lock, text: "Secure checkout via Polar, TamPay or Card2Crypto" },
         ].map(({ icon: Icon, text }) => (
           <li key={text} className="flex items-center gap-2 text-xs text-muted-foreground">
             <Icon size={ICON_SIZE.sm} className="shrink-0 text-success" aria-hidden="true" />

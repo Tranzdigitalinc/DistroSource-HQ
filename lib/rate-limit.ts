@@ -139,6 +139,12 @@ export const RATE_LIMITS = {
   tampayCheckoutCreate: { windowSeconds: 600, max: 10 },
   /** Client polls this every few seconds while a TamPay tab is open, so the window is generous. */
   tampayPoll: { windowSeconds: 300, max: 90 },
+  /** Creates a Card2Crypto receiving wallet — a real API call to the provider. */
+  card2cryptoCheckoutCreate: { windowSeconds: 600, max: 10 },
+  /** Client polls our own DB every few seconds while the Card2Crypto tab is open. */
+  card2cryptoPoll: { windowSeconds: 300, max: 120 },
+  /** Buyer-triggered status check that hits the provider; deliberately tight. */
+  card2cryptoStatusCheck: { windowSeconds: 600, max: 6 },
   /** Otherwise allows unlimited coupon-code enumeration. */
   couponValidate: { windowSeconds: 300, max: 20 },
   freeClaim: { windowSeconds: 3600, max: 20 },
