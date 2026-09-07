@@ -2,268 +2,61 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
-import { GamingHero } from "@/components/gaming/gaming-hero"
 import { GamingPreview } from "@/components/gaming/gaming-preview"
 import { GamingProductCard } from "@/components/gaming/gaming-product-card"
-import { GamingTrustStrip } from "@/components/gaming/gaming-trust-strip"
-import { RevealGroup, RevealItem } from "@/components/motion/reveal"
-import { ArrowRight, ArrowUpRight, ICON_SIZE } from "@/lib/storefront-icons"
-import { filterGamingProducts, getFeaturedGamingProducts, getGamingFacets, getGamingProductsByPlatform } from "@/lib/gaming/queries"
-import { GAMING_CATEGORIES, type GamingArt, type GamingCategory } from "@/lib/gaming/types"
+import { ArrowRight, GameController } from "@/lib/storefront-icons"
+import { getFeaturedGamingProducts, getGamingFacets, getGamingProductsByPlatform } from "@/lib/gaming/queries"
+import type { GamingArt } from "@/lib/gaming/types"
 
 export const metadata: Metadata = {
   title: "Gaming Resources, FiveM Assets & Minecraft Products | DistroSource",
-  description:
-    "Premium digital resources for games, servers and online gaming communities — FiveM maps and MLOs, Minecraft server packs, interfaces and configurations, sold directly by DistroSource.",
+  description: "Premium digital resources for games, servers and gaming communities — sold directly by DistroSource.",
   alternates: { canonical: "/gaming" },
-  openGraph: {
-    title: "DistroSource Gaming",
-    description: "Premium digital resources for games, servers and online gaming communities.",
-    url: "/gaming",
-    type: "website",
-  },
 }
 
-/**
- * Artwork for each category card. These stand for a whole category rather
- * than one product, so they are generic on purpose — the per-product
- * artwork lives on the products themselves.
- */
-const CATEGORY_ART: Record<GamingCategory, GamingArt> = {
-  "maps-mlos": { scene: "interior", caption: "INTERIORS", tone: "warm", props: ["sofa", "table", "shelf", "plant"] },
-  "scripts-systems": { scene: "system", caption: "SERVER LOGIC", stages: ["TRIGGER", "VALIDATE", "PERSIST"], activeStage: 1 },
-  "ui-hud": {
-    scene: "hud",
-    caption: "INTERFACES",
-    speed: "72",
-    unit: "MPH",
-    gauges: [
-      { label: "FUEL", fill: 0.7 },
-      { label: "ENGINE", fill: 0.45 },
-      { label: "CONDITION", fill: 0.6 },
-    ],
-    chips: ["STATUS", "ALERT", "MODE"],
-  },
-  vehicles: { scene: "lineup", caption: "VEHICLES", subject: "vehicle", count: 4, accentIndex: 1 },
-  clothing: { scene: "lineup", caption: "CLOTHING & EUP", subject: "character", count: 4, accentIndex: 2 },
-  characters: { scene: "lineup", caption: "CHARACTERS", subject: "character", count: 5, accentIndex: 1 },
-  weapons: { scene: "lineup", caption: "WEAPONS", subject: "weapon", count: 4, accentIndex: 1 },
-  animations: { scene: "lineup", caption: "ANIMATIONS", subject: "character", count: 4, accentIndex: 3 },
-  audio: {
-    scene: "audio",
-    caption: "SOUNDS & AUDIO",
-    tracks: [
-      { label: "SIRENS", fill: 0.8 },
-      { label: "ENGINES", fill: 0.62 },
-      { label: "AMBIENCE", fill: 0.44 },
-      { label: "MUSIC", fill: 0.55 },
-    ],
-  },
-  plugins: { scene: "system", caption: "PLUGINS", stages: ["LOAD", "REGISTER", "SERVE"], activeStage: 1 },
-  security: { scene: "system", caption: "ANTICHEAT", stages: ["OBSERVE", "VALIDATE", "SCORE", "ACT"], activeStage: 1 },
-  "server-resources": {
-    scene: "config",
-    caption: "SERVER SETUP",
-    rows: [
-      { label: "PERMISSIONS", fill: 0.7 },
-      { label: "RANKS", fill: 0.5 },
-      { label: "WARPS", fill: 0.35 },
-      { label: "MODERATION", fill: 0.62 },
-    ],
-  },
-  textures: { scene: "palette", caption: "TEXTURE SETS", kind: "blocks" },
-  graphics: { scene: "palette", caption: "BRAND GRAPHICS", kind: "brand" },
-  configurations: {
-    scene: "config",
-    caption: "TUNED CONFIGS",
-    rows: [
-      { label: "BALANCE", fill: 0.58 },
-      { label: "PAYOUTS", fill: 0.44 },
-      { label: "SINKS", fill: 0.72 },
-      { label: "LIMITS", fill: 0.3 },
-    ],
-  },
-  bundles: {
-    scene: "pack",
-    caption: "MULTI-PRODUCT",
-    items: ["Core resources", "Combined config", "Setup guide", "Update notes"],
-  },
-}
-
-const PLATFORM_CARDS = [
-  {
-    id: "fivem",
-    label: "FiveM",
-    href: "/gaming/fivem",
-    blurb: "Maps and MLOs, interfaces, gameplay systems and server essentials for roleplay communities.",
-    art: { scene: "interior", caption: "FIVEM", tone: "showroom", props: ["car", "desk", "sofa", "plant"] } satisfies GamingArt,
-    emphasis: true,
-  },
-  {
-    id: "minecraft",
-    label: "Minecraft",
-    href: "/gaming/minecraft",
-    blurb: "Spawn and adventure maps, resource packs, server packs and tuned configurations.",
-    art: {
-      scene: "world",
-      caption: "MINECRAFT",
-      sky: "day",
-      structures: ["castle", "tree", "house", "path", "house", "pine", "water", "tree"],
-    } satisfies GamingArt,
-    emphasis: true,
-  },
-  {
-    id: "other",
-    label: "Game Servers",
-    href: "/gaming/products?platform=other",
-    blurb: "Community branding and cross-platform starter packs for any server.",
-    art: {
-      scene: "pack",
-      caption: "CROSS-PLATFORM",
-      items: ["Community brand set", "Server resources", "Staff handbook", "Launch checklist"],
-    } satisfies GamingArt,
-    emphasis: false,
-  },
+const platforms: { label: string; href: string; blurb: string; count: (fivem: number, minecraft: number, other: number) => number; art: GamingArt }[] = [
+  { label: "FiveM", href: "/gaming/fivem", blurb: "Maps, MLOs, UI, gameplay systems and server essentials for modern communities.", count: (fivem) => fivem, art: { scene: "interior", caption: "FIVEM", tone: "showroom", props: ["car", "desk", "sofa", "plant"] } },
+  { label: "Minecraft", href: "/gaming/minecraft", blurb: "Worlds, resource packs, server packs, configurations and plugins for Java servers.", count: (_, minecraft) => minecraft, art: { scene: "world", caption: "MINECRAFT", sky: "day", structures: ["castle", "tree", "house", "path", "pine", "water"] } },
+  { label: "Game Servers", href: "/gaming/products?platform=other", blurb: "Cross-platform resources, branding and operational packs for online communities.", count: (_, __, other) => other, art: { scene: "pack", caption: "SERVER RESOURCES", items: ["Community assets", "Server resources", "Staff pack", "Launch kit"] } },
 ]
 
 export default function GamingLandingPage() {
-  const featured = getFeaturedGamingProducts(8)
+  const featured = getFeaturedGamingProducts(7)
   const facets = getGamingFacets()
   const fivemCount = getGamingProductsByPlatform("fivem").length
   const minecraftCount = getGamingProductsByPlatform("minecraft").length
-  const latest = filterGamingProducts({ sort: "newest" }).slice(0, 4)
+  const otherCount = facets.platforms.other ?? 0
+  const lead = featured[0]
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <main className="flex-1">
-        <GamingHero
-          eyebrow="DistroSource Gaming"
-          title="Upgrade your gaming experience."
-          description="Premium digital resources for games, servers and online gaming communities."
-          primary={{ label: "Browse Gaming Products", href: "/gaming/products" }}
-          secondary={{ label: "Explore Categories", href: "#categories" }}
-          trustLine="Secure checkout powered by Tebex"
-        />
-
-        {/* ---- Platforms ---- */}
-        <section className="mx-auto max-w-7xl px-6 py-14 sm:px-8">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
-            <div>
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Explore by Platform</p>
-              <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Built for the servers you run</h2>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              <span className="font-semibold tabular-nums text-foreground">{facets.total}</span> Gaming products
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            {PLATFORM_CARDS.map((platform) => (
-              <Link
-                key={platform.id}
-                href={platform.href}
-                className={`group flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-[border-color,box-shadow] duration-200 hover:border-border-strong hover:shadow-[var(--shadow-e2)] ${
-                  platform.emphasis ? "lg:col-span-1" : ""
-                }`}
-              >
-                <div className="relative aspect-[16/9] overflow-hidden">
-                  <GamingPreview
-                    art={platform.art}
-                    className="transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
-                  />
-                </div>
-                <div className="flex flex-1 flex-col gap-2 p-5">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="font-display text-lg font-bold tracking-tight">{platform.label}</h3>
-                    <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-                      {platform.id === "fivem" ? fivemCount : platform.id === "minecraft" ? minecraftCount : facets.platforms.other ?? 0} products
-                    </span>
-                  </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{platform.blurb}</p>
-                  <span className="mt-auto flex items-center gap-1.5 pt-3 text-sm font-semibold text-foreground">
-                    Browse {platform.label}
-                    <ArrowRight size={ICON_SIZE.sm} className="transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden="true" />
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* ---- Categories ---- */}
-        <section id="categories" className="border-y border-border bg-secondary/30">
-          <div className="mx-auto max-w-7xl px-6 py-14 sm:px-8">
-            <div className="mb-8">
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Categories</p>
-              <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Every kind of Gaming resource</h2>
-            </div>
-            <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" stagger={0.04}>
-              {GAMING_CATEGORIES.filter((c) => (facets.categories[c.id] ?? 0) > 0).map((category) => (
-                <RevealItem key={category.id} className="h-full">
-                  <Link
-                    href={`/gaming/products?category=${category.id}`}
-                    className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card transition-[border-color,box-shadow] duration-200 hover:border-border-strong hover:shadow-[var(--shadow-e2)]"
-                  >
-                    <div className="relative aspect-[16/10] overflow-hidden">
-                      <GamingPreview art={CATEGORY_ART[category.id]} />
-                    </div>
-                    <div className="flex flex-1 flex-col gap-1 p-4">
-                      <h3 className="font-display text-sm font-bold tracking-tight text-foreground">{category.label}</h3>
-                      <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">{category.blurb}</p>
-                      <p className="mt-auto pt-2 font-mono text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-                        {facets.categories[category.id]} {facets.categories[category.id] === 1 ? "product" : "products"}
-                      </p>
-                    </div>
-                  </Link>
-                </RevealItem>
-              ))}
-            </RevealGroup>
-          </div>
-        </section>
-
-        {/* ---- Featured ---- */}
-        <section className="mx-auto max-w-7xl px-6 py-14 sm:px-8">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
-            <div>
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Featured</p>
-              <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Gaming products</h2>
-            </div>
-            <Link href="/gaming/products" className="flex items-center gap-1 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary hover:underline">
-              All Gaming products
-              <ArrowUpRight className="size-3.5" />
-            </Link>
-          </div>
-          <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" stagger={0.04}>
-            {featured.map((product) => (
-              <RevealItem key={product.id} className="h-full">
-                <GamingProductCard product={product} />
-              </RevealItem>
-            ))}
-          </RevealGroup>
-        </section>
-
-        {/* ---- Latest ---- */}
-        <section className="border-t border-border bg-secondary/30">
-          <div className="mx-auto max-w-7xl px-6 py-14 sm:px-8">
-            <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <section className="relative overflow-hidden bg-[#07111f] text-white">
+          <div aria-hidden="true" className="absolute -right-40 top-0 size-[42rem] rounded-full bg-primary/14 blur-[130px]" />
+          <div className="relative mx-auto max-w-[1600px] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+            <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-end">
               <div>
-                <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Just added</p>
-                <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Latest releases</h2>
+                <p className="flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.16em] text-primary"><GameController size={15} /> DistroSource Gaming</p>
+                <h1 className="mt-5 font-display text-[clamp(4rem,9vw,9rem)] font-black leading-[0.82] tracking-[-0.085em]">Build a better world.</h1>
+                <p className="mt-6 max-w-xl text-sm leading-7 text-white/50 sm:text-base">Premium resources for FiveM, Minecraft and game servers—selected, packaged and sold directly by DistroSource.</p>
+                <div className="mt-7 flex flex-wrap gap-3"><Link href="/gaming/products" className="group inline-flex h-12 items-center gap-3 bg-white px-5 text-sm font-black text-[#07111f]">Browse all products <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" /></Link><span className="inline-flex h-12 items-center border border-white/15 px-4 font-mono text-[9px] uppercase tracking-[0.1em] text-white/45">Checkout powered by Tebex</span></div>
               </div>
-              <Link href="/gaming/products?sort=newest" className="text-sm font-semibold text-foreground underline-offset-4 hover:underline">
-                View all
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {latest.map((product) => (
-                <GamingProductCard key={product.id} product={product} />
-              ))}
+              {lead && <Link href={`/gaming/product/${lead.slug}`} className="group relative block min-h-[380px] overflow-hidden border border-white/10 bg-white/[0.03] sm:min-h-[500px]"><GamingPreview art={lead.art[0]} caption={false} className="absolute inset-0 h-full w-full transition-transform duration-700 group-hover:scale-[1.025]" /><div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" /><div className="absolute inset-x-0 bottom-0 p-6 sm:p-8"><p className="font-mono text-[9px] font-black uppercase tracking-[0.12em] text-white/45">Featured drop</p><h2 className="mt-2 max-w-3xl font-display text-3xl font-black leading-[0.94] tracking-[-0.055em] sm:text-5xl">{lead.title}</h2><span className="mt-5 inline-flex size-11 items-center justify-center rounded-full bg-primary text-primary-foreground"><ArrowRight size={14} /></span></div></Link>}
             </div>
           </div>
         </section>
 
-        <GamingTrustStrip />
+        <section className="bg-[#07111f] pb-16 text-white sm:pb-20">
+          <div className="mx-auto grid max-w-[1600px] border-l border-t border-white/10 px-0 sm:grid-cols-3">
+            {platforms.map((platform) => {
+              const count = platform.count(fivemCount, minecraftCount, otherCount)
+              return <Link key={platform.label} href={platform.href} className="group grid min-h-[320px] grid-rows-[1fr_auto] overflow-hidden border-b border-r border-white/10"><div className="relative min-h-44 overflow-hidden"><GamingPreview art={platform.art} caption={false} className="absolute inset-0 h-full w-full opacity-75 transition-[transform,opacity] duration-700 group-hover:scale-[1.03] group-hover:opacity-100" /><div className="absolute inset-0 bg-gradient-to-t from-[#07111f] via-transparent to-transparent" /></div><div className="p-5 sm:p-6"><div className="flex items-start justify-between gap-4"><h3 className="font-display text-3xl font-black tracking-[-0.05em]">{platform.label}</h3><span className="font-mono text-[9px] text-white/35">{count}</span></div><p className="mt-2 text-xs leading-5 text-white/45">{platform.blurb}</p><span className="mt-5 inline-flex items-center gap-2 text-xs font-bold">Explore <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" /></span></div></Link>
+            })}
+          </div>
+        </section>
+
+        {featured.length > 1 && <section className="bg-[#0b1523] py-16 text-white sm:py-20 lg:py-24"><div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8"><div className="mb-8 flex flex-wrap items-end justify-between gap-5"><div><p className="font-mono text-[9px] font-black uppercase tracking-[0.14em] text-primary">Curated now</p><h2 className="mt-3 font-display text-[clamp(2.8rem,5vw,5.5rem)] font-black leading-[0.9] tracking-[-0.065em]">Products worth installing.</h2></div><Link href="/gaming/products" className="group inline-flex items-center gap-2 text-sm font-semibold">Full catalog <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" /></Link></div><div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-6">{featured.slice(1).map((product) => <GamingProductCard key={product.id} product={product} className="[&_h3]:text-white [&_.text-foreground]:text-white [&_.text-muted-foreground]:text-white/45 [&_.border-border]:border-white/10" />)}</div></div></section>}
       </main>
       <SiteFooter />
     </div>
