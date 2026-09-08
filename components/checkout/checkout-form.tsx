@@ -16,7 +16,7 @@ import { OrderSummary } from "@/components/checkout/order-summary"
 import { saveAbandonedCart } from "@/lib/actions/recovery"
 import { createCard2CryptoCheckout, createFungiesCheckout, createPolarCheckout, createTampayCheckout } from "@/lib/actions/checkout"
 import { formatUsd } from "@/lib/format"
-import { Bank, Check, ChevronDown, CreditCard, Download, Lock, Store, User, Wallet, ICON_SIZE } from "@/lib/storefront-icons"
+import { Check, ChevronDown, CreditCard, Crypto, Download, Lock, Store, User, Wallet, ICON_SIZE } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
 
 type PaymentProvider = "polar" | "tampay" | "card2crypto" | "fungies"
@@ -428,10 +428,10 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                     <Radio active={paymentProvider === "card2crypto"} />
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                        <Bank size={ICON_SIZE.base} weight="duotone" className="text-primary" aria-hidden="true" />
-                        Bank transfer & more
+                        <Crypto size={ICON_SIZE.base} weight="duotone" className="text-primary" aria-hidden="true" />
+                        Pay by crypto
                       </span>
-                      <span className="mt-1 block text-xs text-muted-foreground">SEPA / ACH, cards, Apple Pay & Google Pay via Card2Crypto</span>
+                      <span className="mt-1 block text-xs text-muted-foreground">Crypto, cards & bank transfer via Card2Crypto</span>
                     </span>
                   </button>
                 )}

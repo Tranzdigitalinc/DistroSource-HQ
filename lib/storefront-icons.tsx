@@ -10,6 +10,7 @@ import {
   ArrowRight02Icon,
   ArrowUp02Icon,
   ArrowUpRight01Icon,
+  Bitcoin01Icon,
   Bookmark02Icon,
   BookOpen01Icon,
   Briefcase01Icon,
@@ -188,6 +189,7 @@ export const Tag = createIcon(Tag01Icon)
 export const Wallet = createIcon(Wallet02Icon)
 export const CreditCard = createIcon(CreditCardIcon)
 export const Bank = createIcon(BankIcon)
+export const Crypto = createIcon(Bitcoin01Icon)
 export const Invoice = createIcon(Invoice01Icon)
 export const Store = createIcon(Store01Icon)
 export const ShieldCheck = createIcon(ShieldCheckIcon)

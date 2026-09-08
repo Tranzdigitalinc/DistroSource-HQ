@@ -20,12 +20,12 @@ await page.locator('button[aria-label^="Add "][aria-label$=" to cart"]').first()
 await page.getByText("Checkout securely").waitFor({ timeout: 30000 })
 await page.goto(base + "/checkout", { waitUntil: "networkidle", timeout: 240000 })
 
-const opt = page.getByRole("button", { name: /^Fungies/ })
+const opt = page.getByRole("button", { name: /Pay by crypto/ })
 console.log("option present:", await opt.count())
 await opt.click()
 await page.waitForTimeout(400)
 console.log("selectable    :", await opt.getAttribute("aria-pressed"))
-await page.screenshot({ path: `${out}/checkout.png`, fullPage: true })
+await page.screenshot({ path: `${out}/checkout-crypto.png`, fullPage: true })
 
 // Webhook route: signature is enforced, and a valid signature for an unknown
 // order is acknowledged rather than retried forever.
