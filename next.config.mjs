@@ -5,6 +5,20 @@
 // POLAR_SERVER mode without editing headers per environment.
 const POLAR_ORIGINS = ['https://polar.sh', 'https://sandbox.polar.sh']
 
+// Fungies renders its checkout element in an overlay iframe on /checkout.
+// The wildcard covers every workspace subdomain; FUNGIES_STORE_URL is added
+// as well so a Fungies custom domain keeps working without editing this file.
+const FUNGIES_ORIGINS = ['https://*.fungies.io']
+try {
+  if (process.env.FUNGIES_STORE_URL) {
+    const { origin } = new URL(process.env.FUNGIES_STORE_URL)
+    if (!origin.endsWith('.fungies.io')) FUNGIES_ORIGINS.push(origin)
+  }
+} catch {
+  // A malformed FUNGIES_STORE_URL is reported at runtime by lib/env.ts; the
+  // build should not fail here over it.
+}
+
 // Vercel Web Analytics. In production the script is same-origin
 // (/_vercel/insights/script.js); in development and preview it is fetched from
 // va.vercel-scripts.com, so both are allowed for script and beacon traffic.
@@ -24,9 +38,10 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: blob: ${IMAGE_ORIGINS.join(' ')}`,
   "font-src 'self' data:",
-  `connect-src 'self' ${VERCEL_ANALYTICS_ORIGINS.join(' ')} ${POLAR_ORIGINS.join(' ')}`,
-  // Without this the Polar checkout iframe is blocked and no customer can pay.
-  `frame-src 'self' ${POLAR_ORIGINS.join(' ')}`,
+  `connect-src 'self' ${VERCEL_ANALYTICS_ORIGINS.join(' ')} ${POLAR_ORIGINS.join(' ')} ${FUNGIES_ORIGINS.join(' ')}`,
+  // Without this the Polar and Fungies checkout iframes are blocked and no
+  // customer can pay.
+  `frame-src 'self' ${POLAR_ORIGINS.join(' ')} ${FUNGIES_ORIGINS.join(' ')}`,
   "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",

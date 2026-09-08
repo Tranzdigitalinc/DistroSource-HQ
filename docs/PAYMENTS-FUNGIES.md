@@ -47,7 +47,16 @@ curl -X POST "https://api.fungies.io/v0/webhooks/create" \
   }'
 ```
 
-**3. Currency.** A Fungies workspace holds exactly one currency, seeded by the
+**3. Authorize this domain.** The checkout opens as an **overlay on our own
+page**, which means Fungies serves it in an iframe and sets `frame-ancestors`
+from its Authorized Domains list. Add the production domain (and any preview
+domain you test on) under Developers → Authorized Domains in the dashboard.
+
+This is the one step that fails silently: on an unlisted domain the browser
+refuses the frame and the buyer sees an empty overlay with **no JavaScript
+error**. If the overlay opens blank, check this first.
+
+**4. Currency.** A Fungies workspace holds exactly one currency, seeded by the
 first product or offer created in it. DistroSource prices in USD, so that
 workspace must be USD or every offer is rejected with
 `400 OFFER_CURRENCY_MISMATCH`.
@@ -60,15 +69,18 @@ No database change is required — see "Correlation" below.
    server-side, writes a `pending_payment` order with
    `paymentMethod = "fungies"`, then creates a Fungies **offer** for exactly
    that total with `limit: 1` and `externalId = <our order number>`.
-2. The buyer is sent to the hosted checkout
-   (`{FUNGIES_STORE_URL}/checkout/{offerId}`) in a new tab, with their email
-   and name prefilled. Hosted links do not require domain allow-listing;
-   embedded checkouts do, which is why this integration does not iframe.
+2. It then wraps that offer in a **checkout element** and returns its URL.
+   The client opens it with the Fungies SDK as a full-screen overlay on the
+   checkout page — no second tab — with email and name prefilled. Only an
+   element URL can be rendered this way; a bare `/checkout/{offerId}` link is
+   hosted-only.
 3. Fungies POSTs `payment_success` to `/api/webhooks/fungies`. The route
    verifies `x-fngs-signature` against the **raw** body, finds the order via
    the offer's `internalId`, and calls the shared `fulfillPendingOrder`.
-4. Meanwhile the checkout tab polls our own database every 3 seconds and
-   redirects to the success page as soon as the order flips to completed.
+4. The page polls our own order row every 3 seconds and redirects to the
+   success page as soon as it flips to completed. The SDK's
+   `fungies:checkout:complete` event only switches the copy to "confirming" —
+   it never grants access on its own, because only the webhook proves payment.
 
 ## Correlation
 
@@ -76,6 +88,19 @@ The offer's `externalId` is set to the DistroSource order number at creation
 and comes back as `internalId` inside the webhook's `data.items[].offer`. That
 is the whole link — no new column or table is needed on our side, and because
 each offer has `limit: 1`, a checkout URL cannot be paid twice.
+
+## Overlay specifics
+
+- The SDK (`@fungies/fungies-js`) is imported lazily inside an effect: it
+  touches `window` at module scope and must not reach the server render.
+- `next.config.mjs` allows `https://*.fungies.io` in `frame-src` and
+  `connect-src`, plus `FUNGIES_STORE_URL`'s origin if you move the store to a
+  custom domain.
+- If the buyer dismisses the overlay, nothing is charged and the page offers
+  "Resume payment", which reopens the same element.
+- Redirect payment methods (iDEAL, Bancontact and similar) navigate away from
+  the page and come back; Fungies' own confirm-payment prompt handles that,
+  and our poll picks the order up either way.
 
 ## Safety properties
 

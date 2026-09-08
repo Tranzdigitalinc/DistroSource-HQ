@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
+    "@fungies/fungies-js": "^0.7.3",
     "@hugeicons/core-free-icons": "^4.3.0",
     "@hugeicons/react": "^1.1.10",
     "@number-flow/react": "^0.6.2",

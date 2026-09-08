@@ -15,7 +15,9 @@ import { getFungiesKeys, getFungiesProductId, getFungiesStoreUrl } from "@/lib/e
  *      offer carries `externalId = <our order number>` and `limit: 1`, so a
  *      link can be paid exactly once and the payment is unambiguously
  *      traceable back to one DistroSource order.
- *   2. The buyer pays on Fungies' hosted checkout (`buildFungiesCheckoutUrl`).
+ *   2. `createFungiesCheckoutElement` wraps that offer in a checkout
+ *      element, which is the only URL form the SDK can render as an overlay
+ *      on our own page. The buyer never leaves the checkout.
  *   3. Fungies POSTs a signed `payment_success` webhook, which is the only
  *      thing that fulfils the order. See app/api/webhooks/fungies/route.ts.
  *
@@ -30,6 +32,12 @@ const FUNGIES_API_BASE = "https://api.fungies.io/v0"
  * minimum; below this a checkout is more likely to be declined than paid.
  */
 export const FUNGIES_MIN_USD = 0.5
+
+export interface FungiesCheckoutElement {
+  id: string
+  name: string | null
+  status: string
+}
 
 export interface FungiesOffer {
   id: string
@@ -105,6 +113,30 @@ export async function createFungiesOffer(input: {
   return data.offer
 }
 
+/**
+ * Wraps one offer in a checkout element. Overlay and embedded checkouts can
+ * only render an element URL; the bare `/checkout/{offerId}` link is hosted
+ * only. One element per order keeps the two one-to-one.
+ */
+export async function createFungiesCheckoutElement(input: { offerId: string; name: string }): Promise<FungiesCheckoutElement> {
+  const data = await fungiesFetch<{ checkoutElement: FungiesCheckoutElement }>("/elements/checkout/create", {
+    method: "POST",
+    write: true,
+    // Note the spelling: the field is "offersIds", not "offerIds".
+    body: JSON.stringify({ name: input.name, offersIds: [input.offerId] }),
+  })
+  if (!data.checkoutElement?.id) throw new Error("Fungies did not return a checkout element.")
+  return data.checkoutElement
+}
+
+/**
+ * URL the SDK opens in the overlay. The site's domain must be listed under
+ * Authorized Domains in the Fungies dashboard, or the iframe renders blank.
+ */
+export function buildFungiesElementUrl(elementId: string): string {
+  return new URL(`/checkout-element/${elementId}`, getFungiesStoreUrl()).toString()
+}
+
 /** Reads one offer back — used to reconcile a webhook or a stuck order. */
 export async function getFungiesOffer(offerId: string): Promise<FungiesOffer> {
   const data = await fungiesFetch<{ offer: FungiesOffer }>(`/offers/${encodeURIComponent(offerId)}`, { method: "GET" })
@@ -112,9 +144,8 @@ export async function getFungiesOffer(offerId: string): Promise<FungiesOffer> {
 }
 
 /**
- * Hosted checkout URL for an offer. Hosted links do not require the domain
- * to be allow-listed (unlike embedded/overlay checkouts), which is why this
- * integration opens a tab rather than an iframe.
+ * Hosted checkout URL for a bare offer. Kept as the fallback for anywhere a
+ * full-page redirect is wanted; the overlay path uses an element URL instead.
  */
 export function buildFungiesCheckoutUrl(input: {
   offerId: string

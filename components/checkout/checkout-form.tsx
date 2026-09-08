@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { PolarInlineCheckout } from "@/components/checkout/polar-inline-checkout"
 import { TampayWaiting } from "@/components/checkout/tampay-waiting"
 import { Card2CryptoWaiting } from "@/components/checkout/card2crypto-waiting"
-import { FungiesWaiting } from "@/components/checkout/fungies-waiting"
+import { FungiesCheckout, type FungiesBillingData } from "@/components/checkout/fungies-checkout"
 import { CheckoutLineItem, type CheckoutItem } from "@/components/checkout/checkout-line-item"
 import { OrderSummary } from "@/components/checkout/order-summary"
 import { saveAbandonedCart } from "@/lib/actions/recovery"
@@ -106,7 +106,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const [tampayFieldError, setTampayFieldError] = useState<{ phone?: string; city?: string }>({})
   const [tampayOrder, setTampayOrder] = useState<{ orderNumber: string; url: string } | null>(null)
   const [card2cryptoOrder, setCard2cryptoOrder] = useState<{ orderNumber: string; url: string } | null>(null)
-  const [fungiesOrder, setFungiesOrder] = useState<{ orderNumber: string; url: string } | null>(null)
+  const [fungiesOrder, setFungiesOrder] = useState<{ orderNumber: string; url: string; billingData: FungiesBillingData } | null>(null)
   const nameRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
 
@@ -173,10 +173,12 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             toast.error(checkout.error)
             return
           }
-          // Hosted checkout: a new tab avoids Fungies' authorized-domain
-          // requirement for embedded frames, and survives bank redirects.
-          window.open(checkout.url, "_blank", "noopener,noreferrer")
-          setFungiesOrder({ orderNumber: checkout.orderNumber, url: checkout.url })
+          // Opens as an overlay over this page — no second tab.
+          setFungiesOrder({
+            orderNumber: checkout.orderNumber,
+            url: checkout.url,
+            billingData: { email: email.trim(), firstName: checkout.firstName, lastName: checkout.lastName || undefined },
+          })
         } catch (error) {
           await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
           toast.error(error instanceof Error ? error.message : "Could not start this payment.")
@@ -282,9 +284,10 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               />
             )}
             {fungiesEnabled && fungiesOrder && (
-              <FungiesWaiting
+              <FungiesCheckout
                 orderNumber={fungiesOrder.orderNumber}
-                paymentUrl={fungiesOrder.url}
+                checkoutUrl={fungiesOrder.url}
+                billingData={fungiesOrder.billingData}
                 onPaid={(orderNumber) => router.push(`/checkout/success?order=${encodeURIComponent(orderNumber)}`)}
                 onCancel={handleCancelPayment}
               />
