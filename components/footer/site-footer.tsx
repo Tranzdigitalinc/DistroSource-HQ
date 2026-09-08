@@ -64,7 +64,7 @@ const promises = [
   { icon: Download, title: "Instant delivery", body: "Files unlock the moment you pay." },
   { icon: ShieldCheck, title: "Licence up front", body: "Terms shown before checkout." },
   { icon: Refresh, title: "Re-download anytime", body: "Everything stays in My Library." },
-  { icon: Lock, title: "Secure checkout", body: "Polar, TamPay or Card2Crypto handle payment." },
+  { icon: Lock, title: "Secure checkout", body: "Polar, Fungies, TamPay or Card2Crypto handle payment." },
 ]
 
 function NewsletterForm() {

@@ -19,5 +19,7 @@ export default defineConfig([
     // One-off data scripts and audit tooling are not part of the shipped app.
     "scripts/**",
     "drizzle/**",
+    // Generated catalog products: standalone templates we sell, not app code.
+    ".catalog-build/**",
   ]),
 ])

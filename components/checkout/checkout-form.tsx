@@ -10,15 +10,16 @@ import { Label } from "@/components/ui/label"
 import { PolarInlineCheckout } from "@/components/checkout/polar-inline-checkout"
 import { TampayWaiting } from "@/components/checkout/tampay-waiting"
 import { Card2CryptoWaiting } from "@/components/checkout/card2crypto-waiting"
+import { FungiesWaiting } from "@/components/checkout/fungies-waiting"
 import { CheckoutLineItem, type CheckoutItem } from "@/components/checkout/checkout-line-item"
 import { OrderSummary } from "@/components/checkout/order-summary"
 import { saveAbandonedCart } from "@/lib/actions/recovery"
-import { createCard2CryptoCheckout, createPolarCheckout, createTampayCheckout } from "@/lib/actions/checkout"
+import { createCard2CryptoCheckout, createFungiesCheckout, createPolarCheckout, createTampayCheckout } from "@/lib/actions/checkout"
 import { formatUsd } from "@/lib/format"
-import { Bank, Check, ChevronDown, CreditCard, Download, Lock, User, Wallet, ICON_SIZE } from "@/lib/storefront-icons"
+import { Bank, Check, ChevronDown, CreditCard, Download, Lock, Store, User, Wallet, ICON_SIZE } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
 
-type PaymentProvider = "polar" | "tampay" | "card2crypto"
+type PaymentProvider = "polar" | "tampay" | "card2crypto" | "fungies"
 type TampaySubMethod = "togo" | "lahza" | "stripe"
 
 // The action itself (lib/actions/checkout.ts) has the matching server-side
@@ -42,6 +43,8 @@ interface CheckoutFormProps {
   orderItems: CheckoutItem[]
   /** Server-computed: true when CARD2CRYPTO_PAYOUT_ADDRESS is configured. */
   card2cryptoEnabled?: boolean
+  /** Server-computed: true when the Fungies keys, product and webhook secret are configured. */
+  fungiesEnabled?: boolean
 }
 
 function Radio({ active }: { active: boolean }) {
@@ -85,7 +88,7 @@ function Section({ step, title, description, aside, children, className }: { ste
  * as before: Polar opens inline, TamPay opens in a new tab with a
  * waiting screen here.
  */
-export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPercent, isGuest, orderItems, card2cryptoEnabled = false }: CheckoutFormProps) {
+export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPercent, isGuest, orderItems, card2cryptoEnabled = false, fungiesEnabled = false }: CheckoutFormProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const couponCode = searchParams.get("coupon") ?? undefined
@@ -103,13 +106,14 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const [tampayFieldError, setTampayFieldError] = useState<{ phone?: string; city?: string }>({})
   const [tampayOrder, setTampayOrder] = useState<{ orderNumber: string; url: string } | null>(null)
   const [card2cryptoOrder, setCard2cryptoOrder] = useState<{ orderNumber: string; url: string } | null>(null)
+  const [fungiesOrder, setFungiesOrder] = useState<{ orderNumber: string; url: string } | null>(null)
   const nameRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
 
   const discount = Math.round(subtotal * (discountPercent / 100) * 100) / 100
   const total = Math.max(0, subtotal - discount)
   const itemCount = orderItems.reduce((n, i) => n + i.quantity, 0)
-  const paymentInProgress = Boolean(polarCheckoutUrl) || Boolean(tampayOrder) || Boolean(card2cryptoOrder)
+  const paymentInProgress = Boolean(polarCheckoutUrl) || Boolean(tampayOrder) || Boolean(card2cryptoOrder) || Boolean(fungiesOrder)
   const payLabel = `Pay ${formatUsd(total)}`
 
   function validateContact(): boolean {
@@ -160,6 +164,27 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
       return
     }
 
+    if (fungiesEnabled && paymentProvider === "fungies") {
+      startTransition(async () => {
+        try {
+          const checkout = await createFungiesCheckout({ billingEmail: email.trim(), billingName: name.trim(), couponCode })
+          if ("error" in checkout) {
+            await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
+            toast.error(checkout.error)
+            return
+          }
+          // Hosted checkout: a new tab avoids Fungies' authorized-domain
+          // requirement for embedded frames, and survives bank redirects.
+          window.open(checkout.url, "_blank", "noopener,noreferrer")
+          setFungiesOrder({ orderNumber: checkout.orderNumber, url: checkout.url })
+        } catch (error) {
+          await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
+          toast.error(error instanceof Error ? error.message : "Could not start this payment.")
+        }
+      })
+      return
+    }
+
     if (card2cryptoEnabled && paymentProvider === "card2crypto") {
       startTransition(async () => {
         try {
@@ -201,6 +226,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
     setPolarCheckoutUrl(null)
     setTampayOrder(null)
     setCard2cryptoOrder(null)
+    setFungiesOrder(null)
   }
 
   const optionClass = (active: boolean) =>
@@ -251,6 +277,14 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               <TampayWaiting
                 orderNumber={tampayOrder.orderNumber}
                 paymentUrl={tampayOrder.url}
+                onPaid={(orderNumber) => router.push(`/checkout/success?order=${encodeURIComponent(orderNumber)}`)}
+                onCancel={handleCancelPayment}
+              />
+            )}
+            {fungiesEnabled && fungiesOrder && (
+              <FungiesWaiting
+                orderNumber={fungiesOrder.orderNumber}
+                paymentUrl={fungiesOrder.url}
                 onPaid={(orderNumber) => router.push(`/checkout/success?order=${encodeURIComponent(orderNumber)}`)}
                 onCancel={handleCancelPayment}
               />
@@ -338,7 +372,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
 
             {/* 2 · Payment method */}
             <Section step={2} title="Payment" description="Choose how to pay. You'll confirm on the next screen.">
-              <div className={cn("grid grid-cols-1 gap-3 sm:grid-cols-2", card2cryptoEnabled && "lg:grid-cols-3")}>
+              <div className={cn("grid grid-cols-1 gap-3 sm:grid-cols-2", (card2cryptoEnabled || fungiesEnabled) && "lg:grid-cols-3")}>
                 <button type="button" onClick={() => setPaymentProvider("polar")} aria-pressed={paymentProvider === "polar"} className={optionClass(paymentProvider === "polar")}>
                   <Radio active={paymentProvider === "polar"} />
                   <span className="min-w-0 flex-1">
@@ -366,6 +400,26 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                         TamPay
                       </span>
                       <span className="mt-1 block text-xs text-muted-foreground">Regional cards & wallets</span>
+                    </span>
+                  </button>
+                )}
+                {fungiesEnabled && (
+                  <button type="button" onClick={() => setPaymentProvider("fungies")} aria-pressed={paymentProvider === "fungies"} className={optionClass(paymentProvider === "fungies")}>
+                    <Radio active={paymentProvider === "fungies"} />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                        <Store size={ICON_SIZE.base} weight="duotone" className="text-primary" aria-hidden="true" />
+                        Fungies
+                      </span>
+                      <span className="mt-1.5 flex flex-wrap gap-1">
+                        {CARD_ICONS.map((c) => (
+                          <span key={c} className="flex h-5 items-center rounded border border-border bg-background px-0.5">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={`/payment-icons/${c}.svg`} alt="" className="h-3 w-auto" loading="lazy" />
+                          </span>
+                        ))}
+                      </span>
+                      <span className="mt-1 block text-xs text-muted-foreground">Cards & wallets, tax handled for you</span>
                     </span>
                   </button>
                 )}

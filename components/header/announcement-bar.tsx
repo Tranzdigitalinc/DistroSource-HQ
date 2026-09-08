@@ -6,7 +6,7 @@ const items = [
   { icon: Download, text: "Instant delivery after payment" },
   { icon: ShieldCheck, text: "Licence stated on every product" },
   { icon: Refresh, text: "Re-download anytime from My Library" },
-  { icon: Lock, text: "Secure checkout — Polar, TamPay or Card2Crypto" },
+  { icon: Lock, text: "Secure checkout — Polar, Fungies, TamPay or Card2Crypto" },
   { icon: Sparkles, text: "New products every week" },
 ]
 

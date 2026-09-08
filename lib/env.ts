@@ -190,6 +190,52 @@ export function isCard2CryptoConfigured(): boolean {
   return POLYGON_ADDRESS.test(process.env.CARD2CRYPTO_PAYOUT_ADDRESS?.trim() ?? "")
 }
 
+/**
+ * Fungies API key pair. The public key authenticates every call; the secret
+ * key is additionally required for writes (creating an offer). Both are
+ * server-only — a public key here is still an account credential, not a
+ * browser-safe token.
+ */
+export function getFungiesKeys(): { publicKey: string; secretKey: string } {
+  return {
+    publicKey: requireEnv("FUNGIES_PUBLIC_KEY", "Create a key pair at https://app.fungies.io/devs/api-keys."),
+    secretKey: requireEnv("FUNGIES_SECRET_KEY", "Create a key pair at https://app.fungies.io/devs/api-keys."),
+  }
+}
+
+/** The reusable Fungies product every per-order offer is created against. */
+export function getFungiesProductId(): string {
+  return requireEnv("FUNGIES_PRODUCT_ID", "Create one DigitalDownload product in Fungies and put its id here.")
+}
+
+/** Storefront origin Fungies hosts the checkout on, e.g. https://distrosource.fungies.io */
+export function getFungiesStoreUrl(): string {
+  const raw = requireEnv("FUNGIES_STORE_URL", "It is the store address shown in the Fungies dashboard.")
+  const url = normalizeUrl(raw)
+  if (!/^https:\/\//.test(url)) throw new Error("FUNGIES_STORE_URL must be an https origin.")
+  return url
+}
+
+/** Secret that signs webhook deliveries. Set it to the value used when creating the webhook. */
+export function getFungiesWebhookSecret(): string {
+  return requireEnv("FUNGIES_WEBHOOK_SECRET", "Use the same string you set on the Fungies webhook.")
+}
+
+/**
+ * True when Fungies can be offered at checkout. Deliberately requires the
+ * webhook secret too: without it nothing could ever be fulfilled, so showing
+ * the option would take money we could not deliver against.
+ */
+export function isFungiesConfigured(): boolean {
+  return Boolean(
+    process.env.FUNGIES_PUBLIC_KEY?.trim() &&
+      process.env.FUNGIES_SECRET_KEY?.trim() &&
+      process.env.FUNGIES_PRODUCT_ID?.trim() &&
+      process.env.FUNGIES_STORE_URL?.trim() &&
+      process.env.FUNGIES_WEBHOOK_SECRET?.trim(),
+  )
+}
+
 /** Polar API mode. Defaults to sandbox so a misconfiguration cannot take real money. */
 export function getPolarServer(): "production" | "sandbox" {
   return process.env.POLAR_SERVER?.trim() === "production" ? "production" : "sandbox"

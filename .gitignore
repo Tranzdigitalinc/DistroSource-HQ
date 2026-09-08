@@ -30,3 +30,6 @@ start3500.log
 # TypeScript incremental build cache (was tracked; made tsc a no-op)
 tsconfig.tsbuildinfo
 .catalog-build/
+
+# Build state: Blob upload manifests written by the catalog scripts.
+.v0/
