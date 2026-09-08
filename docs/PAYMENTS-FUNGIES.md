@@ -48,13 +48,27 @@ curl -X POST "https://api.fungies.io/v0/webhooks/create" \
 ```
 
 **3. Authorize this domain.** The checkout opens as an **overlay on our own
-page**, which means Fungies serves it in an iframe and sets `frame-ancestors`
-from its Authorized Domains list. Add the production domain (and any preview
-domain you test on) under Developers → Authorized Domains in the dashboard.
+page**, so Fungies must be told which origins may frame it. Until a domain is
+listed, Fungies answers with `X-Frame-Options: SAMEORIGIN` and the browser
+shows "refused to connect" inside a blank overlay.
 
-This is the one step that fails silently: on an unlisted domain the browser
-refuses the frame and the buyer sees an empty overlay with **no JavaScript
-error**. If the overlay opens blank, check this first.
+Dashboard → **Settings** → **Store** → **Checkout** tab → **Authorized
+domains** → **Add new domain**. Entries are full origins, matched exactly:
+
+| Value | OK | Note |
+| --- | --- | --- |
+| `https://distrosource.com` | yes | |
+| `https://www.distrosource.com` | yes | separate entry from the apex |
+| `http://localhost:3200` | yes | local dev; the port must match |
+| `distrosource.com` | no | scheme required |
+| `https://distrosource.com/` | no | no trailing slash |
+
+Vercel preview URLs are separate origins and need their own entries if you
+test the overlay on them. Reload the checkout page after saving.
+
+If the overlay is ever refused anyway, the waiting screen offers "Open it in
+a new tab instead", which uses the hosted link for the same offer. Hosted
+checkout needs no authorized domain, so the sale is never lost.
 
 **4. Currency.** A Fungies workspace holds exactly one currency, seeded by the
 first product or offer created in it. DistroSource prices in USD, so that

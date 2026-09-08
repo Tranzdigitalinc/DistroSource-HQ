@@ -31,7 +31,7 @@ import { buildCard2CryptoPaymentUrl, createCard2CryptoWallet, CARD2CRYPTO_MIN_US
 import { settleCard2CryptoOrder } from "@/lib/card2crypto-settlement"
 import { createTampayPaymentLink, getTampayLinkStatus, type TampayPaymentMethod } from "@/lib/tampay"
 import { getAppUrl, isCard2CryptoConfigured, isFungiesConfigured } from "@/lib/env"
-import { FUNGIES_MIN_USD, buildFungiesElementUrl, createFungiesCheckoutElement, createFungiesOffer } from "@/lib/fungies"
+import { FUNGIES_MIN_USD, buildFungiesCheckoutUrl, buildFungiesElementUrl, createFungiesCheckoutElement, createFungiesOffer } from "@/lib/fungies"
 import {
   EMAIL_PATTERN,
   computeOrderPricing,
@@ -582,7 +582,7 @@ export async function createFungiesCheckout(input: {
   billingEmail: string
   billingName: string
   couponCode?: string
-}): Promise<{ url: string; orderNumber: string; firstName: string; lastName: string } | { error: string }> {
+}): Promise<{ url: string; fallbackUrl: string; orderNumber: string; firstName: string; lastName: string } | { error: string }> {
   if (!isFungiesConfigured()) return { error: "This payment method is not available right now. Please choose another one." }
   try {
     const billingEmail = input.billingEmail.trim()
@@ -653,6 +653,7 @@ export async function createFungiesCheckout(input: {
     })
 
     let checkoutUrl: string
+    let fallbackUrl: string
     try {
       const itemCount = pricing.validatedItems.reduce((n, i) => n + i.quantity, 0)
       const label = `DistroSource order ${orderNumber} — ${itemCount} ${itemCount === 1 ? "item" : "items"}`
@@ -661,6 +662,14 @@ export async function createFungiesCheckout(input: {
       // The overlay can only render a checkout element, so wrap the offer.
       const element = await createFungiesCheckoutElement({ offerId: offer.id, name: label })
       checkoutUrl = buildFungiesElementUrl(element.id)
+      // Hosted link for the same offer. Hosted checkout needs no authorized
+      // domain, so this still works if the overlay frame is ever refused.
+      fallbackUrl = buildFungiesCheckoutUrl({
+        offerId: offer.id,
+        email: billingEmail,
+        firstName: billingName.split(/\s+/)[0],
+        lastName: billingName.split(/\s+/).slice(1).join(" ") || undefined,
+      })
     } catch (fungiesError) {
       await db.transaction(async (tx) => {
         await tx.delete(orderItems).where(eq(orderItems.orderId, pendingOrder.id))
@@ -678,7 +687,7 @@ export async function createFungiesCheckout(input: {
     const [firstName, ...restName] = billingName.split(/\s+/)
     // Billing data is prefilled by the SDK at open time, so it is returned
     // rather than baked into the URL.
-    return { url: checkoutUrl, orderNumber, firstName, lastName: restName.join(" ") }
+    return { url: checkoutUrl, fallbackUrl, orderNumber, firstName, lastName: restName.join(" ") }
   } catch (error) {
     console.error("[v0] createFungiesCheckout failed:", error)
     return { error: error instanceof Error ? error.message : "Could not start this payment. Please try again." }

@@ -106,7 +106,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const [tampayFieldError, setTampayFieldError] = useState<{ phone?: string; city?: string }>({})
   const [tampayOrder, setTampayOrder] = useState<{ orderNumber: string; url: string } | null>(null)
   const [card2cryptoOrder, setCard2cryptoOrder] = useState<{ orderNumber: string; url: string } | null>(null)
-  const [fungiesOrder, setFungiesOrder] = useState<{ orderNumber: string; url: string; billingData: FungiesBillingData } | null>(null)
+  const [fungiesOrder, setFungiesOrder] = useState<{ orderNumber: string; url: string; fallbackUrl: string; billingData: FungiesBillingData } | null>(null)
   const nameRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
 
@@ -177,6 +177,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
           setFungiesOrder({
             orderNumber: checkout.orderNumber,
             url: checkout.url,
+            fallbackUrl: checkout.fallbackUrl,
             billingData: { email: email.trim(), firstName: checkout.firstName, lastName: checkout.lastName || undefined },
           })
         } catch (error) {
@@ -287,6 +288,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
               <FungiesCheckout
                 orderNumber={fungiesOrder.orderNumber}
                 checkoutUrl={fungiesOrder.url}
+                fallbackUrl={fungiesOrder.fallbackUrl}
                 billingData={fungiesOrder.billingData}
                 onPaid={(orderNumber) => router.push(`/checkout/success?order=${encodeURIComponent(orderNumber)}`)}
                 onCancel={handleCancelPayment}

@@ -16,6 +16,8 @@ interface FungiesCheckoutProps {
   orderNumber: string
   /** Checkout-element URL. Overlay mode requires an element, not an offer link. */
   checkoutUrl: string
+  /** Hosted link for the same offer, used if the overlay frame is refused. */
+  fallbackUrl: string
   billingData?: FungiesBillingData
   onPaid: (orderNumber: string) => void
   onCancel: () => void
@@ -24,6 +26,7 @@ interface FungiesCheckoutProps {
 const POLL_INTERVAL_MS = 3000
 const MAX_ATTEMPTS = 300 // ~15 minutes
 const OPEN_FAILED = "We couldn't open the payment window. Please try a different payment method."
+const STALL_HINT_MS = 9000
 
 /**
  * Fungies checkout as an overlay on this page — no second tab.
@@ -38,9 +41,13 @@ const OPEN_FAILED = "We couldn't open the payment window. Please try a different
  * Fungies dashboard — the checkout sets `frame-ancestors` from that list, and
  * an unlisted domain renders an empty frame with no JavaScript error.
  */
-export function FungiesCheckout({ orderNumber, checkoutUrl, billingData, onPaid, onCancel }: FungiesCheckoutProps) {
+export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billingData, onPaid, onCancel }: FungiesCheckoutProps) {
   const [error, setError] = useState<string | null>(null)
   const [phase, setPhase] = useState<"open" | "dismissed" | "confirming">("open")
+  // A frame refused by the provider (domain not authorized) renders blank and
+  // fires no event, so there is nothing to catch. If the overlay has been
+  // open this long without the buyer touching it, offer the hosted tab.
+  const [showFallback, setShowFallback] = useState(false)
   const settledRef = useRef(false)
   const sdkRef = useRef<typeof import("@fungies/fungies-js").Fungies | null>(null)
 
@@ -86,6 +93,10 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, billingData, onPaid,
       setPhase((current) => (current === "confirming" ? current : "dismissed"))
     }
 
+    const stallTimer = window.setTimeout(() => {
+      if (!cancelled) setShowFallback(true)
+    }, STALL_HINT_MS)
+
     document.addEventListener("fungies:checkout:complete", onComplete)
     document.addEventListener("fungies:checkout:close", onClose)
     void openOverlay().then((ok) => {
@@ -94,6 +105,7 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, billingData, onPaid,
 
     return () => {
       cancelled = true
+      window.clearTimeout(stallTimer)
       document.removeEventListener("fungies:checkout:complete", onComplete)
       document.removeEventListener("fungies:checkout:close", onClose)
       try {
@@ -180,6 +192,20 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, billingData, onPaid,
           Choose a different method
         </Button>
       </div>
+      {(showFallback || error) && phase !== "confirming" && (
+        <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">
+          Payment window not loading?{" "}
+          <a
+            href={fallbackUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-primary underline underline-offset-4"
+          >
+            Open it in a new tab instead
+          </a>
+          . This page keeps watching for the payment either way.
+        </p>
+      )}
       {!error && (
         <>
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
