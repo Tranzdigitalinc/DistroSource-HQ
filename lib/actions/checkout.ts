@@ -32,7 +32,8 @@ import { settleCard2CryptoOrder } from "@/lib/card2crypto-settlement"
 import { createTampayPaymentLink, getTampayLinkStatus, type TampayPaymentMethod } from "@/lib/tampay"
 import { getOrCreateDeviceId } from "@/lib/device"
 import { buildPaymentRiskContext } from "@/lib/payment-risk"
-import { getAppUrl, isCard2CryptoConfigured } from "@/lib/env"
+import { getAppUrl, isCard2CryptoConfigured, isFungiesConfigured } from "@/lib/env"
+import { FUNGIES_MIN_USD, buildFungiesCheckoutUrl, buildFungiesElementUrl, createFungiesCheckoutElement, createFungiesOffer } from "@/lib/fungies"
 import {
   EMAIL_PATTERN,
   computeOrderPricing,
@@ -663,6 +664,150 @@ export async function checkCard2CryptoPaymentNow(
     .limit(1)
   if (!order) return { status: "error", error: "Order not found." }
   return settleCard2CryptoOrder(order)
+}
+
+/**
+ * Fungies is a merchant of record: it collects payment and tax on a hosted
+ * checkout and reports the result over a signed webhook. Same shape as the
+ * other redirect providers — a pending order is written first, the provider
+ * is asked for a single-use priced offer, and the buyer pays in a new tab.
+ * Fulfilment is owned entirely by app/api/webhooks/fungies/route.ts.
+ */
+export async function createFungiesCheckout(input: {
+  billingEmail: string
+  billingName: string
+  couponCode?: string
+}): Promise<{ url: string; fallbackUrl: string; orderNumber: string; firstName: string; lastName: string } | { error: string }> {
+  if (!isFungiesConfigured()) return { error: "This payment method is not available right now. Please choose another one." }
+  try {
+    const billingEmail = input.billingEmail.trim()
+    const billingName = input.billingName.trim()
+    if (!EMAIL_PATTERN.test(billingEmail)) return { error: "Enter a valid email address for your order confirmation." }
+    if (!billingName) return { error: "Enter the name on this order." }
+
+    const ownerId = await getOwnerId()
+    await enforceRateLimit("fungies-checkout-create", RATE_LIMITS.fungiesCheckoutCreate, ownerId)
+
+    const session = await getSession()
+    const cookieStore = await cookies()
+    const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
+    if (pricing.total < FUNGIES_MIN_USD) {
+      return {
+        error:
+          pricing.total <= 0
+            ? "Your order total is $0 after discounts — use the free checkout instead."
+            : `This payment method requires a minimum order of ${FUNGIES_MIN_USD.toFixed(2)}.`,
+      }
+    }
+
+    const orderNumber = generateOrderNumber()
+
+    // Written pending, exactly like the Polar and TamPay paths: the cart is
+    // never touched here, so if the Fungies call below fails, this order and
+    // its items are simply deleted again and nothing else changes.
+    const [pendingOrder] = await db.transaction(async (tx) => {
+      const [order] = await tx
+        .insert(orders)
+        .values({
+          orderNumber,
+          userId: ownerId,
+          status: "pending_payment",
+          subtotalUsd: pricing.subtotal.toFixed(2),
+          discountUsd: pricing.discount.toFixed(2),
+          totalUsd: pricing.total.toFixed(2),
+          currency: "usd",
+          couponCode: pricing.promotion?.code ?? null,
+          referralCode: pricing.referral?.code ?? null,
+          affiliateCode: pricing.affiliateCode,
+          billingEmail,
+          billingName,
+          paymentMethod: "fungies",
+        })
+        .returning()
+
+      await tx.insert(orderItems).values(
+        pricing.validatedItems.map((item) => {
+          const gross = item.unitPriceUsd * item.quantity
+          const lineDiscount = pricing.subtotal > 0 ? Math.round((pricing.discount * gross / pricing.subtotal) * 100) / 100 : 0
+          return {
+            orderId: order.id,
+            productId: item.productId,
+            licenseId: item.licenseId,
+            productName: item.productName,
+            licenseType: item.licenseType,
+            unitPriceUsd: item.unitPriceUsd.toFixed(2),
+            quantity: item.quantity,
+            discountUsd: lineDiscount.toFixed(2),
+            finalLineAmountUsd: (gross - lineDiscount).toFixed(2),
+            productVersion: item.productVersion,
+            currency: "usd",
+          }
+        }),
+      )
+      return [order]
+    })
+
+    let checkoutUrl: string
+    let fallbackUrl: string
+    try {
+      const itemCount = pricing.validatedItems.reduce((n, i) => n + i.quantity, 0)
+      const label = `DistroSource order ${orderNumber} — ${itemCount} ${itemCount === 1 ? "item" : "items"}`
+      // Shown on the Fungies checkout, so it has to read as a purchase.
+      const offer = await createFungiesOffer({ orderNumber, amountUsd: pricing.total, name: label })
+      // The overlay can only render a checkout element, so wrap the offer.
+      const element = await createFungiesCheckoutElement({ offerId: offer.id, name: label })
+      checkoutUrl = buildFungiesElementUrl(element.id)
+      // Hosted link for the same offer. Hosted checkout needs no authorized
+      // domain, so this still works if the overlay frame is ever refused.
+      fallbackUrl = buildFungiesCheckoutUrl({
+        offerId: offer.id,
+        email: billingEmail,
+        firstName: billingName.split(/\s+/)[0],
+        lastName: billingName.split(/\s+/).slice(1).join(" ") || undefined,
+      })
+    } catch (fungiesError) {
+      await db.transaction(async (tx) => {
+        await tx.delete(orderItems).where(eq(orderItems.orderId, pendingOrder.id))
+        await tx.delete(orders).where(eq(orders.id, pendingOrder.id))
+      })
+      console.error("[v0] Fungies offer creation failed:", fungiesError)
+      return {
+        error:
+          fungiesError instanceof Error
+            ? fungiesError.message
+            : "We couldn't start this payment right now. Your cart is safe — please try again in a moment.",
+      }
+    }
+
+    const [firstName, ...restName] = billingName.split(/\s+/)
+    // Billing data is prefilled by the SDK at open time, so it is returned
+    // rather than baked into the URL.
+    return { url: checkoutUrl, fallbackUrl, orderNumber, firstName, lastName: restName.join(" ") }
+  } catch (error) {
+    console.error("[v0] createFungiesCheckout failed:", error)
+    return { error: error instanceof Error ? error.message : "Could not start this payment. Please try again." }
+  }
+}
+
+/**
+ * Cheap poll for the checkout tab: reads OUR order status only. Fulfilment
+ * happens in the signed webhook, so this never calls Fungies.
+ */
+export async function confirmFungiesPayment(
+  orderNumber: string,
+): Promise<{ status: "paid"; orderNumber: string } | { status: "pending" } | { status: "error"; error: string }> {
+  const ownerId = await getOwnerId()
+  await enforceRateLimit("fungies-poll", RATE_LIMITS.fungiesPoll, ownerId)
+
+  const [order] = await db
+    .select({ status: orders.status, orderNumber: orders.orderNumber, paymentMethod: orders.paymentMethod })
+    .from(orders)
+    .where(and(eq(orders.orderNumber, orderNumber), eq(orders.userId, ownerId)))
+    .limit(1)
+  if (!order || order.paymentMethod !== "fungies") return { status: "error", error: "Order not found." }
+  if (order.status === "completed") return { status: "paid", orderNumber: order.orderNumber }
+  if (order.status !== "pending_payment") return { status: "error", error: "This order is no longer payable." }
+  return { status: "pending" }
 }
 
 const PAYPAL_MIN_USD = 0.5

@@ -145,6 +145,10 @@ export const RATE_LIMITS = {
   card2cryptoPoll: { windowSeconds: 300, max: 120 },
   /** Buyer-triggered status check that hits the provider; deliberately tight. */
   card2cryptoStatusCheck: { windowSeconds: 600, max: 6 },
+  /** Creates a Fungies offer — a real API call to the provider. */
+  fungiesCheckoutCreate: { windowSeconds: 600, max: 10 },
+  /** Client polls our own DB every few seconds while the Fungies tab is open. */
+  fungiesPoll: { windowSeconds: 300, max: 120 },
   /** Otherwise allows unlimited coupon-code enumeration. */
   couponValidate: { windowSeconds: 300, max: 20 },
   freeClaim: { windowSeconds: 3600, max: 20 },

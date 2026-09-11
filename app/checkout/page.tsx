@@ -3,7 +3,7 @@ import Link from "next/link"
 import { getCartItems } from "@/lib/actions/cart"
 import { applyCouponPreview } from "@/lib/actions/checkout"
 import { getSession } from "@/lib/session"
-import { isCard2CryptoConfigured } from "@/lib/env"
+import { isCard2CryptoConfigured, isFungiesConfigured } from "@/lib/env"
 import { CheckoutForm } from "@/components/checkout/checkout-form"
 import { CheckoutHeader } from "@/components/checkout/checkout-header"
 
@@ -68,6 +68,7 @@ export default async function CheckoutPage({
             isGuest={!session?.user}
             orderItems={orderItems}
             card2cryptoEnabled={isCard2CryptoConfigured()}
+            fungiesEnabled={isFungiesConfigured()}
           />
         </div>
       </main>
