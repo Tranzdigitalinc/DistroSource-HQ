@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { ArrowRight, ShoppingBag, ICON_SIZE } from "@/lib/storefront-icons"
 import { getCartItems } from "@/lib/actions/cart"
+import { getActiveMembership } from "@/lib/membership"
+import { getOptionalOwnerId } from "@/lib/session"
 import { CartItemsList } from "@/components/cart/cart-items-list"
 import { CartSummary } from "@/components/cart/cart-summary"
 import { Button } from "@/components/ui/button"
@@ -17,6 +19,9 @@ export default async function CartPage() {
   const items = await getCartItems()
   const subtotal = items.reduce((sum, i) => sum + Number.parseFloat(i.license.price) * i.cartItem.quantity, 0)
   const totalItems = items.reduce((sum, i) => sum + i.cartItem.quantity, 0)
+
+  const ownerId = await getOptionalOwnerId()
+  const membership = ownerId ? await getActiveMembership(ownerId) : null
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -74,7 +79,12 @@ export default async function CartPage() {
               </div>
 
               <div className="lg:sticky lg:top-24 lg:self-start">
-                <CartSummary subtotal={Math.round(subtotal * 100) / 100} itemCount={totalItems} />
+                <CartSummary
+                  subtotal={Math.round(subtotal * 100) / 100}
+                  itemCount={totalItems}
+                  memberDiscountPercent={membership?.plan.discountPercent ?? 0}
+                  memberPlanName={membership?.plan.name}
+                />
               </div>
             </div>
           )}

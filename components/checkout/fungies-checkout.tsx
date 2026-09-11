@@ -12,13 +12,25 @@ export interface FungiesBillingData {
   lastName?: string
 }
 
+/** Result of a status poll — the same shape for one-time orders and
+ * memberships, so the overlay can drive either. */
+export type FungiesConfirmResult =
+  | { status: "paid"; orderNumber: string }
+  | { status: "pending" }
+  | { status: "error"; error: string }
+
 interface FungiesCheckoutProps {
+  /** Polling key — an order number, or a subscription reference for memberships. */
   orderNumber: string
   /** Checkout-element URL. Overlay mode requires an element, not an offer link. */
   checkoutUrl: string
   /** Hosted link for the same offer, used if the overlay frame is refused. */
   fallbackUrl: string
   billingData?: FungiesBillingData
+  /** Polls our own server for settlement. Defaults to the one-time order check. */
+  confirm?: (ref: string) => Promise<FungiesConfirmResult>
+  /** Switches the copy between a product order and a membership. */
+  context?: "order" | "membership"
   onPaid: (orderNumber: string) => void
   onCancel: () => void
 }
@@ -41,7 +53,8 @@ const STALL_HINT_MS = 9000
  * Fungies dashboard — the checkout sets `frame-ancestors` from that list, and
  * an unlisted domain renders an empty frame with no JavaScript error.
  */
-export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billingData, onPaid, onCancel }: FungiesCheckoutProps) {
+export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billingData, confirm = confirmFungiesPayment, context = "order", onPaid, onCancel }: FungiesCheckoutProps) {
+  const noun = context === "membership" ? "membership" : "order"
   const [error, setError] = useState<string | null>(null)
   const [phase, setPhase] = useState<"open" | "dismissed" | "confirming" | "timedOut">("open")
   // A frame refused by the provider (domain not authorized) renders blank and
@@ -146,7 +159,7 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billing
       }
       attempts += 1
       try {
-        const result = await confirmFungiesPayment(orderNumber)
+        const result = await confirm(orderNumber)
         if (cancelled || settledRef.current) return
         if (result.status === "paid") {
           settledRef.current = true
@@ -210,15 +223,17 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billing
         : phase === "timedOut"
           ? "Still waiting on confirmation"
           : "Complete your payment"
+  const settledOutcome =
+    context === "membership" ? "your membership activates automatically" : "your files unlock automatically"
   const body =
     error ??
     (phase === "confirming"
-      ? "Payment received. We're waiting for the final confirmation, then your files unlock automatically."
+      ? `Payment received. We're waiting for the final confirmation, then ${settledOutcome}.`
       : phase === "dismissed"
         ? "You closed the payment window before finishing. Nothing has been charged — you can pick up where you left off."
         : phase === "timedOut"
-          ? "This is taking longer than usual. If you completed the payment, keep your order reference and check again — nothing has been charged twice either way."
-          : "The payment window is open over this page. Your files unlock here the moment the payment is confirmed.")
+          ? `This is taking longer than usual. If you completed the payment, keep your reference and check again — nothing has been charged twice either way.`
+          : `The payment window is open over this page. Your ${noun} is confirmed here the moment the payment goes through.`)
 
   return (
     <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-card px-6 py-10 text-center">
@@ -271,7 +286,7 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billing
           </p>
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <ShieldCheck size={ICON_SIZE.sm} className="text-primary" aria-hidden="true" />
-            Fungies is the merchant of record and handles tax on this order.
+            Fungies is the merchant of record and handles tax on this {noun === "membership" ? "subscription" : "order"}.
           </p>
         </>
       )}

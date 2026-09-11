@@ -12,7 +12,9 @@ import { LicenseSelector, type LicenseOption } from "@/components/product/licens
 import { openCartDrawer, refreshCart } from "@/components/cart/cart-drawer-provider"
 import { addToCart } from "@/lib/actions/cart"
 import { toggleWishlist } from "@/lib/actions/wishlist"
+import { redeemMembershipCredit } from "@/lib/actions/subscriptions"
 import { licenseLabel } from "@/lib/licenses"
+import { Gift, Sparkles } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
 
 export interface PurchaseMeta {
@@ -28,6 +30,7 @@ export function PurchasePanel({
   licenses,
   initialWishlisted,
   isPreviewOnly = false,
+  memberCredit = null,
   compareAtPrice,
   meta,
 }: {
@@ -35,6 +38,9 @@ export function PurchasePanel({
   licenses: LicenseOption[]
   initialWishlisted: boolean
   isPreviewOnly?: boolean
+  /** Present when the viewer is an active member who could claim this product
+   * with a download credit. Null hides the claim UI. */
+  memberCredit?: { canClaim: boolean; remaining: number | null } | null
   compareAtPrice?: number | null
   meta?: PurchaseMeta
 }) {
@@ -44,6 +50,7 @@ export function PurchasePanel({
   const [isAdding, startAdd] = useTransition()
   const [isBuying, startBuy] = useTransition()
   const [isSaving, startSaving] = useTransition()
+  const [isClaiming, startClaim] = useTransition()
   const [justAdded, setJustAdded] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
   // The sticky bar shows on small screens whenever the panel is scrolled away.
@@ -82,6 +89,18 @@ export function PurchasePanel({
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Couldn't start checkout. Please try again.")
       }
+    })
+  }
+
+  function handleClaimCredit() {
+    startClaim(async () => {
+      const result = await redeemMembershipCredit({ productId, licenseId: selected.id })
+      if ("error" in result) {
+        toast.error(result.error)
+        return
+      }
+      toast.success("Claimed with a membership credit — it's in your library.")
+      router.push("/account/library")
     })
   }
 
@@ -164,6 +183,30 @@ export function PurchasePanel({
             {isBuying ? <Loader2 size={ICON_SIZE.base} className="animate-spin" aria-hidden="true" /> : <Lock size={ICON_SIZE.sm} aria-hidden="true" />}
             Buy now
           </Button>
+        )}
+
+        {!isPreviewOnly && memberCredit && (
+          <div className="mt-1 rounded-xl border border-primary/30 bg-primary/5 p-3">
+            <div className="flex items-center gap-2 text-sm">
+              <Sparkles size={ICON_SIZE.sm} weight="duotone" className="text-primary" aria-hidden="true" />
+              <span className="font-semibold text-foreground">Member perk</span>
+              <span className="ml-auto text-xs text-muted-foreground">
+                {memberCredit.remaining === null
+                  ? "Unlimited credits"
+                  : `${memberCredit.remaining} credit${memberCredit.remaining === 1 ? "" : "s"} left`}
+              </span>
+            </div>
+            <Button
+              onClick={handleClaimCredit}
+              disabled={!memberCredit.canClaim || isClaiming}
+              variant="outline"
+              size="lg"
+              className="mt-2.5 h-11 w-full rounded-full bg-transparent font-semibold"
+            >
+              {isClaiming ? <Loader2 size={ICON_SIZE.base} className="animate-spin" aria-hidden="true" /> : <Gift size={ICON_SIZE.sm} aria-hidden="true" />}
+              {memberCredit.canClaim ? "Claim with membership credit" : "No credits left this cycle"}
+            </Button>
+          </div>
         )}
       </div>
 

@@ -113,6 +113,39 @@ export async function createFungiesOffer(input: {
   return data.offer
 }
 
+export type FungiesRecurringInterval = "month" | "year"
+
+/**
+ * Creates a recurring (subscription) offer. Identical to a one-time offer
+ * plus `recurringInterval`: Fungies (via Stripe) then stores the buyer's card
+ * and auto-charges every interval. `externalId` is our subscription reference,
+ * so the webhook's offer.internalId maps straight back to our row — exactly
+ * like one-time orders. One offer per subscriber (`limit: 1` = one signup).
+ */
+export async function createFungiesRecurringOffer(input: {
+  reference: string
+  amountUsd: number
+  name: string
+  interval: FungiesRecurringInterval
+}): Promise<FungiesOffer> {
+  const data = await fungiesFetch<{ offer: FungiesOffer }>("/offers/create", {
+    method: "POST",
+    write: true,
+    body: JSON.stringify({
+      productId: getFungiesProductId(),
+      name: input.name,
+      currency: "USD",
+      price: Math.round(input.amountUsd * 100) / 100,
+      recurringInterval: input.interval,
+      recurringIntervalCount: 1,
+      limit: 1,
+      externalId: input.reference,
+    }),
+  })
+  if (!data.offer?.id) throw new Error("Fungies did not return a recurring offer.")
+  return data.offer
+}
+
 /**
  * Wraps one offer in a checkout element. Overlay and embedded checkouts can
  * only render an element URL; the bare `/checkout/{offerId}` link is hosted
@@ -141,6 +174,64 @@ export function buildFungiesElementUrl(elementId: string): string {
 export async function getFungiesOffer(offerId: string): Promise<FungiesOffer> {
   const data = await fungiesFetch<{ offer: FungiesOffer }>(`/offers/${encodeURIComponent(offerId)}`, { method: "GET" })
   return data.offer
+}
+
+/** All statuses a Fungies subscription can report. */
+export type FungiesSubscriptionStatus =
+  | "active"
+  | "past_due"
+  | "canceled"
+  | "unpaid"
+  | "incomplete"
+  | "incomplete_expired"
+  | "trialing"
+  | "paused"
+
+export interface FungiesSubscription {
+  id: string
+  status: FungiesSubscriptionStatus
+  currentIntervalStart?: number | null
+  currentIntervalEnd?: number | null
+  cancelAtIntervalEnd?: boolean
+  canceledAt?: number | null
+  userId?: string | null
+  orderNumber?: string | null
+}
+
+/**
+ * Authoritative current state of a subscription. Webhook events can arrive
+ * out of order, so anything that changes state (updated/cancelled) reconciles
+ * against this rather than trusting the event it rode in on.
+ *
+ * The id is the subscription's own identifier (its initial order number),
+ * passed back unchanged — Fungies does NOT strip a leading `#`, so we never
+ * add one.
+ */
+export async function getFungiesSubscription(subscriptionId: string): Promise<FungiesSubscription> {
+  const data = await fungiesFetch<{ subscription: FungiesSubscription }>(
+    `/subscriptions/${encodeURIComponent(subscriptionId)}`,
+    { method: "GET" },
+  )
+  if (!data.subscription?.id) throw new Error("Fungies did not return a subscription.")
+  return data.subscription
+}
+
+/**
+ * Cancels a subscription. Defaults to end-of-period so the member keeps the
+ * access they already paid for until the cycle they cancelled in runs out.
+ */
+export async function cancelFungiesSubscription(
+  subscriptionId: string,
+  atPeriodEnd = true,
+): Promise<void> {
+  await fungiesFetch<{ success: boolean }>(`/subscriptions/${encodeURIComponent(subscriptionId)}/cancel`, {
+    method: "PATCH",
+    write: true,
+    body: JSON.stringify({
+      cancelAtIntervalEnd: atPeriodEnd,
+      cancelOption: atPeriodEnd ? "endInterval" : "immediately",
+    }),
+  })
 }
 
 /**
@@ -189,6 +280,18 @@ export interface FungiesEventItem {
   product?: { object?: string; id?: string; internalId?: string | null }
 }
 
+export interface FungiesEventSubscription {
+  object?: string
+  id?: string
+  status?: FungiesSubscriptionStatus
+  currentIntervalStart?: number | null
+  currentIntervalEnd?: number | null
+  cancelAtIntervalEnd?: boolean
+  canceledAt?: number | null
+  userId?: string | null
+  orderNumber?: string | null
+}
+
 export interface FungiesEvent {
   id?: string
   type?: string
@@ -196,10 +299,30 @@ export interface FungiesEvent {
   testMode?: boolean
   data?: {
     items?: FungiesEventItem[]
-    order?: { object?: string; id?: string; orderNumber?: string; value?: number; currency?: string }
+    order?: { object?: string; id?: string; orderNumber?: string; status?: string; value?: number; currency?: string }
     payment?: { object?: string; id?: string; status?: string; value?: number; currency?: string }
+    lastPayment?: { object?: string; id?: string; status?: string }
+    subscription?: FungiesEventSubscription
     user?: { object?: string; id?: string; email?: string }
   }
+}
+
+/**
+ * The subscription an event concerns, if any. Presence of this is the signal
+ * that a `payment_success` belongs to a membership rather than a one-time
+ * order (which carries only `data.order`).
+ */
+export function subscriptionFromEvent(event: FungiesEvent): FungiesEventSubscription | null {
+  const sub = event.data?.subscription
+  return sub && typeof sub.id === "string" && sub.id.trim() ? sub : null
+}
+
+/** Milliseconds epoch → Date, tolerant of null/seconds-vs-ms ambiguity. */
+export function fungiesTimestampToDate(value: number | null | undefined): Date | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null
+  // Fungies documents milliseconds; guard against a seconds value just in case.
+  const ms = value < 1e12 ? value * 1000 : value
+  return new Date(ms)
 }
 
 /**

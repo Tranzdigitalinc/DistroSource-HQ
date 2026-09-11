@@ -30,6 +30,8 @@ interface CheckoutFormProps {
   defaultName: string
   subtotal: number
   discountPercent: number
+  /** Labels the discount line, e.g. "Pro discount" when a membership rate wins. */
+  discountLabel?: string
   isGuest: boolean
   orderItems: CheckoutItem[]
   /** Server-computed: true when CARD2CRYPTO_PAYOUT_ADDRESS is configured. */
@@ -79,7 +81,7 @@ function Section({ step, title, description, aside, children, className }: { ste
  * as before: Polar opens inline, TamPay opens in a new tab with a
  * waiting screen here.
  */
-export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPercent, isGuest, orderItems, card2cryptoEnabled = false, fungiesEnabled = false }: CheckoutFormProps) {
+export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPercent, discountLabel, isGuest, orderItems, card2cryptoEnabled = false, fungiesEnabled = false }: CheckoutFormProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const couponCode = searchParams.get("coupon") ?? undefined
@@ -496,7 +498,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
       </div>
 
       <div className="lg:sticky lg:top-24">
-        <OrderSummary subtotal={subtotal} discount={discount} discountPercent={discountPercent} total={total} itemCount={itemCount} isSubmitting={isPending} hideAction={paymentInProgress} submitLabel={payLabel} formId={FORM_ID} />
+        <OrderSummary subtotal={subtotal} discount={discount} discountPercent={discountPercent} discountLabel={discountLabel} total={total} itemCount={itemCount} isSubmitting={isPending} hideAction={paymentInProgress} submitLabel={payLabel} formId={FORM_ID} />
       </div>
 
       {!paymentInProgress && (

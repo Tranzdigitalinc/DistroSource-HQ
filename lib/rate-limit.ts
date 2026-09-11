@@ -149,6 +149,14 @@ export const RATE_LIMITS = {
   fungiesCheckoutCreate: { windowSeconds: 600, max: 10 },
   /** Client polls our own DB every few seconds while the Fungies tab is open. */
   fungiesPoll: { windowSeconds: 300, max: 120 },
+  /** Creates a Fungies recurring offer for a membership — a real provider call. */
+  membershipCheckoutCreate: { windowSeconds: 600, max: 10 },
+  /** Client polls our own DB while the membership checkout overlay is open. */
+  membershipPoll: { windowSeconds: 300, max: 120 },
+  /** Redeeming a monthly download credit — grants a real entitlement. */
+  membershipCreditRedeem: { windowSeconds: 3600, max: 60 },
+  /** Cancelling a membership — a real provider call. */
+  membershipManage: { windowSeconds: 600, max: 15 },
   /** Otherwise allows unlimited coupon-code enumeration. */
   couponValidate: { windowSeconds: 300, max: 20 },
   freeClaim: { windowSeconds: 3600, max: 20 },

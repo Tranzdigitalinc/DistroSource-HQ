@@ -1,4 +1,5 @@
 import { pgTable, text, timestamp, boolean, serial, integer, numeric, jsonb, type AnyPgColumn } from "drizzle-orm/pg-core"
+import { sql } from "drizzle-orm"
 
 // --- Better Auth required tables -------------------------------------------
 // Column names are camelCase to match Better Auth's defaults. Do not rename.
@@ -588,5 +589,77 @@ export const gamingCategories = pgTable("gaming_categories", {
   description: text("description"),
   icon: text("icon"),
   sortOrder: integer("sortOrder").notNull().default(0),
+})
+
+// --- Membership / Recurring subscriptions (Fungies) --------------------------
+// A DistroSource membership is a recurring subscription billed through Fungies
+// (which stores the card via Stripe and auto-charges each cycle — no card data
+// ever touches us). Members get a store-wide discount, monthly download
+// credits, and perks. See lib/actions/subscriptions.ts and the Fungies webhook.
+
+export const membershipPlans = pgTable("membership_plans", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(), // starter | pro | elite
+  name: text("name").notNull(),
+  tagline: text("tagline"),
+  description: text("description"),
+  monthlyPriceUsd: numeric("monthlyPriceUsd", { precision: 10, scale: 2 }).notNull(),
+  annualPriceUsd: numeric("annualPriceUsd", { precision: 10, scale: 2 }).notNull(),
+  // Store-wide discount an active member of this tier gets at checkout.
+  discountPercent: integer("discountPercent").notNull().default(0),
+  // Free product claims granted each billing cycle. null = unlimited.
+  monthlyCredits: integer("monthlyCredits"),
+  // Largest single-product price one credit may claim. null = no cap.
+  creditValueCapUsd: numeric("creditValueCapUsd", { precision: 10, scale: 2 }),
+  perks: jsonb("perks").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
+  isPopular: boolean("isPopular").notNull().default(false),
+  isActive: boolean("isActive").notNull().default(true),
+  sortOrder: integer("sortOrder").notNull().default(0),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
+export const subscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  // Our own opaque token, set as the Fungies offer externalId so a webhook's
+  // offer.internalId maps straight back to this row (mirrors orders).
+  reference: text("reference").notNull().unique(),
+  // Either a signed-in user id or null for a guest (claimed later by email).
+  userId: text("userId"),
+  guestEmail: text("guestEmail"),
+  planId: integer("planId")
+    .notNull()
+    .references(() => membershipPlans.id),
+  interval: text("interval").notNull(), // month | year
+  status: text("status").notNull().default("pending"), // pending | active | past_due | canceled | expired
+  priceUsd: numeric("priceUsd", { precision: 10, scale: 2 }).notNull(),
+  billingName: text("billingName"),
+  billingEmail: text("billingEmail").notNull(),
+  fungiesOfferId: text("fungiesOfferId"),
+  // Populated from the first payment_success; renewals match on this.
+  fungiesSubscriptionId: text("fungiesSubscriptionId").unique(),
+  fungiesCustomerId: text("fungiesCustomerId"),
+  currentPeriodStart: timestamp("currentPeriodStart"),
+  currentPeriodEnd: timestamp("currentPeriodEnd"),
+  cancelAtPeriodEnd: boolean("cancelAtPeriodEnd").notNull().default(false),
+  canceledAt: timestamp("canceledAt"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+})
+
+// Append-only ledger of credit grants (+) and redemptions (-). Remaining
+// credits for the current cycle = sum(delta) for rows in the current period.
+export const membershipCreditLedger = pgTable("membership_credit_ledger", {
+  id: serial("id").primaryKey(),
+  subscriptionId: integer("subscriptionId")
+    .notNull()
+    .references(() => subscriptions.id, { onDelete: "cascade" }),
+  delta: integer("delta").notNull(),
+  reason: text("reason").notNull(), // cycle_grant | redemption | adjustment
+  // Set on cycle_grant rows; used to keep grants idempotent per billing cycle.
+  periodStart: timestamp("periodStart"),
+  productId: integer("productId").references(() => products.id),
+  orderId: integer("orderId").references(() => orders.id),
+  entitlementId: integer("entitlementId").references(() => entitlements.id),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 

@@ -2,7 +2,8 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { getCartItems } from "@/lib/actions/cart"
 import { applyCouponPreview } from "@/lib/actions/checkout"
-import { getSession } from "@/lib/session"
+import { getActiveMembership } from "@/lib/membership"
+import { getOptionalOwnerId, getSession } from "@/lib/session"
 import { isCard2CryptoConfigured, isFungiesConfigured } from "@/lib/env"
 import { CheckoutForm } from "@/components/checkout/checkout-form"
 import { CheckoutHeader } from "@/components/checkout/checkout-header"
@@ -28,11 +29,21 @@ export default async function CheckoutPage({
   const subtotal =
     Math.round(items.reduce((sum, i) => sum + Number.parseFloat(i.license.price) * i.cartItem.quantity, 0) * 100) / 100
 
-  let discountPercent = 0
+  let couponPercent = 0
   if (coupon) {
     const preview = await applyCouponPreview(coupon, subtotal)
-    if (preview.valid) discountPercent = preview.discountPercent
+    if (preview.valid) couponPercent = preview.discountPercent
   }
+
+  // Fold in the buyer's active-member discount so the summary matches what
+  // the server actually charges (computeOrderPricing applies the same
+  // best-of-the-two floor). Never stacks with the coupon.
+  const ownerId = await getOptionalOwnerId()
+  const membership = ownerId ? await getActiveMembership(ownerId) : null
+  const memberPercent = membership?.plan.discountPercent ?? 0
+  const discountPercent = Math.max(couponPercent, memberPercent)
+  const discountLabel =
+    memberPercent >= couponPercent && memberPercent > 0 ? `${membership?.plan.name ?? "Member"} discount` : undefined
 
   const session = await getSession()
 
@@ -65,6 +76,7 @@ export default async function CheckoutPage({
             defaultName={session?.user?.name ?? ""}
             subtotal={subtotal}
             discountPercent={discountPercent}
+            discountLabel={discountLabel}
             isGuest={!session?.user}
             orderItems={orderItems}
             card2cryptoEnabled={isCard2CryptoConfigured()}

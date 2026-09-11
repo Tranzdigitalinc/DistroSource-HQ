@@ -10,6 +10,8 @@ interface OrderSummaryProps {
   subtotal: number
   discount: number
   discountPercent: number
+  /** Overrides the "Discount" line label, e.g. "Pro discount" for members. */
+  discountLabel?: string
   total: number
   itemCount?: number
   /** Rendered inside the summary card, above the totals. */
@@ -42,6 +44,7 @@ export function OrderSummary({
   subtotal,
   discount,
   discountPercent,
+  discountLabel = "Discount",
   total,
   itemCount,
   children,
@@ -70,7 +73,7 @@ export function OrderSummary({
         </div>
         {discount > 0 && (
           <div className="flex items-baseline justify-between text-sm text-success">
-            <dt>Discount{discountPercent > 0 ? ` (${discountPercent}%)` : ""}</dt>
+            <dt>{discountLabel}{discountPercent > 0 ? ` (${discountPercent}%)` : ""}</dt>
             <dd className="tabular-nums">−<PriceDisplay usdAmount={discount} /></dd>
           </div>
         )}

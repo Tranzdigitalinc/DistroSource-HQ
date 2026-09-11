@@ -31,6 +31,7 @@ import {
 } from "@/lib/db/schema"
 import { generateOrderNumber } from "@/lib/format"
 import { sendOrderConfirmationEmail, sendReferralRewardEmail } from "@/lib/email"
+import { getActiveMembership } from "@/lib/membership"
 import { getSession } from "@/lib/session"
 import { and, eq, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
@@ -96,6 +97,10 @@ export interface OrderPricing {
   campaignValid: boolean
   referral: { id: number; code: string; refereeDiscountPercent: number; rewardDiscountPercent: number; referrerUserId: string } | null
   affiliateCode: string | null
+  /** The buyer's active membership discount, when they have one. `applied` is
+   * true when it was the winning discount (membership never stacks with a
+   * coupon/referral — the larger of the two wins). */
+  membership: { planName: string; planSlug: string; discountPercent: number; applied: boolean } | null
 }
 
 /**
@@ -205,11 +210,27 @@ export async function computeOrderPricing(
     if (affiliateRow) affiliateCode = affiliateRow.code
   }
 
-  const effectiveDiscountPercent = promotion?.discountPercent ?? referral?.refereeDiscountPercent ?? 0
+  // Active-member store discount. It's a guaranteed floor, not a stacking
+  // bonus: the buyer gets whichever is larger — their membership rate or a
+  // coupon/referral — never both added together.
+  const activeMembership = await getActiveMembership(ownerId)
+  const membershipDiscountPercent = activeMembership?.plan.discountPercent ?? 0
+  const promoOrReferralPercent = promotion?.discountPercent ?? referral?.refereeDiscountPercent ?? 0
+
+  const effectiveDiscountPercent = Math.max(promoOrReferralPercent, membershipDiscountPercent)
+  const membership = activeMembership
+    ? {
+        planName: activeMembership.plan.name,
+        planSlug: activeMembership.plan.slug,
+        discountPercent: membershipDiscountPercent,
+        applied: membershipDiscountPercent > 0 && membershipDiscountPercent >= promoOrReferralPercent,
+      }
+    : null
+
   const discount = effectiveDiscountPercent ? Math.round(subtotal * (effectiveDiscountPercent / 100) * 100) / 100 : 0
   const total = Math.round((subtotal - discount) * 100) / 100
 
-  return { ownerId, subtotal, discount, total, validatedItems, promotion, coupon, campaign, campaignValid, referral, affiliateCode }
+  return { ownerId, subtotal, discount, total, validatedItems, promotion, coupon, campaign, campaignValid, referral, affiliateCode, membership }
 }
 
 /**

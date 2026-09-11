@@ -4,6 +4,8 @@ import type { Metadata } from "next"
 import { ChevronRight, FileText, ShieldCheck, Star } from "@/lib/storefront-icons"
 import { PageHeader, SectionLink } from "@/components/page-header"
 import { getProductBySlug, getRecommendedProducts } from "@/lib/queries/catalog"
+import { getProductCreditClaim } from "@/lib/membership"
+import { getOptionalUserId } from "@/lib/session"
 import { getWishlistProductIds } from "@/lib/actions/wishlist"
 import { getReviewEligibility } from "@/lib/actions/reviews"
 import { stripLiteMarkdown } from "@/lib/html-to-text"
@@ -76,6 +78,14 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     ls.length ? ls.reduce((m, l) => (Number.parseFloat(l.price) < Number.parseFloat(m.price) ? l : m), ls[0]) : null
   const ownCheapest = cheapestOf(licenses)
   const purchasable = product.assetStatus === "ready" && APPROVED_RIGHTS.includes(product.rightsStatus)
+
+  // Membership download-credit claim, when the viewer is an active member and
+  // this product is claimable. Null hides the UI entirely.
+  const memberCreditClaim = await getProductCreditClaim(
+    await getOptionalUserId(),
+    product,
+    ownCheapest ? Number.parseFloat(ownCheapest.price) : null,
+  )
   const partnerRow = related.find((r) => r.licenses.length > 0 && (r.product.coverImageUrl ?? r.images[0]?.url) && !r.product.isFree)
   const partnerCheapest = partnerRow ? cheapestOf(partnerRow.licenses) : null
   const setPair: { current: SetItem; partner: SetItem } | null =
@@ -250,6 +260,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 licenses={licenses}
                 initialWishlisted={wishlistIds.includes(product.id)}
                 isPreviewOnly={product.assetStatus !== "ready" || !APPROVED_RIGHTS.includes(product.rightsStatus)}
+                memberCredit={memberCreditClaim}
                 compareAtPrice={product.compareAtPrice ? Number.parseFloat(product.compareAtPrice) : null}
                 meta={{
                   formats: product.fileFormats,

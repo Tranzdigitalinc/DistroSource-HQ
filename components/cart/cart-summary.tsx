@@ -19,7 +19,17 @@ import { applyCouponPreview } from "@/lib/actions/checkout"
  * checkout) are not taxed here either, since TamPay is a gateway, not a
  * merchant of record.
  */
-export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCount: number }) {
+export function CartSummary({
+  subtotal,
+  itemCount,
+  memberDiscountPercent = 0,
+  memberPlanName,
+}: {
+  subtotal: number
+  itemCount: number
+  memberDiscountPercent?: number
+  memberPlanName?: string
+}) {
   const router = useRouter()
   const [code, setCode] = useState("")
   const [discountPercent, setDiscountPercent] = useState(0)
@@ -28,7 +38,11 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
   const [isPending, startTransition] = useTransition()
   const [isNavigating, startNavigate] = useTransition()
 
-  const discount = Math.round(subtotal * (discountPercent / 100) * 100) / 100
+  // Membership is a floor, not a bonus: the buyer gets whichever is larger,
+  // matching the server-side rule in computeOrderPricing.
+  const memberWins = memberDiscountPercent > discountPercent
+  const effectivePercent = Math.max(discountPercent, memberDiscountPercent)
+  const discount = Math.round(subtotal * (effectivePercent / 100) * 100) / 100
   const total = Math.max(0, subtotal - discount)
 
   function handleApply() {
@@ -95,14 +109,14 @@ export function CartSummary({ subtotal, itemCount }: { subtotal: number; itemCou
             <dd className="tabular-nums"><PriceDisplay usdAmount={subtotal} /></dd>
           </div>
           <AnimatePresence initial={false}>
-            {discountPercent > 0 && (
+            {effectivePercent > 0 && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 className="flex justify-between text-success"
               >
-                <dt>Discount ({discountPercent}%)</dt>
+                <dt>{memberWins ? `${memberPlanName ?? "Member"} discount (${effectivePercent}%)` : `Discount (${effectivePercent}%)`}</dt>
                 <dd className="tabular-nums">−<PriceDisplay usdAmount={discount} /></dd>
               </motion.div>
             )}

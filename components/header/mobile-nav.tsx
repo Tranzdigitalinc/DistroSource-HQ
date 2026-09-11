@@ -14,6 +14,7 @@ import {
   Library,
   Mail,
   Menu,
+  Sparkles,
   Tag,
   User,
   ICON_SIZE,
@@ -148,9 +149,12 @@ export function MobileNav({ departments }: { departments: Department[] }) {
             <Stagger>
               <NavRow href="/gaming" icon={GameController} label="Gaming" onClick={close} badge="New" />
             </Stagger>
-            <Stagger>
-              <NavRow href="/deals" icon={Tag} label="Deals" onClick={close} />
-            </Stagger>
+          <Stagger>
+            <NavRow href="/deals" icon={Tag} label="Deals" onClick={close} />
+          </Stagger>
+          <Stagger>
+            <NavRow href="/membership" icon={Sparkles} label="Membership" onClick={close} />
+          </Stagger>
 
             <GroupLabel>Account</GroupLabel>
             <Stagger>

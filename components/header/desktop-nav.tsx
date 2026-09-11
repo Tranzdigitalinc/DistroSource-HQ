@@ -24,6 +24,7 @@ const NAV_LINKS: { href: string; label: string; badge?: string }[] = [
   { href: "/products", label: "Products" },
   { href: "/gaming", label: "Gaming", badge: "New" },
   { href: "/deals", label: "Deals" },
+  { href: "/membership", label: "Membership" },
   { href: "/licenses", label: "Licensing" },
 ]
 

@@ -3,8 +3,9 @@ import { and, eq } from "drizzle-orm"
 import { db } from "@/lib/db"
 import { operationEvents, orders } from "@/lib/db/schema"
 import { fulfillPendingOrder } from "@/lib/checkout-core"
+import { fulfillSubscriptionPayment, reconcileSubscription } from "@/lib/membership"
 import { getFungiesWebhookSecret } from "@/lib/env"
-import { orderNumberFromEvent, paidAmountFromEvent, verifyFungiesSignature, type FungiesEvent } from "@/lib/fungies"
+import { orderNumberFromEvent, paidAmountFromEvent, subscriptionFromEvent, verifyFungiesSignature, type FungiesEvent } from "@/lib/fungies"
 
 export const dynamic = "force-dynamic"
 
@@ -44,10 +45,34 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
   }
 
-  // Only a successful payment grants access. Refunds and subscription events
-  // are acknowledged so Fungies stops retrying, but change nothing here.
+  // --- Subscription (membership) lifecycle ---------------------------------
+  // A subscription renewal charge fulfils through the same paid path. Status
+  // changes (cancel-at-period-end, expiry, past-due) reconcile from the API.
+  if (event.type === "subscription_interval") {
+    const { handled } = await fulfillSubscriptionPayment(event)
+    return NextResponse.json({ received: true, type: event.type, handled })
+  }
+  if (event.type === "subscription_updated" || event.type === "subscription_cancelled") {
+    const { handled } = await reconcileSubscription(event)
+    return NextResponse.json({ received: true, type: event.type, handled })
+  }
+  // `subscription_created` fires before the first charge confirms — never a
+  // fulfilment signal on its own. We wait for payment_success below.
+  if (event.type === "subscription_created") {
+    return NextResponse.json({ received: true, ignored: "subscription_created" })
+  }
+
+  // Only a successful payment grants access. Refunds and any other event are
+  // acknowledged so Fungies stops retrying, but change nothing here.
   if (event.type !== "payment_success") {
     return NextResponse.json({ received: true, ignored: event.type ?? "unknown" })
+  }
+
+  // A payment_success that carries a subscription is a membership charge
+  // (initial signup or renewal), not a one-time order — fulfil it that way.
+  if (subscriptionFromEvent(event)) {
+    const { handled } = await fulfillSubscriptionPayment(event)
+    return NextResponse.json({ received: true, type: "payment_success", subscription: true, handled })
   }
 
   const orderNumber = orderNumberFromEvent(event)
