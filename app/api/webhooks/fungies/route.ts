@@ -3,9 +3,9 @@ import { and, eq } from "drizzle-orm"
 import { db } from "@/lib/db"
 import { operationEvents, orders } from "@/lib/db/schema"
 import { fulfillPendingOrder } from "@/lib/checkout-core"
-import { fulfillSubscriptionPayment, reconcileSubscription } from "@/lib/membership"
+import { fulfillSubscriptionPayment, isMembershipReference, reconcileSubscription } from "@/lib/membership"
 import { getFungiesWebhookSecret } from "@/lib/env"
-import { orderNumberFromEvent, paidAmountFromEvent, subscriptionFromEvent, verifyFungiesSignature, type FungiesEvent } from "@/lib/fungies"
+import { orderNumberFromEvent, paidAmountFromEvent, subscriptionIdFromEvent, verifyFungiesSignature, type FungiesEvent } from "@/lib/fungies"
 
 export const dynamic = "force-dynamic"
 
@@ -68,9 +68,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true, ignored: event.type ?? "unknown" })
   }
 
-  // A payment_success that carries a subscription is a membership charge
-  // (initial signup or renewal), not a one-time order — fulfil it that way.
-  if (subscriptionFromEvent(event)) {
+  // A payment_success for a membership (initial signup or renewal) is never a
+  // one-time order. Recognise it by a subscription id on the subscription,
+  // payment or order object, or by our MEMB- reference on the offer, so one
+  // missing field can't send a paid membership down the order path.
+  if (subscriptionIdFromEvent(event) || isMembershipReference(orderNumberFromEvent(event))) {
     const { handled } = await fulfillSubscriptionPayment(event)
     return NextResponse.json({ received: true, type: "payment_success", subscription: true, handled })
   }

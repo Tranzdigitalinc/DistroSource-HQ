@@ -37,6 +37,7 @@ import {
   getActiveMembership,
   getFungiesPlanProductId,
   getMembershipPlanBySlug,
+  lockSubscriptionCredits,
 } from "@/lib/membership"
 import { and, asc, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
@@ -183,10 +184,14 @@ export async function cancelMyMembership(): Promise<{ success: true } | { error:
   if (!membership) return { error: "You don't have an active membership to cancel." }
 
   const { subscription } = membership
+  // Without the Fungies id the cancellation can't reach Fungies, and marking
+  // it cancelled here would let billing carry on behind the member's back.
+  if (!subscription.fungiesSubscriptionId) {
+    console.error("[v0] Cancel requested for a membership with no Fungies subscription id", { reference: subscription.reference })
+    return { error: "We couldn't cancel this membership automatically. Please contact support and we'll cancel it for you." }
+  }
   try {
-    if (subscription.fungiesSubscriptionId) {
-      await cancelFungiesSubscription(subscription.fungiesSubscriptionId, true)
-    }
+    await cancelFungiesSubscription(subscription.fungiesSubscriptionId, true)
   } catch (error) {
     console.error("[v0] Fungies cancel failed:", error)
     return { error: "We couldn't cancel your membership right now. Please try again shortly." }
@@ -261,7 +266,22 @@ export async function redeemMembershipCredit(input: {
   const session = await getSession()
   const orderNumber = generateOrderNumber()
 
-  await db.transaction(async (tx) => {
+  const blocked = await db.transaction(async (tx): Promise<string | null> => {
+    // Serialise claims for this membership, then re-check under the lock: two
+    // simultaneous claims must not both spend the last credit, or both grant
+    // the same product. The checks above only give a fast, friendly answer.
+    await lockSubscriptionCredits(tx, subscription.id)
+    const [alreadyOwned] = await tx
+      .select({ id: entitlements.id })
+      .from(entitlements)
+      .where(and(eq(entitlements.userId, userId), eq(entitlements.productId, product.id), eq(entitlements.isRevoked, false)))
+      .limit(1)
+    if (alreadyOwned) return "You already own this product."
+    if (plan.monthlyCredits !== null) {
+      const left = await computeRemainingCredits(subscription, plan)
+      if (left !== null && left < 1) return "You've used all of this cycle's download credits. They reset next billing period."
+    }
+
     const [order] = await tx
       .insert(orders)
       .values({
@@ -307,7 +327,9 @@ export async function redeemMembershipCredit(input: {
         entitlementId: entitlement.id,
       })
     }
+    return null
   })
+  if (blocked) return { error: blocked }
 
   revalidatePath("/account/library")
   revalidatePath("/account/orders")

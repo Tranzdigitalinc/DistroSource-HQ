@@ -303,9 +303,19 @@ export interface FungiesEvent {
   testMode?: boolean
   data?: {
     items?: FungiesEventItem[]
-    order?: { object?: string; id?: string; orderNumber?: string; status?: string; value?: number; currency?: string }
-    payment?: { object?: string; id?: string; status?: string; value?: number; currency?: string }
-    lastPayment?: { object?: string; id?: string; status?: string }
+    order?: { object?: string; id?: string; orderNumber?: string; status?: string; value?: number; currency?: string; subscriptionId?: string | null }
+    payment?: {
+      object?: string
+      id?: string
+      status?: string
+      /** one_time | subscription_initial | subscription_interval | subscription_update | ... */
+      type?: string
+      value?: number
+      currency?: string
+      createdAt?: number | null
+      subscriptionId?: string | null
+    }
+    lastPayment?: { object?: string; id?: string; status?: string; type?: string; createdAt?: number | null }
     subscription?: FungiesEventSubscription
     user?: { object?: string; id?: string; email?: string }
   }
@@ -319,6 +329,30 @@ export interface FungiesEvent {
 export function subscriptionFromEvent(event: FungiesEvent): FungiesEventSubscription | null {
   const sub = event.data?.subscription
   return sub && typeof sub.id === "string" && sub.id.trim() ? sub : null
+}
+
+/**
+ * The Fungies subscription id an event belongs to, from any of the places it
+ * can appear. Subscription events always carry `data.subscription`; payment
+ * events carry it only "when the payment belongs to a subscription", and also
+ * expose `subscriptionId` on the payment and order objects. Reading all three
+ * means a membership charge is never mistaken for a one-time order because a
+ * single representation was missing.
+ */
+export function subscriptionIdFromEvent(event: FungiesEvent): string | null {
+  const candidates = [event.data?.subscription?.id, event.data?.payment?.subscriptionId, event.data?.order?.subscriptionId]
+  for (const c of candidates) if (typeof c === "string" && c.trim()) return c.trim()
+  return null
+}
+
+/**
+ * When the paid charge was made (ms epoch). The same payment is `data.payment`
+ * on `payment_success` and `data.lastPayment` on `subscription_interval`, so
+ * this is identical across both events for one charge.
+ */
+export function paidAtFromEvent(event: FungiesEvent): number | null {
+  const v = event.data?.payment?.createdAt ?? event.data?.lastPayment?.createdAt
+  return typeof v === "number" && Number.isFinite(v) ? v : null
 }
 
 /** Milliseconds epoch → Date, tolerant of null/seconds-vs-ms ambiguity. */

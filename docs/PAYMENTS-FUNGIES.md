@@ -160,6 +160,13 @@ and cancellations never reach us:
 | `subscription_updated` | Re-reads the subscription from the API (cancel at period end, past due) |
 | `subscription_cancelled` | Re-reads the subscription and ends benefits when the period lapses |
 
+Renewals: Fungies sends both `payment_success` and `subscription_interval`
+for every charge and may repeat either. The billing period is read from
+Fungies' own subscription record, and each cycle's credits are granted once
+per period under a per-subscription database lock, so duplicates are no-ops.
+Credit redemptions take the same lock, so two simultaneous claims can't spend
+the same credit.
+
 ## Notes
 
 - Fungies has no separate test mode for payments — a checkout you complete is

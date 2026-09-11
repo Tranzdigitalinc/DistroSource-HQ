@@ -19,7 +19,9 @@ import {
   fungiesTimestampToDate,
   getFungiesSubscription,
   orderNumberFromEvent,
+  paidAtFromEvent,
   subscriptionFromEvent,
+  subscriptionIdFromEvent,
   type FungiesEvent,
   type FungiesSubscriptionStatus,
 } from "@/lib/fungies"
@@ -240,24 +242,44 @@ export async function computeRemainingCredits(
  */
 async function grantCycleCredits(subscription: Subscription, plan: MembershipPlan, periodStart: Date): Promise<void> {
   if (plan.monthlyCredits === null || plan.monthlyCredits <= 0) return
-  const [existing] = await db
-    .select({ id: membershipCreditLedger.id })
-    .from(membershipCreditLedger)
-    .where(
-      and(
-        eq(membershipCreditLedger.subscriptionId, subscription.id),
-        eq(membershipCreditLedger.reason, "cycle_grant"),
-        eq(membershipCreditLedger.periodStart, periodStart),
-      ),
-    )
-    .limit(1)
-  if (existing) return
-  await db.insert(membershipCreditLedger).values({
-    subscriptionId: subscription.id,
-    delta: plan.monthlyCredits,
-    reason: "cycle_grant",
-    periodStart,
+  const credits = plan.monthlyCredits
+  // Fungies sends payment_success AND subscription_interval for every renewal
+  // and may deliver either more than once, so two deliveries can race here.
+  await db.transaction(async (tx) => {
+    await lockSubscriptionCredits(tx, subscription.id)
+    const [existing] = await tx
+      .select({ id: membershipCreditLedger.id })
+      .from(membershipCreditLedger)
+      .where(
+        and(
+          eq(membershipCreditLedger.subscriptionId, subscription.id),
+          eq(membershipCreditLedger.reason, "cycle_grant"),
+          eq(membershipCreditLedger.periodStart, periodStart),
+        ),
+      )
+      .limit(1)
+    if (existing) return
+    await tx.insert(membershipCreditLedger).values({
+      subscriptionId: subscription.id,
+      delta: credits,
+      reason: "cycle_grant",
+      periodStart,
+    })
   })
+}
+
+/** Advisory-lock namespace for per-subscription credit-ledger writes. */
+const CREDIT_LEDGER_LOCK = 72431
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0]
+
+/**
+ * Serialises every credit-ledger write for one subscription (cycle grants and
+ * redemptions) until the surrounding transaction ends. The ledger has no
+ * unique index to lean on, so each check-then-insert must run under this.
+ */
+export async function lockSubscriptionCredits(tx: Tx, subscriptionId: number): Promise<void> {
+  await tx.execute(sql`SELECT pg_advisory_xact_lock(${CREDIT_LEDGER_LOCK}::int, ${subscriptionId}::int)`)
 }
 
 async function findSubscriptionRow(reference: string | null, fungiesSubscriptionId: string | null) {
@@ -283,31 +305,52 @@ async function findSubscriptionRow(reference: string | null, fungiesSubscription
  * safe against out-of-order delivery; credit grants are period-idempotent.
  */
 export async function fulfillSubscriptionPayment(event: FungiesEvent): Promise<{ handled: boolean }> {
-  const sub = subscriptionFromEvent(event)
-  if (!sub?.id) return { handled: false }
-
   const reference = orderNumberFromEvent(event)
-  const row = await findSubscriptionRow(reference, sub.id)
+  const subId = subscriptionIdFromEvent(event)
+  if (!subId && !isMembershipReference(reference)) return { handled: false }
+
+  const row = await findSubscriptionRow(reference, subId)
   if (!row) {
-    console.error("[v0] Fungies subscription payment for unknown subscription", { subId: sub.id, reference, eventId: event.id })
+    console.error("[v0] Fungies subscription payment for unknown subscription", { subId, reference, eventId: event.id })
     return { handled: false }
+  }
+  if (!subId) {
+    // Paid and ours, but without the subscription id we could never renew,
+    // reconcile or cancel it. Fail loudly (the route answers 500 and Fungies
+    // retries) rather than activate something we can't manage.
+    throw new Error(`Fungies membership payment for ${row.reference} carried no subscription id`)
   }
 
   const [plan] = await db.select().from(membershipPlans).where(eq(membershipPlans.id, row.planId)).limit(1)
   if (!plan) return { handled: false }
 
-  const periodStart = fungiesTimestampToDate(sub.currentIntervalStart) ?? new Date()
-  const periodEnd = fungiesTimestampToDate(sub.currentIntervalEnd) ?? addInterval(periodStart, row.interval)
-  const isRenewal = row.status === "active" && row.fungiesSubscriptionId === sub.id
+  // The billing period comes from Fungies' own subscription record. Webhook
+  // payloads may omit the interval dates (the documented subscription_interval
+  // example carries only id and status), and the period start is the
+  // idempotency key for this cycle's credit grant, so it must be identical for
+  // every delivery of the same charge. A failed read throws: the route answers
+  // 500 and Fungies retries, rather than granting under an unstable key.
+  const sub = subscriptionFromEvent(event)
+  const fresh = await getFungiesSubscription(subId)
+  const periodStart =
+    fungiesTimestampToDate(fresh.currentIntervalStart) ??
+    fungiesTimestampToDate(sub?.currentIntervalStart) ??
+    fungiesTimestampToDate(paidAtFromEvent(event))
+  if (!periodStart) throw new Error(`No billing period available for Fungies subscription ${subId}`)
+  const periodEnd =
+    fungiesTimestampToDate(fresh.currentIntervalEnd) ??
+    fungiesTimestampToDate(sub?.currentIntervalEnd) ??
+    addInterval(periodStart, row.interval)
+  const isRenewal = row.status === "active" && row.fungiesSubscriptionId === subId
 
   await db
     .update(subscriptions)
     .set({
       status: "active",
-      fungiesSubscriptionId: sub.id,
+      fungiesSubscriptionId: subId,
       currentPeriodStart: periodStart,
       currentPeriodEnd: periodEnd,
-      cancelAtPeriodEnd: sub.cancelAtIntervalEnd ?? row.cancelAtPeriodEnd,
+      cancelAtPeriodEnd: fresh.cancelAtIntervalEnd ?? sub?.cancelAtIntervalEnd ?? row.cancelAtPeriodEnd,
       updatedAt: new Date(),
     })
     .where(eq(subscriptions.id, row.id))
@@ -319,7 +362,7 @@ export async function fulfillSubscriptionPayment(event: FungiesEvent): Promise<{
     entityType: "subscription",
     entityId: row.reference,
     status: "resolved",
-    payload: { planSlug: plan.slug, interval: row.interval, fungiesSubscriptionId: sub.id, eventId: event.id },
+    payload: { planSlug: plan.slug, interval: row.interval, fungiesSubscriptionId: subId, eventId: event.id },
     createdBy: row.userId,
     resolvedAt: new Date(),
   })
