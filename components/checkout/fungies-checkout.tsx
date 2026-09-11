@@ -81,6 +81,14 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billing
   // Open on mount, and wire the SDK's DOM events.
   useEffect(() => {
     let cancelled = false
+    // These listeners must be registered synchronously on mount, before the
+    // lazy SDK import above resolves, so we can't reference the imported
+    // DOM_CHECKOUT_EVENTS constants here — that would force the SDK to load
+    // eagerly at module scope, which is exactly what the lazy import avoids.
+    // Literal event names are the documented pattern for this case (it's
+    // the same approach the SDK docs' own vanilla-JS/CDN example uses).
+    const completeEvent = "fungies:checkout:complete"
+    const closeEvent = "fungies:checkout:close"
 
     const onComplete = () => {
       if (cancelled) return
@@ -97,8 +105,8 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billing
       if (!cancelled) setShowFallback(true)
     }, STALL_HINT_MS)
 
-    document.addEventListener("fungies:checkout:complete", onComplete)
-    document.addEventListener("fungies:checkout:close", onClose)
+    document.addEventListener(completeEvent, onComplete)
+    document.addEventListener(closeEvent, onClose)
     void openOverlay().then((ok) => {
       if (!cancelled && !ok) setError(OPEN_FAILED)
     })
@@ -106,8 +114,8 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billing
     return () => {
       cancelled = true
       window.clearTimeout(stallTimer)
-      document.removeEventListener("fungies:checkout:complete", onComplete)
-      document.removeEventListener("fungies:checkout:close", onClose)
+      document.removeEventListener(completeEvent, onComplete)
+      document.removeEventListener(closeEvent, onClose)
       try {
         sdkRef.current?.Checkout.close()
       } catch {
