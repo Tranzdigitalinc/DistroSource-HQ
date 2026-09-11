@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { and, eq } from "drizzle-orm"
 import { db } from "@/lib/db"
-import { orders } from "@/lib/db/schema"
+import { operationEvents, orders } from "@/lib/db/schema"
 import { fulfillPendingOrder } from "@/lib/checkout-core"
 import { getFungiesWebhookSecret } from "@/lib/env"
 import { orderNumberFromEvent, paidAmountFromEvent, verifyFungiesSignature, type FungiesEvent } from "@/lib/fungies"
@@ -87,5 +87,19 @@ export async function POST(request: Request) {
   }
 
   await fulfillPendingOrder(order)
+
+  // Fungies' webhook, like TamPay's status poll, carries no 3DS/frictionless
+  // vs. challenge indicator — this is the finest-grained success signal
+  // available for this provider.
+  await db.insert(operationEvents).values({
+    eventType: "payment_succeeded",
+    entityType: "order",
+    entityId: order.orderNumber,
+    status: "resolved",
+    payload: { paymentProvider: "fungies", eventId: event.id },
+    createdBy: order.userId,
+    resolvedAt: new Date(),
+  })
+
   return NextResponse.json({ received: true, status: "completed" })
 }

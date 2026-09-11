@@ -688,6 +688,13 @@ export async function createFungiesCheckout(input: {
     const ownerId = await getOwnerId()
     await enforceRateLimit("fungies-checkout-create", RATE_LIMITS.fungiesCheckoutCreate, ownerId)
 
+    // Same internal-only device/risk continuity signal used for every other
+    // provider (see lib/payment-risk.ts). Fungies' API has no field for
+    // this, so it is never sent to Fungies — it exists purely for our own
+    // cross-provider fraud observability.
+    const { deviceId, wasKnown: knownDeviceForUser } = await getOrCreateDeviceId()
+    const riskContext = await buildPaymentRiskContext(ownerId)
+
     const session = await getSession()
     const cookieStore = await cookies()
     const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
@@ -699,6 +706,15 @@ export async function createFungiesCheckout(input: {
             : `This payment method requires a minimum order of ${FUNGIES_MIN_USD.toFixed(2)}.`,
       }
     }
+
+    await db.insert(operationEvents).values({
+      eventType: "payment_initiated",
+      entityType: "cart",
+      entityId: ownerId,
+      status: "open",
+      payload: { paymentProvider: "fungies", deviceId, knownDeviceForUser, riskContext },
+      createdBy: ownerId,
+    })
 
     const orderNumber = generateOrderNumber()
 
@@ -771,6 +787,15 @@ export async function createFungiesCheckout(input: {
         await tx.delete(orders).where(eq(orders.id, pendingOrder.id))
       })
       console.error("[v0] Fungies offer creation failed:", fungiesError)
+      await db.insert(operationEvents).values({
+        eventType: "payment_link_failed",
+        entityType: "order",
+        entityId: orderNumber,
+        status: "resolved",
+        payload: { paymentProvider: "fungies", reason: fungiesError instanceof Error ? fungiesError.message : String(fungiesError) },
+        createdBy: ownerId,
+        resolvedAt: new Date(),
+      })
       return {
         error:
           fungiesError instanceof Error
@@ -778,6 +803,16 @@ export async function createFungiesCheckout(input: {
             : "We couldn't start this payment right now. Your cart is safe — please try again in a moment.",
       }
     }
+
+    await db.insert(operationEvents).values({
+      eventType: "payment_link_created",
+      entityType: "order",
+      entityId: orderNumber,
+      status: "resolved",
+      payload: { paymentProvider: "fungies" },
+      createdBy: ownerId,
+      resolvedAt: new Date(),
+    })
 
     const [firstName, ...restName] = billingName.split(/\s+/)
     // Billing data is prefilled by the SDK at open time, so it is returned
