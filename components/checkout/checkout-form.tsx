@@ -20,17 +20,8 @@ import { Check, ChevronDown, CreditCard, Crypto, Download, Lock, Store, User, Wa
 import { cn } from "@/lib/utils"
 
 type PaymentProvider = "polar" | "tampay" | "card2crypto" | "fungies"
-type TampaySubMethod = "togo" | "lahza" | "stripe"
-
-// The action itself (lib/actions/checkout.ts) has the matching server-side
-// guard, so this only controls whether the picker is shown.
-const TAMPAY_ENABLED = true
-
-const TAMPAY_METHODS: { id: TampaySubMethod; label: string; description: string }[] = [
-  { id: "togo", label: "Togo", description: "Cards, Apple Pay & Google Pay" },
-  { id: "lahza", label: "Lahza", description: "Cards only, lower fee" },
-  { id: "stripe", label: "Stripe", description: "Cards via Stripe" },
-]
+  // The action itself (lib/actions/checkout.ts) enforces Lahza server-side.
+  const TAMPAY_ENABLED = true
 
 const CARD_ICONS = ["visa", "mastercard", "american-express", "apple-pay", "google-pay"]
 
@@ -100,10 +91,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const [isPending, startTransition] = useTransition()
   const [polarCheckoutUrl, setPolarCheckoutUrl] = useState<string | null>(null)
   const [paymentProvider, setPaymentProvider] = useState<PaymentProvider>("polar")
-  const [tampaySubMethod, setTampaySubMethod] = useState<TampaySubMethod>("togo")
-  const [tampayPhone, setTampayPhone] = useState("")
-  const [tampayCity, setTampayCity] = useState("")
-  const [tampayFieldError, setTampayFieldError] = useState<{ phone?: string; city?: string }>({})
+  const tampaySubMethod = "lahza" as const
   const [tampayOrder, setTampayOrder] = useState<{ orderNumber: string; url: string } | null>(null)
   const [card2cryptoOrder, setCard2cryptoOrder] = useState<{ orderNumber: string; url: string } | null>(null)
   const [fungiesOrder, setFungiesOrder] = useState<{ orderNumber: string; url: string; fallbackUrl: string; billingData: FungiesBillingData } | null>(null)
@@ -132,14 +120,6 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
     if (!validateContact()) return
 
     if (TAMPAY_ENABLED && paymentProvider === "tampay") {
-      const errors: typeof tampayFieldError = {}
-      if (tampaySubMethod === "togo") {
-        if (!tampayPhone.trim()) errors.phone = "Phone is required for Togo."
-        if (!tampayCity.trim()) errors.city = "City is required for Togo."
-      }
-      setTampayFieldError(errors)
-      if (Object.keys(errors).length > 0) return
-
       startTransition(async () => {
         try {
           const checkout = await createTampayCheckout({
@@ -147,7 +127,6 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
             billingName: name.trim(),
             couponCode,
             paymentMethod: tampaySubMethod,
-            ...(tampaySubMethod === "togo" ? { phone: tampayPhone.trim(), city: tampayCity.trim() } : {}),
           })
           if ("error" in checkout) {
             await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
@@ -404,7 +383,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                         <Wallet size={ICON_SIZE.base} weight="duotone" className="text-primary" aria-hidden="true" />
                         TamPay
                       </span>
-                      <span className="mt-1 block text-xs text-muted-foreground">Regional cards & wallets</span>
+                      <span className="mt-1 block text-xs text-muted-foreground">Secure card checkout</span>
                     </span>
                   </button>
                 )}
@@ -453,28 +432,6 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                     className="overflow-hidden"
                   >
                     <div className="mt-4 flex flex-col gap-4 border-t border-border pt-4">
-                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                        {TAMPAY_METHODS.map((method) => (
-                          <button key={method.id} type="button" onClick={() => setTampaySubMethod(method.id)} aria-pressed={tampaySubMethod === method.id} className={cn(optionClass(tampaySubMethod === method.id), "flex-col gap-0 px-3 py-2.5")}>
-                            <span className="block text-sm font-semibold text-foreground">{method.label}</span>
-                            <span className="block text-xs text-muted-foreground">{method.description}</span>
-                          </button>
-                        ))}
-                      </div>
-                      {tampaySubMethod === "togo" && (
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                          <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="tampay-phone">Phone (international format)</Label>
-                            <Input id="tampay-phone" type="tel" value={tampayPhone} onChange={(e) => setTampayPhone(e.target.value)} aria-invalid={!!tampayFieldError.phone} className="h-12 rounded-xl" />
-                            {tampayFieldError.phone && <p className="text-xs text-destructive" role="alert">{tampayFieldError.phone}</p>}
-                          </div>
-                          <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="tampay-city">City</Label>
-                            <Input id="tampay-city" value={tampayCity} onChange={(e) => setTampayCity(e.target.value)} aria-invalid={!!tampayFieldError.city} className="h-12 rounded-xl" />
-                            {tampayFieldError.city && <p className="text-xs text-destructive" role="alert">{tampayFieldError.city}</p>}
-                          </div>
-                        </div>
-                      )}
                       <p className="text-xs leading-relaxed text-muted-foreground">
                         TamPay adds a small processing fee on top of the total shown here — it&rsquo;s calculated and disclosed on TamPay&rsquo;s payment page before you pay.
                       </p>

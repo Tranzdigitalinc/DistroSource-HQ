@@ -283,11 +283,9 @@ export async function createTampayCheckout(input: {
   try {
     const billingEmail = input.billingEmail.trim()
     const billingName = input.billingName.trim()
+    const paymentMethod: TampayPaymentMethod = "lahza"
     if (!EMAIL_PATTERN.test(billingEmail)) return { error: "Enter a valid email address for your order confirmation." }
     if (!billingName) return { error: "Enter the name on this order." }
-    if (input.paymentMethod === "togo" && (!input.phone?.trim() || !input.city?.trim())) {
-      return { error: "Phone and city are required for the Togo payment method." }
-    }
 
     const ownerId = await getOwnerId()
     await enforceRateLimit("tampay-checkout-create", RATE_LIMITS.tampayCheckoutCreate, ownerId)
@@ -310,7 +308,7 @@ export async function createTampayCheckout(input: {
       entityType: "cart",
       entityId: ownerId,
       status: "open",
-      payload: { paymentProvider: "tampay", tampayPaymentMethod: input.paymentMethod, deviceId, knownDeviceForUser, riskContext },
+      payload: { paymentProvider: "tampay", tampayPaymentMethod: paymentMethod, deviceId, knownDeviceForUser, riskContext },
       createdBy: ownerId,
     })
 
@@ -345,7 +343,7 @@ export async function createTampayCheckout(input: {
           billingEmail,
           billingName,
           paymentMethod: "tampay",
-          tampayPaymentMethod: input.paymentMethod,
+          tampayPaymentMethod: paymentMethod,
         })
         .returning()
 
@@ -376,7 +374,7 @@ export async function createTampayCheckout(input: {
       link = await createTampayPaymentLink({
         title: `DistroSource order ${orderNumber}`,
         amountUsd: pricing.total,
-        paymentMethod: input.paymentMethod,
+        paymentMethod,
         // The buyer pays TamPay's processing fee on top of the listed
         // total, so the total DistroSource receives (and what every other
         // payment method charges) never changes based on which one is picked.
@@ -384,9 +382,7 @@ export async function createTampayCheckout(input: {
         customer: {
           name: billingName,
           email: billingEmail,
-          ...(input.paymentMethod === "togo"
-            ? { phone: input.phone!.trim(), city: input.city!.trim(), country: input.country?.trim() || undefined }
-            : {}),
+
         },
       })
     } catch (tampayError) {
@@ -400,7 +396,7 @@ export async function createTampayCheckout(input: {
         entityType: "order",
         entityId: orderNumber,
         status: "resolved",
-        payload: { paymentProvider: "tampay", tampayPaymentMethod: input.paymentMethod, reason: tampayError instanceof Error ? tampayError.message : String(tampayError) },
+        payload: { paymentProvider: "tampay", tampayPaymentMethod: paymentMethod, reason: tampayError instanceof Error ? tampayError.message : String(tampayError) },
         createdBy: ownerId,
         resolvedAt: new Date(),
       })
@@ -426,7 +422,7 @@ export async function createTampayCheckout(input: {
       entityType: "order",
       entityId: orderNumber,
       status: "resolved",
-      payload: { paymentProvider: "tampay", tampayPaymentMethod: input.paymentMethod, tampayOrderId: link.orderId },
+      payload: { paymentProvider: "tampay", tampayPaymentMethod: paymentMethod, tampayOrderId: link.orderId },
       createdBy: ownerId,
       resolvedAt: new Date(),
     })
