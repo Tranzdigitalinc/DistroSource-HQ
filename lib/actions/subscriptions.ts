@@ -35,7 +35,7 @@ import {
   computeRemainingCredits,
   generateSubscriptionReference,
   getActiveMembership,
-  getFungiesPlanProductId,
+  getFungiesPlanBilling,
   getMembershipPlanBySlug,
   lockSubscriptionCredits,
 } from "@/lib/membership"
@@ -73,11 +73,11 @@ export async function startMembershipCheckout(input: {
   const plan = await getMembershipPlanBySlug(input.planSlug)
   if (!plan) return { error: "That membership plan is no longer available." }
 
-  // Each plan bills under its own Fungies subscription product. Checked before
-  // anything is written, so an unmapped plan never leaves a pending row.
-  const fungiesProductId = getFungiesPlanProductId(plan.slug)
-  if (!fungiesProductId) {
-    console.error("[v0] No Fungies product mapped for membership plan", { slug: plan.slug })
+  // Each tier bills as a plan of the Fungies membership product. Checked
+  // before anything is written, so an unmapped plan never leaves a pending row.
+  const billing = getFungiesPlanBilling(plan.slug)
+  if (!billing) {
+    console.error("[v0] No Fungies plan mapped for membership plan", { slug: plan.slug })
     return { error: "That membership plan isn't available right now. Please try again later." }
   }
 
@@ -114,7 +114,8 @@ export async function startMembershipCheckout(input: {
   try {
     const label = `DistroSource ${plan.name} membership — billed ${input.interval === "year" ? "yearly" : "monthly"}`
     const offer = await createFungiesRecurringOffer({
-      productId: fungiesProductId,
+      productId: billing.productId,
+      variantId: billing.variantId,
       reference,
       amountUsd: Number.parseFloat(priceUsd),
       name: label,

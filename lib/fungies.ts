@@ -122,11 +122,14 @@ export type FungiesRecurringInterval = "month" | "year"
  * so the webhook's offer.internalId maps straight back to our row — exactly
  * like one-time orders. One offer per subscriber (`limit: 1` = one signup).
  *
- * `productId` is the plan's own Fungies subscription product (see
- * FUNGIES_PLAN_PRODUCT_IDS in lib/membership.ts), not FUNGIES_PRODUCT_ID.
+ * `productId` is the membership subscription product and `variantId` the
+ * tier's plan (see getFungiesPlanBilling in lib/membership.ts), not
+ * FUNGIES_PRODUCT_ID.
  */
 export async function createFungiesRecurringOffer(input: {
   productId: string
+  /** The tier's plan. Fungies plans are variants of the subscription product. */
+  variantId: string
   reference: string
   amountUsd: number
   name: string
@@ -137,6 +140,7 @@ export async function createFungiesRecurringOffer(input: {
     write: true,
     body: JSON.stringify({
       productId: input.productId,
+      variantId: input.variantId,
       name: input.name,
       currency: "USD",
       price: Math.round(input.amountUsd * 100) / 100,

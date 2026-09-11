@@ -43,26 +43,30 @@ export function isMembershipReference(value: string | null | undefined): boolean
 }
 
 /**
- * The Fungies subscription product each plan bills under, keyed by plan slug.
+ * Where memberships bill in Fungies. All three tiers are plans (Fungies
+ * variants) of one subscription product, "DistroSource Subscription".
  *
  * Every subscriber still gets their own single-use recurring offer, so the
  * webhook can map a payment back to exactly one subscription row through the
- * offer's externalId. That offer is created under the plan's own
- * subscription product rather than the one-time DigitalDownload product used
- * for regular orders, so each tier reports separately in the Fungies
- * dashboard. Monthly and yearly are both offers under the same product.
+ * offer's externalId. That offer is created under this product and attached
+ * to the tier's plan, rather than under the one-time DigitalDownload product
+ * used for regular orders, so each tier reports under its own plan in the
+ * Fungies dashboard. Monthly and yearly are both offers on the same plan.
  *
  * These are dashboard ids, not secrets.
  */
-export const FUNGIES_PLAN_PRODUCT_IDS: Readonly<Record<string, string>> = {
+export const FUNGIES_MEMBERSHIP_PRODUCT_ID = "12b8129b-fccd-4d77-937c-26e737cbb997"
+
+export const FUNGIES_PLAN_VARIANT_IDS: Readonly<Record<string, string>> = {
   starter: "a45f7ea0-75a6-4272-bbe7-f82eca61a439",
   pro: "6da77523-37a2-48fa-bce1-384e50bde9f9",
   elite: "4feb0598-b075-4bca-a678-eec91579ac9a",
 }
 
-/** The Fungies product a plan bills under, or null when none is mapped. */
-export function getFungiesPlanProductId(slug: string): string | null {
-  return Object.prototype.hasOwnProperty.call(FUNGIES_PLAN_PRODUCT_IDS, slug) ? FUNGIES_PLAN_PRODUCT_IDS[slug] : null
+/** The Fungies product and plan a tier bills under, or null when unmapped. */
+export function getFungiesPlanBilling(slug: string): { productId: string; variantId: string } | null {
+  if (!Object.prototype.hasOwnProperty.call(FUNGIES_PLAN_VARIANT_IDS, slug)) return null
+  return { productId: FUNGIES_MEMBERSHIP_PRODUCT_ID, variantId: FUNGIES_PLAN_VARIANT_IDS[slug] }
 }
 
 /** Our local status a Fungies status maps to. `active` is the only one that
