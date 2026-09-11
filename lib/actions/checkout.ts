@@ -106,10 +106,27 @@ export async function createPolarCheckout(input: {
     // checkout session and a pending order row.
     await enforceRateLimit("checkout-create", RATE_LIMITS.checkoutCreate, ownerId)
 
+    // Same internal-only device/risk continuity signal used for every other
+    // provider (see lib/payment-risk.ts). It is never sent to Polar or
+    // Stripe — Polar's checkout already gets the strongest signal we have,
+    // externalCustomerId, below — this is purely for our own fraud
+    // observability across providers.
+    const { deviceId, wasKnown: knownDeviceForUser } = await getOrCreateDeviceId()
+    const riskContext = await buildPaymentRiskContext(ownerId)
+
     const session = await getSession()
     const cookieStore = await cookies()
     const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
     if (pricing.total <= 0) return { error: "Your order total is $0 after discounts — use the free checkout instead of Polar." }
+
+    await db.insert(operationEvents).values({
+      eventType: "payment_initiated",
+      entityType: "cart",
+      entityId: ownerId,
+      status: "open",
+      payload: { paymentProvider: "polar", deviceId, knownDeviceForUser, riskContext },
+      createdBy: ownerId,
+    })
 
     // Resolve the public origin BEFORE writing the pending order or touching
     // the cart. getAppUrl() throws in production when the origin is missing
@@ -198,6 +215,15 @@ export async function createPolarCheckout(input: {
         await tx.delete(orders).where(eq(orders.id, pendingOrder.id))
       })
       console.error("[v0] Polar checkout creation failed:", polarError)
+      await db.insert(operationEvents).values({
+        eventType: "payment_link_failed",
+        entityType: "order",
+        entityId: orderNumber,
+        status: "resolved",
+        payload: { paymentProvider: "polar", reason: polarError instanceof Error ? polarError.message : String(polarError) },
+        createdBy: ownerId,
+        resolvedAt: new Date(),
+      })
       return { error: describePolarCheckoutError(polarError) }
     }
 
@@ -208,6 +234,16 @@ export async function createPolarCheckout(input: {
     // handler, which are the only places a cart is actually cleared, once
     // payment is confirmed).
     await db.update(orders).set({ polarCheckoutId: checkout.id }).where(eq(orders.id, pendingOrder.id))
+
+    await db.insert(operationEvents).values({
+      eventType: "payment_link_created",
+      entityType: "order",
+      entityId: orderNumber,
+      status: "resolved",
+      payload: { paymentProvider: "polar", polarCheckoutId: checkout.id },
+      createdBy: ownerId,
+      resolvedAt: new Date(),
+    })
 
     return { url: polarCheckoutUrl(checkout), checkoutId: checkout.id }
   } catch (error) {
