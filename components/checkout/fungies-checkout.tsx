@@ -43,13 +43,17 @@ const STALL_HINT_MS = 9000
  */
 export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billingData, onPaid, onCancel }: FungiesCheckoutProps) {
   const [error, setError] = useState<string | null>(null)
-  const [phase, setPhase] = useState<"open" | "dismissed" | "confirming">("open")
+  const [phase, setPhase] = useState<"open" | "dismissed" | "confirming" | "timedOut">("open")
   // A frame refused by the provider (domain not authorized) renders blank and
   // fires no event, so there is nothing to catch. If the overlay has been
   // open this long without the buyer touching it, offer the hosted tab.
   const [showFallback, setShowFallback] = useState(false)
   const settledRef = useRef(false)
   const sdkRef = useRef<typeof import("@fungies/fungies-js").Fungies | null>(null)
+  // Bumped by "Check again" after a timeout to re-arm the polling effect —
+  // it otherwise only depends on orderNumber/onPaid, so a phase change alone
+  // wouldn't restart it.
+  const [pollGeneration, setPollGeneration] = useState(0)
 
   /** Opens the overlay. Reports success rather than setting state itself. */
   const openOverlay = useCallback(async (): Promise<boolean> => {
@@ -133,6 +137,13 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billing
 
     async function poll() {
       if (cancelled || settledRef.current) return
+      // Backgrounded tabs skip the request entirely rather than burning it on
+      // an attempt — the visibilitychange listener below fires an immediate
+      // poll the moment the buyer comes back, so nothing is lost.
+      if (document.visibilityState === "hidden") {
+        timeoutId = window.setTimeout(poll, POLL_INTERVAL_MS)
+        return
+      }
       attempts += 1
       try {
         const result = await confirmFungiesPayment(orderNumber)
@@ -157,33 +168,64 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billing
         // trying rather than giving up on the buyer's payment.
         console.error("[v0] Fungies poll failed:", err)
       }
-      if (attempts < MAX_ATTEMPTS && !cancelled && !settledRef.current) {
+      if (cancelled || settledRef.current) return
+      if (attempts < MAX_ATTEMPTS) {
         timeoutId = window.setTimeout(poll, POLL_INTERVAL_MS)
+      } else {
+        // ~15 minutes with no resolution. The webhook may still land later —
+        // this only stops the silent spinner, it never marks the order
+        // failed. "Check again" below re-arms polling for another window.
+        setPhase("timedOut")
       }
     }
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible" && !cancelled && !settledRef.current) {
+        window.clearTimeout(timeoutId)
+        void poll()
+      }
+    }
+    document.addEventListener("visibilitychange", onVisible)
 
     timeoutId = window.setTimeout(poll, POLL_INTERVAL_MS)
     return () => {
       cancelled = true
       window.clearTimeout(timeoutId)
+      document.removeEventListener("visibilitychange", onVisible)
     }
-  }, [orderNumber, onPaid])
+  }, [orderNumber, onPaid, pollGeneration])
 
-  const heading = error ? "Payment couldn't continue" : phase === "confirming" ? "Confirming your payment…" : phase === "dismissed" ? "Payment window closed" : "Complete your payment"
+  const resumePolling = useCallback(() => {
+    settledRef.current = false
+    setPhase("open")
+    setPollGeneration((n) => n + 1)
+  }, [])
+
+  const heading = error
+    ? "Payment couldn't continue"
+    : phase === "confirming"
+      ? "Confirming your payment…"
+      : phase === "dismissed"
+        ? "Payment window closed"
+        : phase === "timedOut"
+          ? "Still waiting on confirmation"
+          : "Complete your payment"
   const body =
     error ??
     (phase === "confirming"
       ? "Payment received. We're waiting for the final confirmation, then your files unlock automatically."
       : phase === "dismissed"
         ? "You closed the payment window before finishing. Nothing has been charged — you can pick up where you left off."
-        : "The payment window is open over this page. Your files unlock here the moment the payment is confirmed.")
+        : phase === "timedOut"
+          ? "This is taking longer than usual. If you completed the payment, keep your order reference and check again — nothing has been charged twice either way."
+          : "The payment window is open over this page. Your files unlock here the moment the payment is confirmed.")
 
   return (
     <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-card px-6 py-10 text-center">
       <span className="flex size-14 items-center justify-center rounded-full bg-secondary text-foreground">
         <Clock size={ICON_SIZE.feature} className="animate-pulse motion-reduce:animate-none" aria-hidden="true" />
       </span>
-      <div>
+      <div aria-live="polite">
         <h2 className="font-display text-lg font-bold text-foreground">{heading}</h2>
         <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground">{body}</p>
         <p className="mt-2 text-xs text-muted-foreground">
@@ -191,16 +233,23 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billing
         </p>
       </div>
       <div className="flex flex-wrap justify-center gap-3">
-        {!error && phase !== "confirming" && (
-          <Button type="button" onClick={reopen} className="rounded-full font-semibold">
-            {phase === "dismissed" ? "Resume payment" : "Reopen payment window"}
+        {phase === "timedOut" ? (
+          <Button type="button" onClick={resumePolling} className="rounded-full font-semibold">
+            Check again
           </Button>
+        ) : (
+          !error &&
+          phase !== "confirming" && (
+            <Button type="button" onClick={reopen} className="rounded-full font-semibold">
+              {phase === "dismissed" ? "Resume payment" : "Reopen payment window"}
+            </Button>
+          )
         )}
         <Button type="button" variant="outline" className="rounded-full bg-transparent font-semibold" onClick={onCancel}>
           Choose a different method
         </Button>
       </div>
-      {(showFallback || error) && phase !== "confirming" && (
+      {(showFallback || error) && phase !== "confirming" && phase !== "timedOut" && (
         <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">
           Payment window not loading?{" "}
           <a
@@ -214,7 +263,7 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billing
           . This page keeps watching for the payment either way.
         </p>
       )}
-      {!error && (
+      {!error && phase !== "timedOut" && (
         <>
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Spinner size={ICON_SIZE.sm} className="animate-spin motion-reduce:animate-none" aria-hidden="true" />
