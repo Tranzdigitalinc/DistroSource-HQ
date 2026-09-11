@@ -40,6 +40,29 @@ export function isMembershipReference(value: string | null | undefined): boolean
   return typeof value === "string" && value.startsWith(MEMBERSHIP_REFERENCE_PREFIX)
 }
 
+/**
+ * The Fungies subscription product each plan bills under, keyed by plan slug.
+ *
+ * Every subscriber still gets their own single-use recurring offer, so the
+ * webhook can map a payment back to exactly one subscription row through the
+ * offer's externalId. That offer is created under the plan's own
+ * subscription product rather than the one-time DigitalDownload product used
+ * for regular orders, so each tier reports separately in the Fungies
+ * dashboard. Monthly and yearly are both offers under the same product.
+ *
+ * These are dashboard ids, not secrets.
+ */
+export const FUNGIES_PLAN_PRODUCT_IDS: Readonly<Record<string, string>> = {
+  starter: "a45f7ea0-75a6-4272-bbe7-f82eca61a439",
+  pro: "6da77523-37a2-48fa-bce1-384e50bde9f9",
+  elite: "4feb0598-b075-4bca-a678-eec91579ac9a",
+}
+
+/** The Fungies product a plan bills under, or null when none is mapped. */
+export function getFungiesPlanProductId(slug: string): string | null {
+  return Object.prototype.hasOwnProperty.call(FUNGIES_PLAN_PRODUCT_IDS, slug) ? FUNGIES_PLAN_PRODUCT_IDS[slug] : null
+}
+
 /** Our local status a Fungies status maps to. `active` is the only one that
  * grants benefits; `paused` keeps access per Fungies' own semantics. */
 export function mapFungiesStatus(status: FungiesSubscriptionStatus): Subscription["status"] {

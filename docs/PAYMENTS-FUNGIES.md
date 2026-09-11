@@ -43,7 +43,7 @@ curl -X POST "https://api.fungies.io/v0/webhooks/create" \
     "url": "https://distrosource.com/api/webhooks/fungies",
     "status": "active",
     "secret": "<the same value as FUNGIES_WEBHOOK_SECRET, 16+ chars>",
-    "events": ["payment_success"]
+    "events": ["payment_success", "subscription_interval", "subscription_updated", "subscription_cancelled"]
   }'
 ```
 
@@ -128,6 +128,37 @@ each offer has `limit: 1`, a checkout URL cannot be paid twice.
   cart is untouched.
 - An amount mismatch beyond one cent is logged for review but does not block a
   payment the provider has already settled.
+
+## Memberships
+
+Recurring plans bill through Fungies as well. Each plan has its own Fungies
+subscription product, mapped by slug in `FUNGIES_PLAN_PRODUCT_IDS`
+(lib/membership.ts):
+
+| Plan | Fungies product id |
+| --- | --- |
+| Starter | `a45f7ea0-75a6-4272-bbe7-f82eca61a439` |
+| Pro | `6da77523-37a2-48fa-bce1-384e50bde9f9` |
+| Elite | `4feb0598-b075-4bca-a678-eec91579ac9a` |
+
+At signup the server creates a single-use recurring offer under that
+product, priced from the `membership_plans` row, with `externalId` set to
+our `MEMB-…` subscription reference. That is the same correlation as
+one-time orders. Monthly and yearly are both offers under the same product.
+
+If a product id is wrong or missing, offer creation fails before the buyer
+sees a checkout, the pending subscription row is deleted, and nothing is
+charged.
+
+The webhook must also be subscribed to the subscription events, or renewals
+and cancellations never reach us:
+
+| Event | What it does |
+| --- | --- |
+| `payment_success` | Activates a new membership (and fulfils one-time orders) |
+| `subscription_interval` | Renewal charge: extends the period and grants the cycle's credits |
+| `subscription_updated` | Re-reads the subscription from the API (cancel at period end, past due) |
+| `subscription_cancelled` | Re-reads the subscription and ends benefits when the period lapses |
 
 ## Notes
 

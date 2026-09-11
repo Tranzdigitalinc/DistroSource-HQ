@@ -35,6 +35,7 @@ import {
   computeRemainingCredits,
   generateSubscriptionReference,
   getActiveMembership,
+  getFungiesPlanProductId,
   getMembershipPlanBySlug,
 } from "@/lib/membership"
 import { and, asc, eq } from "drizzle-orm"
@@ -71,6 +72,14 @@ export async function startMembershipCheckout(input: {
   const plan = await getMembershipPlanBySlug(input.planSlug)
   if (!plan) return { error: "That membership plan is no longer available." }
 
+  // Each plan bills under its own Fungies subscription product. Checked before
+  // anything is written, so an unmapped plan never leaves a pending row.
+  const fungiesProductId = getFungiesPlanProductId(plan.slug)
+  if (!fungiesProductId) {
+    console.error("[v0] No Fungies product mapped for membership plan", { slug: plan.slug })
+    return { error: "That membership plan isn't available right now. Please try again later." }
+  }
+
   const ownerId = await getOwnerId()
   await enforceRateLimit("membership-checkout-create", RATE_LIMITS.membershipCheckoutCreate, ownerId)
 
@@ -104,6 +113,7 @@ export async function startMembershipCheckout(input: {
   try {
     const label = `DistroSource ${plan.name} membership — billed ${input.interval === "year" ? "yearly" : "monthly"}`
     const offer = await createFungiesRecurringOffer({
+      productId: fungiesProductId,
       reference,
       amountUsd: Number.parseFloat(priceUsd),
       name: label,

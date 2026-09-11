@@ -121,8 +121,12 @@ export type FungiesRecurringInterval = "month" | "year"
  * and auto-charges every interval. `externalId` is our subscription reference,
  * so the webhook's offer.internalId maps straight back to our row — exactly
  * like one-time orders. One offer per subscriber (`limit: 1` = one signup).
+ *
+ * `productId` is the plan's own Fungies subscription product (see
+ * FUNGIES_PLAN_PRODUCT_IDS in lib/membership.ts), not FUNGIES_PRODUCT_ID.
  */
 export async function createFungiesRecurringOffer(input: {
+  productId: string
   reference: string
   amountUsd: number
   name: string
@@ -132,7 +136,7 @@ export async function createFungiesRecurringOffer(input: {
     method: "POST",
     write: true,
     body: JSON.stringify({
-      productId: getFungiesProductId(),
+      productId: input.productId,
       name: input.name,
       currency: "USD",
       price: Math.round(input.amountUsd * 100) / 100,
