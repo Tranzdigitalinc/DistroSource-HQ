@@ -29,6 +29,12 @@ export default function PrivacyPolicyPage() {
                 <span className="font-medium text-foreground">Usage data</span> — pages visited, device and browser
                 type, and general location (country-level) used for fraud prevention and analytics.
               </p>
+              <p>
+                <span className="font-medium text-foreground">Device/session identifier</span> — when you check out,
+                we set a random, first-party cookie that lets us recognize a returning browser on a later visit. It
+                does not contain your name, email, payment details, or any information that identifies your specific
+                hardware — it is only used for account security, fraud prevention, and payment risk assessment.
+              </p>
             </>
           ),
         },
@@ -46,12 +52,21 @@ export default function PrivacyPolicyPage() {
         {
           heading: "3. Payment processing",
           body: (
-            <p>
-              Payments are processed by PCI-compliant third-party payment processors. DistroSource does not store
-              your full card number, CVV, or bank credentials on our servers. Payment processors may share limited
-              transaction data with us (such as approval status and card type) to complete and reconcile your
-              order.
-            </p>
+            <>
+              <p>
+                Payments are processed by PCI-compliant third-party payment processors. DistroSource does not store
+                your full card number, CVV, or bank credentials on our servers. Payment processors may share limited
+                transaction data with us (such as approval status and card type) to complete and reconcile your
+                order.
+              </p>
+              <p>
+                Payment providers, card networks, and issuing banks independently process your browser, device, and
+                transaction information as part of standard payment authentication (such as 3-D Secure) and fraud
+                prevention. This is separate from anything DistroSource collects, and the decision to require
+                additional verification for a given payment is made solely by your card issuer — DistroSource
+                cannot influence or predict that outcome.
+              </p>
+            </>
           ),
         },
         {

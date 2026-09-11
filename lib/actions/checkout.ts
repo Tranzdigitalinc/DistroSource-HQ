@@ -30,6 +30,8 @@ import { randomBytes } from "node:crypto"
 import { buildCard2CryptoPaymentUrl, createCard2CryptoWallet, CARD2CRYPTO_MIN_USD } from "@/lib/card2crypto"
 import { settleCard2CryptoOrder } from "@/lib/card2crypto-settlement"
 import { createTampayPaymentLink, getTampayLinkStatus, type TampayPaymentMethod } from "@/lib/tampay"
+import { getOrCreateDeviceId } from "@/lib/device"
+import { buildPaymentRiskContext } from "@/lib/payment-risk"
 import { getAppUrl, isCard2CryptoConfigured } from "@/lib/env"
 import {
   EMAIL_PATTERN,
@@ -253,9 +255,28 @@ export async function createTampayCheckout(input: {
     const ownerId = await getOwnerId()
     await enforceRateLimit("tampay-checkout-create", RATE_LIMITS.tampayCheckoutCreate, ownerId)
 
+    // Maintains legitimate first-party device continuity for OUR OWN risk
+    // monitoring only — this id is never sent to TamPay (its API has no
+    // field for it; see lib/payment-risk.ts). It does not influence
+    // TamPay's or Lahza's 3DS decision in any way.
+    const { deviceId, wasKnown: knownDeviceForUser } = await getOrCreateDeviceId()
+    const riskContext = await buildPaymentRiskContext(ownerId)
+
     const session = await getSession()
     const cookieStore = await cookies()
     const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
+
+    // Safe, internal-only observability — see lib/payment-risk.ts for what
+    // is (and isn't) included. No PAN/CVV/auth secrets are ever logged here.
+    await db.insert(operationEvents).values({
+      eventType: "payment_initiated",
+      entityType: "cart",
+      entityId: ownerId,
+      status: "open",
+      payload: { paymentProvider: "tampay", tampayPaymentMethod: input.paymentMethod, deviceId, knownDeviceForUser, riskContext },
+      createdBy: ownerId,
+    })
+
     if (pricing.total < TAMPAY_MIN_USD) {
       return {
         error:
@@ -337,6 +358,15 @@ export async function createTampayCheckout(input: {
         await tx.delete(orders).where(eq(orders.id, pendingOrder.id))
       })
       console.error("[v0] TamPay payment link creation failed:", tampayError)
+      await db.insert(operationEvents).values({
+        eventType: "payment_link_failed",
+        entityType: "order",
+        entityId: orderNumber,
+        status: "resolved",
+        payload: { paymentProvider: "tampay", tampayPaymentMethod: input.paymentMethod, reason: tampayError instanceof Error ? tampayError.message : String(tampayError) },
+        createdBy: ownerId,
+        resolvedAt: new Date(),
+      })
       return {
         error:
           tampayError instanceof Error
@@ -350,6 +380,19 @@ export async function createTampayCheckout(input: {
     // confirmTampayPayment actually verifies payment and calls
     // fulfillPendingOrder.
     await db.update(orders).set({ tampayOrderId: link.orderId, tampayLinkId: link.id }).where(eq(orders.id, pendingOrder.id))
+
+    // "Redirected" for TamPay means the hosted-page url was successfully
+    // minted and handed to the client to open in a new tab — there is no
+    // server-side redirect step to instrument separately.
+    await db.insert(operationEvents).values({
+      eventType: "payment_link_created",
+      entityType: "order",
+      entityId: orderNumber,
+      status: "resolved",
+      payload: { paymentProvider: "tampay", tampayPaymentMethod: input.paymentMethod, tampayOrderId: link.orderId },
+      createdBy: ownerId,
+      resolvedAt: new Date(),
+    })
 
     return { url: link.url, orderNumber: pendingOrder.orderNumber }
   } catch (error) {
@@ -400,6 +443,22 @@ export async function confirmTampayPayment(
   // different amount. fulfillPendingOrder's own `status = "pending_payment"`
   // guard makes this safe against concurrent polls double-fulfilling.
   await fulfillPendingOrder(order, { tampayPaidAt: new Date() })
+
+  // TamPay's status endpoint only exposes paid: boolean + a status string —
+  // it does not report whether the issuer's 3DS decision was frictionless
+  // or a challenge (see lib/tampay.ts / lib/payment-risk.ts for what is and
+  // isn't exposed), so "payment_succeeded" is the finest-grained outcome we
+  // can log for this provider today.
+  await db.insert(operationEvents).values({
+    eventType: "payment_succeeded",
+    entityType: "order",
+    entityId: order.orderNumber,
+    status: "resolved",
+    payload: { paymentProvider: "tampay", tampayOrderId: order.tampayOrderId, tampayStatus: tampayStatus.status },
+    createdBy: ownerId,
+    resolvedAt: new Date(),
+  })
+
   return { status: "paid", orderNumber: order.orderNumber }
 }
 
