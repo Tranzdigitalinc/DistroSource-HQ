@@ -1,0 +1,40 @@
+name: Render Gaming subscription previews
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codex/gaming-subscriptions-fungies
+    paths:
+      - ".github/workflows/render-gaming-subscriptions.yml"
+      - "lib/gaming/subscriptions/**"
+      - "scripts/gaming/subscriptions/render.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/gaming-subscriptions-fungies
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm gaming:subscriptions:render
+      - run: pnpm gaming:subscriptions:audit
+      - name: Upload deterministic previews
+        uses: actions/upload-artifact@v4
+        with:
+          name: gaming-subscription-previews
+          path: public/gaming/subscriptions
+          if-no-files-found: error
