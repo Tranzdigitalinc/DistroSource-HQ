@@ -17,6 +17,7 @@ node_modules
 # assets live in Blob, not in git.
 .gaming-render/
 .DS_Store
+.gaming-subscriptions/
 .env
 scripts/catalog-enhance/backups/
 scripts/audit/out/

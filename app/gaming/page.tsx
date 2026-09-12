@@ -142,7 +142,7 @@ export default function GamingLandingPage() {
           title="Upgrade your gaming experience."
           description="Premium digital resources for games, servers and online gaming communities."
           primary={{ label: "Browse Gaming Products", href: "/gaming/products" }}
-          secondary={{ label: "Explore Categories", href: "#categories" }}
+          secondary={{ label: "Explore Subscriptions", href: "/gaming/subscriptions" }}
           trustLine="Secure checkout powered by Tebex"
         />
 

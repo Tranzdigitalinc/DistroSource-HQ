@@ -1,11 +1,16 @@
 import type { MetadataRoute } from "next"
 import { getCategories, getProducts } from "@/lib/queries/catalog"
 import { getGamingProducts } from "@/lib/gaming/queries"
+import { GAMING_SUBSCRIPTION_PLANS } from "@/lib/gaming/subscriptions/catalog"
 
 const baseUrl = "https://distrosource.com"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, categories] = await Promise.all([getProducts({ limit: 5000 }), getCategories()])
+  // Code-backed Gaming routes can build without production database access.
+  // Database-backed catalog routes are added whenever DATABASE_URL is present.
+  const [products, categories] = process.env.DATABASE_URL
+    ? await Promise.all([getProducts({ limit: 5000 }), getCategories()])
+    : [[], []]
   const gaming = getGamingProducts()
 
   return [
@@ -23,6 +28,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/gaming/products`, lastModified: new Date(), changeFrequency: "daily" as const, priority: 0.8 },
     { url: `${baseUrl}/gaming/fivem`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.8 },
     { url: `${baseUrl}/gaming/minecraft`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.8 },
+    { url: `${baseUrl}/gaming/subscriptions`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.8 },
+    ...GAMING_SUBSCRIPTION_PLANS.map((plan) => ({
+      url: `${baseUrl}/gaming/subscriptions/${plan.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
     ...gaming.map((product) => ({
       url: `${baseUrl}/gaming/product/${product.slug}`,
       lastModified: new Date(product.lastUpdated),

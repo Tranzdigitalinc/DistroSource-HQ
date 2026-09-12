@@ -12,6 +12,10 @@
     "seed:catalog:batch2": "node scripts/catalog/upload-batch2.mjs && node scripts/catalog/seed-batch2.mjs",
     "audit:catalog": "node --env-file=.env.local scripts/audit/catalog-audit.mjs",
     "audit:schema": "node --env-file=.env.local scripts/audit/schema-drift.mjs",
+    "gaming:subscriptions:render": "node --experimental-strip-types scripts/gaming/subscriptions/render.mjs",
+    "gaming:subscriptions:audit": "node --experimental-strip-types scripts/gaming/subscriptions/audit.mjs",
+    "gaming:subscriptions:fungies": "node --experimental-strip-types scripts/gaming/subscriptions/provision-fungies.mjs",
+    "gaming:subscriptions:test": "node --experimental-strip-types --test tests/gaming-subscriptions.test.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate"
   },
