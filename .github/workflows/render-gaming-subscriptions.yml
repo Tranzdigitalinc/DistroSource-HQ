@@ -5,6 +5,7 @@ on:
     branches:
       - codex/gaming-subscriptions-fungies
     paths:
+      - ".github/workflows/render-gaming-subscriptions.yml"
       - "lib/gaming/subscriptions/**"
       - "scripts/gaming/subscriptions/render.mjs"
       - "package.json"
