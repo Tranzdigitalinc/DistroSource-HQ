@@ -4,6 +4,7 @@ import { useCallback, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { FungiesCheckout, type FungiesBillingData, type FungiesConfirmResult } from "@/components/checkout/fungies-checkout"
 import { confirmGamingCheckout, startGamingCheckout } from "@/lib/actions/gaming-subscriptions"
 import { useSession } from "@/lib/auth-client"
@@ -31,27 +32,29 @@ interface StartedCheckout {
   billingData: FungiesBillingData
 }
 
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 /**
  * Price, billing interval and the purchase action.
  *
- * The annual saving is computed from the two prices. Subscribe opens the
- * Fungies checkout over the page; the price is resolved on the server from
- * the catalogue, and the subscription only activates once Fungies' signed
- * webhook confirms the payment. A product that is not `on-sale` never offers
- * checkout: the button is disabled and says so, and nothing is charged.
+ * Subscribing needs only an email: the Fungies checkout opens over the page,
+ * the price is resolved on the server from the catalogue, and the
+ * subscription activates once Fungies' signed webhook confirms the payment.
+ * A guest creates an account afterwards, on /gaming/subscribed. A product
+ * that is not `on-sale` never offers checkout.
  */
 export function GamingPurchasePanel({ slug, pricing, availability, cadence, afterCancel }: GamingPurchasePanelProps) {
   const router = useRouter()
   const { data: session, isPending: sessionPending } = useSession()
   const [interval, setInterval] = useState<Interval>("month")
+  const [email, setEmail] = useState("")
   const [checkout, setCheckout] = useState<StartedCheckout | null>(null)
   const [starting, startTransition] = useTransition()
   const saving = annualSaving(pricing)
   const recurring = pricing.kind === "subscription"
   const onSale = availability === "on-sale" && recurring
   const yearly = recurring && interval === "year" && saving
-  const signedOut = !sessionPending && !session?.user
-  const signInHref = `/sign-in?redirect=${encodeURIComponent(`/gaming/product/${slug}`)}`
+  const isGuest = !sessionPending && !session?.user
 
   const confirm = useCallback(async (ref: string): Promise<FungiesConfirmResult> => {
     const r = await confirmGamingCheckout(ref)
@@ -60,20 +63,24 @@ export function GamingPurchasePanel({ slug, pricing, availability, cadence, afte
     return { status: "pending" }
   }, [])
 
-  const onPaid = useCallback(() => {
-    router.push("/account/gaming")
-  }, [router])
+  const onPaid = useCallback(
+    (reference: string) => {
+      router.push(`/gaming/subscribed?ref=${encodeURIComponent(reference)}`)
+    },
+    [router],
+  )
 
-  function handleSubscribe() {
-    if (signedOut) {
-      router.push(signInHref)
+  function handleSubscribe(e: React.FormEvent) {
+    e.preventDefault()
+    const trimmed = email.trim()
+    if (isGuest && !EMAIL.test(trimmed)) {
+      toast.error("Enter your email to subscribe.")
       return
     }
     startTransition(async () => {
-      const result = await startGamingCheckout({ slug, interval: yearly ? "year" : "month" })
+      const result = await startGamingCheckout({ slug, interval: yearly ? "year" : "month", email: isGuest ? trimmed : undefined })
       if ("error" in result) {
-        if (result.signIn) router.push(signInHref)
-        else toast.error(result.error)
+        toast.error(result.error)
         return
       }
       setCheckout(result)
@@ -142,15 +149,34 @@ export function GamingPurchasePanel({ slug, pricing, availability, cadence, afte
         </div>
 
         {onSale ? (
-          <div className="flex flex-col gap-2">
-            <Button size="lg" className="w-full font-semibold" onClick={handleSubscribe} disabled={starting} aria-busy={starting}>
-              {starting ? "Opening checkout…" : signedOut ? "Sign in to subscribe" : "Subscribe"}
+          <form onSubmit={handleSubscribe} className="flex flex-col gap-2" noValidate>
+            {isGuest && (
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="gaming-email" className="text-xs font-medium text-muted-foreground">
+                  Email for billing and access
+                </label>
+                <Input
+                  id="gaming-email"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="h-11"
+                />
+              </div>
+            )}
+            <Button type="submit" size="lg" className="w-full font-semibold" disabled={starting} aria-busy={starting}>
+              {starting ? "Opening checkout…" : "Subscribe"}
             </Button>
             <p className="flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
               <ShieldCheck size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
-              Billed securely by Fungies, the merchant of record. Cancel anytime from your account.
+              {isGuest
+                ? "Pay securely with Fungies, the merchant of record. No account needed to pay; you'll create one after, to manage your subscription."
+                : "Billed securely by Fungies, the merchant of record. Cancel anytime from your account."}
             </p>
-          </div>
+          </form>
         ) : (
           <div className="flex flex-col gap-2">
             <Button size="lg" className="w-full font-semibold" disabled aria-describedby="gaming-launch-note">

@@ -2,15 +2,20 @@
 
 /**
  * User-facing Gaming subscription actions: start a checkout, poll it, cancel.
- * The client only ever names a product slug and an interval — the price, the
- * Fungies product and plan all come from the catalogue on the server. The
- * trusted webhook side is lib/gaming/billing.ts.
+ * The client only ever names a product slug, an interval and (for a guest)
+ * an email — the price, the Fungies product and plan all come from the
+ * catalogue on the server. The trusted webhook side is lib/gaming/billing.ts.
+ *
+ * Checkout needs no account, like one-time orders and memberships: a guest's
+ * row is owned by their guest cookie id until they create an account on
+ * /gaming/subscribed (or sign in), when lib/actions/claim-order.ts moves it.
  */
 
 import { and, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { gamingSubscriptions } from "@/lib/db/schema"
+import { EMAIL_PATTERN } from "@/lib/checkout-core"
 import { isFungiesConfigured } from "@/lib/env"
 import {
   buildFungiesCheckoutUrl,
@@ -22,7 +27,7 @@ import {
 import { generateGamingReference, getGamingFungiesIds } from "@/lib/gaming/billing"
 import { getGamingProductBySlug } from "@/lib/gaming/queries"
 import { RATE_LIMITS, enforceRateLimit } from "@/lib/rate-limit"
-import { getSession } from "@/lib/session"
+import { getOwnerId, getSession } from "@/lib/session"
 
 export interface StartGamingCheckoutResult {
   reference: string
@@ -34,19 +39,16 @@ export interface StartGamingCheckoutResult {
 /**
  * Creates a Fungies recurring offer for one Gaming plan, writes a pending row
  * keyed by our reference, and returns the overlay URL. Activation is owned by
- * the webhook. Signed-in accounts only, so every subscription can be managed
- * and cancelled from /account/gaming.
+ * the webhook.
  */
 export async function startGamingCheckout(input: {
   slug: string
   interval: string
-}): Promise<StartGamingCheckoutResult | { error: string; signIn?: true }> {
+  /** Required when signed out; a signed-in account bills to its own email. */
+  email?: string
+}): Promise<StartGamingCheckoutResult | { error: string }> {
   if (!isFungiesConfigured()) return { error: "Checkout isn't available right now. Please try again later." }
   if (input.interval !== "month" && input.interval !== "year") return { error: "Choose monthly or annual billing." }
-
-  const session = await getSession()
-  const user = session?.user
-  if (!user) return { error: "Sign in to subscribe.", signIn: true }
 
   const product = getGamingProductBySlug(input.slug)
   if (!product || product.availability !== "on-sale" || product.pricing.kind !== "subscription") {
@@ -60,34 +62,36 @@ export async function startGamingCheckout(input: {
   const price = input.interval === "year" ? product.pricing.annual : product.pricing.monthly
   if (!price) return { error: "Annual billing isn't offered for this plan." }
 
-  await enforceRateLimit("gaming-checkout-create", RATE_LIMITS.gamingCheckoutCreate, user.id)
+  const ownerId = await getOwnerId()
+  await enforceRateLimit("gaming-checkout-create", RATE_LIMITS.gamingCheckoutCreate, ownerId)
 
-  const email = user.email?.trim()
-  if (!email) return { error: "Add an email address to your account to subscribe." }
-  const billingName = (user.name || email.split("@")[0]).trim()
+  const session = await getSession()
+  const email = (session?.user?.email || input.email || "").trim()
+  if (!EMAIL_PATTERN.test(email)) return { error: "Enter a valid email address." }
+  const billingName = (session?.user?.name || email.split("@")[0]).trim()
 
   const reference = generateGamingReference()
   let pendingId: number
   try {
-    // One live subscription per plan and account.
+    // One live subscription per plan and owner.
     const [existing] = await db
       .select({ id: gamingSubscriptions.id })
       .from(gamingSubscriptions)
       .where(
         and(
-          eq(gamingSubscriptions.userId, user.id),
+          eq(gamingSubscriptions.userId, ownerId),
           eq(gamingSubscriptions.productSlug, product.slug),
           eq(gamingSubscriptions.status, "active"),
         ),
       )
       .limit(1)
-    if (existing) return { error: `You already subscribe to ${product.title}. Manage it from your account.` }
+    if (existing) return { error: `You already subscribe to ${product.title}.` }
 
     const [pending] = await db
       .insert(gamingSubscriptions)
       .values({
         reference,
-        userId: user.id,
+        userId: ownerId,
         productSlug: product.slug,
         interval: input.interval,
         status: "pending",
@@ -130,18 +134,20 @@ export async function startGamingCheckout(input: {
   }
 }
 
-/** Polled by the overlay while the buyer pays; `active` once the webhook has run. */
+/**
+ * Polled by the overlay while the buyer pays; `active` once the webhook has
+ * run. Ownership is the owner id the checkout was created under.
+ */
 export async function confirmGamingCheckout(
   reference: string,
 ): Promise<{ status: "active"; reference: string } | { status: "pending" } | { status: "error"; error: string }> {
-  const session = await getSession()
-  if (!session?.user) return { status: "error", error: "Sign in to check this subscription." }
-  await enforceRateLimit("gaming-poll", RATE_LIMITS.gamingPoll, session.user.id)
+  const ownerId = await getOwnerId()
+  await enforceRateLimit("gaming-poll", RATE_LIMITS.gamingPoll, ownerId)
 
   const [row] = await db
     .select()
     .from(gamingSubscriptions)
-    .where(and(eq(gamingSubscriptions.reference, reference), eq(gamingSubscriptions.userId, session.user.id)))
+    .where(and(eq(gamingSubscriptions.reference, reference), eq(gamingSubscriptions.userId, ownerId)))
     .limit(1)
   if (!row) return { status: "error", error: "We couldn't find that checkout." }
   if (row.status === "active") return { status: "active", reference }
@@ -154,6 +160,7 @@ export async function confirmGamingCheckout(
 /**
  * Cancels one of the caller's Gaming subscriptions at the end of the current
  * period, so they keep what they paid for; the webhook records the lapse.
+ * Needs an account: that is where subscriptions are managed.
  */
 export async function cancelMyGamingSubscription(reference: string): Promise<{ success: true } | { error: string }> {
   const session = await getSession()

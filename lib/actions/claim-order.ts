@@ -18,15 +18,15 @@
  */
 
 import { db } from "@/lib/db"
-import { downloadEvents, entitlements, orders, subscriptions } from "@/lib/db/schema"
+import { downloadEvents, entitlements, gamingSubscriptions, orders, subscriptions } from "@/lib/db/schema"
 import { getGuestId } from "@/lib/guest"
 import { getSession } from "@/lib/session"
 import { RATE_LIMITS, enforceRateLimit } from "@/lib/rate-limit"
 import { desc, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
-/** Re-points every guest-owned order, entitlement, download event, and
- * membership subscription at `userId`. */
+/** Re-points every guest-owned order, entitlement, download event,
+ * membership subscription and Gaming subscription at `userId`. */
 async function moveGuestPurchasesToUser(guestId: string, userId: string) {
   await db.transaction(async (tx) => {
     await tx.update(orders).set({ userId }).where(eq(orders.userId, guestId))
@@ -36,6 +36,10 @@ async function moveGuestPurchasesToUser(guestId: string, userId: string) {
       .update(subscriptions)
       .set({ userId, updatedAt: new Date() })
       .where(eq(subscriptions.userId, guestId))
+    await tx
+      .update(gamingSubscriptions)
+      .set({ userId, updatedAt: new Date() })
+      .where(eq(gamingSubscriptions.userId, guestId))
   })
 }
 

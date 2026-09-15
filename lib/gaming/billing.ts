@@ -220,3 +220,18 @@ export async function listGamingSubscriptions(userId: string): Promise<GamingSub
     return []
   }
 }
+
+/** One subscription by reference, only if `ownerId` (an account or guest id) owns it. */
+export async function findGamingSubscription(reference: string, ownerId: string): Promise<GamingSubscription | null> {
+  try {
+    const [row] = await db
+      .select()
+      .from(gamingSubscriptions)
+      .where(and(eq(gamingSubscriptions.reference, reference), eq(gamingSubscriptions.userId, ownerId)))
+      .limit(1)
+    return row ?? null
+  } catch (error) {
+    console.error("[v0] Could not read gaming_subscriptions", error)
+    return null
+  }
+}

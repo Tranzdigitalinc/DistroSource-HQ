@@ -13,17 +13,37 @@ import { cn } from "@/lib/utils"
 
 const MIN_PASSWORD = 8
 
+/** What is being claimed; switches the copy only. */
+type ClaimKind = "order" | "subscription"
+
+const COPY: Record<ClaimKind, { title: string; intro: (email: string) => string; claimed: (email: string) => string; existing: string }> = {
+  order: {
+    title: "Save this order to an account",
+    intro: (email) =>
+      `Create a password for ${email} to see this purchase in My Library, get download access on any device, and receive product updates.`,
+    claimed: (email) => `This order is now saved to your account under ${email}. It's in My Library whenever you need it.`,
+    existing: "and this order will be added to it automatically.",
+  },
+  subscription: {
+    title: "Create your account",
+    intro: (email) => `Set a password for ${email} to manage this subscription, see your billing dates, and cancel anytime.`,
+    claimed: (email) => `This subscription is now saved to your account under ${email}. Manage it anytime from Account → Gaming.`,
+    existing: "and this subscription will be added to it automatically.",
+  },
+}
+
 /**
- * Shown on the checkout success page for guests only — checkout itself never
+ * Shown on a checkout success page for guests only — checkout itself never
  * asks for a password, so this is the first (and only) chance to turn a
- * guest purchase into a real account. The email is fixed to the order's own
- * billing email; only a password is collected, which keeps this to a single
- * field instead of repeating the full sign-up form.
+ * guest purchase into a real account. The email is fixed to the purchase's
+ * own billing email; only a password is collected, which keeps this to a
+ * single field instead of repeating the full sign-up form.
  */
-export function ClaimAccountCard({ email, name }: { email: string; name: string }) {
+export function ClaimAccountCard({ email, name, kind = "order" }: { email: string; name: string; kind?: ClaimKind }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const copy = COPY[kind]
 
   const [password, setPassword] = useState("")
   const [confirm, setConfirm] = useState("")
@@ -81,9 +101,7 @@ export function ClaimAccountCard({ email, name }: { email: string; name: string 
         <CheckCircle size={ICON_SIZE.feature} className="mt-0.5 shrink-0 text-success" aria-hidden="true" />
         <div>
           <p className="text-sm font-semibold text-foreground">Account created</p>
-          <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
-            This order is now saved to your account under {email}. It&apos;s in My Library whenever you need it.
-          </p>
+          <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">{copy.claimed(email)}</p>
         </div>
       </div>
     )
@@ -96,11 +114,8 @@ export function ClaimAccountCard({ email, name }: { email: string; name: string 
           <Library size={ICON_SIZE.base} aria-hidden="true" />
         </span>
         <div>
-          <h2 className="font-display text-base font-bold text-foreground">Save this order to an account</h2>
-          <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
-            Create a password for {email} to see this purchase in My Library, get download access on any device, and
-            receive product updates.
-          </p>
+          <h2 className="font-display text-base font-bold text-foreground">{copy.title}</h2>
+          <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">{copy.intro(email)}</p>
         </div>
       </div>
 
@@ -120,7 +135,7 @@ export function ClaimAccountCard({ email, name }: { email: string; name: string 
             >
               Sign in
             </Link>{" "}
-            and this order will be added to it automatically.
+            {copy.existing}
           </p>
         ) : (
           <>

@@ -191,8 +191,10 @@ Both tables are created by `scripts/db/add-gaming-subscriptions.sql`, run as
 the owner in the Neon console. A Gaming plan never reads as a store
 membership, so it never grants discounts or download credits.
 
-- Checkout is for signed-in accounts only, so every subscription can be
-  cancelled from /account/gaming.
+- Checkout needs only an email. A guest's subscription is owned by their
+  guest cookie id until they create an account on /gaming/subscribed, or
+  sign in. `claimGuestPurchases` then moves it onto the account, as it does
+  for one-time orders and memberships. Cancelling needs an account.
 - `startGamingCheckout` resolves the price from the catalogue, writes a
   pending row with a `GAME-…` reference, and creates a single-use recurring
   offer (that reference as `externalId`) plus a checkout element.
