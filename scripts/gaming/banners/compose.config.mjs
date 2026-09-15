@@ -182,4 +182,42 @@ export const PRODUCTS = [
     cover: { source: rig("th-grid.html", "float", "heist-vault", "#ffd23f"), text: { eyebrow: CREATOR, title: "Thumbnail Studio", value: "Video thumbnail templates", badge: "CREATOR PLAN", align: "left", pos: "middle", size: 96, width: "620", scrim: "0.55" } },
     gallery: { "gallery-2": page("th-editor"), "gallery-3": page("th-series") },
   },
+
+  /* Products 27–33 ---------------------------------------------------
+     Interface products use one page each with three views selected by ?v=. */
+  {
+    slug: "community-onboarding-playbook",
+    cover: { source: rig("onb.html", "monitor", "street-stream", "#8f7bff", "v=journey"), text: { eyebrow: COMMUNITY, title: "Onboarding Playbook", value: "Welcome journey · Rules quiz · Mentors", badge: "MEMBERSHIP", align: "left", pos: "middle", size: 84, width: "600", scrim: "0.55" } },
+    gallery: { "gallery-2": page("onb", { v: "quiz" }), "gallery-3": page("onb", { v: "mentor" }) },
+  },
+  {
+    slug: "fivem-emote-animation-library",
+    cover: { source: page("emo", { v: "wheel" }), text: { eyebrow: FIVEM, title: "Emote & Animation Library", value: "Emotes · Poses · Synced animations", badge: "MONTHLY DROP", align: "left", pos: "middle", size: 88, width: "560", scrim: "0.6" } },
+    gallery: { "gallery-2": page("emo", { v: "library" }), "gallery-3": page("emo", { v: "synced" }) },
+  },
+  {
+    slug: "fivem-realtor-system",
+    cover: { source: rig("rlt.html", "tablet", "apartment", "#f0b44c", "v=board"), text: { eyebrow: FIVEM, title: "Realtor System", value: "Listings · Viewings · Contracts", badge: "UPDATE PLAN", align: "left", pos: "middle", size: 104, width: "600", scrim: "0.55" } },
+    gallery: { "gallery-2": page("rlt", { v: "contract" }), "gallery-3": page("rlt", { v: "viewings" }) },
+  },
+  {
+    slug: "fivem-retail-interiors",
+    cover: { source: { png: ".gaming-render/mlo-retail.png" }, text: { eyebrow: FIVEM, title: "Retail Interiors", value: "Stores · Counters · Stock rooms", badge: "MONTHLY DROP", align: "left", pos: "top", size: 112, scrim: "0.8" } },
+    gallery: { "gallery-2": { png: ".gaming-render/mlo-retail-counter.png" }, "gallery-3": page("rti") },
+  },
+  {
+    slug: "fivem-world-interaction-pack",
+    cover: { source: page("wip", { v: "target" }), text: { eyebrow: FIVEM, title: "World Interaction Pack", value: "Sit · Vend · Carry · Knock", badge: "UPDATE PLAN", align: "left", pos: "middle", size: 92, width: "560", scrim: "0.6" } },
+    gallery: { "gallery-2": page("wip", { v: "config" }), "gallery-3": page("wip", { v: "catalogue" }) },
+  },
+  {
+    slug: "minecraft-rank-crate-artwork",
+    cover: { source: rig("rca.html", "float", "mc-spawn", "#f5cf4e", "v=ranks"), text: { eyebrow: MC, title: "Rank & Crate Artwork", value: "Badges · Prefixes · Crates · Keys", badge: "CREATOR PLAN", align: "left", pos: "middle", size: 92, width: "600", scrim: "0.55" } },
+    gallery: { "gallery-2": page("rca", { v: "crates" }), "gallery-3": page("rca", { v: "ingame" }) },
+  },
+  {
+    slug: "minecraft-parkour-courses",
+    cover: { source: { png: ".gaming-render/mc-parkour.png" }, text: { eyebrow: MC, title: "Parkour Courses", value: "Towers · Sky routes · Checkpoints", badge: "MONTHLY DROP", align: "left", pos: "top", size: 112, scrim: "0.75" } },
+    gallery: { "gallery-2": { png: ".gaming-render/mc-parkour-run.png" }, "gallery-3": page("pk") },
+  },
 ]

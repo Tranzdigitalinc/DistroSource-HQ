@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Retail Interiors — interior spec sheet</title>
+<!-- Built interface for Retail Interiors: the spec sheet for the Corner Mart interior shown in the renders.
+     The floor plan follows the scene layout in scenes/mlo-retail.mjs; the store name is fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #2fc28a; --accent-ink: #03170e; }
+  .bg { background-image: url(/.gaming-render/mlo-retail.png); }
+  .body { grid-template-columns: 1fr 440px; }
+  .plan { background: #0e151d; border: 1px solid var(--line); border-radius: 12px; position: relative; overflow: hidden; }
+  .plan .legend { position: absolute; right: 18px; top: 14px; display: flex; gap: 14px; font-size: 12px; color: var(--muted); background: rgba(14,21,29,0.9); padding: 6px 10px; border-radius: 8px; }
+  .plan .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+  .kv { display: flex; justify-content: space-between; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .kv:first-of-type { border-top: 0; }
+  pre { background: #0b1016; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font: 12px/1.6 "Cascadia Mono", Consolas, monospace; color: #cfd8e3; white-space: pre; overflow: hidden; }
+  pre .k { color: #ff9f6e; } pre .s { color: #9fe0b0; } pre .n { color: #8fc4ff; } pre .c { color: #5f6d7e; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">retail-interiors / corner-mart / spec.pdf</span></div>
+  <div class="main" style="flex:1;min-height:0">
+    <div class="top"><div><h1>Corner Mart · convenience store</h1><div class="sub">Shop floor 12 × 8 m · stock room behind the staff door · street frontage with glazing</div></div>
+      <div class="right"><span class="pill ok">Interaction points marked</span><span class="btn">Download spec</span><span class="btn primary">Copy config</span></div></div>
+    <div class="body">
+      <section class="plan"><svg id="plan" width="100%" height="100%" viewBox="0 0 900 700"></svg>
+        <div class="legend"><span><i style="background:#2fc28a"></i>Register</span><span><i style="background:#ffb547"></i>Safe</span><span><i style="background:#4aa3ff"></i>Camera</span><span><i style="background:#ff5d5d"></i>Door</span><span><i style="background:#c084f5"></i>Stock shelf</span></div>
+      </section>
+      <div class="col">
+        <section class="card">
+          <div class="h">Performance budget</div>
+          <div class="kv"><span class="muted">Entities</span><b>≤ 1,200</b></div>
+          <div class="kv"><span class="muted">Texture memory</span><b>≤ 24 MB</b></div>
+          <div class="kv"><span class="muted">Portals</span><b>Entrance · staff door · window</b></div>
+          <div class="kv"><span class="muted">Occlusion</span><b>Interior hides the street block</b></div>
+          <div class="kv"><span class="muted">Collision</span><b>Shelves, counter, fridges</b></div>
+        </section>
+        <section class="card">
+          <div class="h">Config snippet · shop and robbery</div>
+<pre><span class="c">-- corner_mart/snippets/shops.lua</span>
+<span class="k">Config</span>.Stores[<span class="s">'corner_mart'</span>] = {
+  label    = <span class="s">'Corner Mart'</span>,
+  register = vec3(<span class="n">-4.58</span>, <span class="n">-2.70</span>, <span class="n">1.02</span>),
+  safe     = vec3(<span class="n">-5.10</span>, <span class="n">5.60</span>, <span class="n">0.40</span>),
+  shelves  = { <span class="s">'aisles'</span>, <span class="s">'fridges'</span>, <span class="s">'bays'</span> },
+  cameras  = {
+    vec3(<span class="n">-5.60</span>, <span class="n">-0.40</span>, <span class="n">2.96</span>),
+    vec3(<span class="n">5.00</span>, <span class="n">3.60</span>, <span class="n">2.96</span>),
+  },
+}</pre>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  // Plan: 1 m = 52 px. Shop floor x ∈ [-6, 6], z ∈ [-4, 4]; stock room z ∈ [4, 7]. Street (z < -4) at the bottom.
+  const S = 52, ox = 138, oy = 34
+  const X = (x) => ox + (x + 6) * S, Y = (z) => oy + (7 - z) * S
+  const rect = (x0, z0, x1, z1, fill, stroke = "none", extra = "") => `<rect x="${X(x0)}" y="${Y(z1)}" width="${(x1 - x0) * S}" height="${(z1 - z0) * S}" fill="${fill}" stroke="${stroke}" ${extra}/>`
+  let s = ""
+  s += rect(-6, -4, 6, 4, "#16202b", "#3b4b5e", 'stroke-width="3"')
+  s += rect(-6, 4, 6, 7, "#131b25", "#3b4b5e", 'stroke-width="3"')
+  s += `<text x="${X(0)}" y="${Y(5.5)}" fill="#8b9aab" font-family="Segoe UI" font-size="15" text-anchor="middle">STOCK ROOM</text>`
+  s += `<text x="${X(0)}" y="${Y(-4) + 34}" fill="#8b9aab" font-family="Segoe UI" font-size="15" text-anchor="middle">STREET · GLAZED FRONTAGE</text>`
+  s += `<line x1="${X(-6)}" y1="${Y(-4)}" x2="${X(6)}" y2="${Y(-4)}" stroke="#7fd4ff" stroke-width="5" stroke-dasharray="14 6"/>`
+  for (const gx of [-1.6, 0.8, 3.2]) s += rect(gx - 0.46, -1.8, gx + 0.46, 2.6, "#2a3a4d", "#4a5d74")
+  s += rect(5.25, -2.8, 6, 3.2, "#1f3a55", "#4aa3ff")
+  s += rect(-4.2, 3.58, 4.9, 4, "#2a3a4d", "#4a5d74")
+  s += rect(-4.83, -3.4, -4.17, -0.8, "#1f6f5c", "#2fc28a")
+  s += rect(-6, -3.4, -5.7, -0.8, "#2a3a4d", "#4a5d74")
+  const label = (x, z, t, anchor = "middle") => `<text x="${X(x)}" y="${Y(z)}" fill="#e8eef5" font-family="Segoe UI" font-size="14" font-weight="600" text-anchor="${anchor}">${t}</text>`
+  s += label(-1.6, 0.4, "Aisle 1") + label(0.8, 0.4, "Aisle 2") + label(3.2, 0.4, "Aisle 3") + label(5.62, 0.2, "Fridges") + label(0.35, 3.3, "Wall bays") + label(-4.5, -3.75, "Counter")
+  const pin = (x, z, c, t) => `<g><circle cx="${X(x)}" cy="${Y(z)}" r="11" fill="${c}" stroke="#0b1016" stroke-width="3"/><text x="${X(x) + 16}" y="${Y(z) + 5}" fill="#e8eef5" font-family="Cascadia Mono, monospace" font-size="12.5">${t}</text></g>`
+  s += pin(-4.58, -2.7, "#2fc28a", "register")
+  s += pin(-5.1, 5.6, "#ffb547", "safe")
+  s += pin(-5.6, -0.4, "#4aa3ff", "cam 1") + pin(5.0, 3.6, "#4aa3ff", "cam 2")
+  s += pin(-5.1, 4, "#ff5d5d", "staff door") + pin(3.75, -3.6, "#ff5d5d", "entrance")
+  s += pin(2.5, 5.9, "#c084f5", "stock shelf")
+  document.getElementById("plan").innerHTML = s
+</script>
+</body>
+</html>

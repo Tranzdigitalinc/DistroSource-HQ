@@ -3,6 +3,9 @@ import { BENCHMARK_PRODUCTS } from "@/lib/gaming/catalog/records/benchmark"
 import { FIVEM_PRODUCTS } from "@/lib/gaming/catalog/records/fivem"
 import { MINECRAFT_PRODUCTS } from "@/lib/gaming/catalog/records/minecraft"
 import { COMMUNITY_CREATOR_PRODUCTS } from "@/lib/gaming/catalog/records/community-creator"
+import { FIVEM_PRODUCTS_2 } from "@/lib/gaming/catalog/records/fivem-2"
+import { MINECRAFT_PRODUCTS_2 } from "@/lib/gaming/catalog/records/minecraft-2"
+import { COMMUNITY_CREATOR_PRODUCTS_2 } from "@/lib/gaming/catalog/records/community-creator-2"
 
 /**
  * DistroSource Gaming catalogue.
@@ -20,4 +23,7 @@ export const GAMING_CATALOG: GamingProduct[] = [
   ...FIVEM_PRODUCTS,
   ...MINECRAFT_PRODUCTS,
   ...COMMUNITY_CREATOR_PRODUCTS,
+  ...COMMUNITY_CREATOR_PRODUCTS_2,
+  ...FIVEM_PRODUCTS_2,
+  ...MINECRAFT_PRODUCTS_2,
 ]

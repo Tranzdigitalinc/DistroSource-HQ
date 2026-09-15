@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Realtor System — built interface</title>
+<!-- Built interface for Realtor System. Views (?v=): board (default), contract, viewings.
+     The agency, agents, clients, addresses and figures are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #f0b44c; --accent-ink: #1d1203; }
+  .bg { background-image: url(/.gaming-render/apartment.png); }
+  [data-view] { display: none !important; }
+  body[data-v="board"] [data-view="board"], body[data-v="contract"] [data-view="contract"], body[data-v="viewings"] [data-view="viewings"] { display: flex !important; }
+
+  /* Pipeline */
+  .kan { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; min-height: 0; }
+  .kc { background: #0d131a; border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .kc .h { margin: 0; }
+  .pc { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .pc .img { height: 84px; background-size: cover; background-position: center; }
+  .pc .c { padding: 9px 11px; }
+  .pc b { font-size: 13px; display: block; }
+  .pc .pr { font-weight: 800; font-size: 15px; margin-top: 4px; }
+  .pc .ft { display: flex; align-items: center; gap: 6px; margin-top: 7px; font-size: 11.5px; color: var(--muted); }
+  .av.s { width: 22px; height: 22px; font-size: 9.5px; }
+
+  /* Contract (tablet) */
+  .doc { background: #f7f3ea; color: #1d1a16; border-radius: 8px; padding: 34px 40px; font-family: Georgia, "Times New Roman", serif; }
+  .doc h2 { font-size: 26px; font-weight: 700; }
+  .doc .sub { font: 500 12px "Segoe UI", sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #8a7f6d; margin-top: 4px; }
+  .doc table { font-family: "Segoe UI", sans-serif; font-size: 14px; margin-top: 20px; }
+  .doc td { border-top: 1px solid #e2d9c8; padding: 10px 0; color: #1d1a16; }
+  .doc td:last-child { text-align: right; font-weight: 600; }
+  .sig { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 24px; font-family: "Segoe UI", sans-serif; }
+  .sig div { border-top: 2px solid #1d1a16; padding-top: 8px; font-size: 12.5px; color: #6b6255; }
+  .sig .ink { font: 34px "Segoe Script", "Brush Script MT", cursive; color: #1f3b8c; height: 50px; display: flex; align-items: flex-end; border: 0; padding: 0; }
+  .check li { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .check li:first-child { border-top: 0; }
+  .tick { width: 20px; height: 20px; border-radius: 6px; background: var(--ok); color: #04150d; display: grid; place-items: center; font-weight: 800; font-size: 12px; }
+  .tick.no { background: #26303c; color: var(--muted); }
+
+  /* Viewings */
+  .cal { display: grid; grid-template-columns: 56px repeat(5, 1fr); grid-template-rows: 32px repeat(8, 1fr); gap: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; position: relative; }
+  .cal > div { border-left: 1px solid var(--line); border-top: 1px solid var(--line); font-size: 11.5px; color: var(--muted); padding: 6px 8px; }
+  .cal .dh { border-top: 0; font-weight: 600; color: var(--text); font-size: 12.5px; }
+  .ev { position: absolute; border-radius: 8px; padding: 7px 9px; font-size: 12px; line-height: 1.35; background: color-mix(in srgb, var(--accent) 22%, #121a24); border-left: 3px solid var(--accent); color: var(--text); }
+  .ev.b { background: rgba(74,163,255,0.18); border-left-color: #4aa3ff; }
+  .ev.g { background: rgba(60,207,142,0.16); border-left-color: var(--ok); }
+  .map { border-radius: 12px; border: 1px solid var(--line); background: #0e151d; overflow: hidden; }
+</style>
+</head>
+<body data-v="board">
+<div class="bg"></div>
+
+<!-- ============ Pipeline ============ -->
+<div class="window" data-view="board">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">realty · Harbor &amp; Vine · pipeline</span></div>
+  <div class="app" style="flex:1;min-height:0">
+    <aside class="side">
+      <div class="brandrow"><span class="logo">H&amp;V</span><div><b>Harbor &amp; Vine</b><small>Realty · 6 agents</small></div></div>
+      <span class="nav on"><i></i>Pipeline</span><span class="nav"><i></i>Listings</span><span class="nav"><i></i>Viewings<span class="n">4</span></span><span class="nav"><i></i>Contracts</span><span class="nav"><i></i>Financing</span><span class="nav"><i></i>Commission</span><span class="nav"><i></i>Agents</span>
+      <span class="spacer"></span>
+      <div class="card" style="padding:14px"><div class="muted" style="font-size:12px">Commission this month</div><div style="font-size:24px;font-weight:800;margin-top:4px" class="num">$18,420</div><div class="muted" style="font-size:12px;margin-top:4px">Agent share 60% · agency 40%</div></div>
+    </aside>
+    <div class="main">
+      <div class="top"><div><h1>Pipeline</h1><div class="sub">9 active deals · 3 closing this week</div></div><div class="right"><div class="tabs"><span class="on">Sales</span><span>Lettings</span></div><span class="btn primary">New listing</span></div></div>
+      <div class="body" style="grid-template-rows:1fr auto">
+        <div class="kan">
+          <div class="kc"><div class="h">New listing <span class="pill dim">2</span></div>
+            <div class="pc"><div class="img" style="background-image:url(/.gaming-render/mlo-workshop.png)"></div><div class="c"><b>Loft over Eastside Auto</b><div class="pr num">$212,000</div><div class="ft"><span class="av s" style="background:#3d7bf0">PN</span>Photos needed</div></div></div>
+            <div class="pc"><div class="img" style="background-image:url(/.gaming-render/street-hud.png);background-position:80% 45%"></div><div class="c"><b>Townhouse · Commerce St</b><div class="pr num">$395,000</div><div class="ft"><span class="av s" style="background:#e5484d">JR</span>Valuation booked</div></div></div>
+          </div>
+          <div class="kc"><div class="h">Viewing booked <span class="pill dim">3</span></div>
+            <div class="pc"><div class="img" style="background-image:url(/.gaming-render/apartment.png);background-position:80% 50%"></div><div class="c"><b>Penthouse · Vinewood Rise</b><div class="pr num">$1,240,000</div><div class="ft"><span class="av s" style="background:#f0b44c;color:#1d1203">AL</span>Today 18:30</div></div></div>
+            <div class="pc"><div class="img" style="background-image:url(/.gaming-render/mlo-diner.png);background-position:75% 50%"></div><div class="c"><b>Flat above the diner</b><div class="pr num">$168,000</div><div class="ft"><span class="av s" style="background:#3ccf8e">MT</span>Tomorrow 12:00</div></div></div>
+          </div>
+          <div class="kc"><div class="h">Offer made <span class="pill dim">2</span></div>
+            <div class="pc"><div class="img" style="background-image:url(/.gaming-render/mlo-medical.png);background-position:70% 50%"></div><div class="c"><b>Studio 4 · Harbor Lofts</b><div class="pr num">$144,000</div><div class="ft"><span class="av s" style="background:#3d7bf0">PN</span>Offer $139,500</div></div></div>
+          </div>
+          <div class="kc"><div class="h">Contract drafted <span class="pill info">1</span></div>
+            <div class="pc" style="border-color:var(--accent)"><div class="img" style="background-image:url(/.gaming-render/apartment.png)"></div><div class="c"><b>Apartment 12B · Alta Heights</b><div class="pr num">$486,000</div><div class="ft"><span class="av s" style="background:#c084f5">PN</span>Buyer signing now</div></div></div>
+          </div>
+          <div class="kc"><div class="h">Keys handed over <span class="pill ok">3</span></div>
+            <div class="pc"><div class="c"><b>12 Bay Road</b><div class="pr num">$310,000</div><div class="ft"><span class="pill ok">Closed</span>Mon</div></div></div>
+            <div class="pc"><div class="c"><b>Unit 3 · Pier Walk</b><div class="pr num">$2,100 / wk</div><div class="ft"><span class="pill ok">Let</span>Tue</div></div></div>
+            <div class="pc"><div class="c"><b>Garden flat · Elm Row</b><div class="pr num">$228,000</div><div class="ft"><span class="pill ok">Closed</span>Thu</div></div></div>
+          </div>
+        </div>
+        <div class="row" style="gap:14px">
+          <section class="card" style="flex:1;padding:14px 16px"><div class="h" style="margin-bottom:8px">Today's viewings</div><div class="row" style="gap:22px;font-size:13px"><span><b>12:00</b> <span class="muted">Studio 4 · Harbor Lofts</span></span><span><b>15:15</b> <span class="muted">Loft over Eastside Auto</span></span><span><b>18:30</b> <span class="muted">Penthouse · Vinewood Rise</span></span></div></section>
+          <section class="card" style="padding:14px 16px"><div class="h" style="margin-bottom:8px">Housing bridge</div><div class="row" style="font-size:13px"><span class="dot"></span>Connected · ownership syncs on signature</div></section>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Sale contract (tablet) ============ -->
+<div class="tablet" data-view="contract" style="display:flex">
+  <div class="screen" style="display:grid;grid-template-columns:1fr 360px;gap:0">
+    <div style="padding:26px 30px;background:#0d131a;overflow:hidden">
+      <div class="doc">
+        <div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>Sale contract</h2><div class="sub">Harbor &amp; Vine Realty · contract HV-2026-0917</div></div><span class="pill warn" style="font-family:'Segoe UI',sans-serif">Awaiting buyer</span></div>
+        <table>
+          <tr><td>Property</td><td>Apartment 12B, Alta Heights (floor 12)</td></tr>
+          <tr><td>Seller</td><td>Keiko Hart</td></tr>
+          <tr><td>Buyer</td><td>Luca Ferretti</td></tr>
+          <tr><td>Agreed price</td><td class="num">$486,000</td></tr>
+          <tr><td>Deposit (10%) · paid on signature</td><td class="num">$48,600</td></tr>
+          <tr><td>Financing · Pacific Mutual</td><td class="num">24 weekly payments of $18,225</td></tr>
+          <tr><td>Completion and key handover</td><td>On signature · 2 key sets</td></tr>
+          <tr><td>Agent · commission 3%</td><td class="num">Priya Nand · $14,580</td></tr>
+        </table>
+        <div class="sig">
+          <div><div class="ink">Keiko Hart</div>Seller · signed 17 Sep, 19:02</div>
+          <div><div class="ink" style="color:#b0a795">Luca F…</div>Buyer · signing</div>
+        </div>
+      </div>
+    </div>
+    <div style="border-left:1px solid var(--line);padding:24px;display:flex;flex-direction:column;gap:16px">
+      <div><div class="muted" style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase">Closing checklist</div><div style="font-size:20px;font-weight:700;margin-top:4px">Apartment 12B</div></div>
+      <ul class="check">
+        <li><span class="tick">✓</span>Seller ID and ownership verified</li>
+        <li><span class="tick">✓</span>Buyer ID verified</li>
+        <li><span class="tick">✓</span>Financing approved · 24 weeks</li>
+        <li><span class="tick">✓</span>Seller signature</li>
+        <li><span class="tick no">·</span>Buyer signature</li>
+        <li><span class="tick no">·</span>Deposit received</li>
+        <li><span class="tick no">·</span>Ownership and keys transferred</li>
+      </ul>
+      <span class="spacer"></span>
+      <div class="card" style="padding:14px"><div class="muted" style="font-size:12px">After signature</div><div style="font-size:13.5px;margin-top:6px;line-height:1.5">Ownership moves to Luca Ferretti in the housing system, both key sets are issued and the seller's stash is emptied into their bank storage.</div></div>
+      <span class="btn lg primary" style="justify-content:center">Send to buyer's phone</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Viewing calendar ============ -->
+<div class="window" data-view="viewings">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">realty · Harbor &amp; Vine · viewings</span></div>
+  <div class="main" style="flex:1;min-height:0">
+    <div class="top"><div><h1>Viewings</h1><div class="sub">Week of 15 September · reminders go to the client's phone 30 minutes before</div></div><div class="right"><div class="tabs"><span>Day</span><span class="on">Week</span></div><span class="btn primary">Book viewing</span></div></div>
+    <div class="body" style="grid-template-columns:1fr 470px">
+      <div class="cal" id="cal"></div>
+      <div class="col">
+        <section class="map" style="height:430px"><svg id="map" width="470" height="430" viewBox="0 0 470 430"></svg></section>
+        <section class="card">
+          <div class="h">Agents this week</div>
+          <ul class="list">
+            <li><span class="av" style="background:#f0b44c;color:#1d1203">AL</span><div style="flex:1"><b style="font-size:13px">Ana Lindqvist</b><div class="muted" style="font-size:12px">Vinewood Rise · Alta Heights</div></div><span class="num">5 viewings</span></li>
+            <li><span class="av" style="background:#3d7bf0">PN</span><div style="flex:1"><b style="font-size:13px">Priya Nand</b><div class="muted" style="font-size:12px">Harbor Lofts · Eastside</div></div><span class="num">4 viewings</span></li>
+            <li><span class="av" style="background:#3ccf8e">MT</span><div style="flex:1"><b style="font-size:13px">Marcus Tate</b><div class="muted" style="font-size:12px">Eastside · Commerce St</div></div><span class="num">3 viewings</span></li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.body.dataset.v = new URLSearchParams(location.search).get("v") || "board"
+
+  // Week calendar: 5 days × 8 hourly rows (11:00–18:00), events positioned over the grid.
+  const cal = document.getElementById("cal")
+  if (cal) {
+    const days = ["Mon 15", "Tue 16", "Wed 17", "Thu 18", "Fri 19"]
+    let html = `<div class="dh"></div>` + days.map((d) => `<div class="dh">${d}</div>`).join("")
+    for (let h = 11; h <= 18; h++) html += `<div>${h}:00</div>` + days.map(() => "<div></div>").join("")
+    cal.innerHTML = html
+    const ev = [[0, 1, 1, "Studio 4 · Harbor Lofts", "Priya · 2 clients", ""], [0, 4.25, 1, "Loft over Eastside Auto", "Marcus", "g"], [1, 0, 1, "Flat above the diner", "Marcus · Nell Ortiz", "g"], [1, 7.5, 1, "Penthouse · Vinewood Rise", "Ana · Dmitri Vale", ""], [2, 2, 1.5, "Townhouse · Commerce St", "Marcus · valuation", "g"], [2, 5, 1, "Apartment 12B — signing", "Priya · Luca Ferretti", "b"], [3, 1.5, 1, "Garden flat · Elm Row", "Ana · handover", ""], [3, 6, 1, "Penthouse · second viewing", "Ana · Dmitri Vale", ""], [4, 3, 1, "Unit 3 · Pier Walk", "Priya · new tenant", "b"]]
+    requestAnimationFrame(() => {
+      const r = cal.getBoundingClientRect(), colW = (r.width - 56) / 5, rowH = (r.height - 32) / 8
+      for (const [d, t, len, title, who, cls] of ev) {
+        const e = document.createElement("div")
+        e.className = `ev ${cls}`
+        Object.assign(e.style, { left: `${56 + d * colW + 5}px`, width: `${colW - 10}px`, top: `${32 + t * rowH + 3}px`, height: `${len * rowH - 6}px` })
+        e.innerHTML = `<b>${title}</b><br><span class="muted">${who}</span>`
+        cal.appendChild(e)
+      }
+    })
+  }
+
+  // Fictional district map with street grid, water and viewing pins.
+  const map = document.getElementById("map")
+  if (map) {
+    let s = `<rect width="470" height="430" fill="#101820"/><path d="M0 330 C 90 300 160 350 250 320 S 400 300 470 330 L470 430 L0 430 Z" fill="#12314a"/>`
+    for (let x = 30; x < 470; x += 62) s += `<line x1="${x}" y1="0" x2="${x + 20}" y2="320" stroke="#1f2c3a" stroke-width="7"/>`
+    for (let y = 30; y < 320; y += 58) s += `<line x1="0" y1="${y}" x2="470" y2="${y - 10}" stroke="#1f2c3a" stroke-width="7"/>`
+    s += `<path d="M0 205 L470 150" stroke="#2c3d51" stroke-width="12"/>`
+    const pins = [[92, 96, "Vinewood Rise", "#f0b44c"], [300, 70, "Alta Heights", "#4aa3ff"], [210, 190, "Commerce St", "#3ccf8e"], [360, 240, "Harbor Lofts", "#f0b44c"], [120, 262, "Eastside", "#3ccf8e"], [410, 300, "Pier Walk", "#4aa3ff"]]
+    for (const [x, y, label, c] of pins) s += `<g transform="translate(${x} ${y})"><path d="M0 0 C -12 -16 -12 -30 0 -30 C 12 -30 12 -16 0 0 Z" fill="${c}"/><circle cy="-21" r="4.5" fill="#101820"/><text x="12" y="-18" font-family="Segoe UI" font-size="12.5" font-weight="600" fill="#e8eef5">${label}</text></g>`
+    map.innerHTML = s
+  }
+</script>
+</body>
+</html>

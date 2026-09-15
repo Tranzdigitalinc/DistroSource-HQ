@@ -33,3 +33,6 @@ tsconfig.tsbuildinfo
 
 # Build state: Blob upload manifests written by the catalog scripts.
 .v0/
+
+.vercel
+.env*

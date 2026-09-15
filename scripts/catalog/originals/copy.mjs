@@ -151,4 +151,38 @@ export const COPY = {
     pitch: ["Auralite is a sleek electronics storefront template for audio gear, headphones and accessories: feature callouts on the product page, a comparison-ready spec list and trust signals for higher-ticket purchases.", "Six pages: home, shop, product, cart, about and contact. The dark ink palette and restrained accent suit premium electronics."],
     site: { lede: "Studio headphones, wireless earbuds, desktop speakers and the cables that connect them — tuned flat, built to be repaired, and yours to try at home for forty-five days.", about: ["Auralite designs audio gear for people who listen for a living and people who just listen a lot. Our headphones are tuned flat, our pads and cables are replaceable, and our repair desk fixes things other brands would replace.", "Every product ships free in two days, comes with a two-year warranty and can go back within forty-five days if it isn't right. We'd rather you tried it in your room than in a shop."] },
   },
+
+  /* ---------------------------------------------------------------- */
+  /* Batch 3 (DS-ORG-051…060)                                          */
+  /* ---------------------------------------------------------------- */
+  Kilnworks: {
+    pitch: ["Kilnworks is an HTML storefront template for a coffee roastery, tea company or small-batch food brand. Product cards lead with origin, process and roast date, and the product page puts grind and size choices first — the decisions coffee buyers actually make.", "Six pages ship ready to edit: home, shop, product with variants, cart, about and contact. The sand palette and grotesk display feel warm and crafted without looking rustic."],
+  },
+  Bramblecote: {
+    pitch: ["Bramblecote is an HTML website template for a campsite, glamping site or cabin retreat. It leads with the three accommodation types, nightly prices and a booking request form, and keeps practical details — dogs, fires, arrival times — one tap away.", "Five pages: home, about, services, pricing with nightly rates, and contact. The dark forest palette and serif headings make outdoor photography glow."],
+  },
+  Parcelpilot: {
+    pitch: ["Parcelpilot is an HTML landing page template for an ecommerce shipping, labels or returns product. An app-window hero shows today's shipments, the benefits grid explains rates, labels and returns in merchant language, and three pricing tiers handle the upgrade path.", "The coral palette and rounded Outfit headings give a practical logistics tool a friendly face, and a contact page with a demo form is included."],
+  },
+  "Tidy & Bright": {
+    pitch: ["Tidy & Bright is an HTML website template for a home cleaning or domestic services company. It leads with an instant-quote call to action, explains what is included in each visit, and publishes plan prices so customers can book without phoning.", "Five pages: home, about, services, pricing with visit plans, and contact. The ocean palette and Plus Jakarta Sans read as clean, friendly and trustworthy."],
+  },
+  Tandemly: {
+    pitch: ["Tandemly is a landing page template for a developer tool — code review, pair programming or any product sold to engineering teams. The hero shows a live review queue, benefits are written for engineers rather than marketers, and pricing runs from a free open-source tier to enterprise.", "The dark cobalt palette and Space Grotesk headings suit technical products, and the FAQ covers the questions procurement and security teams ask first."],
+  },
+  Harvestly: {
+    pitch: ["Harvestly is a landing page template for a meal-kit, grocery or food subscription. It sells the outcome — dinner sorted in thirty minutes — with a weekly-box hero, flexible plans priced per serving and a FAQ that handles skipping, sourcing and cancellation.", "The lime palette, rounded 20px corners and Manrope type feel fresh and appetising, and the page converts as a finished launch page rather than a wireframe."],
+  },
+  Ashgrove: {
+    pitch: ["Ashgrove is a portfolio-led website template for a garden designer, landscape architect or planting studio. Large project tiles, a calm editorial type system and a process section from survey to aftercare let the work — and the way the studio works — do the selling.", "Five pages: home, about, services, gallery and contact with project-type topics. The sage palette and Playfair Display headings suit any practice whose work is best seen, not described."],
+  },
+  "Cadence Hall": {
+    pitch: ["Cadence Hall is a website template for a music school, teaching studio or rehearsal space. Lessons, band programmes and room hire each get a clear offer and price, and a free-first-lesson call to action sits on every page.", "Five pages: home, about, services, pricing with lesson and room plans, and contact. The plum palette and Archivo headings give it energy without looking like a gig poster."],
+  },
+  Rostrum: {
+    pitch: ["Rostrum is an admin dashboard template for event ticketing: tickets sold, gross sales, check-in rate and refunds up top, a weekly sales chart, sales by tier, and an upcoming-events table with sell-through status.", "A second page covers tonight's check-ins and scheduled payouts, and a settings page handles organiser details and checkout options. Plain HTML, CSS and inline-SVG charts — no chart library to replace."],
+  },
+  Gridwell: {
+    pitch: ["Gridwell is a dark admin dashboard template for energy and facilities monitoring: consumption, solar generation, cost and carbon KPIs, a monthly consumption chart, use by system, and a live sites table with baseline alerts.", "A consumption page shows half-hourly demand and meter status, and settings cover tariffs and alert rules. The forest palette and IBM Plex type keep dense data readable on a control-room screen."],
+  },
 }

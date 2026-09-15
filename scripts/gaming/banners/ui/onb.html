@@ -1,0 +1,206 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Onboarding Playbook — built interface</title>
+<!-- Built interface for Onboarding Playbook. Views (?v=): journey (default), quiz, mentor.
+     The community, members, mentors and figures are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #8f7bff; --accent-ink: #0d0826; }
+  .bg { background-image: url(/.gaming-render/street-stream.png); }
+  [data-view] { display: none; }
+  body[data-v="journey"] [data-view="journey"], body[data-v="quiz"] [data-view="quiz"], body[data-v="mentor"] [data-view="mentor"] { display: flex; }
+
+  /* Journey builder */
+  .flow { position: relative; display: flex; flex-direction: column; gap: 10px; padding-left: 26px; }
+  .flow::before { content: ""; position: absolute; left: 13px; top: 18px; bottom: 18px; width: 2px; background: linear-gradient(var(--accent), #2d3a52); }
+  .st { position: relative; display: grid; grid-template-columns: 1fr 250px; gap: 18px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; }
+  .st.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .st .n { position: absolute; left: -27px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; background: #1b2231; border: 2px solid var(--accent); display: grid; place-items: center; font: 700 12px/1 Bahnschrift, sans-serif; }
+  .st b { font-size: 14.5px; }
+  .st .w { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .st .rate { display: flex; flex-direction: column; gap: 6px; }
+  .st .rate .row { justify-content: space-between; font-size: 12px; }
+  .msg { background: #0d131a; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 13px; line-height: 1.55; color: #cfd8e3; }
+  .msg .tok { color: var(--accent); font-family: "Cascadia Mono", monospace; font-size: 12px; }
+
+  /* Chat quiz */
+  .chat { display: grid; grid-template-columns: 240px 1fr 380px; height: 100%; min-height: 0; }
+  .chan { background: #0d131a; border-right: 1px solid var(--line); padding: 18px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .chan .srv { font-weight: 700; font-size: 15px; padding: 4px 10px 14px; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+  .chan .c { padding: 8px 10px; border-radius: 8px; color: var(--muted); font-size: 14px; }
+  .chan .c.on { background: #1a2433; color: var(--text); }
+  .chan .grp { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #5f6d7e; padding: 14px 10px 6px; }
+  .feed { display: flex; flex-direction: column; min-height: 0; }
+  .feed .hd { height: 52px; flex: none; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; padding: 0 20px; font-weight: 600; }
+  .posts { flex: 1; padding: 18px 22px; display: flex; flex-direction: column; gap: 18px; overflow: hidden; }
+  .post { display: grid; grid-template-columns: 40px 1fr; gap: 12px; }
+  .post .who { font-size: 14px; font-weight: 600; }
+  .post .who .tag { font-size: 10px; background: var(--accent); color: var(--accent-ink); border-radius: 4px; padding: 1px 5px; margin-left: 6px; vertical-align: 2px; }
+  .post .who .t { font-weight: 400; color: #5f6d7e; font-size: 12px; margin-left: 8px; }
+  .post p { font-size: 14px; color: #cfd8e3; margin-top: 3px; line-height: 1.5; }
+  .qcard { margin-top: 8px; border-left: 4px solid var(--accent); background: #111a26; border-radius: 8px; padding: 16px 18px; max-width: 640px; }
+  .qcard h3 { font-size: 16px; margin: 6px 0 12px; line-height: 1.4; }
+  .opt { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 8px; background: #172131; border: 1px solid #243246; margin-top: 8px; font-size: 13.5px; }
+  .opt .k { width: 24px; height: 24px; border-radius: 6px; background: #22304a; display: grid; place-items: center; font-weight: 700; font-size: 12px; }
+  .opt.pick { border-color: var(--ok); background: rgba(60,207,142,0.1); }
+  .opt.pick .k { background: var(--ok); color: #04150d; }
+  .side2 { border-left: 1px solid var(--line); padding: 20px; display: flex; flex-direction: column; gap: 16px; background: #0c1219; }
+  .kv { display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .kv:first-of-type { border-top: 0; }
+
+  /* Mentor board */
+  .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; min-height: 0; }
+  .colm { background: #0d131a; border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .mc { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .mc .row b { font-size: 14px; }
+  .mc .meta { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mc .pair { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; }
+  .av.s { width: 26px; height: 26px; font-size: 10.5px; }
+</style>
+</head>
+<body data-v="journey">
+<div class="bg"></div>
+
+<!-- ============ Journey builder ============ -->
+<div class="window" data-view="journey">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">onboarding.harborlights.example / journey</span></div>
+  <div class="app" style="flex:1;min-height:0">
+    <aside class="side">
+      <div class="brandrow"><span class="logo">HL</span><div><b>Harbor Lights</b><small>Onboarding</small></div></div>
+      <span class="nav on"><i></i>Journey</span><span class="nav"><i></i>Rules quiz</span><span class="nav"><i></i>Mentors</span><span class="nav"><i></i>Messages</span><span class="nav"><i></i>Drop-off</span><span class="nav"><i></i>Playbooks</span>
+      <span class="spacer"></span><span class="nav"><i></i>Settings</span>
+    </aside>
+    <div class="main">
+      <div class="top"><div><h1>Welcome journey</h1><div class="sub">7 steps · live since 2 September · changes publish to Discord</div></div>
+        <div class="right"><div class="tabs"><span>Draft</span><span class="on">Live</span></div><span class="btn">Preview as member</span><span class="btn primary">Publish changes</span></div></div>
+      <div class="body" style="grid-template-columns:1fr 380px">
+        <div class="flow">
+          <div class="st"><span class="n">1</span><div><b>Verify account</b><div class="w">#welcome · button → captcha-free check</div></div><div class="rate"><div class="row"><span class="muted">Reached</span><b class="num">100%</b></div><div class="bar"><i style="width:100%"></i></div></div></div>
+          <div class="st"><span class="n">2</span><div><b>Read the rules quiz</b><div class="w">#rules-quiz · 5 questions · pass 4 of 5</div></div><div class="rate"><div class="row"><span class="muted">Reached</span><b class="num">92%</b></div><div class="bar"><i style="width:92%"></i></div></div></div>
+          <div class="st"><span class="n">3</span><div><b>Pick roles and games</b><div class="w">#pick-roles · FiveM, Minecraft, events, time zone</div></div><div class="rate"><div class="row"><span class="muted">Reached</span><b class="num">81%</b></div><div class="bar"><i style="width:81%"></i></div></div></div>
+          <div class="st"><span class="n">4</span><div><b>Introduce yourself</b><div class="w">#introductions · template with three prompts</div></div><div class="rate"><div class="row"><span class="muted">Reached</span><b class="num">76%</b></div><div class="bar"><i style="width:76%"></i></div></div></div>
+          <div class="st sel"><span class="n">5</span><div><b>Meet a mentor <span class="pill warn" style="margin-left:8px">Largest drop-off</span></b><div class="w">DM from mentor · matched by game, time zone and language</div></div><div class="rate"><div class="row"><span class="muted">Reached</span><b class="num">58%</b></div><div class="bar"><i style="width:58%;background:var(--warn)"></i></div></div></div>
+          <div class="st"><span class="n">6</span><div><b>Join a first event</b><div class="w">#events · starter night every Tuesday and Saturday</div></div><div class="rate"><div class="row"><span class="muted">Reached</span><b class="num">44%</b></div><div class="bar"><i style="width:44%"></i></div></div></div>
+          <div class="st"><span class="n">7</span><div><b>Week-one check-in</b><div class="w">Day 7 · mentor asks three questions</div></div><div class="rate"><div class="row"><span class="muted">Reached</span><b class="num">39%</b></div><div class="bar"><i style="width:39%"></i></div></div></div>
+        </div>
+        <div class="col">
+          <section class="card">
+            <div class="h">Step 5 · Meet a mentor</div>
+            <div class="kv"><span class="muted">Trigger</span><b>Roles picked</b></div>
+            <div class="kv"><span class="muted">Delay</span><b>Within 2 hours</b></div>
+            <div class="kv"><span class="muted">Fallback</span><b>Staff ping after 24 h</b></div>
+            <div class="h" style="margin:14px 0 8px">Mentor's first message</div>
+            <div class="msg">Hey <span class="tok">{member}</span> — I'm <span class="tok">{mentor}</span>, one of the Harbor Lights mentors. I play <span class="tok">{game}</span> most evenings (<span class="tok">{timezone}</span>). Want me to show you around before Tuesday's starter night?</div>
+            <div class="row" style="margin-top:14px"><span class="btn">Use playbook text</span><span class="btn ghost">Test send</span></div>
+          </section>
+          <section class="card">
+            <div class="h">This week</div>
+            <div class="kpis" style="grid-template-columns:1fr 1fr">
+              <div class="kpi"><div class="l">New members</div><div class="v num">128</div></div>
+              <div class="kpi"><div class="l">First event</div><div class="v num">56</div><div class="d">44% of new members</div></div>
+            </div>
+            <p class="muted" style="font-size:12.5px;margin-top:12px;line-height:1.5">Playbook tip: members matched within 2 hours reach their first event far more often. Add weekend mentors to cover Saturday joins.</p>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Rules quiz ============ -->
+<div class="window" data-view="quiz">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">Harbor Lights · #rules-quiz</span></div>
+  <div class="chat" style="flex:1;min-height:0">
+    <aside class="chan">
+      <div class="srv">Harbor Lights</div>
+      <div class="grp">Start here</div>
+      <div class="c"># welcome</div><div class="c on"># rules-quiz</div><div class="c"># pick-roles</div><div class="c"># introductions</div>
+      <div class="grp">Community</div>
+      <div class="c"># events</div><div class="c"># fivem-city</div><div class="c"># minecraft-smp</div><div class="c"># help-desk</div>
+    </aside>
+    <section class="feed">
+      <div class="hd"># rules-quiz <span class="muted" style="font-weight:400;font-size:13px">· answer five questions to unlock the server</span></div>
+      <div class="posts">
+        <div class="post"><span class="av" style="background:#8f7bff">HL</span><div><div class="who">Harbor Bot<span class="tag">BOT</span><span class="t">Today at 19:42</span></div>
+          <p>Welcome, <b>Juno Park</b>. The rules are short — this quiz makes sure nobody has to learn them the hard way.</p></div></div>
+        <div class="post"><span class="av" style="background:#8f7bff">HL</span><div><div class="who">Harbor Bot<span class="tag">BOT</span><span class="t">Today at 19:44</span></div>
+          <div class="qcard">
+            <div class="row" style="justify-content:space-between"><span class="pill info">Question 3 of 5</span><span class="muted" style="font-size:12px">Rule 4 · Fair play</span></div>
+            <h3>Another player rams your car during a traffic stop you are roleplaying. What should you do?</h3>
+            <div class="opt"><span class="k">A</span>Ram them back so the scene stays even</div>
+            <div class="opt pick"><span class="k">B</span>Stay in character, then open a ticket with a clip after the scene</div>
+            <div class="opt"><span class="k">C</span>Leave the server and rejoin</div>
+            <div class="opt"><span class="k">D</span>Argue about it in the city chat</div>
+            <div class="row" style="margin-top:14px;gap:10px"><div class="bar" style="flex:1"><i style="width:60%"></i></div><span class="muted num" style="font-size:12px">3 / 5</span></div>
+          </div></div></div>
+        <div class="post"><span class="av" style="background:#3ccf8e">JP</span><div><div class="who">Juno Park<span class="t">Today at 19:45</span></div><p>B — got it, tickets with clips.</p></div></div>
+      </div>
+    </section>
+    <aside class="side2">
+      <section class="card">
+        <div class="h">Quiz settings</div>
+        <div class="kv"><span class="muted">Question bank</span><b>18 questions</b></div>
+        <div class="kv"><span class="muted">Asked per member</span><b>5, random order</b></div>
+        <div class="kv"><span class="muted">Pass mark</span><b>4 of 5</b></div>
+        <div class="kv"><span class="muted">Retry</span><b>After 10 minutes</b></div>
+        <div class="kv"><span class="muted">On pass</span><span class="pill ok">Give @Citizen</span></div>
+        <div class="kv"><span class="muted">On fail</span><b>DM rules summary</b></div>
+      </section>
+      <section class="card">
+        <div class="h">Hardest questions</div>
+        <div class="kv"><span>Rule 4 · traffic stops</span><b class="warn num">61% right</b></div>
+        <div class="kv"><span>Rule 7 · new-life rule</span><b class="warn num">68% right</b></div>
+        <div class="kv"><span>Rule 2 · voice chat</span><b class="ok num">93% right</b></div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<!-- ============ Mentor board ============ -->
+<div class="window" data-view="mentor">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">onboarding.harborlights.example / mentors</span></div>
+  <div class="app" style="flex:1;min-height:0">
+    <aside class="side">
+      <div class="brandrow"><span class="logo">HL</span><div><b>Harbor Lights</b><small>Onboarding</small></div></div>
+      <span class="nav"><i></i>Journey</span><span class="nav"><i></i>Rules quiz</span><span class="nav on"><i></i>Mentors</span><span class="nav"><i></i>Messages</span><span class="nav"><i></i>Drop-off</span><span class="nav"><i></i>Playbooks</span>
+    </aside>
+    <div class="main">
+      <div class="top"><div><h1>Mentor programme</h1><div class="sub">Matched by game, time zone and language · check-in on day 7</div></div><div class="right"><div class="field" style="width:240px">⌕ <span>Search members</span></div><span class="btn primary">Auto-match waiting</span></div></div>
+      <div class="body" style="grid-template-columns:1fr 330px">
+        <div class="cols">
+          <div class="colm"><div class="h" style="margin:0">Waiting for a mentor <span class="pill warn">3</span></div>
+            <div class="mc"><div class="row"><span class="av s" style="background:#e5484d">RB</span><b>Rafa Bento</b><span class="muted" style="margin-left:auto;font-size:12px">joined 1 h ago</span></div><div class="meta"><span class="pill dim">FiveM</span><span class="pill dim">UTC−3</span><span class="pill dim">Portuguese</span></div></div>
+            <div class="mc"><div class="row"><span class="av s" style="background:#f2c94c;color:#1b1400">AK</span><b>Aiko Kato</b><span class="muted" style="margin-left:auto;font-size:12px">joined 3 h ago</span></div><div class="meta"><span class="pill dim">Minecraft</span><span class="pill dim">UTC+9</span><span class="pill dim">English</span></div></div>
+            <div class="mc"><div class="row"><span class="av s" style="background:#3d7bf0">TO</span><b>Tom Okafor</b><span class="muted" style="margin-left:auto;font-size:12px">joined 5 h ago</span></div><div class="meta"><span class="pill dim">FiveM</span><span class="pill dim">UTC+1</span><span class="pill dim">English</span></div></div>
+          </div>
+          <div class="colm"><div class="h" style="margin:0">Matched this week <span class="pill info">4</span></div>
+            <div class="mc"><div class="row"><span class="av s" style="background:#3ccf8e">JP</span><b>Juno Park</b><span class="pill ok" style="margin-left:auto">Day 2</span></div><div class="meta"><span class="pill dim">FiveM</span><span class="pill dim">UTC+0</span></div><div class="pair"><span class="av s" style="background:#8f7bff">SM</span>Sam Moreau · first event Tue</div></div>
+            <div class="mc"><div class="row"><span class="av s" style="background:#ff8a3d">LV</span><b>Lena Vos</b><span class="pill ok" style="margin-left:auto">Day 4</span></div><div class="meta"><span class="pill dim">Minecraft</span><span class="pill dim">UTC+2</span></div><div class="pair"><span class="av s" style="background:#26c6b0">NI</span>Noor Idris · joined SMP build night</div></div>
+            <div class="mc"><div class="row"><span class="av s" style="background:#c084f5">DM</span><b>Dev Mehta</b><span class="pill warn" style="margin-left:auto">No reply</span></div><div class="meta"><span class="pill dim">FiveM</span><span class="pill dim">UTC+5:30</span></div><div class="pair"><span class="av s" style="background:#3d7bf0">KA</span>Kofi Asante · nudge sent</div></div>
+            <div class="mc"><div class="row"><span class="av s" style="background:#e5484d">MB</span><b>Mia Berg</b><span class="pill ok" style="margin-left:auto">Day 6</span></div><div class="meta"><span class="pill dim">FiveM</span><span class="pill dim">UTC+1</span></div><div class="pair"><span class="av s" style="background:#8f7bff">SM</span>Sam Moreau · check-in tomorrow</div></div>
+          </div>
+          <div class="colm"><div class="h" style="margin:0">Week-one check-in done <span class="pill ok">3</span></div>
+            <div class="mc"><div class="row"><span class="av s" style="background:#26c6b0">EW</span><b>Ellis Ward</b><span class="pill ok" style="margin-left:auto">Staying</span></div><div class="pair" style="border:0;padding:0">“Starter night was the moment it clicked.”</div></div>
+            <div class="mc"><div class="row"><span class="av s" style="background:#f2c94c;color:#1b1400">PS</span><b>Pia Salo</b><span class="pill ok" style="margin-left:auto">Staying</span></div><div class="pair" style="border:0;padding:0">Wants to join the build team.</div></div>
+            <div class="mc"><div class="row"><span class="av s" style="background:#3d7bf0">CR</span><b>Cal Reyes</b><span class="pill warn" style="margin-left:auto">Unsure</span></div><div class="pair" style="border:0;padding:0">Evenings clash — suggest weekend events.</div></div>
+          </div>
+        </div>
+        <section class="card">
+          <div class="h">Mentors</div>
+          <ul class="list">
+            <li><span class="av" style="background:#8f7bff">SM</span><div style="flex:1"><b style="font-size:13px">Sam Moreau</b><div class="muted" style="font-size:12px">FiveM · UTC+0 · EN FR</div><div class="bar" style="margin-top:6px"><i style="width:66%"></i></div></div><span class="num muted" style="font-size:12px">2 / 3</span></li>
+            <li><span class="av" style="background:#26c6b0">NI</span><div style="flex:1"><b style="font-size:13px">Noor Idris</b><div class="muted" style="font-size:12px">Minecraft · UTC+2 · EN AR</div><div class="bar" style="margin-top:6px"><i style="width:33%"></i></div></div><span class="num muted" style="font-size:12px">1 / 3</span></li>
+            <li><span class="av" style="background:#3d7bf0">KA</span><div style="flex:1"><b style="font-size:13px">Kofi Asante</b><div class="muted" style="font-size:12px">FiveM · UTC+1 · EN</div><div class="bar" style="margin-top:6px"><i style="width:50%"></i></div></div><span class="num muted" style="font-size:12px">1 / 2</span></li>
+            <li><span class="av" style="background:#e5484d">LC</span><div style="flex:1"><b style="font-size:13px">Luísa Costa</b><div class="muted" style="font-size:12px">FiveM · UTC−3 · PT EN</div><div class="bar" style="margin-top:6px"><i style="width:0%"></i></div></div><span class="num muted" style="font-size:12px">0 / 3</span></li>
+          </ul>
+          <p class="muted" style="font-size:12.5px;margin-top:12px;line-height:1.5">Suggested: match Rafa Bento with Luísa Costa (FiveM · UTC−3 · Portuguese).</p>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+<script>document.body.dataset.v = new URLSearchParams(location.search).get("v") || "journey"</script>
+</body>
+</html>

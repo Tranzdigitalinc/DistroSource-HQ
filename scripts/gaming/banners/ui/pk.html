@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Parkour Courses — course setup</title>
+<!-- Built interface for Parkour Courses: the course's checkpoints over its rendered top view.
+     Marker positions use the same pad formula and top camera as scenes/mc-parkour.mjs. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #4aa3ff; }
+  .bg { background-image: url(/.gaming-render/mc-parkour.png); }
+  .body { grid-template-columns: 1fr 430px; }
+  .mapv { position: relative; border-radius: 12px; overflow: hidden; background: #e9e2d6 url(/.gaming-render/mc-parkour-top.png) center / cover; border: 1px solid var(--line); }
+  .mk { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 6px; font: 700 11px/1 "Cascadia Mono", monospace; color: #fff; background: rgba(8,10,14,0.86); padding: 5px 7px; border-radius: 6px; white-space: nowrap; }
+  .mk i { width: 10px; height: 10px; border-radius: 50%; }
+  .sec li { display: grid; grid-template-columns: 14px 1fr auto; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .sec li:first-child { border-top: 0; }
+  .sec i { width: 14px; height: 14px; border-radius: 4px; }
+  .cps li { display: grid; grid-template-columns: 70px 1fr auto; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 12.5px; }
+  .cps li:first-child { border-top: 0; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">courses / spiral-ascent / setup · imported from marked positions</span></div>
+  <div class="main" style="flex:1;min-height:0">
+    <div class="top"><div><h1>Spiral Ascent · 40 jumps</h1><div class="sub">Four sections from beginner to expert · checkpoint every ten jumps · par 2:45</div></div>
+      <div class="right"><div class="tabs"><span>Practice</span><span class="on">Timed</span></div><span class="btn primary">Export to plugin</span></div></div>
+    <div class="body">
+      <section class="mapv" id="map"></section>
+      <div class="col">
+        <section class="card">
+          <div class="h">Sections</div>
+          <ul class="sec">
+            <li><i style="background:#3d7bf0"></i><span>Blue · single jumps</span><span class="pill ok">Beginner</span></li>
+            <li><i style="background:#f2c94c"></i><span>Yellow · rising jumps</span><span class="pill info">Intermediate</span></li>
+            <li><i style="background:#e5484d"></i><span>Red · pillar landings</span><span class="pill warn">Advanced</span></li>
+            <li><i style="background:#4caf50"></i><span>Green · long gaps at height</span><span class="pill bad">Expert</span></li>
+          </ul>
+        </section>
+        <section class="card">
+          <div class="h">Checkpoints <span class="link">Fall reset: 4 below section</span></div>
+          <ul class="cps mono" id="cps"></ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  // Same course as scenes/mc-parkour.mjs (N = 110, centre 55).
+  const C = 55, pads = []
+  let a = 0.3
+  for (let i = 0; i <= 40; i++) {
+    const rad = 30 - i * 0.4
+    pads.push({ i, x: Math.round(C + Math.cos(a) * rad), y: 16 + Math.round(i * 0.55), z: Math.round(C + Math.sin(a) * rad) })
+    a += (i % 10 === 0 ? 5.6 : 3.4) / rad
+  }
+  // Top camera: height 78, vertical fov 50°, 1600×1000 frame; world +x points down, +z points left.
+  const map = document.getElementById("map")
+  const place = () => {
+    const r = map.getBoundingClientRect()
+    const scale = Math.max(r.width / 1600, r.height / 1000) // background-size: cover
+    const offX = (r.width - 1600 * scale) / 2, offY = (r.height - 1000 * scale) / 2
+    const names = ["Start", "Checkpoint 1", "Checkpoint 2", "Checkpoint 3", "Finish"]
+    const colors = ["#7fe7ff", "#f2c94c", "#e5484d", "#4caf50", "#ffcf5a"]
+    for (const p of pads.filter((q) => q.i % 10 === 0)) {
+      const d = 78 - (p.y + 1), k = 500 / (d * Math.tan((25 * Math.PI) / 180))
+      const sx = 800 - (p.z - C + 0.5) * k, sy = 500 + (p.x - C + 0.5) * k
+      const m = document.createElement("span")
+      m.className = "mk"
+      m.style.left = `${offX + sx * scale}px`
+      m.style.top = `${offY + sy * scale - 22}px`
+      m.innerHTML = `<i style="background:${colors[p.i / 10]}"></i>${names[p.i / 10]}`
+      map.appendChild(m)
+    }
+  }
+  requestAnimationFrame(place)
+  const par = ["0:00", "0:38", "1:16", "1:58", "2:45"]
+  document.getElementById("cps").innerHTML = pads.filter((q) => q.i % 10 === 0).map((p, n) => `<li><span>${["Start", "CP 1", "CP 2", "CP 3", "Finish"][n]}</span><span class="muted">${p.x - C} ${p.y + 1} ${p.z - C}</span><span>${par[n]}</span></li>`).join("")
+</script>
+</body>
+</html>

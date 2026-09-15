@@ -805,6 +805,182 @@ const nextjs = [
 ]
 
 /* ------------------------------------------------------------------ */
+/* Batch 3 (10) — added 2026-09-15, DS-ORG-051…060                     */
+/* Personal prices were drawn at random ($10–$200); commercial and      */
+/* agency follow the catalogue's ratio (39 / 79 / 149). Appended after  */
+/* the first fifty so no existing SKU or index moves.                   */
+/* ------------------------------------------------------------------ */
+
+const tiers = (p) => [p, p * 2 + 1, Math.round((p * 3.8) / 10) * 10 - 1]
+const HTML_CAT = { category: "html-templates", categoryName: "HTML Templates" }
+
+const batch3 = [
+  {
+    kind: "store", ...HTML_CAT, prices: tiers(185),
+    brand: "Kilnworks", vertical: "coffee roastery store", palette: "sand", font: "grotesk", radius: "8px",
+    tagline: "A rich, roast-forward storefront for a coffee roastery or specialty tea brand.",
+    site: {
+      promo: "Roasted Monday, shipped Tuesday · Free delivery over $40", eyebrow: "Small-batch specialty coffee", headline: "Coffee roasted <em>this week</em>.", lede: "Single-origin beans and house blends, roasted in small batches every Monday and shipped whole-bean or ground for your brewer.", heroLabel: "This week's roast",
+      cats: ["Single origin", "Blends", "Subscriptions", "Brewing gear"],
+      products: [pr("Huila, Colombia", "Washed · 250g", "$17", ["#8a5a2b", "#f3e6d3"], "New crop"), pr("Sidama, Ethiopia", "Natural · 250g", "$19", ["#b45309", "#f6e7d6"]), pr("House espresso", "Blend · 1kg", "$42", ["#3f2a1d", "#eadfd3"], "House blend"), pr("Decaf, Peru", "Swiss water · 250g", "$16", ["#0f766e", "#e0efe9"]), pr("Filter subscription", "2 × 250g monthly", "$30", ["#1e3a5f", "#dde6f0"]), pr("Pour-over kit", "Dripper, filters, scale", "$64", ["#57534e", "#ece9e5"]), pr("Ceramic cup pair", "2 × 180ml", "$28", ["#be123c", "#f6dfe3"]), pr("Tasting flight", "4 × 100g", "$34", ["#8a5a2b", "#0f766e"], "Gift", "$40")],
+      pdp: 0, pdpDesc: "A washed Colombian coffee from smallholder farms around Pitalito, Huila. Bright red-apple acidity, panela sweetness and a clean cocoa finish, roasted light-medium for filter and espresso.", pdpBullets: ["Roasted every Monday", "Whole bean or ground to order", "Traceable to the farm cooperative", "Compostable valve bag"],
+      trust: [["truck", "Free delivery over $40"], ["leaf", "Direct-trade green coffee"], ["cal", "Roasted weekly"], ["shield", "Pause or cancel anytime"]],
+      about: ["Kilnworks started with a two-kilo roaster in a railway arch and a rule that no bag leaves more than a week after roasting. Every coffee is bought directly from the farm or cooperative, and the price we paid is printed on the bag.", "We roast on Mondays, ship on Tuesdays and keep the range small enough that every coffee is one we would happily drink every day."],
+    },
+  },
+  {
+    kind: "website", ...HTML_CAT, prices: tiers(114),
+    brand: "Bramblecote", vertical: "glamping & campsite", palette: "forest", font: "lora", radius: "14px", hero: "flip",
+    tagline: "An outdoorsy, booking-first website for a campsite, glamping site or cabin retreat.",
+    site: {
+      eyebrow: "Bell tents · Cabins · Pitches", headline: "Sleep under <em>real</em> stars.", lede: "Twelve bell tents, four timber cabins and a meadow of pitches on a working farm, forty minutes from the city and a world away from it.",
+      pills: ["Dog-friendly pitches", "Wood-fired hot tubs", "Open March–November"], stats: [["12", "bell tents"], ["4", "timber cabins"], ["60", "acres of farmland"], ["2014", "first season"]],
+      services: [s("home", "Bell tents", "Proper beds, rugs and a wood burner in every canvas tent, sleeping up to five."), s("leaf", "Timber cabins", "Four cabins with kitchens, showers and a deck facing the valley."), s("pin", "Grass pitches", "Level, spacious pitches with hook-ups for tents, vans and caravans."), s("cup", "Farm shop", "Eggs, bread, local meat and firewood from the farm, open every morning."), s("heart", "Hot tubs", "Private wood-fired tubs booked by the evening, with the sky as the ceiling."), s("users", "Group bookings", "Take the whole meadow for weddings, reunions and school trips.")],
+      about: { title: "A working farm that happens to have tents", paragraphs: ["We still farm sheep and hay on these sixty acres. Camping arrived in 2014, when friends asked to pitch in the top field and never stopped asking.", "Everything is spaced out, quiet after ten and built to feel like the countryside rather than a holiday park. Children run, dogs are welcome and the stars do the rest."], checks: ["Accommodation pages with sleeps, facilities and prices", "Availability and booking request form", "Local area guide", "Arrival times and site rules"] },
+      steps: [st("Choose your stay", "Tent, cabin or pitch — each shows sleeps, facilities and nightly prices."), st("Request dates", "Send a booking request; we confirm within a day and take a deposit."), st("Arrive and unwind", "Check in from 3pm, collect firewood from the shop and find your spot.")],
+      faq: [f("Can we bring the dog?", "Dogs are welcome on pitches and in two of the bell tents, on a lead around the farm animals."), f("Is there a minimum stay?", "Two nights at weekends and five over holiday weekends; single nights midweek when available."), f("What should we bring?", "Bedding is provided in tents and cabins. Bring towels, a torch and boots for the fields."), f("Can we have a campfire?", "Yes — every tent and pitch has a fire pit, and firewood is sold at the farm shop.")],
+      quotes: [q("Our kids still talk about the hot tub under the stars. Next summer is already booked.", "Family of four"), q("Quiet, spacious and properly rural. Exactly what the photos promised.", "Returning campers"), q("We took the whole meadow for our wedding weekend and the farm team made it easy.", "Wedding group")],
+      cta: { title: "Find your dates", body: "Check availability for tents, cabins and pitches, and request your stay in two minutes." },
+      contact: { address: "Bramblecote Farm, Hollow Lane, Your County", phone: "+1 (555) 010-6600", email: "stay@bramblecote.example", hours: "Office 9am–6pm daily in season" },
+      gallery: ["Bell tents at dusk", "Timber cabin", "Hot tub deck", "Top meadow", "Farm shop", "Campfire"], pages: ["about", "services", "pricing", "contact"],
+      plans: [plan("Grass pitch", "$38", "/night", "For tents, vans and caravans.", ["Up to 6 people", "Electric hook-up", "Fire pit", "Hot showers"]), plan("Bell tent", "$120", "/night", "Furnished canvas for up to five.", ["Real beds & linen", "Wood burner", "Private fire pit", "Hot tub add-on"], true), plan("Timber cabin", "$165", "/night", "Kitchen, shower and valley deck.", ["Sleeps 4", "Kitchen & shower", "Private deck", "Hot tub included"])],
+      contactTopics: ["Booking request", "Group or wedding", "Accessibility", "Something else"],
+    },
+  },
+  {
+    kind: "landing", ...HTML_CAT, prices: tiers(74),
+    brand: "Parcelpilot", vertical: "shipping & returns app", palette: "coral", font: "outfit", radius: "14px",
+    tagline: "A punchy landing page for an ecommerce shipping, labels or returns app.",
+    site: {
+      eyebrow: "Shipping for small shops", headline: "Labels in seconds, returns <em>without</em> the email chain.", lede: "Parcelpilot connects to your store, compares carrier rates and prints labels in one click, then gives customers a self-service returns page that updates your stock automatically.",
+      pills: ["Free up to 50 labels", "All major carriers", "Branded tracking pages"], appTitle: "Today's shipments", appCta: "Print labels", appKpis: [["To ship", "38", "12 priority"], ["Avg. label", "$6.10", "-$0.84"], ["Returns", "4", "2 to restock"]],
+      benefits: [s("bolt", "One-click labels", "Pick an order, pick the cheapest rate, print. Batch forty at once."), s("chart", "Rate comparison", "Live rates from your carriers side by side, with delivery estimates."), s("box", "Self-service returns", "Customers start a return on your branded page; you approve in one tap."), s("truck", "Tracking pages", "Branded tracking with your logo, links and a product recommendation."), s("layers", "Shipping rules", "Auto-pick carriers, packages and insurance by weight, value or country."), s("globe", "International", "Customs forms and duty estimates generated with the label.")],
+      how: [st("Connect your store", "Orders flow in automatically from your shop and marketplaces."), st("Print and pack", "Batch labels, packing slips and pick lists in one run."), st("Returns on autopilot", "Customers self-serve; stock and refunds update when parcels arrive.")],
+      plans: [plan("Starter", "$0", "/month", "For shops finding their feet.", ["50 labels a month", "2 carriers", "Tracking emails", "Email support"]), plan("Growing", "$29", "/month", "For shops shipping daily.", ["2,000 labels a month", "All carriers", "Returns portal", "Shipping rules"], true), plan("Warehouse", "$99", "/month", "For teams and multiple locations.", ["Unlimited labels", "Multi-location", "Team roles", "Priority support"])],
+      faq: [f("Which carriers do you support?", "Connect your own carrier accounts or use our discounted rates with the major national and international carriers."), f("Does it work with my store?", "Parcelpilot connects to the popular store platforms and marketplaces, or you can import orders by CSV."), f("How do returns work?", "Customers enter their order number on your returns page, choose a reason and get a label or drop-off code."), f("Can I cancel any time?", "Yes. Plans are monthly and you can drop back to Starter whenever you like.")],
+      quotes: [q("Packing day used to take the afternoon. Now it takes an hour.", "Candle maker"), q("The returns page paid for the subscription in the first month.", "Apparel brand"), q("Rate comparison saves us about a dollar a parcel.", "Hobby shop owner")],
+      cta: { title: "Ship your next order with Parcelpilot", body: "Free for your first 50 labels. Connect your store in a couple of minutes." },
+    },
+  },
+  {
+    kind: "website", ...HTML_CAT, prices: tiers(28),
+    brand: "Tidy & Bright", vertical: "home cleaning service", palette: "ocean", font: "jakarta", radius: "16px", hero: "split",
+    tagline: "A friendly, quote-first website for a home cleaning or domestic services company.",
+    site: {
+      eyebrow: "Weekly · Fortnightly · One-off deep cleans", headline: "Come home to a <em>clean</em> house.", lede: "Vetted, insured cleaners who arrive on time, bring their own supplies and follow a checklist you can see. Book a regular clean or a one-off deep clean in under two minutes.",
+      pills: ["Insured & vetted cleaners", "Same cleaner every visit", "Re-clean guarantee"], stats: [["2h", "minimum visit"], ["48h", "re-clean promise"], ["7", "days a week"], ["100%", "eco supplies"]],
+      services: [s("home", "Regular cleaning", "Weekly or fortnightly visits from the same cleaner, following your checklist."), s("star", "Deep cleans", "Top-to-bottom cleans for spring, parties or when life got busy."), s("box", "Move-in / move-out", "End-of-tenancy cleans that landlords and agents expect."), s("leaf", "Eco supplies", "Plant-based products as standard, at no extra charge."), s("sun", "Windows & ovens", "Add inside windows, ovens or fridges to any visit."), s("clock", "Flexible booking", "Skip, reschedule or pause visits by text message.")],
+      about: { title: "A local team, not an app", paragraphs: ["Tidy & Bright started with two friends and a car full of mops in 2018. Today there are twenty-two cleaners, all employed, trained and insured by us rather than booked through an app.", "You get the same cleaner every visit, a checklist agreed at the first clean, and a manager who answers the phone when something needs fixing."], checks: ["Instant quote form by home size", "Services page with add-ons", "Pricing page with visit plans", "Areas covered and FAQ sections"] },
+      steps: [st("Get a quote", "Tell us bedrooms, bathrooms and how often. The price appears straight away."), st("Meet your cleaner", "The first visit sets the checklist and the details of your home."), st("Relax", "Same cleaner, same day, same standard — and a re-clean if anything is missed.")],
+      faq: [f("Do I need to be home?", "No. Many customers leave a key or a door code; every cleaner is vetted and insured."), f("Do you bring supplies?", "Yes — eco-friendly products and equipment come with every cleaner at no extra cost."), f("What if I'm not happy?", "Tell us within 48 hours and we will send someone back to put it right, free of charge."), f("Can I skip a week?", "Skip, move or pause any visit by text with 24 hours' notice.")],
+      quotes: [q("Same cleaner for two years. She knows the house better than we do.", "Weekly customer"), q("The end-of-tenancy clean got our full deposit back.", "Renter"), q("Booking took two minutes and the price was exactly what they quoted.", "Deep clean customer")],
+      cta: { title: "Get your instant quote", body: "Tell us the size of your home and how often — the price appears straight away." },
+      contact: { address: "Unit 3, Mill Road, Your City", phone: "+1 (555) 010-7700", email: "hello@tidyandbright.example", hours: "Mon–Sat 8am–7pm" },
+      pages: ["about", "services", "pricing", "contact"],
+      plans: [plan("Fortnightly", "$29", "/hour", "Every other week, same cleaner.", ["2-hour minimum", "Eco supplies included", "Checklist agreed", "Skip anytime"]), plan("Weekly", "$26", "/hour", "Our most requested plan.", ["2-hour minimum", "Same cleaner weekly", "Priority rescheduling", "Oven clean every 3 months"], true), plan("Deep clean", "$240", "fixed", "A one-off top-to-bottom clean.", ["Up to 3 bedrooms", "Two cleaners", "Inside cupboards", "Windows inside"])],
+      contactTopics: ["Regular cleaning", "Deep clean", "Move-in / move-out", "Something else"],
+    },
+  },
+  {
+    kind: "landing", prices: tiers(70),
+    brand: "Tandemly", vertical: "code review tool", palette: "cobalt", font: "grotesk", radius: "10px",
+    tagline: "A developer-focused landing page for a code review or pair-programming tool.",
+    site: {
+      eyebrow: "Code review, without the queue", headline: "Merge faster. <em>Review</em> better.", lede: "Tandemly turns pull requests into short, focused review sessions: smart reviewer matching, inline context from your tickets and a live pairing mode for the gnarly ones.",
+      pills: ["Works with your Git host", "Free for open source", "SSO and audit logs"], appTitle: "Review queue", appCta: "Start session", appKpis: [["Median review", "3.2h", "-41%"], ["Open PRs", "14", "-6"], ["Approvals", "92%", "first pass"]],
+      benefits: [s("users", "Reviewer matching", "Routes each pull request to the person who knows that code best and has time today."), s("layers", "Stacked diffs", "Review a feature as a stack of small, readable changes instead of one giant diff."), s("chat", "Context inline", "Tickets, designs and past discussions appear next to the lines they explain."), s("play", "Live pairing", "Jump into a shared session with cursors, voice and a common terminal."), s("chart", "Team insights", "See where reviews stall and who is overloaded, without leaderboards."), s("lock", "Enterprise ready", "SSO, audit logs and self-hosted runners for regulated teams.")],
+      how: [st("Connect your repos", "Install the app on your Git host; open pull requests appear straight away."), st("Set review rules", "Code owners, load limits and working hours decide who reviews what."), st("Ship with confidence", "Short sessions, clear approvals, faster merges.")],
+      plans: [plan("Open source", "$0", "/month", "For public repositories.", ["Unlimited public repos", "Reviewer matching", "Stacked diffs", "Community support"]), plan("Team", "$12", "/user/mo", "For product teams.", ["Private repos", "Live pairing", "Team insights", "Chat & ticket integrations"], true), plan("Enterprise", "Custom", "", "For regulated organisations.", ["SSO & SCIM", "Audit logs", "Self-hosted runners", "Dedicated support"])],
+      faq: [f("Which Git hosts do you support?", "The major hosted and self-managed Git platforms, with more on the roadmap."), f("Does Tandemly read our code?", "Only to render diffs for your reviewers. Code is never used for training and can stay on your own runners."), f("How is it priced?", "Per active user each month. People who only read reviews are free."), f("Can we trial it?", "Every paid plan has a 14-day trial with no card required.")],
+      quotes: [q("Our median review time dropped from a day to an afternoon.", "Engineering manager"), q("Stacked diffs finally made big features reviewable.", "Staff engineer"), q("Pairing mode ended the forty-comment threads.", "Tech lead")],
+      cta: { title: "Clear your review queue this week", body: "Connect a repository and see your first matched reviews in minutes." },
+    },
+  },
+  {
+    kind: "landing", prices: tiers(97),
+    brand: "Harvestly", vertical: "meal-kit subscription", palette: "lime", font: "manrope", radius: "20px",
+    tagline: "A fresh, appetite-first landing page for a meal-kit or grocery subscription.",
+    site: {
+      eyebrow: "Farm-fresh dinners, delivered weekly", headline: "Dinner, <em>sorted</em> by Sunday.", lede: "Harvestly delivers seasonal ingredients from local farms with recipe cards that take thirty minutes or less. Choose your meals each week and skip whenever you like.",
+      pills: ["From $5.56 a serving", "Skip or pause anytime", "Recyclable packaging"], appTitle: "This week's box", appCta: "Choose meals", appKpis: [["Meals", "4", "for 2 people"], ["Prep time", "28 min", "average"], ["Delivery", "Sunday", "7–11am"]],
+      benefits: [s("leaf", "Local and seasonal", "Vegetables from farms within a day's drive, picked for the week you cook them."), s("clock", "Thirty-minute recipes", "Step-by-step cards tested in home kitchens, not restaurant ones."), s("heart", "Diets covered", "Vegetarian, pescatarian, dairy-free and family menus every week."), s("cal", "Flexible weeks", "Skip, pause or change your delivery day up to Wednesday."), s("box", "Less waste", "Pre-portioned ingredients and packaging you can recycle at home."), s("star", "New every week", "Twenty recipes a week, with favourites brought back on request.")],
+      how: [st("Pick your plan", "Choose meals per week and servings. Change it whenever you like."), st("Choose your recipes", "Browse the week's menu and pick the dinners you fancy."), st("Cook and enjoy", "Your box arrives on Sunday morning; dinner takes half an hour.")],
+      plans: [plan("Two people", "$55", "/week", "3 meals for 2.", ["$9.17 per serving", "20 recipes weekly", "Free delivery", "Skip anytime"]), plan("Family", "$89", "/week", "4 meals for 4.", ["$5.56 per serving", "Kid-friendly menu", "Free delivery", "Skip anytime"], true), plan("Solo", "$36", "/week", "3 meals for 1.", ["$12.00 per serving", "Smaller portions", "Free delivery", "Skip anytime"])],
+      faq: [f("Can I skip a week?", "Yes — skip any week up to Wednesday midnight for the following Sunday."), f("Where do the ingredients come from?", "Our vegetables come from partner farms we visit, and every recipe card names where they were grown."), f("Is the packaging recyclable?", "Boxes, bags and cool packs can go in household recycling or be collected with your next delivery."), f("Can I cancel?", "Cancel online at any time; there are no fees or minimum terms.")],
+      quotes: [q("We stopped the 6pm 'what's for dinner' conversation completely.", "Couple, weekly box"), q("My kids eat the vegetables because they helped cook them.", "Family plan"), q("Thirty minutes really means thirty minutes.", "Solo cook")],
+      cta: { title: "Your first box is 40% off", body: "Pick your plan, choose this week's recipes and we will deliver on Sunday." },
+    },
+  },
+  {
+    kind: "website", prices: tiers(180),
+    brand: "Ashgrove", vertical: "garden design studio", palette: "sage", font: "editorial", radius: "8px", hero: "editorial",
+    tagline: "An elegant, portfolio-led website for a landscape architect or garden design studio.",
+    site: {
+      eyebrow: "Garden design · Landscape architecture · Planting", headline: "Gardens that grow <em>better</em> with time.", lede: "Ashgrove designs private gardens, courtyards and estate landscapes around the way you want to use them — and plants them to look even better in ten years than on the day we leave.",
+      pills: ["Accredited garden designers", "Design and build", "Aftercare programmes"], stats: [["220", "gardens designed"], ["11", "design awards"], ["3", "planting nurseries"], ["2006", "founded"]],
+      services: [s("leaf", "Garden design", "Concept, masterplan and planting design for gardens of every size."), s("layers", "Landscape architecture", "Estates, schools and public spaces with drainage, access and ecology built in."), s("tool", "Build & installation", "Our own crews for hard landscaping, carpentry, lighting and planting."), s("sun", "Planting design", "Layered, seasonal planting chosen for your soil and light."), s("heart", "Aftercare", "Monthly visits that edit, prune and feed the garden as it matures."), s("globe", "Biodiversity", "Wildlife corridors, ponds and meadows that bring the garden to life.")],
+      about: { title: "Designers who plant their own gardens", paragraphs: ["Ashgrove began as two garden designers and one nursery bed. Twenty years later we have designed more than two hundred gardens, but every project still starts with a walk around the site, a notebook and a spade.", "We design, build and look after the gardens we make, so the person who drew the planting plan is still visiting three years later to see how it has grown."], checks: ["Project portfolio with before-and-after pairs", "Process page from survey to aftercare", "Planting journal for seasonal updates", "Enquiry form with budget and timeline fields"] },
+      steps: [st("Site visit", "We walk the garden with you, talk about how you use it and survey the space."), st("Design", "Concept options, a masterplan and a planting plan with costs you approve in stages."), st("Build and grow", "Our crews build it, plant it and return for aftercare as it matures.")],
+      faq: [f("What does a garden design cost?", "Design starts with a fixed survey and concept fee; build costs depend on the scheme and are quoted in writing."), f("Do you design only, or build as well?", "Both. Most clients use our crews, but we also prepare tender packages for your own contractor."), f("How long does a project take?", "Small gardens take six to ten weeks from design to planting; larger landscapes are phased by season."), f("Do you work outside the region?", "For larger projects, yes. Tell us where the site is and we will suggest how to work together.")],
+      quotes: [q("Three summers in and the garden gets better every month.", "Private client"), q("They turned a dark courtyard into the best room in the house.", "Townhouse owner"), q("The school grounds now have a meadow, a pond and an outdoor classroom.", "Head teacher")],
+      cta: { title: "Tell us about your garden", body: "Share a few photos and what you would like it to become. We will suggest the next step." },
+      contact: { address: "The Walled Garden, Orchard Road, Your County", phone: "+1 (555) 010-8800", email: "studio@ashgrove.example", hours: "Mon–Fri 8:30am–5:30pm" },
+      gallery: ["Courtyard garden", "Meadow planting", "Estate walk", "Rill & terrace", "Winter structure", "School grounds"], pages: ["about", "services", "gallery", "contact"],
+      contactTopics: ["Garden design", "Landscape project", "Aftercare", "Press"],
+    },
+  },
+  {
+    kind: "website", prices: tiers(75),
+    brand: "Cadence Hall", vertical: "music school & rehearsal studios", palette: "plum", font: "archivo", radius: "12px", hero: "split",
+    tagline: "A lively, schedule-first website for a music school, teaching studio or rehearsal space.",
+    site: {
+      eyebrow: "Lessons · Bands · Rehearsal rooms", headline: "Play the music you <em>love</em>.", lede: "One-to-one lessons for every age and level, weekly band programmes for teenagers and adults, and six soundproofed rehearsal rooms you can book by the hour.",
+      pills: ["First lesson free", "Graded exams prepared", "Rooms from $18/hour"], stats: [["14", "specialist teachers"], ["9", "instruments taught"], ["6", "rehearsal rooms"], ["2012", "opened"]],
+      services: [s("music", "Private lessons", "Guitar, piano, drums, voice, bass, violin and more, from first notes to diplomas."), s("users", "Band programme", "Weekly bands for teenagers and adults, with a live show at the end of every term."), s("home", "Rehearsal rooms", "Six treated rooms with backline, bookable by the hour, day or month."), s("star", "Exam preparation", "Structured preparation for graded practical and theory exams."), s("cal", "Holiday camps", "Week-long rock, jazz and songwriting camps in the school holidays."), s("heart", "Adult beginners", "Evening courses for people who always wanted to learn and never started.")],
+      about: { title: "A school built by working musicians", paragraphs: ["Cadence Hall opened in 2012 in a former chapel with two teachers and one piano. Today fourteen teachers — all performing musicians — teach more than four hundred students a week.", "We believe people learn fastest by playing music they love with other people, so every student gets the chance to join a band and play a real stage."], checks: ["Lesson pages by instrument and level", "Timetable and term dates", "Rehearsal room booking section", "Teacher profiles with specialisms"] },
+      steps: [st("Book a free first lesson", "Tell us the instrument, age and experience and we will match you with a teacher."), st("Play every week", "Weekly lessons with practice plans you can follow at home."), st("Take the stage", "Join a band, sit an exam or play the end-of-term showcase.")],
+      faq: [f("What age can children start?", "Most instruments from age six, voice and piano from five — and there is no upper age limit."), f("Do I need my own instrument?", "Not for the first lessons. We lend one and advise on buying or hiring."), f("How do rehearsal bookings work?", "Book rooms online by the hour; backline is included and cymbals can be added."), f("Can lessons be online?", "Yes. Most teachers offer online lessons with the same practice plans.")],
+      quotes: [q("My son joined a band at thirteen. Two years later he's writing his own songs.", "Parent"), q("I started piano at fifty-two and passed my grade three last spring.", "Adult student"), q("The best-sounding rehearsal rooms in the city, and the kit works.", "Band member")],
+      cta: { title: "Your first lesson is on us", body: "Pick an instrument and a time and we will match you with the right teacher." },
+      contact: { address: "The Old Chapel, 7 Mill Street, Your City", phone: "+1 (555) 010-9900", email: "play@cadencehall.example", hours: "Mon–Fri 2pm–9pm · Sat 9am–5pm" },
+      pages: ["about", "services", "pricing", "contact"],
+      plans: [plan("Lessons", "$32", "/30 min", "Weekly one-to-one lessons.", ["Any instrument", "Practice plans", "Termly reports", "Showcase entry"]), plan("Lessons + band", "$58", "/week", "A lesson and a weekly band.", ["30-min lesson", "90-min band session", "Termly live show", "Recording day"], true), plan("Rehearsal room", "$18", "/hour", "Treated rooms with backline.", ["Drum kit & amps", "PA and mics", "Online booking", "Monthly block rates"])],
+      contactTopics: ["Free first lesson", "Band programme", "Room booking", "Holiday camp"],
+    },
+  },
+  {
+    kind: "dashboard", prices: tiers(108),
+    brand: "Rostrum", vertical: "event ticketing dashboard", palette: "rose", font: "jakarta", radius: "10px",
+    tagline: "An organiser dashboard for ticket sales, check-ins and event payouts.",
+    site: {
+      userRole: "Organiser", searchHint: "events, orders", primaryAction: "New event", title: "Ticket sales", subtitle: "Every event, every ticket tier and tonight's doors in one place.",
+      nav: [{ group: "Events", items: [["home", "Overview", "index.html"], ["cal", "Events", "events.html"], ["card", "Orders", "#"], ["users", "Attendees", "#"]] }, { group: "Operate", items: [["check", "Check-in", "#"], ["chart", "Payouts", "#"], ["gear", "Settings", "settings.html"]] }],
+      kpis: [["Tickets sold", "8,412", "+612 this week"], ["Gross sales", "$214,380", "+9.4%"], ["Check-in rate", "91%", "last 30 days"], ["Refunds", "1.2%", "-0.4 pts"]],
+      chart: { title: "Ticket sales by week", kind: "bar", values: [320, 410, 380, 520, 610, 580, 690, 740, 710, 820, 880, 940], sub: "Tickets" },
+      breakdown: { title: "Sales by tier", parts: [52, 28, 14, 6], labels: ["General", "Early bird", "VIP", "Group"] },
+      table: { title: "Upcoming events", cols: ["Event", "Date", "Sold", "Status", "Venue"], rows: [["Harbour Lights Festival", "Sat 12 Oct", "4,120 / 5,000", ok("On sale"), "Pier Park"], ["Late Night Jazz", "Fri 18 Oct", "310 / 320", warn("Nearly sold out"), "Blue Room"], ["Founders Summit", "Tue 22 Oct", "860 / 1,200", ok("On sale"), "Civic Hall"], ["Comedy Cellar", "Thu 24 Oct", "142 / 150", warn("Nearly sold out"), "The Cellar"], ["Autumn Makers Fair", "Sun 27 Oct", "0 / 2,000", info("Scheduled"), "Market Hall"], ["Indie Film Night", "Wed 30 Oct", "88 / 400", bad("Low sales"), "Picturehouse"]] },
+      page2: { file: "events.html", label: "Events", title: "Events", subtitle: "Capacity, sales pace and payouts by event.", chart: { title: "Check-ins tonight", kind: "line", values: [0, 40, 110, 260, 480, 720, 950, 1180, 1340, 1460, 1530, 1560] }, table: { title: "Payouts", cols: ["Payout", "Event", "Amount", "Status", "Date"], rows: [["PO-3312", "Harbour Lights Festival", "$96,200", info("Scheduled"), "15 Oct"], ["PO-3311", "Late Night Jazz", "$7,440", ok("Paid"), "—"], ["PO-3310", "Founders Summit", "$51,600", info("Scheduled"), "25 Oct"], ["PO-3309", "Comedy Cellar", "$2,840", ok("Paid"), "—"], ["PO-3308", "Spring Makers Fair", "$18,900", ok("Paid"), "—"]] } },
+      settings: [{ title: "Organiser", fields: [{ label: "Organisation", value: "Rostrum Events Ltd" }, { label: "Payout account", value: "Account ending 4821" }, { label: "Default currency", value: "USD" }] }, { title: "Checkout", fields: [{ type: "toggle", label: "Pass fees to buyers", hint: "Add the booking fee at checkout", on: true }, { type: "toggle", label: "Waitlist when sold out", hint: "Notify buyers when tickets return", on: true }, { type: "toggle", label: "Allow transfers", hint: "Buyers can transfer tickets", on: false }] }],
+    },
+  },
+  {
+    kind: "dashboard", prices: tiers(112),
+    brand: "Gridwell", vertical: "energy monitoring dashboard", palette: "forest", font: "plex", radius: "12px",
+    tagline: "A dark, real-time dashboard for energy use, solar output and building efficiency.",
+    site: {
+      userRole: "Facilities lead", searchHint: "sites, meters", primaryAction: "Add meter", title: "Energy overview", subtitle: "Consumption, generation and cost across every site.",
+      nav: [{ group: "Monitor", items: [["home", "Overview", "index.html"], ["bolt", "Consumption", "consumption.html"], ["sun", "Solar", "#"], ["pin", "Sites", "#"]] }, { group: "Manage", items: [["bell", "Alerts", "#"], ["file", "Reports", "#"], ["gear", "Settings", "settings.html"]] }],
+      kpis: [["Consumption", "48.2 MWh", "-6.1% MoM"], ["Solar generated", "12.9 MWh", "+18%"], ["Energy cost", "$9,420", "-$640"], ["Carbon", "14.6 t", "-2.1 t"]],
+      chart: { title: "Monthly consumption", kind: "line", values: [61, 58, 55, 57, 52, 49, 47, 50, 48, 46, 45, 48], sub: "MWh per month" },
+      breakdown: { title: "Use by system", parts: [38, 27, 21, 14], labels: ["HVAC", "Lighting", "Equipment", "Other"] },
+      table: { title: "Sites", cols: ["Site", "Today", "vs baseline", "Status", "Updated"], rows: [["Head office", "2.41 MWh", "-8%", ok("Normal"), "1 min ago"], ["Warehouse North", "3.86 MWh", "+4%", warn("Above baseline"), "1 min ago"], ["Retail — Main St", "0.92 MWh", "-3%", ok("Normal"), "2 min ago"], ["Data room", "1.12 MWh", "+11%", bad("Alert"), "Just now"], ["Warehouse South", "2.07 MWh", "-12%", ok("Normal"), "3 min ago"], ["Depot", "0.44 MWh", "0%", info("Solar surplus"), "5 min ago"]] },
+      page2: { file: "consumption.html", label: "Consumption", title: "Consumption", subtitle: "Half-hourly demand and peak charges.", chart: { title: "Demand today (kW)", kind: "bar", values: [180, 170, 165, 240, 390, 460, 480, 470, 455, 430, 360, 250] }, table: { title: "Meters", cols: ["Meter", "Site", "Reading", "Status", "Last read"], rows: [["MTR-1042", "Head office", "182,441 kWh", ok("Online"), "1 min ago"], ["MTR-1043", "Warehouse North", "311,902 kWh", ok("Online"), "1 min ago"], ["MTR-1044", "Data room", "96,305 kWh", warn("Spike"), "Just now"], ["MTR-1045", "Retail — Main St", "58,220 kWh", ok("Online"), "2 min ago"], ["MTR-1046", "Depot", "21,870 kWh", bad("Offline"), "3 h ago"]] } },
+      settings: [{ title: "Tariffs", fields: [{ label: "Supplier", value: "Your energy supplier" }, { label: "Peak rate", value: "$0.31 / kWh" }, { label: "Off-peak rate", value: "$0.14 / kWh" }] }, { title: "Alerts", fields: [{ type: "toggle", label: "Baseline exceeded", hint: "More than 10% over baseline", on: true }, { type: "toggle", label: "Meter offline", hint: "After 30 minutes", on: true }, { type: "toggle", label: "Weekly report", hint: "Mondays at 8am", on: false }] }],
+    },
+  },
+]
+
+/* ------------------------------------------------------------------ */
 /* Assemble                                                            */
 /* ------------------------------------------------------------------ */
 
@@ -874,8 +1050,9 @@ export const PRODUCTS = [
   ...dashboards.map((e) => build("dashboard", e)),
   ...stores.map((e) => build("store", e)),
   ...nextjs.map((e) => build("nextjs", e)),
+  ...batch3.map((e) => build(e.kind, e)),
 ]
 
-if (PRODUCTS.length !== 50) throw new Error(`Expected 50 products, got ${PRODUCTS.length}`)
+if (PRODUCTS.length !== 60) throw new Error(`Expected 60 products, got ${PRODUCTS.length}`)
 const slugs = new Set(PRODUCTS.map((p) => p.slug))
-if (slugs.size !== 50) throw new Error("Duplicate slugs in catalog")
+if (slugs.size !== 60) throw new Error("Duplicate slugs in catalog")

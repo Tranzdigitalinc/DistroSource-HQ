@@ -168,6 +168,22 @@ Twenty monthly prices were drawn at random (unique integers from $10 to $150, ex
 
 A `$100+` price band was added to the filters for the higher plans.
 
+## Products 27–33
+
+Part of a mixed 50-product batch across the store (43 main-store Originals plus these 7 Gaming plans). Monthly prices were drawn at random between $10 and $200; annual uses the same 9.6-month rule. Records live in `lib/gaming/catalog/records/{community-creator-2,fivem-2,minecraft-2}.ts`. Like 1–26 they are `on-sale` and need Admin → Gaming → Sync to Fungies after deploy before checkout accepts them.
+
+| # | Product | Area | Model | Monthly | Annual |
+| --- | --- | --- | --- | --- | --- |
+| 27 | Onboarding Playbook | Community | membership + monthly drop | $121 | $1,160 |
+| 28 | Emote & Animation Library | FiveM | vault + monthly drop | $187 | $1,795 |
+| 29 | Realtor System | FiveM | update plan | $176 | $1,685 |
+| 30 | Retail Interiors | FiveM | vault + monthly drop | $156 | $1,495 |
+| 31 | World Interaction Pack | FiveM | vault + update plan | $62 | $595 |
+| 32 | Rank & Crate Artwork | Minecraft | creator plan + monthly drop | $194 | $1,860 |
+| 33 | Parkour Courses | Minecraft | vault + monthly drop | $193 | $1,850 |
+
+Imagery (21 images): one built page per interface product with three views selected by `?v=` (`ui/onb.html`, `emo.html`, `rlt.html`, `wip.html`, `rca.html`), a path-traced convenience store (`scenes/mlo-retail.mjs`, views `cover` and `counter`) with its spec sheet (`ui/rti.html`), and a voxel parkour tower (`scenes/mc-parkour.mjs`, views `cover`, `run` and `top`) with its setup page (`ui/pk.html`, markers projected from the same pad formula and top camera). The World Interaction Pack's in-game view is drawn over the mirrored diner render so its target menu points at a real seat.
+
 Imagery for 7–26 (60 images) follows the same rules: built interfaces for anything with a UI (about 50 pages in `ui/`, sharing `_kit.css`), path-traced interiors for the vault and apartment, and voxel scenes for the Minecraft builds. Additions to the pipeline:
 
 - `ui/rig.html` puts a live interface page on a monitor, tablet or floating card in the right two-thirds of a cover, so interface products get a cover with room for the title.

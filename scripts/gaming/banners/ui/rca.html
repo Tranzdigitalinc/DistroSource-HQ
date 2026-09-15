@@ -1,0 +1,150 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Rank & Crate Artwork — built interface</title>
+<!-- Built interface for Rank & Crate Artwork. Views (?v=): ranks (default), crates, ingame.
+     All pixel art is drawn here in code in an original style; the server and players are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #f5cf4e; --accent-ink: #1f1600; }
+  [data-view] { display: none !important; }
+  body[data-v="ranks"] [data-view="ranks"], body[data-v="crates"] [data-view="crates"], body[data-v="ingame"] [data-view="ingame"] { display: flex !important; }
+  .bg { background-image: url(/.gaming-render/mc-spawn.png); }
+  canvas.px { image-rendering: pixelated; }
+  .sheet { position: absolute; left: 70px; right: 70px; top: 50%; transform: translateY(-50%); background: #161823; border: 4px solid #0d0e14; box-shadow: inset 0 0 0 4px #262a3a, 0 40px 120px rgba(0,0,0,0.7); border-radius: 14px; padding: 30px 34px; flex-direction: column; gap: 22px; font-family: "Cascadia Mono", Consolas, monospace; color: #f1f2f7; }
+  .sheet h1 { font-size: 26px; display: flex; align-items: baseline; gap: 14px; }
+  .sheet h1 small { font-size: 13px; color: #9aa0bb; font-weight: 400; }
+  .badges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .bd { background: #10121a; border: 3px solid #0b0c12; box-shadow: inset 0 0 0 2px #262a3a; border-radius: 10px; padding: 16px; display: grid; grid-template-columns: 128px 1fr; gap: 16px; align-items: center; }
+  .bd b { font-size: 18px; display: block; }
+  .bd .pre { margin-top: 8px; font-size: 14px; }
+  .bd .sizes { display: flex; align-items: flex-end; gap: 8px; margin-top: 10px; }
+  .strip { display: flex; gap: 10px; flex-wrap: wrap; font-size: 15px; }
+  .strip span { background: #10121a; border: 2px solid #262a3a; border-radius: 6px; padding: 6px 10px; }
+  .crates { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
+  .cr { background: #10121a; border: 3px solid #0b0c12; box-shadow: inset 0 0 0 2px #262a3a; border-radius: 10px; padding: 18px 14px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .cr b { font-size: 17px; }
+  .cr .row { gap: 10px; }
+  .glow { filter: drop-shadow(0 0 14px var(--g)); }
+  .banner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px 28px; border-radius: 10px; border: 3px solid #0b0c12; background: linear-gradient(100deg, #0f3b52 0%, #16607a 45%, #2a8fa0 100%); box-shadow: inset 0 0 0 2px #2a6f86; }
+  .banner .bt { font-size: 30px; font-weight: 800; letter-spacing: 0.06em; text-shadow: 3px 3px 0 #06202c; }
+  .banner .bs { font-size: 14px; color: #cfeef5; margin-top: 6px; }
+  .banner .brow { display: flex; gap: 10px; }
+  .holos { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
+  .holo { text-align: center; padding: 14px 8px; border-radius: 10px; background: radial-gradient(160px 70px at 50% 60%, #22263a, #10121a); font-size: 14px; line-height: 1.6; text-shadow: 2px 2px 0 #000; }
+  .holo .l1 { font-weight: 700; font-size: 16px; }
+  .holo .l2 { color: #c9ccd8; }
+  .holo .l3 { color: #8f95ad; font-size: 12.5px; }
+  /* In game */
+  .scene { position: absolute; inset: 0; background: url(/.gaming-render/mc-spawn.png) center / cover; }
+  .tab { position: absolute; left: 50%; top: 40px; transform: translateX(-50%); width: 760px; background: rgba(8,9,14,0.78); border-radius: 6px; padding: 14px 18px; font: 16px/1.7 "Cascadia Mono", monospace; color: #fff; }
+  .tab .hd { text-align: center; color: #f5cf4e; font-weight: 700; margin-bottom: 6px; }
+  .tab .cols { display: grid; grid-template-columns: 1fr 1fr; column-gap: 30px; }
+  .tab .p { display: flex; align-items: center; gap: 8px; }
+  .tab .p .ping { margin-left: auto; color: #3ccf8e; font-size: 12px; }
+  .chatbox { position: absolute; left: 30px; bottom: 90px; width: 700px; font: 18px/1.6 "Cascadia Mono", monospace; color: #fff; text-shadow: 2px 2px 0 #000; }
+  .chatbox div { background: rgba(0,0,0,0.42); padding: 2px 10px; display: flex; gap: 8px; align-items: center; }
+  .score { position: absolute; right: 30px; top: 50%; transform: translateY(-50%); width: 300px; background: rgba(8,9,14,0.62); font: 17px/1.75 "Cascadia Mono", monospace; color: #fff; padding: 12px 16px; }
+  .score .t { text-align: center; font-weight: 700; color: #f5cf4e; margin-bottom: 6px; }
+  .score .r { display: flex; justify-content: space-between; }
+</style>
+</head>
+<body data-v="ranks">
+<div class="bg" data-view="ranks"></div>
+<div class="bg" data-view="crates"></div>
+
+<!-- ============ Rank badges ============ -->
+<div class="sheet" data-view="ranks">
+  <h1>Harbor Craft · rank set <small>“Tidewater” theme · 16 / 32 / 64 / 128 px · layered sources</small></h1>
+  <div class="badges" id="badges"></div>
+  <div class="strip" id="strip"></div>
+  <div class="banner"><div><div class="bt">TIDEWATER RANKS</div><div class="bs">Cosmetic ranks · new chat colours · badge in tab and chat</div></div><div class="brow" id="brow"></div></div>
+</div>
+
+<!-- ============ Crates and keys ============ -->
+<div class="sheet" data-view="crates">
+  <h1>Crates and keys <small>five rarity tiers · block textures, GUI icons and key items</small></h1>
+  <div class="crates" id="crates"></div>
+  <div class="holos" id="holos"></div>
+  <div class="strip"><span>crate_common.png · 64 px</span><span>crate_rare_top.png · 16 px texture</span><span>key_epic.png · 32 px</span><span>crate_legendary_hologram.png</span><span>tiers.aseprite · layered</span></div>
+</div>
+
+<!-- ============ Prefixes in game ============ -->
+<div data-view="ingame" style="position:absolute;inset:0">
+  <div class="scene"></div>
+  <div class="tab"><div class="hd">HARBOR CRAFT · play.harborcraft.example</div><div class="cols" id="tab"></div></div>
+  <div class="chatbox" id="chat"></div>
+  <div class="score"><div class="t">HARBOR CRAFT</div>
+    <div class="r"><span>Rank</span><span id="scoreRank"></span></div>
+    <div class="r"><span>Balance</span><span style="color:#3ccf8e">$12,480</span></div>
+    <div class="r"><span>Keys</span><span id="scoreKeys"></span></div>
+    <div class="r"><span>Online</span><span>42</span></div>
+    <div class="r" style="margin-top:6px;color:#9aa0bb;font-size:13px"><span>harborcraft.example</span></div></div>
+</div>
+
+<script>
+  document.body.dataset.v = new URLSearchParams(location.search).get("v") || "ranks"
+
+  // 16×16 shield badge: '#' outline, 'x' fill, 'h' highlight, 'e' emblem.
+  const SHIELD = [
+    "................", "..############..", ".#hhhhhhhhhhhh#.", ".#hxxxxxxxxxxx#.", ".#xxxxxeexxxxx#.", ".#xxxxeeeexxxx#.", ".#xxxeeeeeexxx#.", ".#xxxxeeeexxxx#.",
+    ".#xxxxxeexxxxx#.", ".#xxxxxxxxxxxx#.", "..#xxxxxxxxxx#..", "..#xxxxxxxxxx#..", "...#xxxxxxxx#...", "....#xxxxxx#....", ".....##xx##.....", ".......##.......",
+  ]
+  const RANKS = [
+    ["Member", "#9aa3ad", "#d8dde2", "#4b5560", "&7"], ["Deckhand", "#3d7bf0", "#9cc2ff", "#1c3f86", "&9"], ["Navigator", "#2fc28a", "#9ff0cf", "#0f6a47", "&a"], ["Captain", "#f5cf4e", "#fff0b0", "#9a7414", "&6"],
+    ["Admiral", "#ff8a3d", "#ffd0ab", "#9c4310", "&c"], ["Tidecaller", "#26c6da", "#b5f4fb", "#0d6e7a", "&b"], ["Leviathan", "#b066ff", "#e3c4ff", "#5b2a99", "&d"], ["Founder", "#ff5d7a", "#ffc4cf", "#8f1c33", "&4"],
+  ]
+  function drawBadge(cv, [_, fill, hi, dark], emblem = "#ffffff") {
+    cv.width = 16; cv.height = 16
+    const ctx = cv.getContext("2d")
+    SHIELD.forEach((row, y) => [...row].forEach((ch, x) => {
+      if (ch === ".") return
+      ctx.fillStyle = ch === "#" ? "#101218" : ch === "h" ? hi : ch === "e" ? emblem : y > 9 ? dark : fill
+      ctx.fillRect(x, y, 1, 1)
+    }))
+  }
+  const badges = document.getElementById("badges")
+  badges.innerHTML = RANKS.map((r, i) => `<div class="bd"><canvas class="px" data-b="${i}" style="width:128px;height:128px"></canvas><div><b style="color:${r[1]}">${r[0]}</b><div class="pre"><span style="color:${r[1]}">[${r[0].toUpperCase()}]</span> <span style="color:#fff">Juno</span><span style="color:#9aa0bb">: gg</span></div><div class="sizes"><canvas class="px" data-b="${i}" style="width:16px;height:16px"></canvas><canvas class="px" data-b="${i}" style="width:32px;height:32px"></canvas><canvas class="px" data-b="${i}" style="width:64px;height:64px"></canvas><span style="font-size:12px;color:#9aa0bb">${r[4]}</span></div></div></div>`).join("")
+  document.getElementById("strip").innerHTML = RANKS.map((r) => `<span style="color:${r[1]}">[${r[0].toUpperCase()}]</span>`).join("")
+  for (const cv of document.querySelectorAll("canvas[data-b]")) drawBadge(cv, RANKS[+cv.dataset.b])
+
+  // 24×24 crate: wooden body, tier-coloured bands and a lock; 16×16 key.
+  const TIERS = [["Common", "#b9c0c8", "#6b737c"], ["Rare", "#4aa3ff", "#1d5fa8"], ["Epic", "#b066ff", "#5b2a99"], ["Legendary", "#f5cf4e", "#9a7414"], ["Mythic", "#ff5d7a", "#8f1c33"]]
+  function drawCrate(cv, [, band, bandDark]) {
+    cv.width = 24; cv.height = 24
+    const c = cv.getContext("2d")
+    const px = (x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x, y, w, h) }
+    px(2, 5, 20, 17, "#101218")
+    for (let y = 6; y < 21; y++) for (let x = 3; x < 21; x++) px(x, y, 1, 1, (x + (y % 4 === 0 ? 2 : 0)) % 5 === 0 ? "#6a4424" : y % 4 === 0 ? "#7a5030" : "#9a6433")
+    px(3, 6, 18, 3, band); px(3, 8, 18, 1, bandDark)
+    px(3, 17, 18, 3, band); px(3, 19, 18, 1, bandDark)
+    px(3, 6, 2, 14, band); px(19, 6, 2, 14, band)
+    px(10, 10, 4, 5, "#101218"); px(11, 11, 2, 3, band)
+    px(2, 2, 20, 4, "#101218"); px(3, 3, 18, 2, band); px(3, 4, 18, 1, bandDark)
+  }
+  function drawKey(cv, [, band, bandDark]) {
+    cv.width = 16; cv.height = 16
+    const c = cv.getContext("2d")
+    const K = ["................", "..####..........", ".#hhhh#.........", ".#h##x#.........", ".#hxxx##########", "..####xxxxxxxxx#", "......####x#x#x#", "..........#.#.#.", "................"]
+    K.forEach((row, y) => [...row].forEach((ch, x) => { if (ch === ".") return; c.fillStyle = ch === "#" ? "#101218" : ch === "h" ? "#ffffff" : band; c.fillRect(x, y + 4, 1, 1) }))
+  }
+  document.getElementById("crates").innerHTML = TIERS.map((t, i) => `<div class="cr"><canvas class="px glow" data-c="${i}" style="width:192px;height:192px;--g:${t[1]}"></canvas><b style="color:${t[1]}">${t[0]}</b><div class="row"><canvas class="px" data-k="${i}" style="width:64px;height:64px"></canvas><canvas class="px" data-c="${i}" style="width:48px;height:48px"></canvas><canvas class="px" data-k="${i}" style="width:32px;height:32px"></canvas></div></div>`).join("")
+  document.getElementById("brow").innerHTML = RANKS.map((_, i) => `<canvas class="px" data-b="${i}" style="width:56px;height:56px"></canvas>`).join("")
+  for (const cv of document.querySelectorAll("#brow canvas[data-b]")) drawBadge(cv, RANKS[+cv.dataset.b])
+  document.getElementById("holos").innerHTML = TIERS.map((t) => `<div class="holo"><div class="l1" style="color:${t[1]}">✦ ${t[0]} Crate ✦</div><div class="l2">Right-click to open</div><div class="l3">Left-click to preview rewards</div></div>`).join("")
+  for (const cv of document.querySelectorAll("canvas[data-c]")) drawCrate(cv, TIERS[+cv.dataset.c])
+  for (const cv of document.querySelectorAll("canvas[data-k]")) drawKey(cv, TIERS[+cv.dataset.k])
+
+  // In game: tab list, chat and scoreboard with badge icons.
+  const players = [["Juno", 3], ["Rafa_B", 1], ["Aiko", 5], ["Tom0k", 0], ["Lena", 2], ["DevM", 4], ["NoorI", 6], ["Cal", 0], ["PiaS", 2], ["Sam", 7]]
+  const icon = (i, size = 18) => `<canvas class="px" data-b2="${i}" style="width:${size}px;height:${size}px"></canvas>`
+  document.getElementById("tab").innerHTML = players.map(([n, r]) => `<div class="p">${icon(r)}<span style="color:${RANKS[r][1]}">[${RANKS[r][0].toUpperCase()}]</span><span>${n}</span><span class="ping">▮▮▮</span></div>`).join("")
+  const lines = [[3, "Juno", "anyone up for the parkour tower?"], [6, "NoorI", "after this crate lol"], [0, "Tom0k", "how do I get keys"], [7, "Sam", "vote daily or /crates preview"], [5, "Aiko", "legendary crate just gave me the trident!"]]
+  document.getElementById("chat").innerHTML = lines.map(([r, n, t]) => `<div>${icon(r, 20)}<span style="color:${RANKS[r][1]}">[${RANKS[r][0].toUpperCase()}]</span><span>${n}:</span><span style="color:#e6e8ef">${t}</span></div>`).join("")
+  document.getElementById("scoreRank").innerHTML = `<span style="color:${RANKS[3][1]}">Captain</span>`
+  document.getElementById("scoreKeys").innerHTML = `<span style="color:${TIERS[2][1]}">2 Epic</span>`
+  for (const cv of document.querySelectorAll("canvas[data-b2]")) drawBadge(cv, RANKS[+cv.dataset.b2])
+</script>
+</body>
+</html>

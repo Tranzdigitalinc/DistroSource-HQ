@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>DistroSource batch 3 — model export</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "/node_modules/three/build/three.module.js",
+    "three/addons/": "/node_modules/three/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<script type="module">
+  // Builds one product's models and exports them: STL (binary, Z up, on the
+  // bed) for printable products; GLB per piece, one combined GLB and OBJ
+  // per piece for asset kits. Results are handed to build_models.mjs as
+  // base64 in window.__files, with per-part statistics in window.__stats.
+  import * as THREE from "three"
+  import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js"
+  import { OBJExporter } from "three/addons/exporters/OBJExporter.js"
+  import { STLExporter } from "three/addons/exporters/STLExporter.js"
+  import { PRINTS } from "/scripts/catalog/batch3/models/print.mjs"
+  import { KITS } from "/scripts/catalog/batch3/models/kits.mjs"
+
+  const b64 = (buf) => {
+    const bytes = new Uint8Array(buf.buffer ? buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) : buf)
+    let s = ""
+    for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000))
+    return btoa(s)
+  }
+  const text64 = (str) => b64(new TextEncoder().encode(str))
+  const tris = (obj) => {
+    let n = 0
+    obj.traverse((o) => { if (o.isMesh) n += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3 })
+    return Math.round(n)
+  }
+  const size = (obj) => {
+    const b = new THREE.Box3().setFromObject(obj)
+    const v = b.getSize(new THREE.Vector3())
+    return [v.x, v.y, v.z].map((x) => Math.round(x * 100) / 100)
+  }
+
+  try {
+    const slug = new URLSearchParams(location.search).get("product")
+    const files = [], stats = []
+    if (PRINTS[slug]) {
+      const p = PRINTS[slug]
+      const stl = new STLExporter()
+      for (const [name, make] of p.items) {
+        const geo = make().geometry()
+        geo.rotateX(Math.PI / 2)
+        geo.computeBoundingBox()
+        const bb = geo.boundingBox
+        geo.translate(-(bb.min.x + bb.max.x) / 2, -(bb.min.y + bb.max.y) / 2, -bb.min.z)
+        const mesh = new THREE.Mesh(geo)
+        const data = stl.parse(mesh, { binary: true })
+        files.push({ path: `${p.folder}/${name}.stl`, data: b64(data) })
+        geo.computeBoundingBox()
+        const s = geo.boundingBox.getSize(new THREE.Vector3())
+        stats.push({ name, triangles: geo.attributes.position.count / 3, size: [s.x, s.y, s.z].map((v) => Math.round(v * 10) / 10) })
+      }
+    } else if (KITS[slug]) {
+      const k = KITS[slug]
+      const pieces = k.build()
+      const gltf = new GLTFExporter(), obj = new OBJExporter()
+      const all = new THREE.Group()
+      let i = 0
+      const cols = Math.ceil(Math.sqrt(Object.keys(pieces).length))
+      for (const [name, make] of Object.entries(pieces)) {
+        const g = make()
+        g.name = name
+        const glb = await gltf.parseAsync(g, { binary: true })
+        files.push({ path: `${k.folder}/GLB/${name}.glb`, data: b64(glb) })
+        files.push({ path: `${k.folder}/OBJ/${name}.obj`, data: text64(obj.parse(g)) })
+        stats.push({ name, triangles: tris(g), size: size(g) })
+        const c = g.clone()
+        c.position.set((i % cols) * k.grid * 1.4, 0, Math.floor(i / cols) * k.grid * 1.4)
+        all.add(c)
+        i++
+      }
+      all.name = k.folder
+      const combined = await gltf.parseAsync(all, { binary: true })
+      files.push({ path: `${k.folder}/GLB/_AllPieces.glb`, data: b64(combined) })
+    } else throw new Error(`Unknown product ${slug}`)
+    window.__files = files
+    window.__stats = stats
+    window.__done = true
+  } catch (e) {
+    window.__error = String((e && e.stack) || e)
+  }
+</script>
+</body>
+</html>

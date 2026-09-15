@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Emote & Animation Library — built interface</title>
+<!-- Built interface for Emote & Animation Library. Views (?v=): wheel (default), library, synced.
+     Player names are fictional; poses are drawn as simple mannequins, not captured from the game. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ff5e7a; --accent-ink: #25030b; }
+  [data-view] { display: none; }
+  body[data-v="wheel"] [data-view="wheel"], body[data-v="library"] [data-view="library"], body[data-v="synced"] [data-view="synced"] { display: block; }
+  .scene { position: absolute; inset: 0; background: url(/.gaming-render/street-stream.png) center / cover; }
+  .scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(5,8,12,0.55), rgba(5,8,12,0.15) 45%, rgba(5,8,12,0.35)); }
+
+  /* Wheel */
+  .wheel { position: absolute; left: 820px; top: 150px; width: 640px; height: 640px; }
+  .wheel svg { width: 100%; height: 100%; overflow: visible; }
+  .wheel .lbl { font: 600 17px "Segoe UI", sans-serif; fill: #eef2f6; text-anchor: middle; }
+  .wheel .ico { font: 26px "Segoe UI Emoji", sans-serif; text-anchor: middle; }
+  .cats { position: absolute; left: 820px; top: 96px; width: 640px; display: flex; justify-content: center; gap: 8px; }
+  .cats span { padding: 7px 14px; border-radius: 20px; background: rgba(10,14,20,0.78); border: 1px solid #2a3442; font-size: 13px; color: #b8c3d1; }
+  .cats span.on { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 700; }
+  .hint { position: absolute; left: 50%; bottom: 36px; transform: translateX(-50%); display: flex; gap: 18px; background: rgba(8,11,16,0.8); border: 1px solid #252f3c; border-radius: 12px; padding: 10px 18px; font-size: 13px; color: #b8c3d1; }
+  .hint kbd { font: 700 12px "Cascadia Mono", monospace; background: #1b2431; border: 1px solid #334055; border-bottom-width: 3px; border-radius: 6px; padding: 2px 7px; color: #fff; margin-right: 6px; }
+
+  /* Library */
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .clip { background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 12px; display: grid; grid-template-columns: 54px 1fr; gap: 12px; align-items: center; }
+  .clip.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .clip .th { width: 54px; height: 54px; border-radius: 9px; background: #0d131a; border: 1px solid var(--line); display: grid; place-items: center; }
+  .clip b { font-size: 13.5px; display: block; }
+  .clip .m { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
+  .clip .m .pill { font-size: 9.5px; padding: 3px 6px; }
+  .stage { height: 330px; border-radius: 12px; background: radial-gradient(420px 260px at 50% 70%, #1d2838, #0c1118); border: 1px solid var(--line); display: grid; place-items: center; position: relative; }
+  .stage::after { content: ""; position: absolute; left: 20%; right: 20%; bottom: 44px; height: 14px; border-radius: 50%; background: rgba(0,0,0,0.45); filter: blur(4px); }
+  .tl { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 12px; }
+  .tl .track { flex: 1; height: 6px; border-radius: 6px; background: #1b2531; position: relative; }
+  .tl .track i { position: absolute; left: 0; top: 0; bottom: 0; width: 38%; background: var(--accent); border-radius: 6px; }
+  .tl .track b { position: absolute; left: 38%; top: 50%; width: 14px; height: 14px; border-radius: 50%; background: #fff; transform: translate(-50%, -50%); }
+  .kv { display: flex; justify-content: space-between; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
+
+  /* Synced */
+  .req { position: absolute; left: 700px; top: 120px; width: 460px; background: rgba(10,14,20,0.9); border: 1px solid #2b3647; border-radius: 16px; padding: 20px; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
+  .req .pair { height: 250px; border-radius: 12px; background: radial-gradient(360px 200px at 50% 75%, #1f2b3d, #0c1118); display: grid; place-items: center; margin: 14px 0; }
+  .panel { position: absolute; right: 70px; top: 120px; width: 330px; display: flex; flex-direction: column; gap: 14px; }
+  .opt { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--line); font-size: 13.5px; margin-top: 7px; }
+  .opt.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--panel-2)); }
+  .opt .k { margin-left: auto; font: 600 11px "Cascadia Mono", monospace; color: var(--muted); }
+</style>
+</head>
+<body data-v="wheel">
+
+<!-- ============ Emote wheel (in game) ============ -->
+<div data-view="wheel">
+  <div class="scene"></div>
+  <div class="cats"><span class="on">Favourites</span><span>Gestures</span><span>Poses</span><span>Jobs</span><span>Props</span><span>Dances</span><span>Synced</span></div>
+  <div class="wheel"><svg id="wheel" viewBox="-320 -320 640 640"></svg></div>
+  <div class="hint"><span><kbd>B</kbd>hold for wheel</span><span><kbd>/e</kbd>search every clip</span><span><kbd>G</kbd>walk style</span><span><kbd>X</kbd>cancel emote</span></div>
+</div>
+
+<!-- ============ Animation library ============ -->
+<div data-view="library">
+  <div class="bg" style="background-image:url(/.gaming-render/street-stream.png)"></div>
+  <div class="window">
+    <div class="titlebar"><i></i><i></i><i></i><span class="url">emotes · animation library · staff view</span></div>
+    <div class="app" style="flex:1;min-height:0">
+      <aside class="side">
+        <div class="brandrow"><span class="logo">EM</span><div><b>Emote Library</b><small>Staff controls</small></div></div>
+        <span class="nav"><i></i>All clips</span><span class="nav on"><i></i>Poses</span><span class="nav"><i></i>Gestures</span><span class="nav"><i></i>Jobs</span><span class="nav"><i></i>Props</span><span class="nav"><i></i>Dances</span><span class="nav"><i></i>Synced</span><span class="nav"><i></i>Walk styles</span>
+        <span class="spacer"></span><span class="nav"><i></i>Disabled clips</span>
+      </aside>
+      <div class="main">
+        <div class="top"><div><h1>Poses</h1><div class="sub">Sitting, leaning and waiting · September drop included</div></div><div class="right"><div class="field" style="width:260px">⌕ <b>lean</b></div><div class="tabs"><span class="on">All</span><span>Loop</span><span>Props</span></div></div></div>
+        <div class="body" style="grid-template-columns:1fr 400px">
+          <div class="grid" id="clips"></div>
+          <div class="col">
+            <section class="card">
+              <div class="stage"><svg id="pose" width="230" height="300" viewBox="0 0 230 300"></svg></div>
+              <div class="tl"><span class="num">0:01.4</span><div class="track"><i></i><b></b></div><span class="num muted">0:03.6 · loop</span></div>
+            </section>
+            <section class="card">
+              <div class="h">Lean — wall, arms crossed <span class="pill info">New in September</span></div>
+              <div class="kv"><span class="muted">Command</span><b class="mono">/e leanwall2</b></div>
+              <div class="kv"><span class="muted">Dictionary</span><b class="mono">ds_pose_lean@wall</b></div>
+              <div class="kv"><span class="muted">Behaviour</span><b>Loop · upper body free</b></div>
+              <div class="kv"><span class="muted">Available to</span><b>Everyone</b></div>
+              <div class="row" style="margin-top:12px"><span class="btn">Rename</span><span class="btn">Restrict</span><span class="btn ghost" style="color:var(--bad)">Disable</span></div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Synced emote request ============ -->
+<div data-view="synced">
+  <div class="scene"></div>
+  <div class="req">
+    <div class="row"><span class="av" style="background:#ff5e7a">MQ</span><div><b style="font-size:15px">Mara Quinn</b><div class="muted" style="font-size:12.5px">wants to do a synced emote · 2.1 m away</div></div><span class="pill info" style="margin-left:auto">Synced</span></div>
+    <div class="pair"><svg id="duo" width="360" height="230" viewBox="0 0 360 230"></svg></div>
+    <div class="row" style="justify-content:space-between"><div><b style="font-size:18px">Handshake</b><div class="muted" style="font-size:12.5px">Both players are lined up before it plays</div></div></div>
+    <div class="row" style="margin-top:16px;gap:10px"><span class="btn lg primary" style="flex:1;justify-content:center"><span class="mono" style="font-size:12px;opacity:0.7">Y</span> Accept</span><span class="btn lg" style="flex:1;justify-content:center"><span class="mono" style="font-size:12px;opacity:0.7">N</span> Decline</span></div>
+    <div class="muted" style="font-size:12px;margin-top:10px;text-align:center">Request expires in 12 s</div>
+  </div>
+  <div class="panel">
+    <section class="card"><div class="h">Walk style</div>
+      <div class="opt">Casual<span class="k">default</span></div><div class="opt on">Confident<span class="k">saved</span></div><div class="opt">Tired</div><div class="opt">Injured</div><div class="opt">Brisk</div></section>
+    <section class="card"><div class="h">Mood</div>
+      <div class="opt">Neutral</div><div class="opt on">Happy</div><div class="opt">Focused</div><div class="opt">Annoyed</div></section>
+  </div>
+</div>
+
+<script>
+  const v = new URLSearchParams(location.search).get("v") || "wheel"
+  document.body.dataset.v = v
+
+  // Radial wheel: eight slices with a highlighted selection.
+  const items = [["Lean", "🧍"], ["Wave", "👋"], ["Sit", "🪑"], ["Phone", "📱"], ["Clipboard", "📋"], ["Salute", "🫡"], ["Shrug", "🤷"], ["Dance", "💃"]]
+  const svg = document.getElementById("wheel")
+  const R0 = 118, R1 = 300, n = items.length
+  const pt = (r, a) => `${(r * Math.cos(a)).toFixed(1)} ${(r * Math.sin(a)).toFixed(1)}`
+  let out = ""
+  items.forEach(([label, icon], i) => {
+    const a0 = (i / n) * Math.PI * 2 - Math.PI / 2 - Math.PI / n + 0.012, a1 = a0 + (Math.PI * 2) / n - 0.024, am = (a0 + a1) / 2
+    const sel = i === 0
+    out += `<path d="M ${pt(R0, a0)} L ${pt(R1, a0)} A ${R1} ${R1} 0 0 1 ${pt(R1, a1)} L ${pt(R0, a1)} A ${R0} ${R0} 0 0 0 ${pt(R0, a0)} Z" fill="${sel ? "rgba(255,94,122,0.88)" : "rgba(10,14,20,0.82)"}" stroke="${sel ? "#ffb3c0" : "#2a3442"}" stroke-width="1.5"/>`
+    const [x, y] = [210 * Math.cos(am), 210 * Math.sin(am)]
+    out += `<text class="ico" x="${x}" y="${y - 6}">${icon}</text><text class="lbl" x="${x}" y="${y + 24}" ${sel ? 'style="fill:#25030b;font-weight:700"' : ""}>${label}</text>`
+  })
+  out += `<circle r="${R0 - 10}" fill="rgba(8,11,16,0.92)" stroke="#2a3442"/><text class="lbl" y="-14" style="font-size:13px;fill:#8b9aab">FAVOURITES</text><text class="lbl" y="14" style="font-size:22px;font-weight:700">Lean — wall</text><text class="lbl" y="40" style="font-size:12px;fill:#8b9aab">release to play</text>`
+  svg.innerHTML = out
+
+  // Mannequin: joints given in local coordinates, drawn as rounded limbs.
+  function mannequin(p, color = "#d7dee8") {
+    const limb = (a, b, w) => `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${color}" stroke-width="${w}" stroke-linecap="round"/>`
+    return `<g>${limb(p.hip, p.kneeL, 22)}${limb(p.kneeL, p.footL, 18)}${limb(p.hip, p.kneeR, 22)}${limb(p.kneeR, p.footR, 18)}${limb(p.hip, p.neck, 34)}${limb(p.neck, p.elbL, 16)}${limb(p.elbL, p.handL, 13)}${limb(p.neck, p.elbR, 16)}${limb(p.elbR, p.handR, 13)}<circle cx="${p.head[0]}" cy="${p.head[1]}" r="21" fill="${color}"/></g>`
+  }
+  const lean = { head: [120, 58], neck: [118, 92], hip: [112, 170], kneeL: [104, 222], footL: [96, 272], kneeR: [128, 220], footR: [150, 268], elbL: [96, 128], handL: [134, 136], elbR: [142, 128], handR: [104, 138] }
+  const pose = document.getElementById("pose")
+  if (pose) pose.innerHTML = `<rect x="150" y="10" width="14" height="280" rx="3" fill="#2a3442"/>` + mannequin(lean)
+
+  const clips = [["Lean — wall", "Loop", true], ["Lean — wall, arms crossed", "Loop", true, true], ["Lean — railing", "Loop"], ["Sit — ledge", "Loop"], ["Sit — step, elbows on knees", "Loop"], ["Wait — hands in pockets", "Loop"], ["Wait — check watch", "Once"], ["Lean — car door", "Loop", false, false, "Prop"], ["Sit — bench, reading", "Loop", false, false, "Prop"], ["Crouch — tie shoe", "Once"], ["Lean — counter, phone", "Loop", false, false, "Prop"], ["Stand — arms behind back", "Loop"]]
+  const grid = document.getElementById("clips")
+  if (grid) grid.innerHTML = clips.map(([name, loop, isNew, sel, prop], i) => `<div class="clip${sel ? " sel" : ""}"><div class="th"><svg width="44" height="44" viewBox="0 0 230 300">${mannequin(i % 3 === 0 ? lean : { ...lean, handL: [150, 170], handR: [80, 170], elbL: [140, 130], elbR: [96, 130] }, sel ? "#ff5e7a" : "#8b9aab")}</svg></div><div><b>${name}</b><div class="m"><span class="pill dim">${loop}</span>${prop ? '<span class="pill dim">Prop</span>' : ""}${isNew ? '<span class="pill info">New</span>' : ""}</div></div></div>`).join("")
+
+  const duo = document.getElementById("duo")
+  if (duo) {
+    const a = { head: [110, 42], neck: [110, 74], hip: [108, 148], kneeL: [98, 188], footL: [92, 226], kneeR: [120, 188], footR: [126, 226], elbL: [92, 110], handL: [86, 146], elbR: [140, 104], handR: [176, 112] }
+    const b = { head: [250, 42], neck: [250, 74], hip: [252, 148], kneeL: [262, 188], footL: [268, 226], kneeR: [240, 188], footR: [234, 226], elbL: [268, 110], handL: [274, 146], elbR: [220, 104], handR: [184, 112] }
+    duo.innerHTML = mannequin(a, "#ff9fb0") + mannequin(b, "#d7dee8") + `<circle cx="180" cy="112" r="9" fill="none" stroke="#ffd166" stroke-width="3"/>`
+  }
+</script>
+</body>
+</html>
