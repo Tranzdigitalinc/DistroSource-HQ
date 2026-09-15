@@ -196,16 +196,19 @@ export interface FungiesProduct {
   project?: { id?: string | null } | null
 }
 
-/** Every product of one type, following pagination. */
+/**
+ * Every product of one type, following pagination. Filtered here rather than
+ * with the API's `types` parameter: it is an array whose query encoding is
+ * undocumented, and a single `types=` value is rejected as a string.
+ */
 export async function listFungiesProducts(type: string): Promise<FungiesProduct[]> {
   const all: FungiesProduct[] = []
   for (let skip = 0; ; skip += 100) {
-    const data = await fungiesFetch<{ products?: FungiesProduct[] }>(
-      `/products/list?types=${encodeURIComponent(type)}&take=100&skip=${skip}`,
-      { method: "GET" },
-    )
+    const data = await fungiesFetch<{ products?: FungiesProduct[] }>(`/products/list?take=100&skip=${skip}`, {
+      method: "GET",
+    })
     const page = data.products ?? []
-    all.push(...page)
+    all.push(...page.filter((product) => product.type === type))
     if (page.length < 100) return all
   }
 }

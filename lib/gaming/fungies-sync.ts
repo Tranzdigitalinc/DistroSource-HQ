@@ -89,6 +89,9 @@ export async function syncGamingPlansToFungies({ limit }: { limit: number }): Pr
     const features = product.whatYouGet.slice(0, 8)
     let fp = existing.get(product.id)
     try {
+      // A product an earlier run recorded is reused even if the list didn't
+      // return it (for example a hidden product), so it is never created twice.
+      if (!fp && recorded) fp = await getFungiesProduct(recorded.fungiesProductId).catch(() => undefined)
       let outcome: GamingFungiesSyncRow["outcome"] = recorded?.fungiesProductId === fp?.id ? "plan-added" : "linked"
       if (!fp) {
         fp = await createFungiesSubscriptionProduct({
