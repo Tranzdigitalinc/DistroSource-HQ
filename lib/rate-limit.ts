@@ -157,6 +157,12 @@ export const RATE_LIMITS = {
   membershipCreditRedeem: { windowSeconds: 3600, max: 60 },
   /** Cancelling a membership — a real provider call. */
   membershipManage: { windowSeconds: 600, max: 15 },
+  /** Creates a Fungies recurring offer for a Gaming plan — a real provider call. */
+  gamingCheckoutCreate: { windowSeconds: 600, max: 10 },
+  /** Client polls our own DB while the Gaming checkout overlay is open. */
+  gamingPoll: { windowSeconds: 300, max: 120 },
+  /** Cancelling a Gaming subscription — a real provider call. */
+  gamingManage: { windowSeconds: 600, max: 15 },
   /** Otherwise allows unlimited coupon-code enumeration. */
   couponValidate: { windowSeconds: 300, max: 20 },
   freeClaim: { windowSeconds: 3600, max: 20 },

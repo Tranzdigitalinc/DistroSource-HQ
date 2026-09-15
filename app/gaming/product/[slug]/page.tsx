@@ -215,7 +215,7 @@ export default async function GamingProductPage({ params }: { params: Promise<{ 
                 </ul>
               </div>
 
-              <GamingPurchasePanel pricing={product.pricing} availability={product.availability} cadence={product.cadence?.[0]} afterCancel={product.afterCancel?.[0]} />
+              <GamingPurchasePanel slug={product.slug} pricing={product.pricing} availability={product.availability} cadence={product.cadence?.[0]} afterCancel={product.afterCancel?.[0]} />
 
               <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-xl border border-border bg-card px-5 py-4 text-sm">
                 {facts.map(([k, v]) => (

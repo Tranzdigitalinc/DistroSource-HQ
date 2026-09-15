@@ -663,3 +663,43 @@ export const membershipCreditLedger = pgTable("membership_credit_ledger", {
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
+// Where each Gaming catalogue plan bills in Fungies: its Subscription product
+// and the plan every signup's recurring offer is attached to. Written by the
+// admin sync (lib/gaming/fungies-sync.ts); a slug without a plan id cannot be
+// checked out. Created by scripts/db/add-gaming-subscriptions.sql.
+export const gamingFungiesProducts = pgTable("gaming_fungies_products", {
+  slug: text("slug").primaryKey(),
+  fungiesProductId: text("fungiesProductId").notNull(),
+  fungiesPlanId: text("fungiesPlanId"),
+  syncedAt: timestamp("syncedAt").notNull().defaultNow(),
+})
+
+// A subscription to one Gaming catalogue plan (lib/gaming/catalog), billed
+// through Fungies exactly like a membership: its own single-use recurring
+// offer, externalId = reference, activated only by the verified webhook. Kept
+// apart from `subscriptions` so a Gaming plan is never read as a store
+// membership (discounts, download credits). Created by
+// scripts/db/add-gaming-subscriptions.sql.
+export const gamingSubscriptions = pgTable("gaming_subscriptions", {
+  id: serial("id").primaryKey(),
+  // Our own opaque token (GAME-…), set as the Fungies offer externalId.
+  reference: text("reference").notNull().unique(),
+  userId: text("userId").notNull(),
+  // Catalogue slug, e.g. "fivem-heist-series".
+  productSlug: text("productSlug").notNull(),
+  interval: text("interval").notNull(), // month | year
+  status: text("status").notNull().default("pending"), // pending | active | past_due | canceled | expired
+  priceUsd: numeric("priceUsd", { precision: 10, scale: 2 }).notNull(),
+  billingName: text("billingName"),
+  billingEmail: text("billingEmail").notNull(),
+  fungiesOfferId: text("fungiesOfferId"),
+  // Populated from the first payment_success; renewals match on this.
+  fungiesSubscriptionId: text("fungiesSubscriptionId").unique(),
+  currentPeriodStart: timestamp("currentPeriodStart"),
+  currentPeriodEnd: timestamp("currentPeriodEnd"),
+  cancelAtPeriodEnd: boolean("cancelAtPeriodEnd").notNull().default(false),
+  canceledAt: timestamp("canceledAt"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+})
+

@@ -29,8 +29,8 @@ interface FungiesCheckoutProps {
   billingData?: FungiesBillingData
   /** Polls our own server for settlement. Defaults to the one-time order check. */
   confirm?: (ref: string) => Promise<FungiesConfirmResult>
-  /** Switches the copy between a product order and a membership. */
-  context?: "order" | "membership"
+  /** Switches the copy between a product order, a membership and a Gaming subscription. */
+  context?: "order" | "membership" | "subscription"
   onPaid: (orderNumber: string) => void
   onCancel: () => void
 }
@@ -54,7 +54,7 @@ const STALL_HINT_MS = 9000
  * an unlisted domain renders an empty frame with no JavaScript error.
  */
 export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billingData, confirm = confirmFungiesPayment, context = "order", onPaid, onCancel }: FungiesCheckoutProps) {
-  const noun = context === "membership" ? "membership" : "order"
+  const noun = context === "order" ? "order" : context
   const [error, setError] = useState<string | null>(null)
   const [phase, setPhase] = useState<"open" | "dismissed" | "confirming" | "timedOut">("open")
   // A frame refused by the provider (domain not authorized) renders blank and
@@ -223,8 +223,7 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billing
         : phase === "timedOut"
           ? "Still waiting on confirmation"
           : "Complete your payment"
-  const settledOutcome =
-    context === "membership" ? "your membership activates automatically" : "your files unlock automatically"
+  const settledOutcome = context === "order" ? "your files unlock automatically" : `your ${noun} activates automatically`
   const body =
     error ??
     (phase === "confirming"
@@ -286,7 +285,7 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billing
           </p>
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <ShieldCheck size={ICON_SIZE.sm} className="text-primary" aria-hidden="true" />
-            Fungies is the merchant of record and handles tax on this {noun === "membership" ? "subscription" : "order"}.
+            Fungies is the merchant of record and handles tax on this {noun === "order" ? "order" : "subscription"}.
           </p>
         </>
       )}

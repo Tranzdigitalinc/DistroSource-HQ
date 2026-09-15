@@ -169,6 +169,46 @@ per period under a per-subscription database lock, so duplicates are no-ops.
 Credit redemptions take the same lock, so two simultaneous claims can't spend
 the same credit.
 
+## Gaming subscriptions
+
+Each of the 26 Gaming catalogue plans (lib/gaming/catalog) is its own Fungies
+Subscription product with one plan, `externalId` = the catalogue id
+(`gs-<slug>`, read back as `internalId`).
+
+**Admin → Gaming → Sync to Fungies** (lib/gaming/fungies-sync.ts) creates any
+missing products and plans, and records their ids in `gaming_fungies_products`.
+- It runs on the deployment, with the keys already set in Vercel, in batches of
+  a few plans so no request hits the function time limit.
+- It is idempotent: it matches products on `internalId`, so rerunning it after
+  adding a catalogue plan only creates the new one.
+- New products copy the status of the membership product.
+- The `projectId` Fungies requires comes from `FUNGIES_PROJECT_ID` when set,
+  otherwise from the membership product. If neither is available, the sync
+  stops after one attempt and shows Fungies' error.
+
+Billing is the membership flow with its own table, `gaming_subscriptions`.
+Both tables are created by `scripts/db/add-gaming-subscriptions.sql`, run as
+the owner in the Neon console. A Gaming plan never reads as a store
+membership, so it never grants discounts or download credits.
+
+- Checkout is for signed-in accounts only, so every subscription can be
+  cancelled from /account/gaming.
+- `startGamingCheckout` resolves the price from the catalogue, writes a
+  pending row with a `GAME-…` reference, and creates a single-use recurring
+  offer (that reference as `externalId`) plus a checkout element.
+- The webhook routes an event to lib/gaming/billing.ts when it carries a
+  `GAME-` reference or a Fungies subscription id held in
+  `gaming_subscriptions`. Everything else falls through to the membership and
+  one-time order paths unchanged. If the table is missing, the lookup answers
+  "not Gaming" rather than failing the delivery.
+- `payment_success` / `subscription_interval` activate the subscription and
+  record the period from Fungies' own record. `subscription_updated` /
+  `subscription_cancelled` re-read it from the API.
+- Cancelling from the account page cancels at period end in Fungies.
+
+A slug without a plan id in `gaming_fungies_products` cannot be checked out: the action
+refuses before any row or offer is created.
+
 ## Notes
 
 - Fungies has no separate test mode for payments — a checkout you complete is

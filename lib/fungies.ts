@@ -184,6 +184,88 @@ export async function getFungiesOffer(offerId: string): Promise<FungiesOffer> {
   return data.offer
 }
 
+/** A product as the products API returns it. `internalId` echoes the `externalId` we set. */
+export interface FungiesProduct {
+  id: string
+  type: string
+  internalId: string | null
+  name: string
+  status: "DRAFT" | "ACTIVE" | "HIDDEN"
+  /** Not in the published schema; read defensively when present. */
+  projectId?: string | null
+  project?: { id?: string | null } | null
+}
+
+/** Every product of one type, following pagination. */
+export async function listFungiesProducts(type: string): Promise<FungiesProduct[]> {
+  const all: FungiesProduct[] = []
+  for (let skip = 0; ; skip += 100) {
+    const data = await fungiesFetch<{ products?: FungiesProduct[] }>(
+      `/products/list?types=${encodeURIComponent(type)}&take=100&skip=${skip}`,
+      { method: "GET" },
+    )
+    const page = data.products ?? []
+    all.push(...page)
+    if (page.length < 100) return all
+  }
+}
+
+export async function getFungiesProduct(productId: string): Promise<FungiesProduct> {
+  const data = await fungiesFetch<{ product: FungiesProduct }>(`/products/${encodeURIComponent(productId)}`, { method: "GET" })
+  if (!data.product?.id) throw new Error("Fungies did not return the product.")
+  return data.product
+}
+
+/** Creates a Subscription product. Prices live on each signup's offer, not here. */
+export async function createFungiesSubscriptionProduct(input: {
+  name: string
+  /** Rich text (HTML) shown on the product page. */
+  description: string
+  features: string[]
+  status: FungiesProduct["status"]
+  externalId: string
+  projectId: string | null
+}): Promise<FungiesProduct> {
+  const data = await fungiesFetch<{ product: FungiesProduct }>("/products/create", {
+    method: "POST",
+    write: true,
+    // `type` first: it fixes which of the other fields the request accepts.
+    body: JSON.stringify({
+      type: "Subscription",
+      name: input.name,
+      description: input.description,
+      features: input.features.map((value) => ({ value })),
+      status: input.status,
+      externalId: input.externalId,
+      ...(input.projectId ? { projectId: input.projectId } : {}),
+    }),
+  })
+  if (!data.product?.id) throw new Error("Fungies did not return the created product.")
+  return data.product
+}
+
+/** Adds a plan (a variant) to a Subscription product; offers are created against its id. */
+export async function addFungiesPlan(
+  productId: string,
+  input: { name: string; description: string; features: string[]; externalId: string },
+): Promise<{ id: string; internalId: string | null }> {
+  const data = await fungiesFetch<{ plan: { id: string; internalId: string | null } }>(
+    `/products/${encodeURIComponent(productId)}/plans/add`,
+    {
+      method: "POST",
+      write: true,
+      body: JSON.stringify({
+        name: input.name,
+        description: input.description,
+        features: input.features.map((value) => ({ value })),
+        externalId: input.externalId,
+      }),
+    },
+  )
+  if (!data.plan?.id) throw new Error("Fungies did not return the added plan.")
+  return data.plan
+}
+
 /** All statuses a Fungies subscription can report. */
 export type FungiesSubscriptionStatus =
   | "active"

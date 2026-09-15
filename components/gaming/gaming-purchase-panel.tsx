@@ -1,13 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { FungiesCheckout, type FungiesBillingData, type FungiesConfirmResult } from "@/components/checkout/fungies-checkout"
+import { confirmGamingCheckout, startGamingCheckout } from "@/lib/actions/gaming-subscriptions"
+import { useSession } from "@/lib/auth-client"
 import { annualSaving, formatGamingPrice } from "@/lib/gaming/catalog/pricing"
 import type { GamingAvailability, GamingPricing } from "@/lib/gaming/catalog/types"
-import { CheckCircle, Clock, Library, Refresh } from "@/lib/storefront-icons"
+import { CheckCircle, Clock, Library, Refresh, ShieldCheck } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
 
 interface GamingPurchasePanelProps {
+  slug: string
   pricing: GamingPricing
   availability: GamingAvailability
   /** First cadence line, e.g. "Two new interiors published every month". */
@@ -18,19 +24,76 @@ interface GamingPurchasePanelProps {
 
 type Interval = "month" | "year"
 
+interface StartedCheckout {
+  reference: string
+  checkoutUrl: string
+  fallbackUrl: string
+  billingData: FungiesBillingData
+}
+
 /**
  * Price, billing interval and the purchase action.
  *
- * The annual saving is computed from the two prices. A product that is not
- * `on-sale` never offers checkout: the button is disabled and says so, and
- * nothing is charged.
+ * The annual saving is computed from the two prices. Subscribe opens the
+ * Fungies checkout over the page; the price is resolved on the server from
+ * the catalogue, and the subscription only activates once Fungies' signed
+ * webhook confirms the payment. A product that is not `on-sale` never offers
+ * checkout: the button is disabled and says so, and nothing is charged.
  */
-export function GamingPurchasePanel({ pricing, availability, cadence, afterCancel }: GamingPurchasePanelProps) {
+export function GamingPurchasePanel({ slug, pricing, availability, cadence, afterCancel }: GamingPurchasePanelProps) {
+  const router = useRouter()
+  const { data: session, isPending: sessionPending } = useSession()
   const [interval, setInterval] = useState<Interval>("month")
+  const [checkout, setCheckout] = useState<StartedCheckout | null>(null)
+  const [starting, startTransition] = useTransition()
   const saving = annualSaving(pricing)
-  const onSale = availability === "on-sale"
   const recurring = pricing.kind === "subscription"
+  const onSale = availability === "on-sale" && recurring
   const yearly = recurring && interval === "year" && saving
+  const signedOut = !sessionPending && !session?.user
+  const signInHref = `/sign-in?redirect=${encodeURIComponent(`/gaming/product/${slug}`)}`
+
+  const confirm = useCallback(async (ref: string): Promise<FungiesConfirmResult> => {
+    const r = await confirmGamingCheckout(ref)
+    if (r.status === "active") return { status: "paid", orderNumber: r.reference }
+    if (r.status === "error") return { status: "error", error: r.error }
+    return { status: "pending" }
+  }, [])
+
+  const onPaid = useCallback(() => {
+    router.push("/account/gaming")
+  }, [router])
+
+  function handleSubscribe() {
+    if (signedOut) {
+      router.push(signInHref)
+      return
+    }
+    startTransition(async () => {
+      const result = await startGamingCheckout({ slug, interval: yearly ? "year" : "month" })
+      if ("error" in result) {
+        if (result.signIn) router.push(signInHref)
+        else toast.error(result.error)
+        return
+      }
+      setCheckout(result)
+    })
+  }
+
+  if (checkout) {
+    return (
+      <FungiesCheckout
+        orderNumber={checkout.reference}
+        checkoutUrl={checkout.checkoutUrl}
+        fallbackUrl={checkout.fallbackUrl}
+        billingData={checkout.billingData}
+        confirm={confirm}
+        context="subscription"
+        onPaid={onPaid}
+        onCancel={() => setCheckout(null)}
+      />
+    )
+  }
 
   return (
     <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-[0_24px_60px_-40px_oklch(0.2_0.03_258/0.5)]">
@@ -79,9 +142,15 @@ export function GamingPurchasePanel({ pricing, availability, cadence, afterCance
         </div>
 
         {onSale ? (
-          <Button size="lg" className="w-full font-semibold">
-            {recurring ? "Subscribe" : "Buy now"}
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button size="lg" className="w-full font-semibold" onClick={handleSubscribe} disabled={starting} aria-busy={starting}>
+              {starting ? "Opening checkout…" : signedOut ? "Sign in to subscribe" : "Subscribe"}
+            </Button>
+            <p className="flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
+              <ShieldCheck size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
+              Billed securely by Fungies, the merchant of record. Cancel anytime from your account.
+            </p>
+          </div>
         ) : (
           <div className="flex flex-col gap-2">
             <Button size="lg" className="w-full font-semibold" disabled aria-describedby="gaming-launch-note">

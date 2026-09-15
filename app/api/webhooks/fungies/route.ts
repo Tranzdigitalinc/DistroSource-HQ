@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { operationEvents, orders } from "@/lib/db/schema"
 import { fulfillPendingOrder } from "@/lib/checkout-core"
 import { fulfillSubscriptionPayment, isMembershipReference, reconcileSubscription } from "@/lib/membership"
+import { fulfillGamingSubscriptionPayment, isGamingSubscriptionEvent, reconcileGamingSubscription } from "@/lib/gaming/billing"
 import { getFungiesWebhookSecret } from "@/lib/env"
 import { orderNumberFromEvent, paidAmountFromEvent, subscriptionIdFromEvent, verifyFungiesSignature, type FungiesEvent } from "@/lib/fungies"
 
@@ -48,13 +49,25 @@ export async function POST(request: Request) {
   // --- Subscription (membership) lifecycle ---------------------------------
   // A subscription renewal charge fulfils through the same paid path. Status
   // changes (cancel-at-period-end, expiry, past-due) reconcile from the API.
+  //
+  // Gaming subscriptions (GAME- references, lib/gaming/billing.ts) bill the
+  // same way but live in their own table, so they are routed first and never
+  // reach membership code. The check answers false on any lookup failure.
+  const isGaming =
+    event.type === "subscription_interval" ||
+    event.type === "subscription_updated" ||
+    event.type === "subscription_cancelled" ||
+    event.type === "payment_success"
+      ? await isGamingSubscriptionEvent(event)
+      : false
+
   if (event.type === "subscription_interval") {
-    const { handled } = await fulfillSubscriptionPayment(event)
-    return NextResponse.json({ received: true, type: event.type, handled })
+    const { handled } = isGaming ? await fulfillGamingSubscriptionPayment(event) : await fulfillSubscriptionPayment(event)
+    return NextResponse.json({ received: true, type: event.type, gaming: isGaming, handled })
   }
   if (event.type === "subscription_updated" || event.type === "subscription_cancelled") {
-    const { handled } = await reconcileSubscription(event)
-    return NextResponse.json({ received: true, type: event.type, handled })
+    const { handled } = isGaming ? await reconcileGamingSubscription(event) : await reconcileSubscription(event)
+    return NextResponse.json({ received: true, type: event.type, gaming: isGaming, handled })
   }
   // `subscription_created` fires before the first charge confirms — never a
   // fulfilment signal on its own. We wait for payment_success below.
@@ -66,6 +79,11 @@ export async function POST(request: Request) {
   // acknowledged so Fungies stops retrying, but change nothing here.
   if (event.type !== "payment_success") {
     return NextResponse.json({ received: true, ignored: event.type ?? "unknown" })
+  }
+
+  if (isGaming) {
+    const { handled } = await fulfillGamingSubscriptionPayment(event)
+    return NextResponse.json({ received: true, type: "payment_success", gaming: true, handled })
   }
 
   // A payment_success for a membership (initial signup or renewal) is never a

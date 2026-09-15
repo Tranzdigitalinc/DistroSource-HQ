@@ -7,9 +7,10 @@ import { COMMUNITY_CREATOR_PRODUCTS } from "@/lib/gaming/catalog/records/communi
 /**
  * DistroSource Gaming catalogue.
  *
- * Every product is `launching`: fully presented, with checkout not offered
- * until real deliverables and a payment mapping exist. Prices, cadence and
- * quantities are proposals for owner approval.
+ * Every product is `on-sale`, billed as a Fungies subscription. Each slug
+ * maps to a Fungies product and plan in the gaming_fungies_products table,
+ * filled by Admin → Gaming → Sync to Fungies; checkout refuses any slug
+ * without one.
  *
  * The 46 products from the previous catalogue are archived, unlisted, in
  * scripts/gaming/legacy/legacy-catalog-2026-09.json.
