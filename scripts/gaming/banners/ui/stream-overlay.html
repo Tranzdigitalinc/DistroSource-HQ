@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Community Brand Kit — stream overlay</title>
+<!-- Design mockup: the kit's stream overlay over rendered gameplay. The
+     community, handles and messages are fictional; the camera slot is shown
+     as the empty template frame it ships as. 1600×1000. -->
+<style>
+  @font-face { font-family: "Archivo"; src: url(/scripts/gaming/banners/fonts/archivo-latin.woff2) format("woff2"); font-weight: 100 900; font-display: block; }
+  :root { --red: #e0343b; --ink: #121317; --cream: #f3efe6; --gold: #d8a24a; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 1000px; overflow: hidden; background: #000; }
+  body { font-family: "Archivo", sans-serif; color: var(--cream); position: relative; }
+  .game { position: absolute; inset: 0; background: url(/.gaming-render/street-stream.png) center / cover; }
+  .cond { font-family: "Bahnschrift", "Archivo", sans-serif; font-stretch: 75%; }
+  .frame { position: absolute; inset: 18px; border: 2px solid rgba(224,52,59,0.55); border-radius: 20px; pointer-events: none; }
+  .corner { position: absolute; width: 60px; height: 60px; border-color: var(--red); border-style: solid; }
+  .tl { left: 18px; top: 18px; border-width: 5px 0 0 5px; border-top-left-radius: 20px; }
+  .tr { right: 18px; top: 18px; border-width: 5px 5px 0 0; border-top-right-radius: 20px; }
+  .bl { left: 18px; bottom: 18px; border-width: 0 0 5px 5px; border-bottom-left-radius: 20px; }
+  .br { right: 18px; bottom: 18px; border-width: 0 5px 5px 0; border-bottom-right-radius: 20px; }
+  .top { position: absolute; left: 50px; top: 46px; display: flex; gap: 12px; align-items: center; }
+  .live { background: var(--red); font-weight: 800; font-size: 16px; letter-spacing: 0.14em; padding: 8px 13px; border-radius: 8px; }
+  .title { background: rgba(18,19,23,0.82); padding: 8px 14px; border-radius: 8px; font-size: 17px; font-weight: 600; }
+  .alert { position: absolute; right: 50px; top: 46px; width: 380px; display: flex; gap: 14px; align-items: center; padding: 16px 18px; border-radius: 16px; background: linear-gradient(120deg, rgba(224,52,59,0.95), rgba(150,20,28,0.95)); box-shadow: 0 24px 50px -20px rgba(224,52,59,0.8); }
+  .alert small { display: block; font-size: 12px; letter-spacing: 0.22em; font-weight: 800; color: #ffd9d4; }
+  .alert b { font-size: 26px; font-weight: 700; }
+  .chat { position: absolute; right: 50px; top: 170px; width: 380px; padding: 16px 18px; border-radius: 16px; background: rgba(18,19,23,0.78); display: flex; flex-direction: column; gap: 11px; font-size: 15px; line-height: 1.35; }
+  .chat h4 { font-size: 12px; letter-spacing: 0.22em; color: rgba(243,239,230,0.55); font-weight: 800; }
+  .chat p b { margin-right: 6px; }
+  .cam { position: absolute; left: 50px; bottom: 50px; width: 420px; height: 262px; border-radius: 16px; background: linear-gradient(160deg, rgba(42,45,52,0.92), rgba(18,19,23,0.92)); box-shadow: 0 0 0 4px var(--red), 0 30px 60px -20px rgba(0,0,0,0.8); display: grid; place-items: center; }
+  .cam span { font-size: 13px; letter-spacing: 0.32em; color: rgba(243,239,230,0.4); font-weight: 800; }
+  .plate { position: absolute; left: 50px; bottom: 322px; display: flex; align-items: center; gap: 10px; background: var(--ink); padding: 8px 14px 8px 10px; border-radius: 10px; font-weight: 700; font-size: 17px; box-shadow: 0 0 0 2px rgba(224,52,59,0.6); }
+  .bar { position: absolute; left: 500px; right: 460px; bottom: 50px; height: 62px; border-radius: 14px; background: rgba(18,19,23,0.86); display: flex; align-items: center; gap: 18px; padding: 0 20px; font-size: 16px; }
+  .bar b { color: var(--red); letter-spacing: 0.14em; font-size: 13px; font-weight: 800; }
+  .bar .sep { width: 1px; height: 26px; background: rgba(243,239,230,0.18); }
+  .social { position: absolute; right: 50px; bottom: 50px; width: 380px; height: 62px; border-radius: 14px; background: rgba(18,19,23,0.86); display: flex; align-items: center; justify-content: space-around; font-size: 15px; font-weight: 600; color: rgba(243,239,230,0.85); }
+</style>
+</head>
+<body>
+<div class="game"></div>
+<div class="frame"></div>
+<div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+<div class="top"><span class="live">● LIVE</span><span class="title">Patrol Night · Episode 12</span></div>
+
+<div class="alert">
+  <svg width="54" height="63" viewBox="0 0 120 140"><path d="M60 4 L112 22 V70 C112 102 90 124 60 136 C30 124 8 102 8 70 V22 Z" fill="#f3efe6"/><path d="M60 14 L102 29 V70 C102 97 84 115 60 125 C36 115 18 97 18 70 V29 Z" fill="#121317"/><path d="M60 30 l6.5 17 18 0 -14.5 10.5 5.5 17.5 -15.5 -10.5 -15.5 10.5 5.5 -17.5 -14.5 -10.5 18 0z" fill="#e0343b"/></svg>
+  <div><small>NEW FOLLOWER</small><b class="cond">kai_07</b></div>
+</div>
+
+<div class="chat">
+  <h4>CHAT</h4>
+  <p><b style="color:#ff8a8f">rosa_d</b>pull them over on Commerce!</p>
+  <p><b style="color:#8fc2ff">marek.n</b>that lightbar looks clean</p>
+  <p><b style="color:#9ff0c4">sade_a</b>EMS on standby at Pillbox side</p>
+  <p><b style="color:#ffd48f">tomas_v</b>garage has your car ready btw</p>
+  <p><b style="color:#d7b3ff">hannah.o</b>first time watching, love the overlay</p>
+</div>
+
+<div class="plate"><svg width="26" height="30" viewBox="0 0 120 140"><path d="M60 4 L112 22 V70 C112 102 90 124 60 136 C30 124 8 102 8 70 V22 Z" fill="#e0343b"/></svg><span class="cond">NORTHGATE · ROSA_D</span></div>
+<div class="cam"><span>CAMERA</span></div>
+
+<div class="bar"><b>NOW</b>Traffic stop on Commerce St<span class="sep"></span><b>NEXT</b>Community Q&amp;A at 22:00</div>
+<div class="social"><span>@northgaterp</span><span>/northgate</span><span>northgate.gg</span></div>
+</body>
+</html>

@@ -24,7 +24,7 @@ type ProductSuggestion = {
   compareAtPrice: string | null
   fileFormats?: string[]
 }
-type GamingSuggestion = { id: string; slug: string; name: string; platform: string; price: number }
+type GamingSuggestion = { id: string; slug: string; name: string; platform: string; price: number; recurring?: boolean }
 type SuggestionsResponse = { categories: CategorySuggestion[]; products: ProductSuggestion[]; gaming?: GamingSuggestion[] }
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json() as Promise<SuggestionsResponse>)
@@ -323,6 +323,7 @@ function SearchCommand({ open, onOpenChange }: { open: boolean; onOpenChange: (v
                     </span>
                     <span className="shrink-0 text-xs font-semibold tabular-nums">
                       <PriceDisplay usdAmount={g.price} />
+                      {g.recurring && <span className="text-muted-foreground">/mo</span>}
                     </span>
                   </CommandPrimitive.Item>
                 ))}

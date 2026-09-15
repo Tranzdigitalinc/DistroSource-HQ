@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Interface Series — Dispatch</title>
+<!-- Built interface for the Interface Series benchmark. All calls, units,
+     streets and people are fictional. Rendered at 1600×1000 by render.mjs. -->
+<style>
+  :root {
+    --bg: #0a0e13; --panel: #10161d; --panel-2: #151d26; --line: #202c39;
+    --text: #e6edf4; --muted: #8796a7; --accent: #4aa3ff;
+    --p1: #ff5d5d; --p2: #ffb547; --p3: #58c7ff; --ok: #3ccf8e;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 1000px; overflow: hidden; background: var(--bg); }
+  body { font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; color: var(--text); display: grid; grid-template-rows: 56px 1fr; }
+  .mono { font-family: "Cascadia Mono", Consolas, monospace; }
+  header { display: flex; align-items: center; gap: 18px; padding: 0 22px; border-bottom: 1px solid var(--line); background: #0c1118; }
+  header b { font-size: 15px; letter-spacing: 0.06em; }
+  .chip { font-size: 12px; padding: 5px 10px; border-radius: 7px; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); }
+  .chip.live { color: var(--ok); border-color: rgba(60,207,142,0.35); background: rgba(60,207,142,0.08); }
+  header .right { margin-left: auto; display: flex; gap: 12px; align-items: center; color: var(--muted); font-size: 13px; }
+  .layout { display: grid; grid-template-columns: 400px 1fr 330px; min-height: 0; }
+  .col { border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+  .col:last-child { border-right: 0; }
+  .head { padding: 16px 18px 10px; display: flex; align-items: center; justify-content: space-between; }
+  .head h2 { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .head .n { font-size: 12px; background: var(--panel-2); border-radius: 20px; padding: 2px 9px; }
+  .calls { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 10px; }
+  .call { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 14px 12px; position: relative; }
+  .call.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 12px 30px -18px var(--accent); }
+  .call .top { display: flex; align-items: center; gap: 10px; }
+  .prio { font-size: 11px; font-weight: 800; padding: 3px 7px; border-radius: 5px; color: #0a0e13; }
+  .p1 { background: var(--p1); } .p2 { background: var(--p2); } .p3 { background: var(--p3); }
+  .call .type { font-weight: 700; font-size: 15px; }
+  .call .age { margin-left: auto; font-size: 12px; color: var(--muted); }
+  .call .loc { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .call .units { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .u { font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 5px; background: #1a2635; color: #cfe3ff; }
+  .u.none { background: rgba(255,93,93,0.12); color: var(--p1); }
+  .map { position: relative; flex: 1; margin: 0 14px 14px; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: #0d141c; }
+  .map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .legend { position: absolute; left: 14px; bottom: 14px; display: flex; gap: 14px; font-size: 12px; background: rgba(10,14,19,0.8); border: 1px solid var(--line); padding: 8px 12px; border-radius: 9px; }
+  .legend span::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; background: var(--c); vertical-align: -1px; }
+  .detail { margin: 0 14px 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .detail h3 { font-size: 17px; margin: 4px 0 2px; }
+  .detail .m { color: var(--muted); font-size: 13px; }
+  .tl { list-style: none; padding: 0; font-size: 13px; }
+  .tl li { display: grid; grid-template-columns: 62px 1fr; gap: 10px; padding: 5px 0; border-left: 2px solid var(--line); padding-left: 12px; margin-left: 4px; }
+  .tl li b { color: var(--muted); font-weight: 500; }
+  .units-list { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .unit { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .unit b { font-size: 14px; }
+  .unit small { grid-column: 1; color: var(--muted); font-size: 12px; }
+  .st { grid-row: 1 / span 2; grid-column: 2; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 6px; }
+  .st.av { background: rgba(60,207,142,0.12); color: var(--ok); }
+  .st.er { background: rgba(255,181,71,0.14); color: var(--p2); }
+  .st.os { background: rgba(255,93,93,0.14); color: var(--p1); }
+  .st.bz { background: #1a2635; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <b>DISPATCH</b><span class="chip">North Division</span><span class="chip live">● Radio 1 · Live</span>
+  <div class="right"><span>12 units on duty</span><span class="mono">21:47:32</span><span class="chip">Operator 3 · K. Hale</span></div>
+</header>
+<div class="layout">
+  <section class="col">
+    <div class="head"><h2>Active calls</h2><span class="n">5</span></div>
+    <div class="calls">
+      <div class="call sel"><div class="top"><span class="prio p1">P1</span><span class="type">Armed robbery</span><span class="age mono">02:41</span></div><div class="loc">Corner Market · 418 Commerce St</div><div class="units"><span class="u">1-ADAM-12</span><span class="u">1-ADAM-7</span><span class="u">K9-2</span></div></div>
+      <div class="call"><div class="top"><span class="prio p1">P1</span><span class="type">Collision with injuries</span><span class="age mono">05:12</span></div><div class="loc">Harbor Fwy northbound, exit 14</div><div class="units"><span class="u">MED-4</span><span class="u">ENG-9</span><span class="u">1-LINCOLN-3</span></div></div>
+      <div class="call"><div class="top"><span class="prio p2">P2</span><span class="type">Suspicious vehicle</span><span class="age mono">09:03</span></div><div class="loc">Parking structure · 7th &amp; Alder</div><div class="units"><span class="u none">Unassigned</span></div></div>
+      <div class="call"><div class="top"><span class="prio p2">P2</span><span class="type">Stolen vehicle sighting</span><span class="age mono">11:37</span></div><div class="loc">Plate 2TRK 590 · Northgate Ave</div><div class="units"><span class="u">1-ADAM-3</span></div></div>
+      <div class="call"><div class="top"><span class="prio p3">P3</span><span class="type">Noise complaint</span><span class="age mono">18:20</span></div><div class="loc">2217 Harbor View Rd</div><div class="units"><span class="u">1-ADAM-9</span></div></div>
+    </div>
+  </section>
+
+  <section class="col">
+    <div class="head"><h2>City map</h2><span class="chip">Layer: Units + Calls</span></div>
+    <div class="map">
+      <svg viewBox="0 0 800 520" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="ping" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ff5d5d" stop-opacity="0.55"/><stop offset="100%" stop-color="#ff5d5d" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect width="800" height="520" fill="#0d141c"/>
+        <path d="M0 400 C 140 370, 220 440, 360 420 S 600 360, 800 390 L800 520 L0 520 Z" fill="#0f2233"/>
+        <path d="M520 40 h150 v110 h-150z" fill="#122219"/>
+        <g fill="#141d27">
+          <rect x="30" y="30" width="130" height="90" rx="4"/><rect x="180" y="30" width="150" height="90" rx="4"/><rect x="350" y="30" width="150" height="90" rx="4"/>
+          <rect x="30" y="140" width="130" height="100" rx="4"/><rect x="180" y="140" width="150" height="100" rx="4"/><rect x="350" y="140" width="150" height="100" rx="4"/><rect x="520" y="170" width="150" height="70" rx="4"/><rect x="690" y="40" width="90" height="200" rx="4"/>
+          <rect x="30" y="260" width="130" height="100" rx="4"/><rect x="180" y="260" width="150" height="100" rx="4"/><rect x="350" y="260" width="150" height="90" rx="4"/><rect x="520" y="260" width="150" height="80" rx="4"/><rect x="690" y="260" width="90" height="90" rx="4"/>
+        </g>
+        <g stroke="#243446" stroke-width="10" fill="none">
+          <path d="M0 130 H800"/><path d="M0 250 H800"/><path d="M170 0 V420"/><path d="M340 0 V420"/><path d="M510 0 V400"/><path d="M680 0 V380"/>
+        </g>
+        <path d="M0 470 C 200 430, 420 480, 800 440" stroke="#2c4158" stroke-width="16" fill="none"/>
+        <g font-family="Segoe UI, sans-serif" font-size="11" fill="#5f7288">
+          <text x="30" y="126">COMMERCE ST</text><text x="360" y="246">7TH ST</text><text x="176" y="200" transform="rotate(-90 176 200)">ALDER AVE</text><text x="600" y="95">NORTHGATE PARK</text><text x="560" y="455">HARBOR FWY</text>
+        </g>
+        <circle cx="268" cy="130" r="46" fill="url(#ping)"/>
+        <circle cx="268" cy="130" r="9" fill="#ff5d5d" stroke="#0a0e13" stroke-width="3"/>
+        <circle cx="640" cy="448" r="8" fill="#ff5d5d" stroke="#0a0e13" stroke-width="3"/>
+        <circle cx="340" cy="300" r="8" fill="#ffb547" stroke="#0a0e13" stroke-width="3"/>
+        <circle cx="610" cy="130" r="8" fill="#ffb547" stroke="#0a0e13" stroke-width="3"/>
+        <g font-family="Cascadia Mono, Consolas, monospace" font-size="11" font-weight="700">
+          <g transform="translate(300 118)"><path d="M0 -9 L8 7 L-8 7 Z" fill="#4aa3ff"/><text x="12" y="4" fill="#cfe3ff">A12</text></g>
+          <g transform="translate(232 150) rotate(90)"><path d="M0 -9 L8 7 L-8 7 Z" fill="#4aa3ff"/></g><text x="244" y="170" fill="#cfe3ff" font-family="Cascadia Mono, Consolas, monospace" font-size="11" font-weight="700">A7</text>
+          <g transform="translate(600 430)"><path d="M0 -9 L8 7 L-8 7 Z" fill="#3ccf8e"/><text x="12" y="4" fill="#bff5dc">MED4</text></g>
+          <g transform="translate(470 250)"><path d="M0 -9 L8 7 L-8 7 Z" fill="#4aa3ff"/><text x="12" y="4" fill="#cfe3ff">A3</text></g>
+          <g transform="translate(120 330)"><path d="M0 -9 L8 7 L-8 7 Z" fill="#8796a7"/><text x="12" y="4" fill="#aebbc9">A9</text></g>
+        </g>
+      </svg>
+      <div class="legend"><span style="--c:#ff5d5d">P1 call</span><span style="--c:#ffb547">P2 call</span><span style="--c:#4aa3ff">Patrol</span><span style="--c:#3ccf8e">Medical</span></div>
+    </div>
+    <div class="detail">
+      <div>
+        <span class="prio p1">P1 · Call 2231</span>
+        <h3>Armed robbery in progress</h3>
+        <p class="m">Corner Market, 418 Commerce St. Caller reports one suspect with a handgun, grey hoodie, left on foot toward Alder Ave.</p>
+      </div>
+      <ul class="tl">
+        <li><b class="mono">21:45:01</b>Call received · 911</li>
+        <li><b class="mono">21:45:40</b>1-ADAM-12 assigned · en route</li>
+        <li><b class="mono">21:46:18</b>K9-2 and 1-ADAM-7 attached</li>
+        <li><b class="mono">21:47:05</b>1-ADAM-12 on scene</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="col">
+    <div class="head"><h2>Units</h2><span class="n">12</span></div>
+    <div class="units-list">
+      <div class="unit"><b class="mono">1-ADAM-12</b><span class="st os">On scene</span><small>Okafor · Call 2231</small></div>
+      <div class="unit"><b class="mono">1-ADAM-7</b><span class="st er">En route</span><small>Reyes · Call 2231</small></div>
+      <div class="unit"><b class="mono">K9-2</b><span class="st er">En route</span><small>Brandt · Call 2231</small></div>
+      <div class="unit"><b class="mono">1-ADAM-3</b><span class="st er">En route</span><small>Nakamura · Call 2236</small></div>
+      <div class="unit"><b class="mono">MED-4</b><span class="st os">On scene</span><small>Paramedics · Call 2229</small></div>
+      <div class="unit"><b class="mono">ENG-9</b><span class="st os">On scene</span><small>Fire · Call 2229</small></div>
+      <div class="unit"><b class="mono">1-LINCOLN-3</b><span class="st bz">Traffic</span><small>Moreau · Call 2229</small></div>
+      <div class="unit"><b class="mono">1-ADAM-9</b><span class="st bz">Busy</span><small>Singh · Call 2238</small></div>
+      <div class="unit"><b class="mono">1-ADAM-5</b><span class="st av">Available</span><small>Costa · Patrol North</small></div>
+      <div class="unit"><b class="mono">1-ADAM-1</b><span class="st av">Available</span><small>Walsh · Patrol North</small></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

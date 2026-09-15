@@ -1,18 +1,18 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { useRef } from "react"
 import { motion, useScroll, useTransform } from "motion/react"
-import { hasRealImages, resolveGamingImage } from "@/lib/gaming/images"
-import { PLATFORM_LABEL, type GamingProduct } from "@/lib/gaming/types"
-import { formatUsd } from "@/lib/format"
+import { GamingImage } from "@/components/gaming/gaming-image"
+import { platformLabel } from "@/lib/gaming/catalog/taxonomy"
+import { priceLabel } from "@/lib/gaming/catalog/pricing"
+import type { GamingProduct } from "@/lib/gaming/catalog/types"
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal"
 import { Magnetic } from "@/components/motion/magnetic"
 import { ArrowRight, GameController, ICON_SIZE } from "@/lib/storefront-icons"
 
 /**
- * Gaming as a cinematic navy band: the screenshots parallax against the
+ * Gaming as a cinematic navy band: product covers parallax against the
  * scroll, the copy sits on the left with the one orange CTA.
  */
 export function GamingTeaser({ products }: { products: GamingProduct[] }) {
@@ -40,7 +40,7 @@ export function GamingTeaser({ products }: { products: GamingProduct[] }) {
           <p className="eyebrow text-navy-foreground/60">DistroSource Gaming</p>
           <h2 className="text-display text-4xl sm:text-5xl">Built for the servers you run.</h2>
           <p className="max-w-md text-pretty text-base leading-relaxed text-navy-foreground/70">
-            FiveM maps and MLOs, Minecraft server packs, interfaces, vehicles and configurations — every product sold directly by DistroSource, with real screenshots of what you get.
+            FiveM interiors, interfaces and vehicles, Minecraft builds, server tooling and community branding — made by DistroSource, with exactly what each plan includes on its page.
           </p>
           <Magnetic>
             <Link
@@ -75,23 +75,24 @@ export function GamingTeaser({ products }: { products: GamingProduct[] }) {
 }
 
 function GamingTile({ product }: { product: GamingProduct }) {
-  const real = hasRealImages(product.images)
   return (
     <Link
       href={`/gaming/product/${product.slug}`}
       className="group block overflow-hidden rounded-2xl border border-navy-foreground/10 bg-navy/70 transition-[border-color,transform] duration-200 hover:-translate-y-1 hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary motion-reduce:hover:translate-y-0"
     >
       <span className="relative block aspect-[16/10] overflow-hidden bg-navy-deep">
-        {real && (
-          <Image src={resolveGamingImage(product.cardImage ?? product.images[0])} alt="" fill sizes="(max-width: 640px) 50vw, 30vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05] motion-reduce:transition-none" />
-        )}
+        <GamingImage
+          image={product.cardImage}
+          sizes="(max-width: 640px) 50vw, 30vw"
+          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05] motion-reduce:transition-none"
+        />
       </span>
       <span className="flex items-center justify-between gap-3 px-4 py-3">
         <span className="min-w-0">
-          <span className="block font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-navy-foreground/50">{PLATFORM_LABEL[product.platform]}</span>
+          <span className="block font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-navy-foreground/50">{platformLabel(product.platform)}</span>
           <span className="line-clamp-1 text-sm font-semibold">{product.title}</span>
         </span>
-        <span className="shrink-0 font-display text-base font-bold tabular-nums">{formatUsd(product.price)}</span>
+        <span className="shrink-0 font-display text-base font-bold tabular-nums">{priceLabel(product.pricing)}</span>
       </span>
     </Link>
   )

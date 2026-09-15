@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Server Owner Plan — operations dashboard</title>
+<!-- Built interface for the Server Owner Plan benchmark. The server, players
+     and figures are fictional. Rendered at 1600×1000 by render.mjs. -->
+<style>
+  :root {
+    --bg: #0b0f14; --panel: #11171e; --panel-2: #161e27; --line: #1f2a36;
+    --text: #e7edf3; --muted: #8a98a8; --accent: #ff8a3d; --ok: #3ccf8e; --warn: #ffb547; --bad: #ff5d5d; --info: #58b4ff;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 1000px; overflow: hidden; background: var(--bg); }
+  body { font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; color: var(--text); display: grid; grid-template-columns: 220px 1fr; }
+  .mono { font-family: "Cascadia Mono", Consolas, monospace; }
+  aside { background: #0d1218; border-right: 1px solid var(--line); padding: 22px 14px; display: flex; flex-direction: column; gap: 3px; }
+  .srv { display: flex; gap: 11px; align-items: center; padding: 0 8px 22px; }
+  .logo { width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(140deg, #ff8a3d, #c2410c); display: grid; place-items: center; font-weight: 800; font-size: 15px; color: #140a04; }
+  .srv b { font-size: 15px; display: block; }
+  .srv small { color: var(--ok); font-size: 12px; }
+  .nav { padding: 9px 12px; border-radius: 8px; font-size: 14px; color: var(--muted); display: flex; justify-content: space-between; }
+  .nav.on { background: #1a222c; color: var(--text); box-shadow: inset 3px 0 0 var(--accent); }
+  .nav em { font-style: normal; font-size: 11px; background: rgba(255,93,93,0.15); color: var(--bad); border-radius: 20px; padding: 1px 8px; }
+  .sep { height: 1px; background: var(--line); margin: 12px 6px; }
+  main { padding: 22px 26px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .top { display: flex; align-items: center; gap: 14px; }
+  .top h1 { font-size: 22px; letter-spacing: -0.01em; }
+  .top .sub { color: var(--muted); font-size: 13px; }
+  .actions { margin-left: auto; display: flex; gap: 10px; }
+  .btn { height: 36px; padding: 0 14px; border-radius: 9px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; background: var(--panel-2); border: 1px solid var(--line); }
+  .btn.primary { background: var(--accent); color: #1a0c03; border-color: transparent; }
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .stat small { color: var(--muted); font-size: 12px; }
+  .stat b { display: block; font-size: 26px; margin-top: 4px; letter-spacing: -0.01em; }
+  .stat span { font-size: 12px; }
+  .grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 16px; min-height: 0; flex: 1; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; min-height: 0; }
+  .card h2 { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 10px; display: flex; justify-content: space-between; }
+  .col { display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; padding-bottom: 8px; }
+  td { padding: 8px 0; border-top: 1px solid var(--line); }
+  .tag { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 5px; }
+  .ok { color: var(--ok); background: rgba(60,207,142,0.12); } .warn { color: var(--warn); background: rgba(255,181,71,0.13); } .bad { color: var(--bad); background: rgba(255,93,93,0.13); } .info { color: var(--info); background: rgba(88,180,255,0.12); }
+  .bar { height: 6px; border-radius: 6px; background: #1c2631; position: relative; overflow: hidden; }
+  .bar i { position: absolute; inset: 0 auto 0 0; border-radius: 6px; background: var(--c, var(--ok)); }
+  .res td:nth-child(2) { width: 46%; }
+  .console { background: #070a0e; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 12px; line-height: 1.7; color: #b8c4d0; }
+  .console b { color: var(--muted); font-weight: 400; }
+  .chart { height: 150px; }
+</style>
+</head>
+<body>
+<aside>
+  <div class="srv"><span class="logo">NG</span><div><b>Northgate RP</b><small>● Online · Qbox</small></div></div>
+  <div class="nav on">Overview</div>
+  <div class="nav">Players</div>
+  <div class="nav">Reports <em>3</em></div>
+  <div class="nav">Bans &amp; warnings</div>
+  <div class="nav">Resources</div>
+  <div class="nav">Performance</div>
+  <div class="sep"></div>
+  <div class="nav">Config presets</div>
+  <div class="nav">Backups</div>
+  <div class="nav">Staff &amp; roles</div>
+  <div class="nav">Audit log</div>
+</aside>
+<main>
+  <div class="top">
+    <div><h1>Server overview</h1><div class="sub">Last restart 3 days, 14 hours ago · Next scheduled restart 06:00</div></div>
+    <div class="actions"><span class="btn">Announce</span><span class="btn">Schedule restart</span><span class="btn primary">Open live console</span></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><small>Players online</small><b>118 <span style="color:var(--muted);font-size:14px">/ 128</span></b><span style="color:var(--ok)">Queue: 6</span></div>
+    <div class="stat"><small>Server frame time</small><b class="mono">4.2 ms</b><span style="color:var(--ok)">Healthy</span></div>
+    <div class="stat"><small>Open reports</small><b>3</b><span style="color:var(--warn)">1 older than 30 min</span></div>
+    <div class="stat"><small>Resources running</small><b>214</b><span style="color:var(--muted)">2 with warnings</span></div>
+    <div class="stat"><small>Last backup</small><b class="mono">04:00</b><span style="color:var(--ok)">Database · 1.8 GB</span></div>
+  </div>
+  <div class="grid">
+    <div class="col">
+      <section class="card">
+        <h2>Players over 24 hours <span style="letter-spacing:0;text-transform:none">Peak 128 at 22:10</span></h2>
+        <svg class="chart" viewBox="0 0 800 120" preserveAspectRatio="none" width="100%">
+          <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff8a3d" stop-opacity="0.35"/><stop offset="100%" stop-color="#ff8a3d" stop-opacity="0"/></linearGradient></defs>
+          <g stroke="#1f2a36"><line x1="0" y1="30" x2="800" y2="30"/><line x1="0" y1="70" x2="800" y2="70"/><line x1="0" y1="110" x2="800" y2="110"/></g>
+          <path d="M0 96 L40 100 L80 104 L120 106 L160 105 L200 100 L240 90 L280 80 L320 74 L360 70 L400 62 L440 58 L480 50 L520 44 L560 36 L600 28 L640 20 L680 14 L720 12 L760 18 L800 22 L800 120 L0 120 Z" fill="url(#g)"/>
+          <path d="M0 96 L40 100 L80 104 L120 106 L160 105 L200 100 L240 90 L280 80 L320 74 L360 70 L400 62 L440 58 L480 50 L520 44 L560 36 L600 28 L640 20 L680 14 L720 12 L760 18 L800 22" fill="none" stroke="#ff8a3d" stroke-width="2.5"/>
+        </svg>
+      </section>
+      <section class="card">
+        <h2>Online players <span style="letter-spacing:0;text-transform:none">118 connected</span></h2>
+        <table>
+          <thead><tr><th>ID</th><th>Name</th><th>Job</th><th>Ping</th><th>Session</th><th>Flags</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">12</td><td>Rosa Delacroix</td><td>Police · Sergeant</td><td class="mono">38 ms</td><td class="mono">2h 14m</td><td><span class="tag ok">Staff</span></td></tr>
+            <tr><td class="mono">27</td><td>Tomas Varga</td><td>Mechanic</td><td class="mono">52 ms</td><td class="mono">1h 02m</td><td>—</td></tr>
+            <tr><td class="mono">41</td><td>Keiko Hart</td><td>EMS · Paramedic</td><td class="mono">44 ms</td><td class="mono">3h 40m</td><td>—</td></tr>
+            <tr><td class="mono">58</td><td>Devon Price</td><td>Unemployed</td><td class="mono">187 ms</td><td class="mono">0h 21m</td><td><span class="tag warn">High ping</span></td></tr>
+            <tr><td class="mono">71</td><td>Hannah Osei</td><td>Lawyer</td><td class="mono">49 ms</td><td class="mono">1h 33m</td><td>—</td></tr>
+            <tr><td class="mono">84</td><td>Luca Ferretti</td><td>Police · Officer</td><td class="mono">41 ms</td><td class="mono">2h 51m</td><td>—</td></tr>
+            <tr><td class="mono">92</td><td>Priya Nandakumar</td><td>Real estate</td><td class="mono">57 ms</td><td class="mono">0h 36m</td><td>—</td></tr>
+            <tr><td class="mono">97</td><td>Jonas Berg</td><td>Tow truck</td><td class="mono">66 ms</td><td class="mono">1h 12m</td><td>—</td></tr>
+            <tr><td class="mono">63</td><td>Ali Rahimi</td><td>Taxi driver</td><td class="mono">61 ms</td><td class="mono">0h 48m</td><td><span class="tag bad">Report open</span></td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+    <div class="col">
+      <section class="card res">
+        <h2>Heaviest resources <span style="letter-spacing:0;text-transform:none">Client + server, avg ms</span></h2>
+        <table>
+          <tbody>
+            <tr><td class="mono">ds_inventory</td><td><div class="bar"><i style="width:38%"></i></div></td><td class="mono" style="text-align:right">0.21</td></tr>
+            <tr><td class="mono">ds_hud</td><td><div class="bar"><i style="width:22%"></i></div></td><td class="mono" style="text-align:right">0.12</td></tr>
+            <tr><td class="mono">ds_mdt</td><td><div class="bar"><i style="width:18%"></i></div></td><td class="mono" style="text-align:right">0.10</td></tr>
+            <tr><td class="mono">vehicle_sync</td><td><div class="bar"><i style="width:64%; --c: var(--warn)"></i></div></td><td class="mono" style="text-align:right;color:var(--warn)">0.36</td></tr>
+            <tr><td class="mono">legacy_weather</td><td><div class="bar"><i style="width:92%; --c: var(--bad)"></i></div></td><td class="mono" style="text-align:right;color:var(--bad)">0.52</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="card">
+        <h2>Report queue</h2>
+        <table>
+          <tbody>
+            <tr><td class="mono">#318</td><td>Vehicle deathmatch at Legion Sq</td><td><span class="tag bad">34 min</span></td></tr>
+            <tr><td class="mono">#319</td><td>Stuck under the map</td><td><span class="tag warn">12 min</span></td></tr>
+            <tr><td class="mono">#320</td><td>Lost items after crash</td><td><span class="tag info">3 min</span></td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="card">
+        <h2>Staff on duty <span style="letter-spacing:0;text-transform:none">4 online</span></h2>
+        <table><tbody>
+          <tr><td>Rosa Delacroix</td><td style="color:var(--muted)">Senior admin</td><td><span class="tag ok">Handling #317</span></td></tr>
+          <tr><td>Marek Novak</td><td style="color:var(--muted)">Moderator</td><td><span class="tag info">Available</span></td></tr>
+          <tr><td>Sade Adeyemi</td><td style="color:var(--muted)">Moderator</td><td><span class="tag info">Available</span></td></tr>
+        </tbody></table>
+      </section>
+      <section class="console mono">
+        <div><b>21:44:02</b> [ds_admin] Rosa Delacroix claimed report #317</div>
+        <div><b>21:45:19</b> [backup] Scheduled snapshot verified (1.8 GB)</div>
+        <div><b>21:46:51</b> [perf] legacy_weather exceeded 0.5 ms for 5 minutes</div>
+        <div><b>21:47:30</b> [ds_admin] Warned player 58 — reason: fail RP</div>
+      </section>
+    </div>
+  </div>
+</main>
+</body>
+</html>

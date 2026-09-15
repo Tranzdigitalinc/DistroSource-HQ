@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Server Owner Plan — cover visual</title>
+<!-- The real operations dashboard (ui/server-dashboard.html, captured) on a
+     monitor in a navy studio. The left third stays clear for the cover
+     title. 1600×1000. -->
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 1000px; overflow: hidden; }
+  body { background: radial-gradient(900px 620px at 72% 46%, #1d2a44 0%, #0d1424 52%, #070b14 100%); position: relative; perspective: 2200px; }
+  body::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 240px; background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.45)); }
+  .glow { position: absolute; left: 880px; top: 190px; width: 660px; height: 500px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,138,61,0.28), rgba(255,138,61,0)); filter: blur(30px); }
+  .rig { position: absolute; left: 720px; top: 190px; width: 820px; transform: rotateY(-17deg) rotateX(3deg); transform-style: preserve-3d; }
+  .monitor { width: 820px; height: 512px; border-radius: 22px; background: #07090d; padding: 16px; box-shadow: 0 60px 120px -40px rgba(0,0,0,0.9), inset 0 0 0 1px #1c222c; position: relative; }
+  .screen { width: 100%; height: 100%; border-radius: 10px; background: url(/.gaming-render/ui-server-dashboard.png) center / cover; position: relative; overflow: hidden; }
+  .screen::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 32%, rgba(255,255,255,0) 70%, rgba(255,255,255,0.05) 100%); }
+  .chin { position: absolute; left: 50%; bottom: 5px; transform: translateX(-50%); width: 7px; height: 7px; border-radius: 50%; background: #2a303a; }
+  .neck { width: 130px; height: 120px; margin: 0 auto; background: linear-gradient(90deg, #11151c, #1c222b 45%, #0e1217); clip-path: polygon(28% 0, 72% 0, 64% 100%, 36% 100%); }
+  .base { width: 360px; height: 26px; margin: -4px auto 0; border-radius: 50%; background: radial-gradient(ellipse at center, #1f252e 0%, #0d1015 70%); box-shadow: 0 30px 50px -10px rgba(0,0,0,0.8); }
+  .reflection { position: absolute; left: 640px; top: 910px; width: 900px; height: 60px; background: radial-gradient(ellipse at center, rgba(255,138,61,0.14), rgba(255,138,61,0) 70%); filter: blur(8px); }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="rig">
+  <div class="monitor"><div class="screen"></div><span class="chin"></span></div>
+  <div class="neck"></div>
+  <div class="base"></div>
+</div>
+<div class="reflection"></div>
+</body>
+</html>

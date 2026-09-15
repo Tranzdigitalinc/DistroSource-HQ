@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Interface Series — HUD</title>
+<!-- Built interface for the Interface Series cover: player + vehicle HUD
+     over a rendered night street. Figures are sample values. 1600×1000. -->
+<style>
+  :root { --glass: rgba(10, 14, 20, 0.58); --line: rgba(255,255,255,0.12); --text: #f2f5f8; --muted: rgba(242,245,248,0.62); --accent: #ff8a3d; --ok: #3ccf8e; --hp: #ff5d6c; --ar: #58b4ff; --food: #ffb547; --water: #4dd2ff; --stress: #c18bff; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 1000px; overflow: hidden; background: #000; }
+  body { font-family: "Bahnschrift", "Segoe UI", system-ui, sans-serif; color: var(--text); position: relative; }
+  .plate { position: absolute; inset: 0; background: url(/.gaming-render/street-hud.png) center / cover; }
+  .glass { background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  /* ---- minimap ---- */
+  .map { position: absolute; left: 36px; bottom: 36px; width: 300px; height: 210px; border-radius: 18px; overflow: hidden; }
+  .map svg { position: absolute; inset: 0; }
+  .street { position: absolute; left: 12px; top: 10px; font-size: 14px; font-weight: 600; letter-spacing: 0.02em; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+  .street small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; }
+  .heading { position: absolute; right: 12px; top: 10px; font-size: 13px; font-weight: 700; padding: 3px 8px; border-radius: 7px; background: rgba(0,0,0,0.45); }
+  /* ---- status rings ---- */
+  .status { position: absolute; left: 36px; bottom: 262px; display: flex; gap: 10px; }
+  .ring { width: 52px; height: 52px; border-radius: 50%; position: relative; display: grid; place-items: center; }
+  .ring svg.arc { position: absolute; inset: 0; transform: rotate(-90deg); }
+  .ring svg.ico { width: 22px; height: 22px; }
+  /* ---- speedometer ---- */
+  .speedo { position: absolute; right: 40px; bottom: 36px; width: 330px; height: 250px; border-radius: 22px; padding: 18px 22px; }
+  .gauge { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); }
+  .speed { position: absolute; left: 0; right: 0; top: 78px; text-align: center; }
+  .speed b { font-size: 76px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+  .speed span { display: block; font-size: 14px; letter-spacing: 0.24em; color: var(--muted); margin-top: 2px; }
+  .gear { position: absolute; left: 22px; top: 22px; font-size: 13px; color: var(--muted); }
+  .gear b { display: block; font-size: 30px; color: var(--text); }
+  .rpm { position: absolute; right: 22px; top: 22px; font-size: 13px; color: var(--muted); text-align: right; }
+  .rpm b { display: block; font-size: 30px; color: var(--text); }
+  .row { position: absolute; left: 22px; right: 22px; bottom: 18px; display: flex; align-items: center; gap: 12px; }
+  .fuel { flex: 1; }
+  .fuel small { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; }
+  .bar { height: 7px; border-radius: 7px; background: rgba(255,255,255,0.12); margin-top: 5px; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 62%; background: linear-gradient(90deg, #ffb547, #ff8a3d); border-radius: 7px; }
+  .ind { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,255,255,0.08); }
+  .ind.on { background: rgba(60,207,142,0.2); box-shadow: inset 0 0 0 1px rgba(60,207,142,0.5); }
+  .ind svg { width: 18px; height: 18px; }
+  /* ---- top right ---- */
+  .money { position: absolute; right: 40px; top: 34px; text-align: right; }
+  .money .cash { font-size: 34px; font-weight: 700; text-shadow: 0 2px 6px rgba(0,0,0,0.55); }
+  .money .cash em { font-style: normal; color: #7dffa8; margin-right: 6px; }
+  .money .bank { font-size: 16px; color: var(--muted); margin-top: 2px; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+  .job { position: absolute; right: 40px; top: 122px; padding: 9px 14px; border-radius: 12px; font-size: 14px; display: flex; gap: 10px; align-items: center; }
+  .job i { width: 9px; height: 9px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+  /* ---- toast ---- */
+  .toast { position: absolute; left: 50%; top: 34px; transform: translateX(-50%); padding: 12px 18px; border-radius: 14px; display: flex; gap: 12px; align-items: center; font-size: 15px; }
+  .toast .dot { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,138,61,0.2); box-shadow: inset 0 0 0 1px rgba(255,138,61,0.5); }
+  .toast small { display: block; color: var(--muted); font-size: 12.5px; }
+  .toast .dot svg { width: 17px; height: 17px; }
+</style>
+</head>
+<body>
+<div class="plate"></div>
+
+<div class="toast glass">
+  <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="#ff8a3d" stroke-width="2.2"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
+  <div>Waypoint set · Eastside Auto<small>1.2 mi · 3 min via Commerce St</small></div>
+</div>
+
+<div class="money">
+  <div class="cash"><em>$</em>12,480</div>
+  <div class="bank">Bank $184,220</div>
+</div>
+<div class="job glass"><i></i>Mechanic · On duty</div>
+
+<div class="status">
+  <div class="ring glass"><svg class="arc" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" stroke="rgba(255,255,255,0.12)" stroke-width="4" fill="none"/><circle cx="26" cy="26" r="22" stroke="#ff5d6c" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="16"/></svg><svg class="ico" viewBox="0 0 24 24" fill="#ff5d6c"><path d="M12 20.5s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.8a4.2 4.2 0 0 1 7.5 2.7c0 5.4-7.5 10-7.5 10z"/></svg></div>
+  <div class="ring glass"><svg class="arc" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" stroke="rgba(255,255,255,0.12)" stroke-width="4" fill="none"/><circle cx="26" cy="26" r="22" stroke="#58b4ff" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="62"/></svg><svg class="ico" viewBox="0 0 24 24" fill="#58b4ff"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 9.5C8 19.2 5 15.5 5 11V6l7-3z"/></svg></div>
+  <div class="ring glass"><svg class="arc" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" stroke="rgba(255,255,255,0.12)" stroke-width="4" fill="none"/><circle cx="26" cy="26" r="22" stroke="#ffb547" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="38"/></svg><svg class="ico" viewBox="0 0 24 24" fill="#ffb547"><path d="M6 3v7a3 3 0 0 0 2 2.8V21h2v-8.2A3 3 0 0 0 12 10V3h-1.5v6h-1V3h-1v6h-1V3zM16 3c-1.7 1.3-2.5 3.5-2.5 6.2 0 2 1 3 2 3.4V21h2V3z"/></svg></div>
+  <div class="ring glass"><svg class="arc" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" stroke="rgba(255,255,255,0.12)" stroke-width="4" fill="none"/><circle cx="26" cy="26" r="22" stroke="#4dd2ff" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="28"/></svg><svg class="ico" viewBox="0 0 24 24" fill="#4dd2ff"><path d="M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z"/></svg></div>
+  <div class="ring glass"><svg class="arc" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" stroke="rgba(255,255,255,0.12)" stroke-width="4" fill="none"/><circle cx="26" cy="26" r="22" stroke="#c18bff" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="110"/></svg><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#c18bff" stroke-width="2.2"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg></div>
+</div>
+
+<div class="map glass">
+  <svg viewBox="0 0 300 210">
+    <rect width="300" height="210" fill="#0f1720" opacity="0.55"/>
+    <g fill="#1b2633"><rect x="12" y="44" width="70" height="52" rx="3"/><rect x="98" y="44" width="90" height="52" rx="3"/><rect x="204" y="44" width="84" height="52" rx="3"/><rect x="12" y="112" width="70" height="86" rx="3"/><rect x="98" y="112" width="90" height="86" rx="3"/><rect x="204" y="112" width="84" height="40" rx="3"/></g>
+    <rect x="204" y="162" width="84" height="36" rx="3" fill="#15352a"/>
+    <g stroke="#3a4b5e" stroke-width="10" fill="none"><path d="M0 104 H300"/><path d="M90 0 V210"/><path d="M196 0 V210"/></g>
+    <path d="M143 210 V104 H196 V30" stroke="#ff8a3d" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 8"/>
+    <circle cx="196" cy="30" r="7" fill="#ff8a3d" stroke="#0b0f14" stroke-width="3"/>
+    <g transform="translate(143 168)"><circle r="16" fill="rgba(255,138,61,0.18)"/><path d="M0 -10 L7 8 L0 4 L-7 8 Z" fill="#ffffff"/></g>
+  </svg>
+  <div class="street">Commerce St<small>Downtown · Zone 3</small></div>
+  <div class="heading">NE</div>
+</div>
+
+<div class="speedo glass">
+  <svg class="gauge" width="230" height="130" viewBox="0 0 230 130">
+    <path d="M20 118 A95 95 0 0 1 210 118" stroke="rgba(255,255,255,0.12)" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M20 118 A95 95 0 0 1 162 38" stroke="url(#sg)" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ffb547"/><stop offset="100%" stop-color="#ff8a3d"/></linearGradient></defs>
+  </svg>
+  <div class="gear">GEAR<b>4</b></div>
+  <div class="rpm">RPM<b>3.8</b></div>
+  <div class="speed"><b>74</b><span>MPH</span></div>
+  <div class="row">
+    <div class="fuel"><small><span>FUEL</span><span>62%</span></small><div class="bar"><i></i></div></div>
+    <span class="ind on" title="Seatbelt"><svg viewBox="0 0 24 24" fill="none" stroke="#3ccf8e" stroke-width="2.2"><circle cx="12" cy="5" r="2.2"/><path d="M8 21V11a4 4 0 0 1 8 0v10M8 11l8 8"/></svg></span>
+    <span class="ind on" title="Headlights"><svg viewBox="0 0 24 24" fill="none" stroke="#3ccf8e" stroke-width="2.2"><path d="M13 6c4 0 7 2.7 7 6s-3 6-7 6zM4 8h6M4 12h6M4 16h6"/></svg></span>
+    <span class="ind" title="Engine"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2"><path d="M4 10h3l2-3h6v3h3l2 2v5h-2v2H8l-2-3H4z"/></svg></span>
+  </div>
+</div>
+<script>
+  // Cover mode: drop the centre notification so the cover title has clear space.
+  if (new URLSearchParams(location.search).get("cover")) document.querySelector(".toast")?.remove()
+</script>
+</body>
+</html>

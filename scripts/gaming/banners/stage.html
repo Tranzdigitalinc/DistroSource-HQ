@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>DistroSource Gaming — scene stage</title>
+<style>
+  html, body { margin: 0; background: #000; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "/node_modules/three/build/three.module.js",
+    "three/examples/jsm/": "/node_modules/three/examples/jsm/",
+    "three/addons/": "/node_modules/three/examples/jsm/",
+    "three/webgpu": "/node_modules/three/build/three.webgpu.js",
+    "three/tsl": "/node_modules/three/build/three.tsl.js",
+    "three-mesh-bvh": "/node_modules/three-mesh-bvh/src/index.js",
+    "three-gpu-pathtracer": "/node_modules/three-gpu-pathtracer/src/index.js",
+    "xatlas-web": "/scripts/gaming/banners/stub-xatlas.mjs"
+  }
+}
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+  import { run } from "/scripts/gaming/banners/runtime.mjs"
+  const q = new URLSearchParams(location.search)
+  run({
+    scene: q.get("scene"),
+    width: Number(q.get("w")) || 1600,
+    height: Number(q.get("h")) || 1000,
+    spp: Number(q.get("spp")) || 800,
+    view: q.get("view") || "",
+    mode: q.get("mode") || "",
+  }).catch((e) => {
+    window.__error = String((e && e.stack) || e)
+    console.error(window.__error)
+  })
+</script>
+</body>
+</html>

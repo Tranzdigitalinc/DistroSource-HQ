@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>DistroSource Gaming — cover</title>
+<!--
+  Deterministic cover typography. The product scene is the background; this
+  page only adds the identity layer: brand mark, eyebrow, title, value line
+  and one badge. Text is set in real fonts by the browser — never by an
+  image model — so titles are always spelled correctly.
+
+  Query: bg, eyebrow, title, value, badge, align=left|right,
+         pos=bottom|middle|top, scrim=0..1, size=title px
+-->
+<style>
+  @font-face { font-family: "Archivo"; src: url(/scripts/gaming/banners/fonts/archivo-latin.woff2) format("woff2"); font-weight: 100 900; font-display: block; }
+  @font-face { font-family: "JB Mono"; src: url(/scripts/gaming/banners/fonts/jetbrains-mono-latin.woff2) format("woff2"); font-weight: 100 800; font-display: block; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 1000px; overflow: hidden; background: #0b1220; }
+  .bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+  .scrim { position: absolute; inset: 0; }
+  .brand { position: absolute; top: 50px; display: flex; gap: 11px; align-items: center; font: 600 20px/1 "Archivo", sans-serif; color: #fff; letter-spacing: 0.01em; text-shadow: 0 1px 8px rgba(0,0,0,0.45); }
+  .brand i { width: 14px; height: 14px; background: #ff7a1a; border-radius: 3px; box-shadow: 0 0 0 3px rgba(255,122,26,0.22); }
+  .brand span { opacity: 0.7; font-weight: 500; }
+  .block { position: absolute; max-width: 780px; }
+  .eyebrow { font: 700 20px/1 "JB Mono", monospace; letter-spacing: 0.2em; color: #ffb27a; text-transform: uppercase; display: flex; align-items: center; gap: 14px; text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
+  .eyebrow::before { content: ""; width: 30px; height: 3px; background: #ff7a1a; border-radius: 2px; }
+  .title { font-family: "Archivo", sans-serif; font-weight: 800; line-height: 0.9; letter-spacing: -0.035em; color: #fff; margin-top: 20px; text-transform: uppercase; text-shadow: 0 8px 36px rgba(0,0,0,0.45); }
+  .value { font: 500 30px/1.25 "Archivo", sans-serif; color: rgba(255,255,255,0.9); margin-top: 20px; text-shadow: 0 2px 12px rgba(0,0,0,0.5); }
+  .badge { display: inline-block; margin-top: 28px; font: 800 18px/1 "JB Mono", monospace; letter-spacing: 0.14em; padding: 11px 16px; border-radius: 8px; background: #ff7a1a; color: #0b1220; box-shadow: 0 10px 30px -10px rgba(255,122,26,0.7); }
+  .right .block { text-align: right; }
+  .right .eyebrow { justify-content: flex-end; }
+</style>
+</head>
+<body>
+<div class="bg" id="bg"></div>
+<div class="scrim" id="scrim"></div>
+<div class="brand" id="brand"><i></i>DistroSource <span>Gaming</span></div>
+<div class="block" id="block">
+  <div class="eyebrow" id="eyebrow"></div>
+  <div class="title" id="title"></div>
+  <div class="value" id="value"></div>
+  <div class="badge" id="badge"></div>
+</div>
+<script>
+  const q = new URLSearchParams(location.search)
+  const align = q.get("align") === "right" ? "right" : "left"
+  const pos = q.get("pos") || "bottom"
+  const scrim = Math.max(0, Math.min(1, Number(q.get("scrim") ?? 0.85)))
+  document.body.classList.add(align)
+  const bg = document.getElementById("bg")
+  bg.style.backgroundImage = `url(${q.get("bg")})`
+  bg.style.backgroundPosition = q.get("focus") || "center"
+  const side = align === "left" ? "90deg" : "270deg"
+  const s = (a) => `rgba(8,13,24,${(a * scrim).toFixed(3)})`
+  const vertical = pos === "top" ? "180deg" : "0deg"
+  document.getElementById("scrim").style.background =
+    `linear-gradient(${side}, ${s(0.88)} 0%, ${s(0.6)} 26%, ${s(0.18)} 46%, ${s(0)} 60%), ` +
+    `linear-gradient(${vertical}, ${s(0.62)} 0%, ${s(0)} 38%)`
+  const brand = document.getElementById("brand")
+  brand.style[align] = "64px"
+  const block = document.getElementById("block")
+  block.style[align] = "64px"
+  if (pos === "top") block.style.top = "118px"
+  else if (pos === "middle") { block.style.top = "50%"; block.style.transform = "translateY(-50%)" }
+  else block.style.bottom = "72px"
+  for (const id of ["eyebrow", "title", "value", "badge"]) {
+    const el = document.getElementById(id)
+    const text = q.get(id)
+    if (text) el.textContent = text
+    else el.remove()
+  }
+  document.getElementById("title").style.fontSize = `${Number(q.get("size") || 120)}px`
+  const img = new Image()
+  img.onload = () => document.fonts.ready.then(() => { window.__ready = true })
+  img.onerror = () => { window.__ready = true }
+  img.src = q.get("bg")
+  window.__ready = false
+</script>
+</body>
+</html>

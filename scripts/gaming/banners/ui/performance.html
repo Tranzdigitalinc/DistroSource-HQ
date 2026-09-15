@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Server Owner Plan — performance toolkit</title>
+<!-- Built interface for the Server Owner Plan benchmark. All figures are
+     sample data for a fictional server. 1600×1000. -->
+<style>
+  :root { --bg: #0b0f14; --panel: #11171e; --panel-2: #161e27; --line: #1f2a36; --text: #e7edf3; --muted: #8a98a8; --accent: #ff8a3d; --ok: #3ccf8e; --bad: #ff5d5d; --before: #5b6b7d; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 1000px; overflow: hidden; background: var(--bg); }
+  body { font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; color: var(--text); padding: 26px 30px; display: flex; flex-direction: column; gap: 18px; }
+  .mono { font-family: "Cascadia Mono", Consolas, monospace; }
+  .top { display: flex; align-items: flex-end; gap: 16px; }
+  .top h1 { font-size: 26px; letter-spacing: -0.01em; }
+  .top p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .seg { margin-left: auto; display: flex; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 4px; gap: 4px; font-size: 13px; }
+  .seg span { padding: 7px 14px; border-radius: 7px; color: var(--muted); }
+  .seg .on { background: var(--panel-2); color: var(--text); }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .kpi small { color: var(--muted); font-size: 12px; }
+  .kpi .v { display: flex; align-items: baseline; gap: 10px; margin-top: 6px; }
+  .kpi .b { color: var(--before); font-size: 18px; text-decoration: line-through; }
+  .kpi .a { font-size: 30px; font-weight: 700; }
+  .kpi .d { font-size: 12px; font-weight: 700; color: var(--ok); background: rgba(60,207,142,0.12); padding: 2px 8px; border-radius: 20px; }
+  .grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; flex: 1; min-height: 0; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+  .card h2 { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; }
+  .legend { display: flex; gap: 14px; text-transform: none; letter-spacing: 0; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .rows { display: flex; flex-direction: column; gap: 14px; }
+  .r { display: grid; grid-template-columns: 170px 1fr 120px; gap: 14px; align-items: center; font-size: 13px; }
+  .bars { display: flex; flex-direction: column; gap: 4px; }
+  .bar { height: 9px; border-radius: 5px; }
+  .bar.b { background: var(--before); }
+  .bar.a { background: var(--accent); }
+  .r .val { text-align: right; }
+  .r .val b { color: var(--text); } .r .val span { color: var(--before); margin-right: 6px; text-decoration: line-through; }
+  .fixes { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .fixes li { display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; padding: 12px 14px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; font-size: 14px; }
+  .fixes small { grid-column: 1; color: var(--muted); font-size: 12.5px; }
+  .fixes .gain { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-size: 13px; font-weight: 700; color: var(--ok); }
+  .col { display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div><h1>Performance toolkit</h1><p>Northgate RP · baseline 2026-09-12 compared with 2026-09-15 at 118 players</p></div>
+    <div class="seg"><span>Last hour</span><span class="on">Peak hour</span><span>24 hours</span></div>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><small>Server frame time</small><div class="v"><span class="b mono">7.8 ms</span><span class="a mono">4.2 ms</span><span class="d">−46%</span></div></div>
+    <div class="kpi"><small>Heaviest resource</small><div class="v"><span class="b mono">0.52 ms</span><span class="a mono">0.21 ms</span><span class="d">−60%</span></div></div>
+    <div class="kpi"><small>Slow database queries / hour</small><div class="v"><span class="b mono">312</span><span class="a mono">18</span><span class="d">−94%</span></div></div>
+    <div class="kpi"><small>Client script time (avg)</small><div class="v"><span class="b mono">3.1 ms</span><span class="a mono">1.9 ms</span><span class="d">−39%</span></div></div>
+  </div>
+  <div class="grid">
+    <section class="card">
+      <h2>Resource timings <span class="legend"><span><i style="background:var(--before)"></i>Before</span><span><i style="background:var(--accent)"></i>After</span></span></h2>
+      <div class="rows">
+        <div class="r"><span class="mono">legacy_weather → ds_perf</span><div class="bars"><div class="bar b" style="width:100%"></div><div class="bar a" style="width:17%"></div></div><span class="val mono"><span>0.52</span><b>0.09 ms</b></span></div>
+        <div class="r"><span class="mono">vehicle_sync</span><div class="bars"><div class="bar b" style="width:69%"></div><div class="bar a" style="width:27%"></div></div><span class="val mono"><span>0.36</span><b>0.14 ms</b></span></div>
+        <div class="r"><span class="mono">ds_inventory</span><div class="bars"><div class="bar b" style="width:44%"></div><div class="bar a" style="width:40%"></div></div><span class="val mono"><span>0.23</span><b>0.21 ms</b></span></div>
+        <div class="r"><span class="mono">garage_zones</span><div class="bars"><div class="bar b" style="width:37%"></div><div class="bar a" style="width:12%"></div></div><span class="val mono"><span>0.19</span><b>0.06 ms</b></span></div>
+        <div class="r"><span class="mono">ds_hud</span><div class="bars"><div class="bar b" style="width:25%"></div><div class="bar a" style="width:23%"></div></div><span class="val mono"><span>0.13</span><b>0.12 ms</b></span></div>
+        <div class="r"><span class="mono">shops_ped_spawner</span><div class="bars"><div class="bar b" style="width:21%"></div><div class="bar a" style="width:6%"></div></div><span class="val mono"><span>0.11</span><b>0.03 ms</b></span></div>
+      </div>
+      <h2 style="margin-top:22px">Server frame time, peak hour <span class="legend"><span>Gridlines at 4, 6 and 8 ms</span></span></h2>
+      <svg viewBox="0 0 800 160" width="100%" height="372" preserveAspectRatio="none">
+        <g stroke="#1f2a36"><line x1="0" y1="40" x2="800" y2="40"/><line x1="0" y1="80" x2="800" y2="80"/><line x1="0" y1="120" x2="800" y2="120"/></g>
+        <path d="M0 70 L40 52 L80 74 L120 38 L160 66 L200 30 L240 58 L280 44 L320 72 L360 26 L400 60 L440 48 L480 70 L520 34 L560 62 L600 40 L640 68 L680 36 L720 58 L760 42 L800 64" fill="none" stroke="#5b6b7d" stroke-width="2.5"/>
+        <path d="M0 112 L40 110 L80 114 L120 108 L160 112 L200 106 L240 110 L280 108 L320 113 L360 104 L400 110 L440 108 L480 112 L520 106 L560 110 L600 108 L640 112 L680 105 L720 110 L760 108 L800 110" fill="none" stroke="#ff8a3d" stroke-width="3"/>
+      </svg>
+    </section>
+    <div class="col">
+      <section class="card">
+        <h2>Fixes applied</h2>
+        <ul class="fixes">
+          <li>Replaced the weather polling loop with events<small>legacy_weather ran every frame; ds_perf updates on change</small><span class="gain mono">−0.43 ms</span></li>
+          <li>Throttled vehicle distance checks<small>250 ms interval outside a 150 m radius</small><span class="gain mono">−0.22 ms</span></li>
+          <li>Cached garage zone lookups<small>Zones built once at start instead of per player</small><span class="gain mono">−0.13 ms</span></li>
+          <li>Indexed the vehicles table<small>Owner + plate index on the database</small><span class="gain mono">−294 slow/h</span></li>
+        </ul>
+      </section>
+      <section class="card">
+        <h2>Next suggestion</h2>
+        <p style="font-size:14px;line-height:1.55;color:#c9d3de">shops_ped_spawner still spawns peds for empty shops. Enable proximity spawning in its config to save a further ~0.02 ms.</p>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

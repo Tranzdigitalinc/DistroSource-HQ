@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Interface Series — MDT</title>
+<!-- Built interface for the Interface Series benchmark. All people, plates
+     and case numbers are fictional. Rendered at 1600×1000 by render.mjs. -->
+<style>
+  :root {
+    --bg: #0b1016;
+    --panel: #111820;
+    --panel-2: #16202b;
+    --line: #223041;
+    --text: #e8eef5;
+    --muted: #8b9aab;
+    --accent: #4aa3ff;
+    --ok: #3ccf8e;
+    --warn: #ffb547;
+    --bad: #ff5d5d;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 1000px; overflow: hidden; background: #05080c; }
+  body { font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; color: var(--text); }
+  .bg { position: absolute; inset: -40px; background: url(/.gaming-render/mlo-diner.png) center / cover; filter: blur(16px) brightness(0.42) saturate(0.9); }
+  .mono { font-family: "Cascadia Mono", Consolas, monospace; }
+  .tablet {
+    position: absolute; left: 90px; top: 64px; width: 1420px; height: 872px;
+    border-radius: 22px; background: #070a0e; padding: 14px;
+    box-shadow: 0 40px 120px -20px rgba(0,0,0,0.85), inset 0 0 0 1px #1d2530;
+  }
+  .screen { width: 100%; height: 100%; border-radius: 12px; background: var(--bg); display: grid; grid-template-columns: 212px 1fr; overflow: hidden; }
+  aside { background: #0d131a; border-right: 1px solid var(--line); padding: 20px 14px; display: flex; flex-direction: column; gap: 4px; }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 20px; }
+  .badge { width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(145deg, #1e3a5f, #0f1d2f); display: grid; place-items: center; box-shadow: inset 0 0 0 1px #2d4b73; }
+  .badge svg { width: 20px; height: 20px; }
+  .brand b { font-size: 15px; letter-spacing: 0.02em; }
+  .brand small { display: block; font-size: 11px; color: var(--muted); }
+  .nav { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; font-size: 14px; color: var(--muted); }
+  .nav.active { background: #15263a; color: var(--text); box-shadow: inset 3px 0 0 var(--accent); }
+  .nav i { width: 16px; height: 16px; border-radius: 4px; border: 2px solid currentColor; opacity: 0.8; }
+  .nav .count { margin-left: auto; font-size: 11px; background: #1b2735; color: var(--text); border-radius: 20px; padding: 2px 8px; }
+  .spacer { flex: 1; }
+  .unit { border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: 12px; color: var(--muted); }
+  .unit b { display: block; color: var(--text); font-size: 14px; margin-bottom: 2px; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); margin-right: 6px; box-shadow: 0 0 8px var(--ok); }
+  main { display: flex; flex-direction: column; min-width: 0; }
+  header { height: 60px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 16px; padding: 0 24px; }
+  .search { flex: 1; max-width: 520px; height: 38px; border-radius: 9px; background: var(--panel); border: 1px solid var(--line); display: flex; align-items: center; padding: 0 14px; color: var(--muted); font-size: 14px; gap: 10px; }
+  .search .q { color: var(--text); }
+  header .meta { margin-left: auto; display: flex; gap: 18px; font-size: 13px; color: var(--muted); align-items: center; }
+  .content { flex: 1; padding: 22px 24px; display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; min-height: 0; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+  .card h3 { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+  .profile { display: grid; grid-template-columns: 132px 1fr; gap: 18px; }
+  .photo { width: 132px; height: 160px; border-radius: 10px; background: linear-gradient(180deg, #243142, #172230); display: grid; place-items: end center; overflow: hidden; box-shadow: inset 0 0 0 1px #2b3a4e; }
+  .name { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .grid2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 18px; margin-top: 14px; font-size: 13px; }
+  .grid2 dt { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .grid2 dd { margin-top: 2px; }
+  .flags { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .pill { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 9px; border-radius: 6px; }
+  .pill.bad { background: rgba(255,93,93,0.14); color: var(--bad); box-shadow: inset 0 0 0 1px rgba(255,93,93,0.35); }
+  .pill.warn { background: rgba(255,181,71,0.14); color: var(--warn); box-shadow: inset 0 0 0 1px rgba(255,181,71,0.35); }
+  .pill.ok { background: rgba(60,207,142,0.12); color: var(--ok); box-shadow: inset 0 0 0 1px rgba(60,207,142,0.3); }
+  .pill.info { background: rgba(74,163,255,0.14); color: var(--accent); box-shadow: inset 0 0 0 1px rgba(74,163,255,0.35); }
+  .lic { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .lic div { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .lic b { display: block; font-size: 14px; margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 0 0 8px; }
+  td { padding: 9px 0; border-top: 1px solid var(--line); }
+  .plate { background: #e9eef3; color: #0d141c; font-weight: 700; padding: 2px 8px; border-radius: 4px; font-size: 12px; letter-spacing: 0.08em; }
+  .warrant { border: 1px solid rgba(255,93,93,0.4); background: linear-gradient(180deg, rgba(255,93,93,0.10), rgba(255,93,93,0.03)); border-radius: 12px; padding: 16px 18px; }
+  .warrant .t { font-size: 18px; font-weight: 700; margin: 6px 0 4px; }
+  .warrant .d { color: #d7b3b3; font-size: 13px; line-height: 1.5; }
+  .row { display: flex; gap: 10px; margin-top: 12px; }
+  .btn { height: 34px; padding: 0 14px; border-radius: 8px; display: inline-flex; align-items: center; font-size: 13px; font-weight: 600; background: var(--panel-2); border: 1px solid var(--line); }
+  .btn.primary { background: var(--accent); color: #04121f; border-color: transparent; }
+  .reports li { list-style: none; display: grid; grid-template-columns: 110px 1fr auto; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13px; align-items: center; }
+  .reports li:first-child { border-top: 0; }
+  .reports ul { padding: 0; }
+  .col { display: flex; flex-direction: column; gap: 18px; min-height: 0; }
+  .notes { font-size: 13px; line-height: 1.55; color: #c9d3de; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="tablet">
+  <div class="screen">
+    <aside>
+      <div class="brand">
+        <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="#7fbfff" stroke-width="2"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 9.5C8 19.2 5 15.5 5 11V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <div><b>MDT</b><small>Records &amp; dispatch</small></div>
+      </div>
+      <div class="nav"><i></i>Dashboard</div>
+      <div class="nav active"><i></i>Profiles</div>
+      <div class="nav"><i></i>Vehicles</div>
+      <div class="nav"><i></i>Reports<span class="count">4</span></div>
+      <div class="nav"><i></i>Warrants<span class="count">1</span></div>
+      <div class="nav"><i></i>BOLOs<span class="count">2</span></div>
+      <div class="nav"><i></i>Dispatch</div>
+      <div class="nav"><i></i>Evidence</div>
+      <div class="spacer"></div>
+      <div class="unit"><b><span class="dot"></span>1-ADAM-12</b>On duty · Patrol North<br />Officer R. Okafor #4127</div>
+    </aside>
+    <main>
+      <header>
+        <div class="search"><span>⌕</span><span class="q">Delgado, Marcus</span><span style="margin-left:auto" class="mono">CTRL K</span></div>
+        <div class="meta"><span class="pill info">Linked to call 2231</span><span class="mono">21:47</span><span><span class="dot"></span>Connected</span></div>
+      </header>
+      <div class="content">
+        <div class="col">
+          <section class="card">
+            <h3>Person record <span class="mono" style="letter-spacing:0">CID 00-4471-DM</span></h3>
+            <div class="profile">
+              <div class="photo">
+                <svg width="110" height="130" viewBox="0 0 110 130"><circle cx="55" cy="46" r="26" fill="#3a4b60"/><path d="M8 130c4-30 22-44 47-44s43 14 47 44z" fill="#3a4b60"/></svg>
+              </div>
+              <div>
+                <div class="name">Marcus J. Delgado</div>
+                <div class="sub">Male · 34 · 5'11" · Brown eyes</div>
+                <dl class="grid2">
+                  <div><dt>Date of birth</dt><dd class="mono">1992-04-18</dd></div>
+                  <div><dt>Phone</dt><dd class="mono">555-0148</dd></div>
+                  <div><dt>Occupation</dt><dd>Mechanic</dd></div>
+                  <div style="grid-column: span 2"><dt>Address</dt><dd>2217 Harbor View Rd, Unit 4</dd></div>
+                  <div><dt>Gang affiliation</dt><dd>None on file</dd></div>
+                </dl>
+                <div class="flags"><span class="pill bad">Active warrant</span><span class="pill warn">Licence suspended</span><span class="pill ok">No weapons flag</span></div>
+              </div>
+            </div>
+          </section>
+          <section class="card">
+            <h3>Licences</h3>
+            <div class="lic">
+              <div><b>Driver</b><span class="pill warn">Suspended</span></div>
+              <div><b>Weapon</b><span class="pill info">None</span></div>
+              <div><b>Business</b><span class="pill ok">Valid</span></div>
+              <div><b>Hunting</b><span class="pill ok">Valid</span></div>
+            </div>
+          </section>
+          <section class="card">
+            <h3>Registered vehicles</h3>
+            <table>
+              <thead><tr><th>Plate</th><th>Vehicle</th><th>Colour</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td><span class="plate mono">8KLD 221</span></td><td>Sedan, 4-door</td><td>Graphite</td><td><span class="pill ok">Registered</span></td></tr>
+                <tr><td><span class="plate mono">2TRK 590</span></td><td>Pickup, crew cab</td><td>White</td><td><span class="pill bad">Reported stolen</span></td></tr>
+              </tbody>
+            </table>
+          </section>
+        </div>
+        <div class="col">
+          <section class="warrant">
+            <span class="pill bad">Warrant · Active</span>
+            <div class="t">Failure to appear — Traffic court</div>
+            <div class="d">Issued 2026-08-30 by Judge A. Whitcombe. Bail set at $2,500. Original charge: driving while licence suspended.</div>
+            <div class="row"><span class="btn primary">Serve warrant</span><span class="btn">Attach to call</span><span class="btn">Print</span></div>
+          </section>
+          <section class="card reports">
+            <h3>Recent reports <span style="letter-spacing:0;text-transform:none;color:var(--accent);font-size:12px">View all</span></h3>
+            <ul>
+              <li><span class="mono">RPT-26-0913</span><span>Traffic stop — expired registration</span><span class="pill info">Closed</span></li>
+              <li><span class="mono">RPT-26-0877</span><span>Vehicle theft reported (2TRK 590)</span><span class="pill warn">Open</span></li>
+              <li><span class="mono">RPT-26-0702</span><span>Noise complaint — Harbor View Rd</span><span class="pill info">Closed</span></li>
+              <li><span class="mono">RPT-26-0655</span><span>Witness statement — collision at 4th &amp; Pine</span><span class="pill info">Closed</span></li>
+            </ul>
+          </section>
+          <section class="card">
+            <h3>Officer notes</h3>
+            <p class="notes">Cooperative during the last traffic stop. Works at the garage on Commerce St. Stolen pickup last seen heading north on the highway; plate flagged for ALPR.</p>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

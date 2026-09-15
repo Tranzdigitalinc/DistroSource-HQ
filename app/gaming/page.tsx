@@ -2,268 +2,214 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { SiteHeader } from "@/components/header/site-header"
 import { SiteFooter } from "@/components/footer/site-footer"
-import { GamingHero } from "@/components/gaming/gaming-hero"
-import { GamingPreview } from "@/components/gaming/gaming-preview"
-import { GamingProductCard } from "@/components/gaming/gaming-product-card"
-import { GamingTrustStrip } from "@/components/gaming/gaming-trust-strip"
-import { RevealGroup, RevealItem } from "@/components/motion/reveal"
-import { ArrowRight, ArrowUpRight, ICON_SIZE } from "@/lib/storefront-icons"
-import { filterGamingProducts, getFeaturedGamingProducts, getGamingFacets, getGamingProductsByPlatform } from "@/lib/gaming/queries"
-import { GAMING_CATEGORIES, type GamingArt, type GamingCategory } from "@/lib/gaming/types"
+import { GamingCard } from "@/components/gaming/gaming-card"
+import { GamingImage } from "@/components/gaming/gaming-image"
+import { Button } from "@/components/ui/button"
+import { filterGamingProducts, getFeaturedGamingProducts, getGamingPlatformsInUse } from "@/lib/gaming/queries"
+import { SUBSCRIPTION_MODELS } from "@/lib/gaming/catalog/taxonomy"
+import type { GamingSubscriptionModel } from "@/lib/gaming/catalog/types"
+import { ArrowRight, Library, Refresh, Search, ShieldCheck } from "@/lib/storefront-icons"
 
 export const metadata: Metadata = {
-  title: "Gaming Resources, FiveM Assets & Minecraft Products | DistroSource",
+  title: "DistroSource Gaming — FiveM, Minecraft and server resources",
   description:
-    "Premium digital resources for games, servers and online gaming communities — FiveM maps and MLOs, Minecraft server packs, interfaces and configurations, sold directly by DistroSource.",
+    "FiveM interiors, interfaces and vehicles, Minecraft builds, server tooling and community branding. Made and sold by DistroSource, with clear subscription terms.",
   alternates: { canonical: "/gaming" },
-  openGraph: {
-    title: "DistroSource Gaming",
-    description: "Premium digital resources for games, servers and online gaming communities.",
-    url: "/gaming",
-    type: "website",
-  },
 }
 
-/**
- * Artwork for each category card. These stand for a whole category rather
- * than one product, so they are generic on purpose — the per-product
- * artwork lives on the products themselves.
- */
-const CATEGORY_ART: Record<GamingCategory, GamingArt> = {
-  "maps-mlos": { scene: "interior", caption: "INTERIORS", tone: "warm", props: ["sofa", "table", "shelf", "plant"] },
-  "scripts-systems": { scene: "system", caption: "SERVER LOGIC", stages: ["TRIGGER", "VALIDATE", "PERSIST"], activeStage: 1 },
-  "ui-hud": {
-    scene: "hud",
-    caption: "INTERFACES",
-    speed: "72",
-    unit: "MPH",
-    gauges: [
-      { label: "FUEL", fill: 0.7 },
-      { label: "ENGINE", fill: 0.45 },
-      { label: "CONDITION", fill: 0.6 },
-    ],
-    chips: ["STATUS", "ALERT", "MODE"],
-  },
-  vehicles: { scene: "lineup", caption: "VEHICLES", subject: "vehicle", count: 4, accentIndex: 1 },
-  clothing: { scene: "lineup", caption: "CLOTHING & EUP", subject: "character", count: 4, accentIndex: 2 },
-  characters: { scene: "lineup", caption: "CHARACTERS", subject: "character", count: 5, accentIndex: 1 },
-  weapons: { scene: "lineup", caption: "WEAPONS", subject: "weapon", count: 4, accentIndex: 1 },
-  animations: { scene: "lineup", caption: "ANIMATIONS", subject: "character", count: 4, accentIndex: 3 },
-  audio: {
-    scene: "audio",
-    caption: "SOUNDS & AUDIO",
-    tracks: [
-      { label: "SIRENS", fill: 0.8 },
-      { label: "ENGINES", fill: 0.62 },
-      { label: "AMBIENCE", fill: 0.44 },
-      { label: "MUSIC", fill: 0.55 },
-    ],
-  },
-  plugins: { scene: "system", caption: "PLUGINS", stages: ["LOAD", "REGISTER", "SERVE"], activeStage: 1 },
-  security: { scene: "system", caption: "ANTICHEAT", stages: ["OBSERVE", "VALIDATE", "SCORE", "ACT"], activeStage: 1 },
-  "server-resources": {
-    scene: "config",
-    caption: "SERVER SETUP",
-    rows: [
-      { label: "PERMISSIONS", fill: 0.7 },
-      { label: "RANKS", fill: 0.5 },
-      { label: "WARPS", fill: 0.35 },
-      { label: "MODERATION", fill: 0.62 },
-    ],
-  },
-  textures: { scene: "palette", caption: "TEXTURE SETS", kind: "blocks" },
-  graphics: { scene: "palette", caption: "BRAND GRAPHICS", kind: "brand" },
-  configurations: {
-    scene: "config",
-    caption: "TUNED CONFIGS",
-    rows: [
-      { label: "BALANCE", fill: 0.58 },
-      { label: "PAYOUTS", fill: 0.44 },
-      { label: "SINKS", fill: 0.72 },
-      { label: "LIMITS", fill: 0.3 },
-    ],
-  },
-  bundles: {
-    scene: "pack",
-    caption: "MULTI-PRODUCT",
-    items: ["Core resources", "Combined config", "Setup guide", "Update notes"],
-  },
-}
+export default function GamingHomePage() {
+  const featured = getFeaturedGamingProducts(4)
+  const platforms = getGamingPlatformsInUse()
+  const subscriptions = filterGamingProducts({ kind: "subscription", sort: "featured" })
+  const modelsInUse = (Object.keys(SUBSCRIPTION_MODELS) as GamingSubscriptionModel[]).filter((m) => subscriptions.some((p) => p.models.includes(m)))
 
-const PLATFORM_CARDS = [
-  {
-    id: "fivem",
-    label: "FiveM",
-    href: "/gaming/fivem",
-    blurb: "Maps and MLOs, interfaces, gameplay systems and server essentials for roleplay communities.",
-    art: { scene: "interior", caption: "FIVEM", tone: "showroom", props: ["car", "desk", "sofa", "plant"] } satisfies GamingArt,
-    emphasis: true,
-  },
-  {
-    id: "minecraft",
-    label: "Minecraft",
-    href: "/gaming/minecraft",
-    blurb: "Spawn and adventure maps, resource packs, server packs and tuned configurations.",
-    art: {
-      scene: "world",
-      caption: "MINECRAFT",
-      sky: "day",
-      structures: ["castle", "tree", "house", "path", "house", "pine", "water", "tree"],
-    } satisfies GamingArt,
-    emphasis: true,
-  },
-  {
-    id: "other",
-    label: "Game Servers",
-    href: "/gaming/products?platform=other",
-    blurb: "Community branding and cross-platform starter packs for any server.",
-    art: {
-      scene: "pack",
-      caption: "CROSS-PLATFORM",
-      items: ["Community brand set", "Server resources", "Staff handbook", "Launch checklist"],
-    } satisfies GamingArt,
-    emphasis: false,
-  },
-]
-
-export default function GamingLandingPage() {
-  const featured = getFeaturedGamingProducts(8)
-  const facets = getGamingFacets()
-  const fivemCount = getGamingProductsByPlatform("fivem").length
-  const minecraftCount = getGamingProductsByPlatform("minecraft").length
-  const latest = filterGamingProducts({ sort: "newest" }).slice(0, 4)
+  const areas = [
+    ...platforms.map((p) => ({
+      href: p.id === "fivem" ? "/gaming/fivem" : p.id === "minecraft" ? "/gaming/minecraft" : `/gaming/products?platform=${p.id}`,
+      label: p.label,
+      blurb: p.blurb,
+      count: p.count,
+      image: filterGamingProducts({ platform: p.id })[0]?.cardImage,
+    })),
+    ...(subscriptions.length
+      ? [
+          {
+            href: "/gaming/subscriptions",
+            label: "Subscriptions",
+            blurb: "Growing libraries with exact contents, cadence and cancellation terms.",
+            count: subscriptions.length,
+            image: subscriptions[1]?.cardImage ?? subscriptions[0]?.cardImage,
+          },
+        ]
+      : []),
+  ]
 
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <GamingHero
-          eyebrow="DistroSource Gaming"
-          title="Upgrade your gaming experience."
-          description="Premium digital resources for games, servers and online gaming communities."
-          primary={{ label: "Browse Gaming Products", href: "/gaming/products" }}
-          secondary={{ label: "Explore Categories", href: "#categories" }}
-          trustLine="Secure checkout powered by Tebex"
-        />
-
-        {/* ---- Platforms ---- */}
-        <section className="mx-auto max-w-7xl px-6 py-14 sm:px-8">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
-            <div>
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Explore by Platform</p>
-              <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Built for the servers you run</h2>
+        {/* ---------------- hero ---------------- */}
+        <section className="relative overflow-hidden bg-navy-deep text-navy-foreground">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.07]"
+            style={{ backgroundImage: "linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)", backgroundSize: "56px 56px" }}
+            aria-hidden="true"
+          />
+          <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 py-14 sm:px-6 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+            <div className="max-w-xl">
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">DistroSource Gaming</p>
+              <h1 className="mt-4 font-display text-4xl font-bold leading-[1.05] tracking-tight text-balance md:text-6xl">
+                Resources for servers that take it seriously.
+              </h1>
+              <p className="mt-5 text-base leading-relaxed text-navy-foreground/75 text-pretty md:text-lg">
+                FiveM interiors, interfaces and vehicles. Minecraft builds. Server tooling and community branding. Made and sold by DistroSource.
+              </p>
+              <form action="/gaming/products" method="get" role="search" className="relative mt-7 max-w-md">
+                <label htmlFor="gaming-hero-search" className="sr-only">
+                  Search Gaming
+                </label>
+                <Search size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-navy-foreground/50" aria-hidden="true" />
+                <input
+                  id="gaming-hero-search"
+                  name="q"
+                  type="search"
+                  placeholder="Search MLOs, HUDs, vehicles, spawns…"
+                  className="h-12 w-full rounded-xl border border-white/15 bg-white/[0.06] pl-10 pr-4 text-sm text-navy-foreground outline-none transition-colors placeholder:text-navy-foreground/45 hover:border-white/30 focus-visible:ring-2 focus-visible:ring-primary"
+                />
+              </form>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Button render={<Link href="/gaming/products" />} nativeButton={false} size="lg" className="font-semibold">
+                  Browse everything
+                  <ArrowRight size={16} aria-hidden="true" />
+                </Button>
+                <Button
+                  render={<Link href="/gaming/subscriptions" />}
+                  nativeButton={false}
+                  size="lg"
+                  variant="outline"
+                  className="border-white/20 bg-transparent font-semibold text-navy-foreground hover:bg-white/10 hover:text-navy-foreground"
+                >
+                  See subscriptions
+                </Button>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              <span className="font-semibold tabular-nums text-foreground">{facets.total}</span> Gaming products
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            {PLATFORM_CARDS.map((platform) => (
-              <Link
-                key={platform.id}
-                href={platform.href}
-                className={`group flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-[border-color,box-shadow] duration-200 hover:border-border-strong hover:shadow-[var(--shadow-e2)] ${
-                  platform.emphasis ? "lg:col-span-1" : ""
-                }`}
-              >
-                <div className="relative aspect-[16/9] overflow-hidden">
-                  <GamingPreview
-                    art={platform.art}
-                    className="transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
-                  />
-                </div>
-                <div className="flex flex-1 flex-col gap-2 p-5">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="font-display text-lg font-bold tracking-tight">{platform.label}</h3>
-                    <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-                      {platform.id === "fivem" ? fivemCount : platform.id === "minecraft" ? minecraftCount : facets.platforms.other ?? 0} products
-                    </span>
-                  </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{platform.blurb}</p>
-                  <span className="mt-auto flex items-center gap-1.5 pt-3 text-sm font-semibold text-foreground">
-                    Browse {platform.label}
-                    <ArrowRight size={ICON_SIZE.sm} className="transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden="true" />
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* ---- Categories ---- */}
-        <section id="categories" className="border-y border-border bg-secondary/30">
-          <div className="mx-auto max-w-7xl px-6 py-14 sm:px-8">
-            <div className="mb-8">
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Categories</p>
-              <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Every kind of Gaming resource</h2>
-            </div>
-            <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" stagger={0.04}>
-              {GAMING_CATEGORIES.filter((c) => (facets.categories[c.id] ?? 0) > 0).map((category) => (
-                <RevealItem key={category.id} className="h-full">
-                  <Link
-                    href={`/gaming/products?category=${category.id}`}
-                    className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card transition-[border-color,box-shadow] duration-200 hover:border-border-strong hover:shadow-[var(--shadow-e2)]"
-                  >
-                    <div className="relative aspect-[16/10] overflow-hidden">
-                      <GamingPreview art={CATEGORY_ART[category.id]} />
-                    </div>
-                    <div className="flex flex-1 flex-col gap-1 p-4">
-                      <h3 className="font-display text-sm font-bold tracking-tight text-foreground">{category.label}</h3>
-                      <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">{category.blurb}</p>
-                      <p className="mt-auto pt-2 font-mono text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-                        {facets.categories[category.id]} {facets.categories[category.id] === 1 ? "product" : "products"}
-                      </p>
-                    </div>
-                  </Link>
-                </RevealItem>
-              ))}
-            </RevealGroup>
+            {featured.length >= 4 && (
+              <ul className="grid grid-cols-2 gap-3" aria-label="Featured resources">
+                {featured.map((p, i) => (
+                  <li key={p.id} className={i % 2 === 1 ? "translate-y-6" : ""}>
+                    <Link href={`/gaming/product/${p.slug}`} className="group relative block overflow-hidden rounded-xl ring-1 ring-white/10">
+                      <GamingImage image={p.cardImage} sizes="(min-width: 1024px) 26vw, 46vw" priority className="aspect-[16/10] w-full object-cover transition-transform duration-500 group-hover:scale-[1.04] motion-reduce:transition-none" />
+                      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-3 pb-2.5 pt-8 text-sm font-semibold text-white">{p.title}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </section>
 
-        {/* ---- Featured ---- */}
-        <section className="mx-auto max-w-7xl px-6 py-14 sm:px-8">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
-            <div>
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Featured</p>
-              <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Gaming products</h2>
-            </div>
-            <Link href="/gaming/products" className="flex items-center gap-1 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary hover:underline">
-              All Gaming products
-              <ArrowUpRight className="size-3.5" />
+        {/* ---------------- areas ---------------- */}
+        <section aria-labelledby="areas-title" className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+          <div className="mb-7 flex items-end justify-between gap-4">
+            <h2 id="areas-title" className="font-display text-2xl font-bold tracking-tight md:text-3xl">
+              Start with your platform
+            </h2>
+            <Link href="/gaming/products" className="text-sm font-semibold text-primary hover:underline">
+              All resources
             </Link>
           </div>
-          <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" stagger={0.04}>
-            {featured.map((product) => (
-              <RevealItem key={product.id} className="h-full">
-                <GamingProductCard product={product} />
-              </RevealItem>
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {areas.map((a) => (
+              <li key={a.href}>
+                <Link href={a.href} className="group relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-2xl bg-navy p-5 text-white ring-1 ring-border sm:aspect-[3/4]">
+                  {a.image && (
+                    <GamingImage
+                      image={a.image}
+                      sizes="(min-width: 1024px) 24vw, (min-width: 640px) 46vw, 92vw"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.05] motion-reduce:transition-none"
+                    />
+                  )}
+                  <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/5" aria-hidden="true" />
+                  <span className="relative">
+                    <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-white/70">
+                      {a.count} {a.count === 1 ? "resource" : "resources"}
+                    </span>
+                    <span className="mt-1 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+                      {a.label}
+                      <ArrowRight size={18} className="transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none" aria-hidden="true" />
+                    </span>
+                    <span className="mt-1.5 block text-sm leading-relaxed text-white/75">{a.blurb}</span>
+                  </span>
+                </Link>
+              </li>
             ))}
-          </RevealGroup>
+          </ul>
         </section>
 
-        {/* ---- Latest ---- */}
-        <section className="border-t border-border bg-secondary/30">
-          <div className="mx-auto max-w-7xl px-6 py-14 sm:px-8">
-            <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">Just added</p>
-                <h2 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">Latest releases</h2>
+        {/* ---------------- subscriptions ---------------- */}
+        {subscriptions.length > 0 && (
+          <section aria-labelledby="subs-title" className="border-y border-border bg-surface-soft">
+            <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+              <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+                <div className="max-w-2xl">
+                  <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Subscriptions</p>
+                  <h2 id="subs-title" className="mt-2 font-display text-2xl font-bold tracking-tight md:text-3xl">
+                    One plan, one coherent library
+                  </h2>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    Every plan lists exactly what it covers, how often it grows and what happens if you cancel.
+                  </p>
+                </div>
+                <Link href="/gaming/subscriptions" className="text-sm font-semibold text-primary hover:underline">
+                  All subscriptions
+                </Link>
               </div>
-              <Link href="/gaming/products?sort=newest" className="text-sm font-semibold text-foreground underline-offset-4 hover:underline">
-                View all
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {latest.map((product) => (
-                <GamingProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </div>
-        </section>
+              <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {subscriptions.slice(0, 6).map((p) => (
+                  <li key={p.id} className="flex">
+                    <GamingCard product={p} className="w-full" />
+                  </li>
+                ))}
+              </ul>
 
-        <GamingTrustStrip />
+              {modelsInUse.length > 0 && (
+                <dl className="mt-10 grid grid-cols-1 gap-x-8 gap-y-5 border-t border-border pt-8 sm:grid-cols-2 lg:grid-cols-4">
+                  {modelsInUse.map((m) => (
+                    <div key={m}>
+                      <dt className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-foreground">{SUBSCRIPTION_MODELS[m].badge}</dt>
+                      <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">{SUBSCRIPTION_MODELS[m].explain}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* ---------------- how it works ---------------- */}
+        <section aria-labelledby="how-title" className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+          <h2 id="how-title" className="sr-only">
+            How DistroSource Gaming works
+          </h2>
+          <ul className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {[
+              { icon: ShieldCheck, title: "Made by DistroSource", body: "Every Gaming resource is first-party. No third-party sellers, no resold files." },
+              { icon: Library, title: "One Gaming Library", body: "Purchases and plan access live in your DistroSource account, ready to download." },
+              { icon: Refresh, title: "Terms you can read", body: "Each plan states its cadence, license and exactly what happens when you cancel." },
+            ].map(({ icon: Icon, title, body }) => (
+              <li key={title} className="flex gap-4">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground">
+                  <Icon size={20} aria-hidden="true" />
+                </span>
+                <div>
+                  <h3 className="font-display text-base font-bold">{title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       </main>
       <SiteFooter />
     </div>

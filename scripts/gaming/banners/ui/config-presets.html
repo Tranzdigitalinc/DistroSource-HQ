@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Server Owner Plan — configuration presets</title>
+<!-- Built interface for the Server Owner Plan benchmark. Server name and
+     values are fictional; credentials are masked. 1600×1000. -->
+<style>
+  :root { --bg: #0b0f14; --panel: #11171e; --panel-2: #161e27; --line: #1f2a36; --text: #e7edf3; --muted: #8a98a8; --accent: #ff8a3d; --ok: #3ccf8e; --warn: #ffb547; --add: #1d3b2c; --del: #3b1d21; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 1000px; overflow: hidden; background: var(--bg); }
+  body { font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; color: var(--text); display: grid; grid-template-rows: 58px 1fr; }
+  .mono { font-family: "Cascadia Mono", Consolas, monospace; }
+  header { display: flex; align-items: center; gap: 14px; padding: 0 22px; border-bottom: 1px solid var(--line); }
+  header b { font-size: 16px; }
+  .crumb { color: var(--muted); font-size: 13px; }
+  .pill { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+  .pill.stage { background: rgba(255,181,71,0.13); color: var(--warn); }
+  header .right { margin-left: auto; display: flex; gap: 10px; }
+  .btn { height: 36px; padding: 0 14px; border-radius: 9px; display: inline-flex; align-items: center; font-size: 13px; font-weight: 600; background: var(--panel-2); border: 1px solid var(--line); }
+  .btn.primary { background: var(--accent); color: #1a0c03; border-color: transparent; }
+  .layout { display: grid; grid-template-columns: 250px 1fr 360px; min-height: 0; }
+  .tree { border-right: 1px solid var(--line); padding: 16px 12px; font-size: 13px; }
+  .tree h2, .side h2 { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0 8px 10px; }
+  .file { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 7px; color: #c3cfdb; }
+  .file.on { background: #1a222c; color: var(--text); box-shadow: inset 3px 0 0 var(--accent); }
+  .file .d { margin-left: auto; font-size: 11px; color: var(--ok); }
+  .file .m { margin-left: auto; font-size: 11px; color: var(--warn); }
+  .folder { color: var(--muted); padding: 10px 10px 4px; font-size: 12px; }
+  .editor { display: flex; flex-direction: column; min-width: 0; }
+  .tabs { display: flex; border-bottom: 1px solid var(--line); background: #0d1218; }
+  .tab { padding: 11px 18px; font-size: 13px; color: var(--muted); border-right: 1px solid var(--line); }
+  .tab.on { color: var(--text); background: var(--bg); box-shadow: inset 0 2px 0 var(--accent); }
+  pre { flex: 1; margin: 0; padding: 16px 0; font-size: 14.5px; line-height: 1.62; overflow: hidden; }
+  .ln { display: grid; grid-template-columns: 56px 1fr; }
+  .ln span:first-child { text-align: right; padding-right: 18px; color: #4c5a69; user-select: none; }
+  .ln.add { background: var(--add); } .ln.add span:first-child { color: #7fd9a8; }
+  .ln.del { background: var(--del); } .ln.del span:first-child { color: #ff9a9a; } .ln.del span:last-child { text-decoration: line-through; opacity: 0.75; }
+  .c { color: #6b7d90; } .k { color: #ff9f5e; } .s { color: #9fd98a; } .n { color: #7cc4ff; } .v { color: #e7edf3; }
+  .side { border-left: 1px solid var(--line); padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .card h3 { font-size: 16px; margin-bottom: 4px; }
+  .card p { color: var(--muted); font-size: 13px; line-height: 1.5; }
+  .diff { display: flex; gap: 14px; margin-top: 10px; font-size: 13px; }
+  .check { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
+  .check li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: start; }
+  .box { width: 18px; height: 18px; border-radius: 5px; border: 2px solid #3a4858; display: grid; place-items: center; font-size: 12px; font-weight: 800; }
+  .box.done { background: var(--ok); border-color: var(--ok); color: #06140d; }
+  .check small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+</style>
+</head>
+<body>
+<header>
+  <b>Config presets</b><span class="crumb">Northgate RP / Performance · 128 slots</span><span class="pill stage">Staging copy</span>
+  <div class="right"><span class="btn">Compare with live</span><span class="btn">Download</span><span class="btn primary">Apply to staging</span></div>
+</header>
+<div class="layout">
+  <nav class="tree">
+    <h2>Preset files</h2>
+    <div class="file on mono">server.cfg <span class="m">edited</span></div>
+    <div class="file mono">permissions.cfg</div>
+    <div class="file mono">voice.cfg</div>
+    <div class="folder">resources/[core]</div>
+    <div class="file mono">qbx_core/config.lua <span class="d">preset</span></div>
+    <div class="file mono">ox_lib/settings.cfg</div>
+    <div class="file mono">oxmysql/pool.cfg <span class="d">preset</span></div>
+    <div class="folder">resources/[ds]</div>
+    <div class="file mono">ds_hud/theme.lua</div>
+    <div class="file mono">ds_admin/roles.lua</div>
+    <div class="file mono">ds_perf/thresholds.lua</div>
+  </nav>
+  <section class="editor">
+    <div class="tabs"><span class="tab on mono">server.cfg</span><span class="tab mono">qbx_core/config.lua</span><span class="tab mono">oxmysql/pool.cfg</span></div>
+<pre class="mono"><div class="ln"><span>1</span><span class="c"># Northgate RP — Performance preset for 128 slots</span></div><div class="ln"><span>2</span><span class="c"># Apply on staging first. Checklist: ds_perf/README.md</span></div><div class="ln"><span>3</span><span></span></div><div class="ln"><span>4</span><span><span class="k">endpoint_add_tcp</span> <span class="s">"0.0.0.0:30120"</span></span></div><div class="ln"><span>5</span><span><span class="k">endpoint_add_udp</span> <span class="s">"0.0.0.0:30120"</span></span></div><div class="ln del"><span>6</span><span><span class="k">sv_maxclients</span> <span class="n">64</span></span></div><div class="ln add"><span>6</span><span><span class="k">sv_maxclients</span> <span class="n">128</span></span></div><div class="ln"><span>7</span><span><span class="k">set</span> <span class="v">onesync</span> <span class="s">on</span></span></div><div class="ln add"><span>8</span><span><span class="k">set</span> <span class="v">onesync_population</span> <span class="s">false</span></span></div><div class="ln"><span>9</span><span><span class="k">sv_hostname</span> <span class="s">"Northgate RP | Serious roleplay"</span></span></div><div class="ln"><span>10</span><span><span class="k">sv_endpointprivacy</span> <span class="s">true</span></span></div><div class="ln"><span>11</span><span><span class="k">set</span> <span class="v">mysql_connection_string</span> <span class="s">"mysql://northgate:********@127.0.0.1/northgate"</span></span></div><div class="ln add"><span>12</span><span><span class="k">set</span> <span class="v">mysql_slow_query_warning</span> <span class="n">150</span></span></div><div class="ln"><span>13</span><span></span></div><div class="ln"><span>14</span><span class="c"># Core (order matters)</span></div><div class="ln"><span>15</span><span><span class="k">ensure</span> <span class="v">oxmysql</span></span></div><div class="ln"><span>16</span><span><span class="k">ensure</span> <span class="v">ox_lib</span></span></div><div class="ln"><span>17</span><span><span class="k">ensure</span> <span class="v">qbx_core</span></span></div><div class="ln"><span>18</span><span></span></div><div class="ln"><span>19</span><span class="c"># DistroSource resources</span></div><div class="ln"><span>20</span><span><span class="k">ensure</span> <span class="v">ds_hud</span></span></div><div class="ln"><span>21</span><span><span class="k">ensure</span> <span class="v">ds_mdt</span></span></div><div class="ln"><span>22</span><span><span class="k">ensure</span> <span class="v">ds_admin</span></span></div><div class="ln add"><span>23</span><span><span class="k">ensure</span> <span class="v">ds_perf</span></span></div><div class="ln del"><span>24</span><span><span class="k">ensure</span> <span class="v">legacy_weather</span></span></div><div class="ln"><span>24</span><span></span></div><div class="ln"><span>25</span><span><span class="k">exec</span> <span class="s">permissions.cfg</span></span></div><div class="ln"><span>26</span><span><span class="k">exec</span> <span class="s">voice.cfg</span></span></div></pre>
+  </section>
+  <aside class="side">
+    <h2>Preset</h2>
+    <div class="card">
+      <h3>Performance · 128 slots</h3>
+      <p>Raises slot count, disables ambient population sync and swaps the old weather loop for ds_perf's event-driven weather.</p>
+      <div class="diff mono"><span style="color:var(--ok)">+4 lines</span><span style="color:#ff9a9a">−2 lines</span><span style="color:var(--muted)">3 files</span></div>
+    </div>
+    <div class="card">
+      <h2 style="margin:0 0 12px">Apply checklist</h2>
+      <ul class="check">
+        <li><span class="box done">✓</span><span>Back up the live config<small>Snapshot 2026-09-15 04:00 · verified</small></span></li>
+        <li><span class="box done">✓</span><span>Apply to the staging copy<small>Staging restarted cleanly in 38 s</small></span></li>
+        <li><span class="box done">✓</span><span>Run the ds_perf baseline<small>Frame time 4.2 ms at 118 players</small></span></li>
+        <li><span class="box"></span><span>Join staging and test core jobs<small>Police, EMS, mechanic</small></span></li>
+        <li><span class="box"></span><span>Schedule the live change<small>Next restart window 06:00</small></span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2 style="margin:0 0 8px">Compatible with</h2>
+      <p class="mono" style="color:#c3cfdb">Qbox · QBCore · ESX Legacy</p>
+    </div>
+  </aside>
+</div>
+</body>
+</html>

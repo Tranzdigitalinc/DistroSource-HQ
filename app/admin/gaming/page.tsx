@@ -4,10 +4,11 @@ import Link from "next/link"
 import { ExternalLink, Gamepad2, Info } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { isAdminEmail } from "@/lib/admin-emails"
-import { getGamingProducts } from "@/lib/gaming/queries"
-import { CATEGORY_LABEL, PLATFORM_LABEL } from "@/lib/gaming/types"
-import { isTebexConfigured } from "@/lib/gaming/tebex"
-import { GamingPreview } from "@/components/gaming/gaming-preview"
+import { GAMING_CATALOG } from "@/lib/gaming/catalog/products"
+import { GAMING_PLATFORMS, SUBSCRIPTION_MODELS, categoryLabel, platformLabel } from "@/lib/gaming/catalog/taxonomy"
+import { priceLabel } from "@/lib/gaming/catalog/pricing"
+import type { GamingAvailability, GamingPlatform } from "@/lib/gaming/catalog/types"
+import { GamingImage } from "@/components/gaming/gaming-image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -15,51 +16,48 @@ import { Input } from "@/components/ui/input"
 
 export const metadata = {
   title: "Gaming | DistroSource Admin",
-  description: "Manage the DistroSource Gaming catalog.",
+  description: "Read-only view of the DistroSource Gaming catalogue.",
 }
 
-const PLATFORM_FILTERS = [
-  { value: "", label: "All platforms" },
-  { value: "fivem", label: "FiveM" },
-  { value: "minecraft", label: "Minecraft" },
-  { value: "other", label: "Game servers" },
-] as const
-
-const STATUS_FILTERS = [
-  { value: "", label: "All" },
-  { value: "published", label: "Published" },
-  { value: "unpublished", label: "Unpublished" },
-  { value: "featured", label: "Featured" },
-  { value: "bestseller", label: "Bestseller" },
-] as const
+const AVAILABILITY_LABEL: Record<GamingAvailability, string> = {
+  "on-sale": "On sale",
+  launching: "Launching",
+  unlisted: "Unlisted",
+}
 
 export default async function AdminGamingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string; platform?: string; status?: string }>
+  searchParams: Promise<{ search?: string; platform?: string; availability?: string }>
 }) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) redirect("/sign-in?next=/admin/gaming")
   if (!isAdminEmail(session.user.email)) redirect("/")
 
-  const { search, platform, status } = await searchParams
-  const platformFilter = PLATFORM_FILTERS.find((f) => f.value === platform)?.value || ""
-  const statusFilter = STATUS_FILTERS.find((f) => f.value === status)?.value || ""
+  const { search, platform, availability } = await searchParams
+  const platformFilter = GAMING_PLATFORMS.some((p) => p.id === platform) ? (platform as GamingPlatform) : ""
+  const availabilityFilter = availability && availability in AVAILABILITY_LABEL ? (availability as GamingAvailability) : ""
   const term = (search ?? "").trim().toLowerCase()
 
-  const all = getGamingProducts()
-  const rows = all.filter((product) => {
-    if (platformFilter && product.platform !== platformFilter) return false
-    if (statusFilter === "published" && !product.published) return false
-    if (statusFilter === "unpublished" && product.published) return false
-    if (statusFilter === "featured" && !product.featured) return false
-    if (statusFilter === "bestseller" && !product.bestseller) return false
-    if (term && !`${product.title} ${product.slug} ${product.tebexPackageId}`.toLowerCase().includes(term)) return false
+  const all = GAMING_CATALOG
+  const rows = all.filter((p) => {
+    if (platformFilter && p.platform !== platformFilter) return false
+    if (availabilityFilter && p.availability !== availabilityFilter) return false
+    if (term && !`${p.title} ${p.slug} ${p.id}`.toLowerCase().includes(term)) return false
     return true
   })
+  const count = (a: GamingAvailability) => all.filter((p) => p.availability === a).length
 
-  const published = all.filter((p) => p.published).length
-  const tebexLive = all.filter(isTebexConfigured).length
+  const filterHref = (next: { platform?: string; availability?: string }) => {
+    const params = new URLSearchParams()
+    if (search) params.set("search", search)
+    const pf = next.platform ?? platformFilter
+    const af = next.availability ?? availabilityFilter
+    if (pf) params.set("platform", pf)
+    if (af) params.set("availability", af)
+    const q = params.toString()
+    return q ? `/admin/gaming?${q}` : "/admin/gaming"
+  }
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
@@ -71,7 +69,7 @@ export default async function AdminGamingPage({
             Gaming
           </h1>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            {all.length} Gaming products &middot; {published} published &middot; sold directly by DistroSource, paid through Tebex.
+            {all.length} products &middot; {count("on-sale")} on sale &middot; {count("launching")} launching &middot; {count("unlisted")} unlisted
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -84,121 +82,86 @@ export default async function AdminGamingPage({
         </div>
       </header>
 
-      {/* This section reads the catalog, it does not write it. Editing needs a
-          gaming_products table — the path is written up in docs/GAMING-ADMIN.md. */}
       <Card className="border-primary/30 bg-primary/5">
         <CardHeader className="flex-row items-start gap-3 space-y-0">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Info className="size-4.5" aria-hidden="true" />
           </span>
           <div>
-            <CardTitle className="text-base font-semibold">This catalog is code-backed, not database-backed</CardTitle>
+            <CardTitle className="text-base font-semibold">Code-backed catalogue, read-only here</CardTitle>
             <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              Gaming products live in <code className="rounded bg-background px-1 py-0.5 font-mono text-xs">lib/gaming/products.ts</code>.
-              This screen is read-only: create, edit and publish controls need a{" "}
-              <code className="rounded bg-background px-1 py-0.5 font-mono text-xs">gaming_products</code> table, and the production database
-              has no migration baseline yet. The full migration path is written up in{" "}
-              <code className="rounded bg-background px-1 py-0.5 font-mono text-xs">docs/GAMING-ADMIN.md</code>.
+              Records live in <code className="rounded bg-background px-1 py-0.5 font-mono text-xs">lib/gaming/catalog/products.ts</code>. A
+              <em> launching</em> product is fully presented but never offers checkout; switching it to <em>on sale</em> requires real deliverables
+              and a verified payment mapping. The previous catalogue is archived in{" "}
+              <code className="rounded bg-background px-1 py-0.5 font-mono text-xs">scripts/gaming/legacy/</code>. See{" "}
+              <code className="rounded bg-background px-1 py-0.5 font-mono text-xs">docs/GAMING-REBUILD.md</code>.
             </p>
           </div>
         </CardHeader>
-        <CardContent className="grid gap-3 border-t border-primary/20 pt-4 text-sm sm:grid-cols-3">
-          <div>
-            <p className="text-muted-foreground">Checkout provider</p>
-            <p className="font-semibold text-foreground">Tebex (Gaming only)</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Tebex packages</p>
-            <p className="font-semibold text-foreground">
-              {tebexLive === 0 ? "Placeholder IDs" : `${tebexLive} of ${all.length} live`}
-            </p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Regular catalog</p>
-            <p className="font-semibold text-foreground">Unchanged (Polar)</p>
-          </div>
-        </CardContent>
       </Card>
 
-      <form action="/admin/gaming" method="get" className="flex flex-wrap items-center gap-3">
-        <Input name="search" defaultValue={search ?? ""} placeholder="Search by title, slug or Tebex package ID" className="max-w-sm" />
-        <input type="hidden" name="status" value={statusFilter} />
+      <div className="flex flex-col gap-3">
+        <form action="/admin/gaming" method="get" className="flex flex-wrap items-center gap-3">
+          <Input name="search" defaultValue={search ?? ""} placeholder="Search by title, slug or id" className="max-w-sm" />
+          {platformFilter && <input type="hidden" name="platform" value={platformFilter} />}
+          {availabilityFilter && <input type="hidden" name="availability" value={availabilityFilter} />}
+          <Button type="submit" size="sm" variant="outline">
+            Search
+          </Button>
+        </form>
         <div className="flex flex-wrap items-center gap-1 border border-border p-1">
-          {PLATFORM_FILTERS.map((f) => (
-            <Button
-              key={f.value || "all-platforms"}
-              type="submit"
-              name="platform"
-              value={f.value}
-              size="sm"
-              variant={platformFilter === f.value ? "default" : "ghost"}
-            >
-              {f.label}
+          <Button size="sm" variant={!platformFilter ? "default" : "ghost"} render={<Link href={filterHref({ platform: "" })} />} nativeButton={false}>
+            All platforms
+          </Button>
+          {GAMING_PLATFORMS.map((p) => (
+            <Button key={p.id} size="sm" variant={platformFilter === p.id ? "default" : "ghost"} render={<Link href={filterHref({ platform: p.id })} />} nativeButton={false}>
+              {p.label}
             </Button>
           ))}
         </div>
-      </form>
-
-      <div className="flex flex-wrap items-center gap-1 border border-border p-1">
-        {STATUS_FILTERS.map((f) => {
-          const params = new URLSearchParams()
-          if (search) params.set("search", search)
-          if (platformFilter) params.set("platform", platformFilter)
-          if (f.value) params.set("status", f.value)
-          const query = params.toString()
-          return (
-            <Button
-              key={f.value || "all-status"}
-              size="sm"
-              variant={statusFilter === f.value ? "default" : "ghost"}
-              render={<Link href={query ? `/admin/gaming?${query}` : "/admin/gaming"} />}
-              nativeButton={false}
-            >
-              {f.label}
+        <div className="flex flex-wrap items-center gap-1 border border-border p-1">
+          <Button size="sm" variant={!availabilityFilter ? "default" : "ghost"} render={<Link href={filterHref({ availability: "" })} />} nativeButton={false}>
+            Any status
+          </Button>
+          {(Object.keys(AVAILABILITY_LABEL) as GamingAvailability[]).map((a) => (
+            <Button key={a} size="sm" variant={availabilityFilter === a ? "default" : "ghost"} render={<Link href={filterHref({ availability: a })} />} nativeButton={false}>
+              {AVAILABILITY_LABEL[a]}
             </Button>
-          )
-        })}
+          ))}
+        </div>
       </div>
 
       {rows.length === 0 ? (
         <Card>
-          <CardContent className="py-12 text-center text-sm text-muted-foreground">
-            No Gaming products match these filters.
-          </CardContent>
+          <CardContent className="py-12 text-center text-sm text-muted-foreground">No Gaming products match these filters.</CardContent>
         </Card>
       ) : (
         <div className="flex flex-col gap-3">
           {rows.map((product) => (
             <Card key={product.id}>
               <CardContent className="flex flex-wrap items-start gap-4 p-4">
-                <div className="h-16 w-24 shrink-0 overflow-hidden rounded-md border border-border bg-secondary">
-                  <GamingPreview art={product.art[0]} caption={false} />
+                <div className="w-32 shrink-0 overflow-hidden rounded-md border border-border bg-secondary">
+                  <GamingImage image={product.cardImage} sizes="128px" className="aspect-[16/10] h-auto w-full object-cover" />
                 </div>
-
                 <div className="min-w-64 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <Link href={`/admin/gaming/${product.slug}`} className="font-semibold text-foreground hover:underline">
                       {product.title}
                     </Link>
-                    {product.featured && <Badge variant="secondary">Featured</Badge>}
-                    {product.bestseller && <Badge variant="secondary">Bestseller</Badge>}
-                    <Badge variant={product.published ? "default" : "outline"}>
-                      {product.published ? "Published" : "Unpublished"}
-                    </Badge>
+                    <Badge variant={product.availability === "on-sale" ? "default" : "outline"}>{AVAILABILITY_LABEL[product.availability]}</Badge>
+                    {product.models.map((m) => (
+                      <Badge key={m} variant="secondary">
+                        {SUBSCRIPTION_MODELS[m].label}
+                      </Badge>
+                    ))}
                   </div>
                   <p className="mt-1 font-mono text-xs text-muted-foreground">/gaming/product/{product.slug}</p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    {PLATFORM_LABEL[product.platform]} &middot; {CATEGORY_LABEL[product.category]} &middot; v{product.version} &middot; updated{" "}
-                    {product.lastUpdated}
+                    {platformLabel(product.platform)} &middot; {categoryLabel(product.platform, product.category)} &middot; curation {product.curation} &middot; updated {product.updatedAt}
                   </p>
-                  <p className="mt-1 font-mono text-xs text-muted-foreground">Tebex package {product.tebexPackageId}</p>
                 </div>
-
                 <div className="flex shrink-0 flex-col items-end gap-2">
-                  <p className="text-base font-semibold text-foreground">${product.price.toFixed(2)}</p>
-                  {product.originalPrice !== null && (
-                    <p className="text-xs text-muted-foreground line-through">${product.originalPrice.toFixed(2)}</p>
-                  )}
+                  <p className="text-base font-semibold text-foreground">{priceLabel(product.pricing)}</p>
                   <Button variant="outline" size="sm" render={<Link href={`/admin/gaming/${product.slug}`} />} nativeButton={false}>
                     Details
                   </Button>

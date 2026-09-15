@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Community Brand Kit — board</title>
+<!-- Design mockup for the Community Brand Kit cover: one month's kit for a
+     fictional community, "Northgate". All marks are original. 1600×1000.
+     The left side is kept quiet for the cover typography. -->
+<style>
+  @font-face { font-family: "Archivo"; src: url(/scripts/gaming/banners/fonts/archivo-latin.woff2) format("woff2"); font-weight: 100 900; font-display: block; }
+  :root { --red: #e0343b; --ink: #121317; --char: #1b1d22; --cream: #f3efe6; --gold: #d8a24a; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 1000px; overflow: hidden; }
+  body { background: radial-gradient(1100px 700px at 78% 40%, #3a1417 0%, #15161a 55%, #0c0d10 100%); font-family: "Archivo", sans-serif; color: var(--cream); position: relative; }
+  body::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 48px 48px; }
+  .card { position: absolute; border-radius: 18px; overflow: hidden; box-shadow: 0 50px 90px -35px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.06); }
+  .cond { font-family: "Bahnschrift", "Archivo", sans-serif; font-stretch: 75%; }
+  /* Logo lockup */
+  .logo { left: 690px; top: 70px; width: 560px; height: 300px; background: var(--red); transform: rotate(-2.5deg); display: flex; align-items: center; gap: 28px; padding: 0 44px; }
+  .logo .word { font-weight: 700; font-size: 74px; letter-spacing: 0.06em; line-height: 0.9; color: var(--cream); }
+  .logo .tag { font-size: 16px; letter-spacing: 0.42em; margin-top: 12px; color: #ffd9d4; font-weight: 700; }
+  /* Community banner */
+  .banner { left: 1030px; top: 330px; width: 520px; height: 292px; background: var(--ink); transform: rotate(2deg); }
+  .banner .stripes { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(224,52,59,0.16) 0 26px, transparent 26px 64px); }
+  .banner .inner { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 40px; }
+  .banner small { font-size: 14px; letter-spacing: 0.3em; color: var(--gold); font-weight: 700; }
+  .banner h3 { font-weight: 700; font-size: 58px; line-height: 0.95; margin-top: 10px; letter-spacing: 0.02em; }
+  .banner p { margin-top: 12px; color: rgba(243,239,230,0.7); font-size: 17px; }
+  .banner .em { position: absolute; right: 30px; bottom: 26px; width: 88px; }
+  /* Role icons */
+  .roles { left: 640px; top: 420px; width: 360px; height: 210px; background: var(--char); padding: 22px 24px; transform: rotate(-1deg); }
+  .roles h4, .pal h4, .ov h4 { font-size: 12px; letter-spacing: 0.24em; color: rgba(243,239,230,0.55); font-weight: 700; }
+  .roles ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 10px; margin-top: 16px; }
+  .roles li { display: flex; flex-direction: column; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; color: rgba(243,239,230,0.85); }
+  .roles i { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.18); }
+  .roles svg { width: 22px; height: 22px; }
+  /* Overlay thumbnail */
+  .ov { left: 700px; top: 668px; width: 430px; height: 262px; background: #0e0f12; transform: rotate(1.5deg); }
+  .ov .shot { position: absolute; inset: 0; background: url(/.gaming-render/street-stream.png) center / cover; filter: saturate(0.9) brightness(0.85); }
+  .ov .cam { position: absolute; left: 16px; bottom: 16px; width: 150px; height: 96px; border-radius: 10px; background: linear-gradient(160deg, #2a2d34, #15161a); box-shadow: 0 0 0 3px var(--red); display: grid; place-items: center; color: rgba(243,239,230,0.5); font-size: 11px; letter-spacing: 0.2em; font-weight: 700; }
+  .ov .live { position: absolute; left: 16px; top: 16px; background: var(--red); color: var(--cream); font-size: 12px; font-weight: 800; letter-spacing: 0.14em; padding: 5px 9px; border-radius: 6px; }
+  .ov .bar { position: absolute; left: 176px; right: 16px; bottom: 16px; height: 40px; border-radius: 9px; background: rgba(18,19,23,0.85); display: flex; align-items: center; padding: 0 12px; font-size: 13px; font-weight: 600; gap: 8px; }
+  .ov .bar b { color: var(--red); }
+  /* Palette + type */
+  .pal { left: 1168px; top: 676px; width: 380px; height: 250px; background: var(--char); padding: 22px 24px; transform: rotate(-2deg); }
+  .sw { display: flex; gap: 10px; margin-top: 16px; }
+  .sw div { flex: 1; height: 74px; border-radius: 10px; position: relative; }
+  .sw span { position: absolute; left: 0; bottom: -20px; font-size: 11px; color: rgba(243,239,230,0.7); font-family: "Cascadia Mono", Consolas, monospace; }
+  .type { margin-top: 36px; display: flex; align-items: baseline; gap: 14px; }
+  .type b { font-size: 54px; font-weight: 700; line-height: 1; }
+  .type span { font-size: 13px; color: rgba(243,239,230,0.65); line-height: 1.4; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="crest" viewBox="0 0 120 140">
+      <path d="M60 4 L112 22 V70 C112 102 90 124 60 136 C30 124 8 102 8 70 V22 Z" fill="#f3efe6"/>
+      <path d="M60 14 L102 29 V70 C102 97 84 115 60 125 C36 115 18 97 18 70 V29 Z" fill="#121317"/>
+      <path d="M60 30 l6.5 17 18 0 -14.5 10.5 5.5 17.5 -15.5 -10.5 -15.5 10.5 5.5 -17.5 -14.5 -10.5 18 0z" fill="#e0343b"/>
+      <text x="60" y="110" text-anchor="middle" font-family="Bahnschrift, Archivo, sans-serif" font-weight="700" font-size="24" fill="#f3efe6" letter-spacing="3">NG</text>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="card logo">
+  <svg width="150" height="175"><use href="#crest"/></svg>
+  <div><div class="word cond">NORTH<br />GATE</div><div class="tag">SERIOUS ROLEPLAY</div></div>
+</div>
+
+<div class="card banner">
+  <div class="stripes"></div>
+  <div class="inner"><small>COMMUNITY BANNER</small><h3 class="cond">WELCOME TO<br />NORTHGATE</h3><p>Season 4 · Patrol Night every Saturday</p></div>
+  <svg class="em" height="102" viewBox="0 0 120 140"><use href="#crest"/></svg>
+</div>
+
+<div class="card roles">
+  <h4>ROLE ICONS</h4>
+  <ul>
+    <li><i style="background:#e0343b"><svg viewBox="0 0 24 24" fill="#f3efe6"><path d="M12 2l2.6 6.3 6.8.5-5.2 4.4 1.6 6.6L12 16.3l-5.8 3.5 1.6-6.6L2.6 8.8l6.8-.5z"/></svg></i>Staff</li>
+    <li><i style="background:#2f5fb8"><svg viewBox="0 0 24 24" fill="#f3efe6"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg></i>Police</li>
+    <li><i style="background:#1f9a6e"><svg viewBox="0 0 24 24" fill="#f3efe6"><path d="M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z"/></svg></i>EMS</li>
+    <li><i style="background:#d8a24a"><svg viewBox="0 0 24 24" fill="#121317"><path d="M21 7.5l-3.8 3.8-2.5-2.5L18.5 5A5 5 0 0 0 12 11.4L3.4 20l1.6 1.6L13.6 13A5 5 0 0 0 21 7.5z"/></svg></i>Mechanic</li>
+    <li><i style="background:#6b6f78"><svg viewBox="0 0 24 24" fill="#f3efe6"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.4 4.2-7 8-7s7 2.6 8 7z"/></svg></i>Civilian</li>
+    <li><i style="background:#8d4fd0"><svg viewBox="0 0 24 24" fill="#f3efe6"><path d="M3 8l4.5 3L12 4l4.5 7L21 8l-2 11H5z"/></svg></i>VIP</li>
+  </ul>
+</div>
+
+<div class="card ov">
+  <div class="shot"></div>
+  <span class="live">● LIVE</span>
+  <div class="cam">CAMERA</div>
+  <div class="bar"><b>NOW</b>Patrol Night · Commerce St</div>
+</div>
+
+<div class="card pal">
+  <h4>PALETTE &amp; TYPE</h4>
+  <div class="sw">
+    <div style="background:#e0343b"><span>#E0343B</span></div>
+    <div style="background:#121317; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12)"><span>#121317</span></div>
+    <div style="background:#f3efe6"><span>#F3EFE6</span></div>
+    <div style="background:#d8a24a"><span>#D8A24A</span></div>
+  </div>
+  <div class="type"><b class="cond">Aa</b><span>Headlines: condensed sans, all caps<br />Body: Archivo, 400–700</span></div>
+</div>
+</body>
+</html>

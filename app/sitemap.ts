@@ -23,9 +23,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/gaming/products`, lastModified: new Date(), changeFrequency: "daily" as const, priority: 0.8 },
     { url: `${baseUrl}/gaming/fivem`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.8 },
     { url: `${baseUrl}/gaming/minecraft`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.8 },
+    { url: `${baseUrl}/gaming/subscriptions`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.8 },
     ...gaming.map((product) => ({
       url: `${baseUrl}/gaming/product/${product.slug}`,
-      lastModified: new Date(product.lastUpdated),
+      lastModified: new Date(product.updatedAt),
       changeFrequency: "weekly" as const,
       priority: 0.7,
     })),

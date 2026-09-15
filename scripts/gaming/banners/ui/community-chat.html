@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Community Brand Kit — community chat</title>
+<!-- Design mockup: a generic community chat app (original layout, not any
+     specific product's interface) showing the kit's server banner, role
+     icons and announcement template. People and channels are fictional. -->
+<style>
+  @font-face { font-family: "Archivo"; src: url(/scripts/gaming/banners/fonts/archivo-latin.woff2) format("woff2"); font-weight: 100 900; font-display: block; }
+  :root { --red: #e0343b; --ink: #121317; --cream: #f3efe6; --gold: #d8a24a; --bg: #17191e; --side: #111318; --rail: #0b0c0f; --line: #23262d; --muted: #8d939e; --text: #e6e8eb; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 1000px; overflow: hidden; }
+  body { font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; color: var(--text); background: var(--bg); display: grid; grid-template-columns: 76px 280px 1fr 260px; }
+  .cond { font-family: "Bahnschrift", "Archivo", sans-serif; font-stretch: 75%; }
+  .rail { background: var(--rail); display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px 0; }
+  .srv { width: 50px; height: 50px; border-radius: 16px; display: grid; place-items: center; font-weight: 700; font-size: 17px; background: #22252c; color: #c9ced6; position: relative; }
+  .srv.on { background: var(--ink); box-shadow: 0 0 0 2px var(--red); }
+  .srv.on::before { content: ""; position: absolute; left: -14px; width: 5px; height: 36px; border-radius: 0 4px 4px 0; background: var(--cream); }
+  .srv.add { background: transparent; box-shadow: inset 0 0 0 2px #2c3038; color: #7ad3a0; font-size: 26px; }
+  .chan { background: var(--side); display: flex; flex-direction: column; }
+  .bn { height: 132px; position: relative; overflow: hidden; background: var(--ink); }
+  .bn .stripes { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(224,52,59,0.2) 0 18px, transparent 18px 44px); }
+  .bn h3 { position: absolute; left: 18px; bottom: 16px; font-weight: 700; font-size: 34px; line-height: 0.9; letter-spacing: 0.02em; color: var(--cream); }
+  .bn svg { position: absolute; right: 16px; top: 16px; }
+  .name { padding: 14px 16px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 15px; display: flex; justify-content: space-between; }
+  .cat { padding: 18px 16px 6px; font-size: 11.5px; letter-spacing: 0.1em; color: var(--muted); font-weight: 700; }
+  .ch { margin: 1px 8px; padding: 7px 10px; border-radius: 6px; font-size: 15px; color: #a4aab4; display: flex; gap: 8px; }
+  .ch.on { background: #23262d; color: var(--text); }
+  .ch i { font-style: normal; color: #6a707b; }
+  .voice { margin: 2px 8px 0 34px; font-size: 13px; color: #a4aab4; display: flex; flex-direction: column; gap: 6px; }
+  .voice span::before { content: ""; display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: #2c3038; vertical-align: -5px; margin-right: 8px; }
+  main { display: flex; flex-direction: column; min-width: 0; }
+  .head { height: 54px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 12px; padding: 0 20px; font-weight: 700; font-size: 16px; }
+  .head small { color: var(--muted); font-weight: 400; font-size: 13.5px; border-left: 1px solid var(--line); padding-left: 12px; }
+  .msgs { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 22px; overflow: hidden; }
+  .msg { display: grid; grid-template-columns: 46px 1fr; gap: 14px; }
+  .av { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; }
+  .who { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15.5px; }
+  .tag { font-size: 10.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.06em; }
+  .when { color: var(--muted); font-size: 12.5px; font-weight: 400; }
+  .body { margin-top: 5px; font-size: 15px; line-height: 1.5; color: #d6d9de; }
+  .post { margin-top: 12px; width: 620px; height: 330px; border-radius: 12px; overflow: hidden; position: relative; background: var(--red); }
+  .post .dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(18,19,23,0.25) 2px, transparent 2px); background-size: 22px 22px; }
+  .post .inner { position: absolute; left: 36px; top: 34px; right: 36px; }
+  .post small { font-weight: 800; letter-spacing: 0.3em; font-size: 14px; color: #ffe1dc; }
+  .post h2 { font-weight: 700; font-size: 92px; line-height: 0.86; margin-top: 10px; color: var(--cream); letter-spacing: 0.01em; }
+  .post p { position: absolute; left: 36px; bottom: 30px; background: var(--ink); color: var(--cream); font-size: 17px; font-weight: 700; padding: 9px 14px; border-radius: 8px; }
+  .post svg { position: absolute; right: 34px; bottom: 28px; }
+  .roles { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .roles span { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; padding: 5px 10px 5px 6px; border-radius: 20px; background: #21242b; }
+  .roles i { width: 20px; height: 20px; border-radius: 50%; }
+  .input { margin: 0 20px 20px; height: 48px; border-radius: 10px; background: #20232a; display: flex; align-items: center; padding: 0 16px; color: #7f8591; font-size: 15px; }
+  aside { background: var(--side); padding: 20px 14px; display: flex; flex-direction: column; gap: 4px; font-size: 14.5px; }
+  aside h4 { font-size: 11.5px; letter-spacing: 0.1em; color: var(--muted); font-weight: 700; margin: 14px 6px 6px; }
+  aside h4:first-child { margin-top: 0; }
+  .mem { display: flex; align-items: center; gap: 10px; padding: 5px 6px; border-radius: 6px; font-weight: 600; }
+  .mem .d { width: 32px; height: 32px; border-radius: 50%; background: #2a2d34; position: relative; }
+  .mem .d::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 11px; height: 11px; border-radius: 50%; background: #3ccf8e; box-shadow: 0 0 0 3px var(--side); }
+  .mem i { width: 16px; height: 16px; border-radius: 50%; margin-left: auto; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs><symbol id="crest" viewBox="0 0 120 140"><path d="M60 4 L112 22 V70 C112 102 90 124 60 136 C30 124 8 102 8 70 V22 Z" fill="#f3efe6"/><path d="M60 14 L102 29 V70 C102 97 84 115 60 125 C36 115 18 97 18 70 V29 Z" fill="#121317"/><path d="M60 30 l6.5 17 18 0 -14.5 10.5 5.5 17.5 -15.5 -10.5 -15.5 10.5 5.5 -17.5 -14.5 -10.5 18 0z" fill="#e0343b"/></symbol></defs></svg>
+
+<nav class="rail">
+  <div class="srv on"><svg width="30" height="35"><use href="#crest"/></svg></div>
+  <div class="srv">HV</div>
+  <div class="srv">PX</div>
+  <div class="srv">DL</div>
+  <div class="srv add">+</div>
+</nav>
+
+<section class="chan">
+  <div class="bn"><div class="stripes"></div><svg width="44" height="52"><use href="#crest"/></svg><h3 class="cond">WELCOME TO<br />NORTHGATE</h3></div>
+  <div class="name">Northgate RP <span style="color:var(--muted)">⌄</span></div>
+  <div class="cat">INFORMATION</div>
+  <div class="ch on"><i>#</i>announcements</div>
+  <div class="ch"><i>#</i>rules</div>
+  <div class="ch"><i>#</i>roles</div>
+  <div class="cat">COMMUNITY</div>
+  <div class="ch"><i>#</i>general</div>
+  <div class="ch"><i>#</i>clips</div>
+  <div class="ch"><i>#</i>suggestions</div>
+  <div class="cat">SERVER</div>
+  <div class="ch"><i>#</i>patrol-logs</div>
+  <div class="ch"><i>#</i>support</div>
+  <div class="cat">VOICE</div>
+  <div class="ch"><i>🔊</i>Briefing Room</div>
+  <div class="voice"><span>Rosa Delacroix</span><span>Luca Ferretti</span><span>Keiko Hart</span></div>
+</section>
+
+<main>
+  <div class="head"># announcements <small>Server news, season launches and events</small></div>
+  <div class="msgs">
+    <div class="msg">
+      <div class="av" style="background:var(--ink); box-shadow: 0 0 0 2px var(--red)"><svg width="26" height="30"><use href="#crest"/></svg></div>
+      <div>
+        <div class="who"><span style="color:#ff7a80">Northgate Staff</span><span class="tag" style="background:var(--red);color:var(--cream)">STAFF</span><span class="when">Today at 18:02</span></div>
+        <div class="body">Season 4 goes live this Saturday. New patrol routes, a reworked mechanic job and fresh branding across the server. See you at the briefing.</div>
+        <div class="post"><div class="dots"></div><div class="inner"><small>ANNOUNCEMENT</small><h2 class="cond">SEASON 4<br />NOW LIVE</h2></div><p>SAT · 20:00 UTC</p><svg width="92" height="107"><use href="#crest"/></svg></div>
+      </div>
+    </div>
+    <div class="msg">
+      <div class="av" style="background:#2f5fb8; color:#fff; font-weight:700">RD</div>
+      <div>
+        <div class="who"><span style="color:#8fb5ff">Rosa Delacroix</span><span class="tag" style="background:#2f5fb8;color:#fff">POLICE</span><span class="when">Today at 18:10</span></div>
+        <div class="body">New role icons are live — grab yours in #roles.</div>
+        <div class="roles">
+          <span><i style="background:#e0343b"></i>Staff</span><span><i style="background:#2f5fb8"></i>Police</span><span><i style="background:#1f9a6e"></i>EMS</span><span><i style="background:#d8a24a"></i>Mechanic</span><span><i style="background:#6b6f78"></i>Civilian</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="input">Message #announcements</div>
+</main>
+
+<aside>
+  <h4>STAFF — 3</h4>
+  <div class="mem"><span class="d"></span><span style="color:#ff7a80">Rosa Delacroix</span><i style="background:#e0343b"></i></div>
+  <div class="mem"><span class="d"></span><span style="color:#ff7a80">Marek Novak</span><i style="background:#e0343b"></i></div>
+  <div class="mem"><span class="d"></span><span style="color:#ff7a80">Sade Adeyemi</span><i style="background:#e0343b"></i></div>
+  <h4>POLICE — 4</h4>
+  <div class="mem"><span class="d"></span><span style="color:#8fb5ff">Luca Ferretti</span><i style="background:#2f5fb8"></i></div>
+  <div class="mem"><span class="d"></span><span style="color:#8fb5ff">Ayo Bello</span><i style="background:#2f5fb8"></i></div>
+  <h4>EMS — 2</h4>
+  <div class="mem"><span class="d"></span><span style="color:#8fe0bf">Keiko Hart</span><i style="background:#1f9a6e"></i></div>
+  <h4>MECHANICS — 2</h4>
+  <div class="mem"><span class="d"></span><span style="color:#f0cc8a">Tomas Varga</span><i style="background:#d8a24a"></i></div>
+  <h4>CIVILIANS — 6</h4>
+  <div class="mem"><span class="d"></span><span>Hannah Osei</span></div>
+  <div class="mem"><span class="d"></span><span>Priya Nandakumar</span></div>
+  <div class="mem"><span class="d"></span><span>Jonas Berg</span></div>
+</aside>
+</body>
+</html>
