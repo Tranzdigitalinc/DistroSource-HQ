@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Emergency Services Suite — duty roster</title>
+<!-- Built interface for Emergency Services Suite: department duty roster. Names and callsigns are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ff8a3d; --accent-ink: #1b0d03; }
+  .bg { background-image: url(/.gaming-render/vehicle-fleet.png); }
+  .body { grid-template-columns: repeat(3, 1fr) 300px; }
+  .dept { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+  .dh { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+  .dh .ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font: 800 13px/1 Bahnschrift, sans-serif; color: #fff; }
+  .dh b { font-size: 15px; }
+  .dh .cnt { margin-left: auto; font-size: 12px; color: var(--muted); }
+  .unit { background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 11px 13px; display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; }
+  .unit .cs { font: 700 13px/1.2 "Cascadia Mono", monospace; }
+  .unit .nm { font-size: 13px; }
+  .unit .rk { font-size: 11.5px; color: var(--muted); grid-column: 1; }
+  .unit .pill { grid-row: 1 / span 2; grid-column: 2; align-self: center; }
+  .unit.off { opacity: 0.55; }
+  .log li { display: grid; grid-template-columns: 48px 1fr; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 12.5px; }
+  .log li:first-child { border-top: 0; }
+  .grades li { display: flex; justify-content: space-between; font-size: 12.5px; padding: 6px 0; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">Northgate emergency services · duty roster</span></div>
+  <div class="main" style="flex:1;min-height:0">
+    <div class="top"><div><h1>Duty roster</h1><div class="sub">Friday night shift · 20:00 – 04:00</div></div><div class="right"><div class="tabs"><span class="on">Tonight</span><span>Week</span><span>Grades</span></div><span class="btn primary">Clock in</span></div></div>
+    <div class="body">
+      <div class="dept">
+        <div class="dh"><span class="ic" style="background:#3d6fd8">PD</span><b>Police</b><span class="cnt">6 on duty</span></div>
+        <div class="unit"><span class="cs">1-ADAM-12</span><span class="pill ok">On scene</span><span class="nm">R. Okafor · J. Reyes</span></div>
+        <div class="unit"><span class="cs">1-ADAM-7</span><span class="pill info">Patrol</span><span class="nm">M. Novak</span></div>
+        <div class="unit"><span class="cs">K9-2</span><span class="pill warn">En route</span><span class="nm">H. Brandt · K9 Ruger</span></div>
+        <div class="unit"><span class="cs">1-LINCOLN-3</span><span class="pill info">Traffic</span><span class="nm">C. Moreau</span></div>
+        <div class="unit"><span class="cs">1-SAM-1</span><span class="pill dim">Desk</span><span class="nm">Sgt. D. Walsh</span></div>
+        <div class="unit off"><span class="cs">1-ADAM-9</span><span class="pill dim">Off 22:00</span><span class="nm">P. Singh</span></div>
+      </div>
+      <div class="dept">
+        <div class="dh"><span class="ic" style="background:#1aa391">EMS</span><b>EMS</b><span class="cnt">3 on duty</span></div>
+        <div class="unit"><span class="cs">MED-4</span><span class="pill ok">Transport</span><span class="nm">K. Hart · S. Adeyemi</span></div>
+        <div class="unit"><span class="cs">MED-2</span><span class="pill info">Available</span><span class="nm">Y. Tanaka</span></div>
+        <div class="unit"><span class="cs">DOC-1</span><span class="pill dim">Hospital</span><span class="nm">Dr. A. Whitcombe</span></div>
+        <div class="unit off"><span class="cs">MED-6</span><span class="pill dim">On call</span><span class="nm">L. Costa</span></div>
+      </div>
+      <div class="dept">
+        <div class="dh"><span class="ic" style="background:#e0544f">FD</span><b>Fire &amp; rescue</b><span class="cnt">4 on duty</span></div>
+        <div class="unit"><span class="cs">ENG-9</span><span class="pill ok">On scene</span><span class="nm">Lt. B. Ito · 2 crew</span></div>
+        <div class="unit"><span class="cs">LAD-3</span><span class="pill info">Station 3</span><span class="nm">F. Duarte</span></div>
+        <div class="unit"><span class="cs">RES-1</span><span class="pill info">Available</span><span class="nm">G. Novak</span></div>
+      </div>
+      <div class="col">
+        <section class="card">
+          <div class="h">Clock-in log</div>
+          <ul class="log mono">
+            <li><span class="muted">21:58</span><span>S. Adeyemi · EMS on duty</span></li>
+            <li><span class="muted">21:40</span><span>H. Brandt · K9-2 on duty</span></li>
+            <li><span class="muted">21:12</span><span>F. Duarte · LAD-3 on duty</span></li>
+            <li><span class="muted">20:02</span><span>Sgt. D. Walsh · desk</span></li>
+          </ul>
+        </section>
+        <section class="card">
+          <div class="h">Police grades</div>
+          <ul class="grades"><li><span>Cadet</span><span class="muted">$420 / shift</span></li><li><span>Officer</span><span class="muted">$560</span></li><li><span>Sergeant</span><span class="muted">$720</span></li><li><span>Lieutenant</span><span class="muted">$880</span></li><li><span>Captain</span><span class="muted">$1,040</span></li></ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

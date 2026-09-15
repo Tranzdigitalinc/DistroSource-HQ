@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Thumbnail Studio — monthly pack</title>
+<!-- Design mockup for Thumbnail Studio: six templates from one pack, filled with DistroSource renders as sample captures. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  @font-face { font-family: "Archivo"; src: url(/scripts/gaming/banners/fonts/archivo-latin.woff2) format("woff2"); font-weight: 100 900; font-display: block; }
+  body { background: #0b0c12; }
+  .grid { position: absolute; left: 44px; right: 44px; top: 44px; bottom: 44px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 22px; }
+  .th { position: relative; border-radius: 12px; overflow: hidden; background-size: cover; background-position: center; box-shadow: 0 20px 50px rgba(0,0,0,0.55); }
+  .th::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 55%); }
+  .tt { position: absolute; left: 22px; bottom: 26px; font: 900 44px/0.92 "Archivo", sans-serif; text-transform: uppercase; color: #fff; letter-spacing: -0.02em; -webkit-text-stroke: 2px #000; paint-order: stroke fill; text-shadow: 0 6px 0 rgba(0,0,0,0.55); max-width: 78%; }
+  .tt em { font-style: normal; background: var(--hl); color: #111; -webkit-text-stroke: 0; padding: 0 8px; display: inline-block; transform: rotate(-2deg); text-shadow: none; }
+  .ep { position: absolute; right: 16px; top: 16px; font: 900 18px/1 "Archivo", sans-serif; color: #111; background: #fff; padding: 7px 10px; border-radius: 6px; transform: rotate(3deg); }
+  .ring { position: absolute; border: 6px solid var(--hl); border-radius: 50%; box-shadow: 0 0 0 3px #000; }
+  .arrow { position: absolute; width: 90px; height: 12px; background: var(--hl); box-shadow: 0 0 0 3px #000; }
+  .arrow::after { content: ""; position: absolute; right: -24px; top: -14px; border-left: 30px solid var(--hl); border-top: 20px solid transparent; border-bottom: 20px solid transparent; filter: drop-shadow(3px 0 0 #000); }
+  .dur { position: absolute; right: 12px; bottom: 12px; font: 700 13px/1 "Segoe UI", sans-serif; color: #fff; background: rgba(0,0,0,0.8); padding: 4px 7px; border-radius: 5px; }
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="th" style="background-image:url(/.gaming-render/heist-vault.png);--hl:#ffd23f"><span class="ep">EP 12</span><div class="tt">We cracked<br /><em>the vault</em></div><span class="ring" style="left:58%;top:30%;width:150px;height:150px"></span><span class="dur">24:18</span></div>
+  <div class="th" style="background-image:url(/.gaming-render/mc-prison-yard.png);--hl:#ff5a5a"><span class="ep">DAY 1</span><div class="tt"><em>Prison</em><br />life begins</div><span class="dur">18:02</span></div>
+  <div class="th" style="background-image:url(/.gaming-render/mc-skyblock-islands.png);background-position:60% 50%;--hl:#7cff6b"><div class="tt">One island.<br /><em>100 days</em></div><span class="arrow" style="left:52%;top:40%;transform:rotate(-20deg)"></span><span class="dur">41:55</span></div>
+  <div class="th" style="background-image:url(/.gaming-render/apartment.png);--hl:#ffb347"><span class="ep">EP 3</span><div class="tt">I bought<br /><em>a penthouse</em></div><span class="dur">16:40</span></div>
+  <div class="th" style="background-image:url(/.gaming-render/street-patrol.png);--hl:#5cc8ff"><div class="tt">Night shift<br /><em>gone wrong</em></div><span class="ring" style="left:52%;top:34%;width:170px;height:120px"></span><span class="dur">32:11</span></div>
+  <div class="th" style="background-image:url(/.gaming-render/mc-arena-cover.png);--hl:#ff7ae0"><span class="ep">FINAL</span><div class="tt">4 teams.<br /><em>1 winner</em></div><span class="dur">27:30</span></div>
+</div>
+</body>
+</html>

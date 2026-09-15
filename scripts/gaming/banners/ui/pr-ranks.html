@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Prison Network Setup — rank configuration</title>
+<!-- Built interface for Prison Network Setup: the rank and prestige design documented with the setup. Example values. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #f5cf4e; --accent-ink: #1d1603; }
+  .bg { background-image: url(/.gaming-render/mc-prison-yard.png); }
+  .body { grid-template-columns: 1.45fr 1fr; }
+  .rk { font: 800 15px/1 Bahnschrift, sans-serif; width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; background: var(--panel-2); border: 1px solid var(--line); }
+  tr.cur td { background: rgba(245,207,78,0.07); }
+  .ore { display: inline-flex; gap: 4px; }
+  .ore i { width: 14px; height: 14px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.3); }
+  .curve svg { width: 100%; height: 250px; }
+  .pres li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .pres li:first-child { border-top: 0; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">prison-setup / docs / ranks · generated from ranks.yml</span></div>
+  <div class="app" style="flex:1;min-height:0">
+    <aside class="side">
+      <div class="brandrow"><span class="logo" style="background:linear-gradient(145deg,#b8871f,#4a3508)">PS</span><div><b>Prison Setup</b><small>Update 2026.10</small></div></div>
+      <div class="nav"><i></i>Overview</div>
+      <div class="nav on"><i></i>Ranks &amp; mines</div>
+      <div class="nav"><i></i>Prestige</div>
+      <div class="nav"><i></i>Economy</div>
+      <div class="nav"><i></i>Enchants</div>
+      <div class="nav"><i></i>Permissions</div>
+      <div class="nav"><i></i>Changelog</div>
+    </aside>
+    <main class="main">
+      <div class="top"><div><h1>Ranks &amp; mines</h1><div class="sub">26 ranks · rank-up cost × 1.32 per rank · reset every 5 min or 80% mined</div></div><div class="right"><span class="btn">Export ranks.yml</span><span class="btn primary">Apply to staging</span></div></div>
+      <div class="body">
+        <section class="card flush">
+          <table>
+            <thead><tr><th style="padding:16px 0 10px 18px">Rank</th><th style="padding-top:16px">Rank-up cost</th><th style="padding-top:16px">Mine</th><th style="padding-top:16px">Block mix</th><th style="padding-top:16px">Sell ×</th></tr></thead>
+            <tbody>
+              <tr><td style="padding-left:18px"><span class="rk">A</span></td><td class="num">$0</td><td>Mine A · 40×40</td><td><span class="ore"><i style="background:#8a8f96"></i><i style="background:#1c1d20"></i></span> stone 70 · coal 30</td><td>1.00</td></tr>
+              <tr><td style="padding-left:18px"><span class="rk">B</span></td><td class="num">$12,500</td><td>Mine B · 40×40</td><td><span class="ore"><i style="background:#8a8f96"></i><i style="background:#1c1d20"></i><i style="background:#d9b39a"></i></span> coal 45 · iron 15</td><td>1.05</td></tr>
+              <tr><td style="padding-left:18px"><span class="rk">C</span></td><td class="num">$16,500</td><td>Mine C · 44×44</td><td><span class="ore"><i style="background:#1c1d20"></i><i style="background:#d9b39a"></i></span> coal 35 · iron 30</td><td>1.10</td></tr>
+              <tr class="cur"><td style="padding-left:18px"><span class="rk" style="border-color:var(--accent);color:var(--accent)">D</span></td><td class="num">$21,800</td><td>Mine D · 44×44</td><td><span class="ore"><i style="background:#d9b39a"></i><i style="background:#f2cc3b"></i></span> iron 40 · gold 12</td><td>1.16</td></tr>
+              <tr><td style="padding-left:18px"><span class="rk">E</span></td><td class="num">$28,800</td><td>Mine E · 48×48</td><td><span class="ore"><i style="background:#d9b39a"></i><i style="background:#f2cc3b"></i></span> iron 30 · gold 22</td><td>1.22</td></tr>
+              <tr><td style="padding-left:18px"><span class="rk">…</span></td><td class="muted">×1.32 per rank</td><td class="muted">…</td><td class="muted">…</td><td class="muted">…</td></tr>
+              <tr><td style="padding-left:18px"><span class="rk">Z</span></td><td class="num">$1.18M</td><td>Mine Z · 64×64</td><td><span class="ore"><i style="background:#f2cc3b"></i><i style="background:#4fe0d4"></i></span> gold 30 · gems 18</td><td>2.40</td></tr>
+            </tbody>
+          </table>
+        </section>
+        <div class="col">
+          <section class="card curve">
+            <div class="h">Time to rank up (median player)</div>
+            <svg viewBox="0 0 500 250" preserveAspectRatio="none">
+              <g stroke="#1f2b39"><path d="M0 40 H500 M0 110 H500 M0 180 H500" /></g>
+              <path d="M0 220 C80 212 150 196 220 170 S360 104 500 40" fill="none" stroke="#f5cf4e" stroke-width="4" />
+              <path d="M0 220 C80 212 150 196 220 170 S360 104 500 40 L500 250 L0 250 Z" fill="rgba(245,207,78,0.08)" />
+              <circle cx="150" cy="198" r="7" fill="#f5cf4e" />
+              <g fill="#8b9aab" font-size="13" font-family="Segoe UI"><text x="4" y="244">A</text><text x="140" y="244">D</text><text x="300" y="244">M</text><text x="486" y="244">Z</text></g>
+            </svg>
+            <div class="muted" style="font-size:12px">Target: rank Z in ~22 play hours · first prestige in week 2</div>
+          </section>
+          <section class="card">
+            <div class="h">Prestige rewards</div>
+            <ul class="pres">
+              <li><span class="pill warn">P1</span>Sell × +10% · prestige tag · 1 legendary key</li>
+              <li><span class="pill warn">P2</span>Private mine access · fly in mines</li>
+              <li><span class="pill warn">P5</span>Custom enchant slot · cosmetic pickaxe</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Resource Pack Studio — texture sheet</title>
+<!-- Design mockup for Resource Pack Studio: the "Hearthside" set's 16×16 textures, drawn live from the
+     same recipes the cottage render uses (voxel-blocks.mjs). -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<script>window.__ready = false</script>
+<script type="importmap">{ "imports": { "three": "/node_modules/three/build/three.module.js", "three/examples/jsm/": "/node_modules/three/examples/jsm/" } }</script>
+<style>
+  body { background: #17130f; color: #f3ead9; }
+  .page { position: absolute; inset: 0; padding: 50px 64px; display: grid; grid-template-columns: 1fr 360px; gap: 40px; background: radial-gradient(900px 600px at 20% 0%, rgba(255,170,90,0.12), transparent 60%); }
+  .hd { grid-column: 1 / -1; display: flex; align-items: flex-end; gap: 18px; }
+  .hd h1 { font: 800 44px/1 Bahnschrift, sans-serif; letter-spacing: 0.02em; }
+  .hd span { color: #b9a78c; font-size: 15px; padding-bottom: 6px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-content: start; }
+  .tile { background: #231c15; border: 1px solid #3a2e22; border-radius: 14px; padding: 14px; display: flex; gap: 14px; align-items: center; }
+  .tile canvas { width: 128px; height: 128px; image-rendering: pixelated; border-radius: 4px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); flex: none; }
+  .tile b { font-size: 16px; display: block; }
+  .tile small { font: 12px/1.4 "Cascadia Mono", monospace; color: #9c8a72; display: block; margin-top: 6px; }
+  .side4 { display: flex; flex-direction: column; gap: 18px; }
+  .panel { background: #231c15; border: 1px solid #3a2e22; border-radius: 14px; padding: 18px; }
+  .panel h3 { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #b9a78c; margin-bottom: 12px; }
+  .pal { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .pal i { aspect-ratio: 1; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.3); }
+  .tiled { height: 220px; border-radius: 10px; image-rendering: pixelated; background-size: 64px 64px; }
+  .shot { height: 200px; border-radius: 10px; background: url(/.gaming-render/mc-cottage.png) 62% 45% / 190%; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hd"><h1>HEARTHSIDE</h1><span>September set · original 16×16 block textures · Resource Pack Studio</span></div>
+  <div class="grid" id="grid"></div>
+  <aside class="side4">
+    <div class="panel"><h3>Palette</h3><div class="pal"><i style="background:#d99a4e"></i><i style="background:#b8583a"></i><i style="background:#4b5a6e"></i><i style="background:#efe3c8"></i><i style="background:#5f3d22"></i><i style="background:#e07b2b"></i><i style="background:#9aa37a"></i><i style="background:#ffcf7a"></i><i style="background:#2d3a2e"></i><i style="background:#c9c1b1"></i><i style="background:#7d4f2c"></i><i style="background:#f2e7d0"></i></div></div>
+    <div class="panel"><h3>Tiled · timber frame + slate</h3><div class="tiled" id="tiled"></div></div>
+    <div class="panel"><h3>In the world</h3><div class="shot"></div></div>
+  </aside>
+</div>
+<script type="module">
+  import { EXTRA_TEXTURES } from "/scripts/gaming/banners/voxel-blocks.mjs"
+  const SET = [
+    ["rpPlanks", "Honey planks", "hearthside:planks"],
+    ["rpBricks", "Terracotta brick", "hearthside:brick"],
+    ["rpRoof", "Slate shingles", "hearthside:slate"],
+    ["rpWhitewash", "Timber frame", "hearthside:timber_frame"],
+    ["rpPath", "Flagstone path", "hearthside:flagstone"],
+    ["rpLeaves", "Autumn leaves", "hearthside:leaves_autumn"],
+    ["rpLog", "Birch log", "hearthside:birch_log"],
+    ["rpWindow", "Leaded window", "hearthside:window_lit"],
+    ["flowerBed", "Flower bed", "hearthside:flower_bed"],
+  ]
+  const grid = document.getElementById("grid")
+  const img = (key) => EXTRA_TEXTURES[key]().image
+  for (const [key, name, id] of SET) {
+    const tile = document.createElement("div")
+    tile.className = "tile"
+    const cv = document.createElement("canvas")
+    cv.width = 16
+    cv.height = 16
+    cv.getContext("2d").drawImage(img(key), 0, 0)
+    tile.append(cv)
+    tile.insertAdjacentHTML("beforeend", `<div><b>${name}</b><small>${id}<br />16 × 16 · tileable</small></div>`)
+    grid.append(tile)
+  }
+  // A tiled swatch mixing two textures, as they meet on a wall.
+  const t = document.createElement("canvas")
+  t.width = 64
+  t.height = 32
+  const ctx = t.getContext("2d")
+  for (let x = 0; x < 4; x++) {
+    ctx.drawImage(img("rpRoof"), x * 16, 0)
+    ctx.drawImage(img("rpWhitewash"), x * 16, 16)
+  }
+  const tiled = document.getElementById("tiled")
+  tiled.style.backgroundImage = `url(${t.toDataURL()})`
+  tiled.style.backgroundSize = "128px 64px"
+  window.__ready = true
+</script>
+</body>
+</html>

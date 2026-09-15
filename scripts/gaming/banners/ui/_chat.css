@@ -1,0 +1,38 @@
+/* Shared chrome for the community chat-app mockups (Discord Server Toolkit).
+   A generic chat layout: server rail, channel list, messages, members. */
+.chat { position: absolute; inset: 0; display: grid; grid-template-columns: 76px 260px 1fr 250px; background: #1b1d22; color: #e6e8eb; }
+.rail { background: #111317; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 14px 0; }
+.rail span { width: 50px; height: 50px; border-radius: 16px; background: #23262c; display: grid; place-items: center; font: 800 15px/1 Bahnschrift, sans-serif; color: #cfd3d8; }
+.rail span.on { border-radius: 14px; background: #c8363a; color: #fff; box-shadow: -8px 0 0 -4px #fff; }
+.chans { background: #16181c; display: flex; flex-direction: column; }
+.srv { height: 60px; display: flex; align-items: center; padding: 0 18px; font-weight: 700; font-size: 15px; border-bottom: 1px solid #0d0e11; }
+.cat { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8a9099; padding: 18px 18px 6px; }
+.ch { margin: 1px 10px; padding: 7px 10px; border-radius: 7px; color: #9aa0a8; font-size: 14.5px; display: flex; gap: 8px; align-items: center; }
+.ch.on { background: #2b2e35; color: #fff; }
+.ch .n { margin-left: auto; font-size: 11px; background: #c8363a; color: #fff; border-radius: 10px; padding: 1px 7px; font-weight: 700; }
+.msgs2 { display: flex; flex-direction: column; min-width: 0; }
+.chead { height: 60px; display: flex; align-items: center; gap: 12px; padding: 0 22px; border-bottom: 1px solid #0d0e11; font-size: 15px; }
+.chead b { font-size: 16px; }
+.chead .d { color: #8a9099; font-size: 13px; }
+.stream { flex: 1; padding: 18px 22px; display: flex; flex-direction: column; gap: 18px; overflow: hidden; }
+.m { display: grid; grid-template-columns: 44px 1fr; gap: 14px; }
+.m .a { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 14px; color: #fff; }
+.m .who { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.m .who small { color: #8a9099; font-weight: 400; font-size: 12px; }
+.m p { margin-top: 4px; font-size: 14.5px; line-height: 1.5; color: #dde0e4; }
+.bot { font-size: 10px; font-weight: 800; background: #5865f2; color: #fff; border-radius: 4px; padding: 2px 5px; letter-spacing: 0.04em; }
+.embed { margin-top: 8px; border-left: 4px solid #c8363a; background: #23262c; border-radius: 6px; padding: 14px 16px; max-width: 620px; }
+.embed h4 { font-size: 15px; margin-bottom: 6px; }
+.embed p { font-size: 13.5px; color: #c7cbd1; margin: 0; }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.btns span { padding: 8px 14px; border-radius: 6px; font-size: 13.5px; font-weight: 600; background: #3a3e46; color: #fff; }
+.btns span.p { background: #5865f2; }
+.btns span.g { background: #2d7d46; }
+.btns span.r { background: #c8363a; }
+.sys { font-size: 13px; color: #9aa0a8; display: flex; gap: 10px; align-items: center; padding-left: 58px; }
+.compose { margin: 0 22px 20px; height: 48px; border-radius: 10px; background: #26292f; display: flex; align-items: center; padding: 0 16px; color: #8a9099; font-size: 14.5px; }
+.members { background: #16181c; padding: 18px 14px; display: flex; flex-direction: column; gap: 6px; }
+.members .cat { padding: 10px 6px 4px; }
+.mem { display: flex; align-items: center; gap: 10px; padding: 6px; border-radius: 7px; font-size: 14px; }
+.mem .a { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 11px; color: #fff; position: relative; }
+.mem .a::after { content: ""; position: absolute; right: -2px; bottom: -2px; width: 11px; height: 11px; border-radius: 50%; background: #3ba55d; border: 3px solid #16181c; }

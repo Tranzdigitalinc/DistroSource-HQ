@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Esports Team Kit — roster cards</title>
+<!-- Design mockup for Esports Team Kit: roster cards. Handles are fictional; portraits are placeholder silhouettes for the team's own photos. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_esports.css" />
+<style>
+  body { background: linear-gradient(180deg, #11131d, #07080d); }
+  .hd { position: absolute; left: 80px; top: 64px; display: flex; align-items: center; gap: 20px; color: #fff; }
+  .hd h1 { font-size: 56px; font-weight: 900; letter-spacing: -0.02em; }
+  .hd span { font-size: 18px; font-weight: 700; letter-spacing: 0.18em; color: #ff5a36; }
+  .row5 { position: absolute; left: 80px; right: 80px; top: 200px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; }
+  .rc { height: 640px; border-radius: 14px; overflow: hidden; position: relative; background: #1b1d2b; box-shadow: 0 30px 70px rgba(0,0,0,0.55); }
+  .rc .stripes { opacity: 0.8; }
+  .rc .num { position: absolute; right: 16px; top: 10px; font-size: 120px; font-weight: 900; color: rgba(255,255,255,0.08); line-height: 1; }
+  .rc svg.sil { position: absolute; left: 50%; bottom: 150px; transform: translateX(-50%); width: 230px; }
+  .rc .bot { position: absolute; left: 0; right: 0; bottom: 0; height: 170px; background: linear-gradient(180deg, rgba(255,90,54,0) 0%, #ff5a36 36%); padding: 64px 20px 0; color: #fff; }
+  .rc .h2 { font-size: 34px; font-weight: 900; line-height: 1; letter-spacing: -0.01em; }
+  .rc .role { font-size: 15px; font-weight: 700; letter-spacing: 0.16em; margin-top: 8px; opacity: 0.9; }
+  .rc .mark { position: absolute; left: 16px; top: 16px; }
+  .rc.cap .bot { background: linear-gradient(180deg, rgba(245,207,78,0) 0%, #f5cf4e 36%); color: #111; }
+  .note { position: absolute; left: 80px; bottom: 50px; font-size: 14px; color: #8b93a8; }
+</style>
+</head>
+<body>
+<div class="hd ex"><h1>Harbor Hawks</h1><span>Season 4 roster</span></div>
+<div class="row5 ex">
+  <div class="rc cap"><div class="stripes"></div><span class="num">01</span><svg class="mark" width="44" height="44" viewBox="0 0 96 96"><path d="M48 6 L88 30 L78 78 L48 90 L18 78 L8 30 Z" fill="#11131d" stroke="#fff" stroke-width="5"/><path d="M26 40 L48 26 L70 40 L60 46 L48 40 L36 46 Z M34 56 L48 48 L62 56 L48 74 Z" fill="#ff5a36"/></svg>
+    <svg class="sil" viewBox="0 0 200 240"><circle cx="100" cy="74" r="50" fill="#2b2e42"/><path d="M10 240 C18 160 60 132 100 132 S182 160 190 240 Z" fill="#2b2e42"/></svg>
+    <div class="bot"><div class="h2">Kestrel</div><div class="role">Captain · IGL</div></div></div>
+  <div class="rc"><div class="stripes"></div><span class="num">07</span><svg class="sil" viewBox="0 0 200 240"><circle cx="100" cy="74" r="50" fill="#2b2e42"/><path d="M10 240 C18 160 60 132 100 132 S182 160 190 240 Z" fill="#2b2e42"/></svg><div class="bot"><div class="h2">Varga</div><div class="role">Entry</div></div></div>
+  <div class="rc"><div class="stripes"></div><span class="num">11</span><svg class="sil" viewBox="0 0 200 240"><circle cx="100" cy="74" r="50" fill="#2b2e42"/><path d="M10 240 C18 160 60 132 100 132 S182 160 190 240 Z" fill="#2b2e42"/></svg><div class="bot"><div class="h2">Osei</div><div class="role">Support</div></div></div>
+  <div class="rc"><div class="stripes"></div><span class="num">23</span><svg class="sil" viewBox="0 0 200 240"><circle cx="100" cy="74" r="50" fill="#2b2e42"/><path d="M10 240 C18 160 60 132 100 132 S182 160 190 240 Z" fill="#2b2e42"/></svg><div class="bot"><div class="h2">Ferro</div><div class="role">Anchor</div></div></div>
+  <div class="rc"><div class="stripes"></div><span class="num">34</span><svg class="sil" viewBox="0 0 200 240"><circle cx="100" cy="74" r="50" fill="#2b2e42"/><path d="M10 240 C18 160 60 132 100 132 S182 160 190 240 Z" fill="#2b2e42"/></svg><div class="bot"><div class="h2">Nakamura</div><div class="role">Sniper</div></div></div>
+</div>
+<div class="note">Photo frames are placeholders · drop each player's photo into the named layer</div>
+</body>
+</html>

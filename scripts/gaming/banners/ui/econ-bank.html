@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Economy &amp; Banking Suite — bank</title>
+<!-- Built interface for Economy & Banking Suite: the bank. Accounts and transactions are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #2fc28a; --accent-ink: #03150d; }
+  .bg { background-image: url(/.gaming-render/street-hud.png); }
+  .body { grid-template-columns: 1.5fr 1fr; }
+  .acct { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .ac { border-radius: 16px; padding: 18px; background: var(--panel); border: 1px solid var(--line); }
+  .ac.main { background: linear-gradient(135deg, #1f9b6d, #0f5140); border: 0; }
+  .ac .t { font-size: 12px; opacity: 0.8; }
+  .ac .v { font-size: 28px; font-weight: 800; margin-top: 6px; letter-spacing: -0.01em; }
+  .ac .s { font-size: 12px; opacity: 0.75; margin-top: 4px; }
+  td .ic { width: 34px; height: 34px; border-radius: 10px; display: inline-grid; place-items: center; font: 800 13px/1 Bahnschrift, sans-serif; background: var(--panel-2); margin-right: 12px; vertical-align: middle; }
+  .loan .bar { height: 10px; margin: 12px 0 8px; }
+  .sched li { display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .sched li:first-child { border-top: 0; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">Northgate Savings · online banking</span></div>
+  <div class="app" style="flex:1;min-height:0">
+    <aside class="side">
+      <div class="brandrow"><span class="logo">NS</span><div><b>Northgate Savings</b><small>Tomas Varga</small></div></div>
+      <div class="nav on"><i></i>Accounts</div>
+      <div class="nav"><i></i>Transfers</div>
+      <div class="nav"><i></i>Invoices<span class="n">1</span></div>
+      <div class="nav"><i></i>Loans</div>
+      <div class="nav"><i></i>Cards</div>
+      <div class="nav"><i></i>Statements</div>
+      <div class="spacer"></div>
+      <div class="card" style="padding:12px;font-size:12px"><b style="font-size:13px">Credit score</b><div style="font-size:24px;font-weight:800;margin-top:4px" class="ok">712</div><div class="muted">Good · updated weekly</div></div>
+    </aside>
+    <main class="main">
+      <div class="top"><div><h1>Accounts</h1><div class="sub">Personal, shared and business accounts in one place</div></div><div class="right"><span class="btn">Pay invoice</span><span class="btn primary">Transfer</span></div></div>
+      <div class="body">
+        <div class="col">
+          <div class="acct">
+            <div class="ac main"><div class="t">Current · •• 4127</div><div class="v num">$23,530.00</div><div class="s">Available now</div></div>
+            <div class="ac"><div class="t">Shared · with Keiko H.</div><div class="v num">$8,200.00</div><div class="s">2 holders · rent pot</div></div>
+            <div class="ac"><div class="t">Business · Eastside Auto</div><div class="v num">$41,905.50</div><div class="s">You · manager access</div></div>
+          </div>
+          <section class="card flush" style="flex:1">
+            <div class="h" style="padding:16px 18px 0">Recent transactions <span class="link">Download statement</span></div>
+            <table style="margin:0 18px;width:calc(100% - 36px)">
+              <tbody>
+                <tr><td><span class="ic" style="color:#e0544f">G</span>Eastside Auto · invoice #1182</td><td class="muted">Today 21:50</td><td style="text-align:right">−$850.00</td></tr>
+                <tr><td><span class="ic" style="color:#2fc28a">$</span>Harbor Medical Centre · salary</td><td class="muted">Today 20:00</td><td style="text-align:right" class="ok">+$1,250.00</td></tr>
+                <tr><td><span class="ic" style="color:#ffb547">L</span>Loan repayment · 4 of 12</td><td class="muted">Today 06:00</td><td style="text-align:right">−$400.00</td></tr>
+                <tr><td><span class="ic" style="color:#5b8cff">T</span>Transfer to shared account</td><td class="muted">Yesterday</td><td style="text-align:right">−$1,200.00</td></tr>
+                <tr><td><span class="ic" style="color:#9b6bff">F</span>Fine · speeding, Harbor Fwy</td><td class="muted">Yesterday</td><td style="text-align:right">−$250.00</td></tr>
+                <tr><td><span class="ic" style="color:#2fc28a">$</span>Job centre · parcel shift</td><td class="muted">Wed</td><td style="text-align:right" class="ok">+$486.00</td></tr>
+              </tbody>
+            </table>
+          </section>
+        </div>
+        <div class="col">
+          <section class="card loan">
+            <div class="h">Vehicle loan</div>
+            <div class="row"><div><div style="font-size:26px;font-weight:800" class="num">$4,600</div><div class="muted" style="font-size:12px">left of $6,000 · 6.5% APR</div></div><span class="pill info" style="margin-left:auto">On track</span></div>
+            <div class="bar"><i style="width:23%"></i></div>
+            <ul class="sched"><li><span>Next payment</span><span>$400 · Fri 06:00</span></li><li><span>Payments left</span><span>8 of 12</span></li><li><span>Paid off</span><span>November 2026</span></li></ul>
+          </section>
+          <section class="card">
+            <div class="h">Quick transfer</div>
+            <div class="col" style="gap:10px">
+              <div class="field">To <b>Keiko Hart · shared</b></div>
+              <div class="field">Amount <b>$600.00</b></div>
+              <div class="field">Reference <b>October rent</b></div>
+              <span class="btn primary" style="justify-content:center;height:40px">Send $600.00</span>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

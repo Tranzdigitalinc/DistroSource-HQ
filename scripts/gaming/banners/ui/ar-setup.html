@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Minigame Arenas — arena setup</title>
+<!-- Built interface for Minigame Arenas: the arena's marked positions and rotation config over its rendered top view. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #5ee6da; }
+  .bg { background-image: url(/.gaming-render/mc-arena-cover.png); }
+  .body { grid-template-columns: 1fr 420px; }
+  .mapv { position: relative; border-radius: 12px; overflow: hidden; background: url(/.gaming-render/mc-arena-top.png) center / cover; border: 1px solid var(--line); }
+  .mk { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 6px; font: 700 11px/1 "Cascadia Mono", monospace; color: #fff; background: rgba(8,10,14,0.85); padding: 5px 7px; border-radius: 6px; white-space: nowrap; }
+  .mk i { width: 10px; height: 10px; border-radius: 50%; }
+  .teams li { display: grid; grid-template-columns: 16px 90px 1fr auto; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .teams li:first-child { border-top: 0; }
+  .teams i { width: 14px; height: 14px; border-radius: 4px; }
+  .gens li { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-top: 1px solid var(--line); }
+  .gens li:first-child { border-top: 0; }
+  .rot span { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--line); font-size: 13px; margin-bottom: 8px; }
+  .rot span.on { border-color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">arenas / four-isles / setup · imported from marked positions</span></div>
+  <div class="main" style="flex:1;min-height:0">
+    <div class="top"><div><h1>Four Isles · 4 teams</h1><div class="sub">Rush distance 27 blocks per bridge · tested for 4 × 2 and 4 × 4</div></div><div class="right"><div class="tabs"><span>2 teams</span><span class="on">4 teams</span><span>8 teams</span></div><span class="btn primary">Export to plugin</span></div></div>
+    <div class="body">
+      <section class="mapv">
+        <span class="mk" style="left:49.6%;top:20%"><i style="background:#f2c94c"></i>Yellow spawn</span>
+        <span class="mk" style="left:29%;top:50%"><i style="background:#e5484d"></i>Red spawn</span>
+        <span class="mk" style="left:70%;top:50%"><i style="background:#4caf50"></i>Green spawn</span>
+        <span class="mk" style="left:49.6%;top:84%"><i style="background:#3d7bf0"></i>Blue spawn</span>
+        <span class="mk" style="left:49.6%;top:44%"><i style="background:#5ee6da"></i>Gem generator</span>
+        <span class="mk" style="left:37%;top:31%"><i style="background:#f5cf4e"></i>Gold</span>
+        <span class="mk" style="left:62%;top:31%"><i style="background:#f5cf4e"></i>Gold</span>
+        <span class="mk" style="left:37%;top:70%"><i style="background:#f5cf4e"></i>Gold</span>
+        <span class="mk" style="left:62%;top:70%"><i style="background:#f5cf4e"></i>Gold</span>
+      </section>
+      <div class="col">
+        <section class="card">
+          <div class="h">Teams</div>
+          <ul class="teams mono">
+            <li><i style="background:#e5484d"></i><span>Red</span><span class="muted">spawn −34 19 0</span><span class="pill dim">shop NPC</span></li>
+            <li><i style="background:#3d7bf0"></i><span>Blue</span><span class="muted">spawn 0 19 34</span><span class="pill dim">shop NPC</span></li>
+            <li><i style="background:#4caf50"></i><span>Green</span><span class="muted">spawn 34 19 0</span><span class="pill dim">shop NPC</span></li>
+            <li><i style="background:#f2c94c"></i><span>Yellow</span><span class="muted">spawn 0 19 −34</span><span class="pill dim">shop NPC</span></li>
+          </ul>
+        </section>
+        <section class="card">
+          <div class="h">Generators</div>
+          <ul class="gens"><li><span>Base · iron</span><span class="mono">every 1.5 s</span></li><li><span>Side islands · gold</span><span class="mono">every 8 s</span></li><li><span>Centre · gems</span><span class="mono">every 30 s</span></li></ul>
+        </section>
+        <section class="card rot">
+          <div class="h">Rotation</div>
+          <span class="on"><span class="dot"></span><b>Four Isles</b><span class="muted" style="margin-left:auto">September</span></span>
+          <span><span class="dot off"></span>Sky Forge<span class="muted" style="margin-left:auto">August</span></span>
+          <span><span class="dot off"></span>Quartz Ring<span class="muted" style="margin-left:auto">July</span></span>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

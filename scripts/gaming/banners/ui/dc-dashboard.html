@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Discord Server Toolkit — bot dashboard</title>
+<!-- Built interface for Discord Server Toolkit: the self-hosted bot's web dashboard. Fictional community. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #6b77ff; --accent-ink: #060a2a; }
+  .bg { background-image: url(/.gaming-render/ui-community-chat.png); }
+  .body { grid-template-columns: 1fr 440px; }
+  .mods { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .mod { display: flex; gap: 14px; align-items: flex-start; padding: 16px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); }
+  .mod .ic { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; font-size: 20px; flex: none; }
+  .mod b { font-size: 14.5px; display: block; }
+  .mod small { color: var(--muted); font-size: 12.5px; line-height: 1.4; display: block; margin-top: 2px; }
+  .mod .toggle { margin-left: auto; }
+  .cfg label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin: 14px 0 7px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip2 { padding: 6px 10px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); font-size: 12.5px; display: inline-flex; gap: 6px; align-items: center; }
+  .chip2 i { width: 10px; height: 10px; border-radius: 50%; }
+  .cats li { display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .cats li:first-child { border-top: 0; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">bot.northgate.gg / dashboard</span></div>
+  <div class="app" style="flex:1;min-height:0">
+    <aside class="side">
+      <div class="brandrow"><span class="logo" style="background:linear-gradient(145deg,#c8363a,#5a1417)">NG</span><div><b>Northgate Bot</b><small><span class="dot"></span> Online · self-hosted</small></div></div>
+      <div class="nav on"><i></i>Modules</div>
+      <div class="nav"><i></i>Tickets</div>
+      <div class="nav"><i></i>Verification</div>
+      <div class="nav"><i></i>Applications</div>
+      <div class="nav"><i></i>Role menus</div>
+      <div class="nav"><i></i>Logs</div>
+      <div class="nav"><i></i>Game links</div>
+      <div class="spacer"></div>
+      <div class="card" style="padding:12px;font-size:12px"><b style="font-size:13px">v3.8.1</b><div class="muted" style="margin-top:3px">Update available · 3.9.0</div></div>
+    </aside>
+    <main class="main">
+      <div class="top"><div><h1>Modules</h1><div class="sub">Everything runs from one bot on your own host</div></div><div class="right"><span class="btn">Restart bot</span><span class="btn primary">Save changes</span></div></div>
+      <div class="body">
+        <section class="mods">
+          <div class="mod"><span class="ic" style="background:rgba(107,119,255,0.16)">🎫</span><div><b>Tickets</b><small>Categories, claiming and transcripts</small></div><span class="toggle on"></span></div>
+          <div class="mod"><span class="ic" style="background:rgba(60,207,142,0.16)">✅</span><div><b>Verification</b><small>Account link before the Civilian role</small></div><span class="toggle on"></span></div>
+          <div class="mod"><span class="ic" style="background:rgba(255,181,71,0.16)">📝</span><div><b>Staff applications</b><small>Forms with a review queue</small></div><span class="toggle on"></span></div>
+          <div class="mod"><span class="ic" style="background:rgba(155,107,255,0.16)">🎭</span><div><b>Role menus</b><small>Buttons and dropdowns for self-roles</small></div><span class="toggle on"></span></div>
+          <div class="mod"><span class="ic" style="background:rgba(74,163,255,0.16)">👋</span><div><b>Welcome messages</b><small>Join, leave and first-steps DMs</small></div><span class="toggle on"></span></div>
+          <div class="mod"><span class="ic" style="background:rgba(255,93,93,0.16)">📜</span><div><b>Audit logs</b><small>Messages, roles and moderation</small></div><span class="toggle on"></span></div>
+          <div class="mod"><span class="ic" style="background:rgba(255,138,61,0.16)">🎮</span><div><b>FiveM link</b><small>Whitelist sync with your server</small></div><span class="toggle on"></span></div>
+          <div class="mod"><span class="ic" style="background:rgba(60,207,142,0.16)">⛏️</span><div><b>Minecraft link</b><small>Whitelist and rank sync</small></div><span class="toggle"></span></div>
+        </section>
+        <section class="card cfg">
+          <div class="h" style="margin-bottom:4px">Tickets · settings</div>
+          <label>Support roles</label>
+          <div class="chips"><span class="chip2"><i style="background:#e8a33d"></i>Staff</span><span class="chip2"><i style="background:#3d6fd8"></i>Police lead</span><span class="chip2"><i style="background:#1aa391"></i>EMS lead</span></div>
+          <label>Categories</label>
+          <ul class="cats">
+            <li><span>💬</span><span>General support</span><span class="pill dim">Staff</span></li>
+            <li><span>🚩</span><span>Report a player</span><span class="pill dim">Staff</span></li>
+            <li><span>⚖️</span><span>Ban appeal</span><span class="pill warn">Admins</span></li>
+            <li><span>✅</span><span>Whitelist</span><span class="pill dim">Staff</span></li>
+          </ul>
+          <label>Transcripts channel</label>
+          <div class="field"><b># transcripts</b><span style="margin-left:auto">HTML + text</span></div>
+          <label>Auto-close</label>
+          <div class="field"><b>After 48 h without a reply</b></div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

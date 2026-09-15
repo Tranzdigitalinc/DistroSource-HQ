@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Emergency Services Suite — evidence locker</title>
+<!-- Built interface for Emergency Services Suite: police evidence locker. Case data is fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #4aa3ff; }
+  .bg { background-image: url(/.gaming-render/street-patrol.png); }
+  .body { grid-template-columns: 1.35fr 1fr; }
+  td.id { font-family: "Cascadia Mono", Consolas, monospace; font-size: 12px; color: var(--accent); }
+  tr.sel td { background: rgba(74,163,255,0.08); }
+  tr.sel td:first-child { box-shadow: inset 3px 0 0 var(--accent); padding-left: 10px; }
+  .tag { width: 38px; height: 38px; border-radius: 9px; display: grid; place-items: center; background: var(--panel-2); border: 1px solid var(--line); font: 800 12px/1 Bahnschrift, sans-serif; }
+  .photo { height: 190px; border-radius: 12px; background: url(/.gaming-render/street-patrol.png) 55% 70% / 240%; position: relative; border: 1px solid var(--line); }
+  .photo span { position: absolute; left: 12px; bottom: 12px; }
+  .cust li { display: grid; grid-template-columns: 18px 1fr auto; gap: 12px; padding: 10px 0; font-size: 13px; position: relative; }
+  .cust li i { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); margin-top: 3px; box-shadow: 0 0 0 4px rgba(74,163,255,0.18); }
+  .cust li:not(:last-child)::after { content: ""; position: absolute; left: 5px; top: 26px; bottom: -6px; width: 2px; background: #26374a; }
+  .cust small { display: block; color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="tablet">
+  <div class="screen app">
+    <aside class="side">
+      <div class="brandrow"><span class="logo">PD</span><div><b>Evidence</b><small>Northgate PD</small></div></div>
+      <div class="nav"><i></i>Booking</div>
+      <div class="nav"><i></i>Jail</div>
+      <div class="nav on"><i></i>Evidence<span class="n">12</span></div>
+      <div class="nav"><i></i>Impound</div>
+      <div class="nav"><i></i>Armory</div>
+      <div class="nav"><i></i>Roster</div>
+      <div class="spacer"></div>
+      <div class="card" style="padding:12px;font-size:12px"><b style="font-size:13px"><span class="dot"></span> Sgt. R. Okafor</b><div class="muted" style="margin-top:3px">Evidence custodian · on duty</div></div>
+    </aside>
+    <main class="main">
+      <div class="top"><div><h1>Evidence locker</h1><div class="sub">Case RPT-26-0877 · vehicle theft and armed robbery</div></div><div class="right"><div class="field" style="width:260px">⌕ <span>Item, case or officer</span></div><span class="btn primary">Log item</span></div></div>
+      <div class="body">
+        <section class="card flush">
+          <table>
+            <thead><tr><th style="padding:14px 0 10px 16px">Item</th><th style="padding-top:14px">Description</th><th style="padding-top:14px">Collected</th><th style="padding-top:14px">Locker</th><th style="padding-top:14px">Status</th></tr></thead>
+            <tbody>
+              <tr class="sel"><td class="id" style="padding-left:16px">EV-26-0412</td><td>9 mm casings ×3</td><td>Okafor · 21:52</td><td class="mono">B-14</td><td><span class="pill info">Lab</span></td></tr>
+              <tr><td class="id" style="padding-left:16px">EV-26-0413</td><td>Grey hoodie, torn sleeve</td><td>Reyes · 22:05</td><td class="mono">B-14</td><td><span class="pill ok">Stored</span></td></tr>
+              <tr><td class="id" style="padding-left:16px">EV-26-0414</td><td>Dashcam footage, 2TRK 590</td><td>Brandt · 22:11</td><td class="mono">Digital</td><td><span class="pill ok">Stored</span></td></tr>
+              <tr><td class="id" style="padding-left:16px">EV-26-0415</td><td>Lockpick set</td><td>Okafor · 22:14</td><td class="mono">B-15</td><td><span class="pill ok">Stored</span></td></tr>
+              <tr><td class="id" style="padding-left:16px">EV-26-0416</td><td>Cash, $2,340 in bands</td><td>Nakamura · 22:30</td><td class="mono">Safe 2</td><td><span class="pill warn">Counting</span></td></tr>
+              <tr><td class="id" style="padding-left:16px">EV-26-0417</td><td>Fingerprint lift, till</td><td>Reyes · 22:41</td><td class="mono">B-15</td><td><span class="pill info">Lab</span></td></tr>
+              <tr><td class="id" style="padding-left:16px">EV-26-0418</td><td>Phone, cracked screen</td><td>Singh · 23:02</td><td class="mono">B-16</td><td><span class="pill dim">Awaiting warrant</span></td></tr>
+            </tbody>
+          </table>
+        </section>
+        <div class="col">
+          <section class="card">
+            <div class="row" style="margin-bottom:12px"><span class="tag">EV</span><div><b style="font-size:16px">9 mm casings ×3</b><div class="muted" style="font-size:12px">EV-26-0412 · Corner Market, 418 Commerce St</div></div></div>
+            <div class="photo"><span class="pill dim">Scene photo · marker 4</span></div>
+          </section>
+          <section class="card" style="flex:1">
+            <div class="h">Chain of custody</div>
+            <ul class="cust">
+              <li><i></i><div>Collected at scene<small>Sgt. R. Okafor · marker 4</small></div><span class="mono muted">21:52</span></li>
+              <li><i></i><div>Logged into locker B-14<small>Seal #55120 intact</small></div><span class="mono muted">22:34</span></li>
+              <li><i></i><div>Signed out to the lab<small>Tech A. Bello · ballistics</small></div><span class="mono muted">23:10</span></li>
+              <li><i style="background:#ffb547;box-shadow:0 0 0 4px rgba(255,181,71,0.2)"></i><div>Awaiting results<small>Linked to warrant request W-26-0098</small></div><span class="mono muted">—</span></li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

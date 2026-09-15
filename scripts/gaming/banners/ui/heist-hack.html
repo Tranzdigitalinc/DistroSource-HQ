@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Heist Series — hacking minigame</title>
+<!-- Built interface for Heist Series: route-the-signal hacking minigame. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --c: #38f0c8; --c2: #1b8f79; --warn: #ffcf4a; }
+  body { background: #04070a; }
+  .bg { background-image: url(/.gaming-render/heist-vault.png); filter: blur(10px) brightness(0.28) saturate(0.7); }
+  .scan { position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(56,240,200,0.03) 0 2px, transparent 2px 5px); }
+  .term { position: absolute; left: 50%; top: 50%; width: 1180px; height: 780px; transform: translate(-50%, -50%); border: 1px solid rgba(56,240,200,0.45); border-radius: 16px; background: rgba(2,12,12,0.78); box-shadow: 0 0 60px rgba(56,240,200,0.12), inset 0 0 80px rgba(56,240,200,0.05); display: grid; grid-template-rows: 70px 1fr 110px; font-family: "Cascadia Mono", Consolas, monospace; color: var(--c); }
+  .hd { display: flex; align-items: center; gap: 22px; padding: 0 30px; border-bottom: 1px solid rgba(56,240,200,0.25); }
+  .hd b { font-size: 20px; letter-spacing: 0.2em; }
+  .hd .timer { margin-left: auto; font-size: 34px; font-weight: 700; color: var(--warn); letter-spacing: 0.06em; }
+  .mid { display: grid; grid-template-columns: 1fr 300px; }
+  .board { position: relative; }
+  .board svg { position: absolute; inset: 0; }
+  .side2 { border-left: 1px solid rgba(56,240,200,0.25); padding: 24px; display: flex; flex-direction: column; gap: 18px; font-size: 13px; }
+  .side2 h4 { font-size: 11px; letter-spacing: 0.2em; color: #7fe7d0; opacity: 0.8; }
+  .seq { display: flex; gap: 8px; }
+  .seq span { width: 44px; height: 44px; border: 1px solid rgba(56,240,200,0.5); border-radius: 8px; display: grid; place-items: center; font-size: 18px; font-weight: 700; }
+  .seq span.done { background: rgba(56,240,200,0.18); }
+  .seq span.cur { border-color: var(--warn); color: var(--warn); box-shadow: 0 0 14px rgba(255,207,74,0.4); }
+  .ft { border-top: 1px solid rgba(56,240,200,0.25); padding: 18px 30px; display: grid; grid-template-columns: 1fr 260px; gap: 30px; align-items: center; }
+  .trace { height: 14px; border-radius: 10px; background: rgba(56,240,200,0.12); overflow: hidden; }
+  .trace i { display: block; width: 64%; height: 100%; background: linear-gradient(90deg, var(--c2), var(--warn)); }
+  .lives { display: flex; gap: 10px; justify-content: flex-end; }
+  .lives i { width: 20px; height: 20px; transform: rotate(45deg); border: 2px solid var(--c); }
+  .lives i.on { background: var(--c); }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="scan"></div>
+<div class="term">
+  <div class="hd"><b>SECURITY OVERRIDE</b><span style="opacity:0.7">NODE 07 / VAULT 02 LASER CONTROLLER</span><span class="timer">00:18.4</span></div>
+  <div class="mid">
+    <div class="board">
+      <svg viewBox="0 0 880 600">
+        <defs>
+          <filter id="g"><feGaussianBlur stdDeviation="3" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+        </defs>
+        <g stroke="rgba(56,240,200,0.18)" stroke-width="2">
+          <path d="M120 100 H760 M120 200 H760 M120 300 H760 M120 400 H760 M120 500 H760" />
+          <path d="M120 100 V500 M248 100 V500 M376 100 V500 M504 100 V500 M632 100 V500 M760 100 V500" />
+        </g>
+        <path d="M60 300 H120 V200 H248 V100 H376 V300 H504 V400" fill="none" stroke="#38f0c8" stroke-width="6" filter="url(#g)" />
+        <path d="M504 400 H632" fill="none" stroke="#ffcf4a" stroke-width="6" stroke-dasharray="12 10" filter="url(#g)" />
+        <g fill="#021010" stroke="#38f0c8" stroke-width="3">
+          <circle cx="120" cy="100" r="14" /><circle cx="248" cy="200" r="14" /><circle cx="376" cy="200" r="14" /><circle cx="504" cy="100" r="14" /><circle cx="632" cy="100" r="14" /><circle cx="760" cy="200" r="14" />
+          <circle cx="120" cy="400" r="14" /><circle cx="248" cy="400" r="14" /><circle cx="376" cy="500" r="14" /><circle cx="632" cy="300" r="14" /><circle cx="760" cy="400" r="14" /><circle cx="120" cy="500" r="14" />
+        </g>
+        <g fill="#38f0c8"><circle cx="120" cy="200" r="16" /><circle cx="248" cy="100" r="16" /><circle cx="376" cy="100" r="16" /><circle cx="376" cy="300" r="16" /><circle cx="504" cy="300" r="16" /><circle cx="504" cy="400" r="16" /></g>
+        <circle cx="632" cy="400" r="20" fill="none" stroke="#ffcf4a" stroke-width="4" filter="url(#g)" />
+        <g fill="#ff4d5e"><rect x="238" y="290" width="20" height="20" transform="rotate(45 248 300)" /><rect x="622" y="190" width="20" height="20" transform="rotate(45 632 200)" /><rect x="494" y="490" width="20" height="20" transform="rotate(45 504 500)" /></g>
+        <g font-family="Cascadia Mono, Consolas, monospace" font-size="18" font-weight="700" fill="#38f0c8"><text x="18" y="306">IN</text><text x="782" y="506">OUT</text></g>
+        <path d="M760 500 H800" stroke="rgba(56,240,200,0.5)" stroke-width="6" />
+        <circle cx="760" cy="500" r="18" fill="none" stroke="rgba(56,240,200,0.7)" stroke-width="3" />
+      </svg>
+    </div>
+    <div class="side2">
+      <div><h4>OBJECTIVE</h4><p style="margin-top:8px;line-height:1.6;color:#b9f5e6">Route the signal from IN to OUT. Avoid firewall nodes. Each junction must match the sequence.</p></div>
+      <div><h4>SEQUENCE</h4><div class="seq" style="margin-top:10px"><span class="done">A</span><span class="done">7</span><span class="done">F</span><span class="cur">2</span><span>C</span></div></div>
+      <div><h4>DIFFICULTY</h4><p style="margin-top:8px;color:#b9f5e6">Tier 3 of 5 · set per heist</p></div>
+      <div><h4>ON FAILURE</h4><p style="margin-top:8px;line-height:1.6;color:#b9f5e6">Silent alarm triggers dispatch. Lasers stay live.</p></div>
+    </div>
+  </div>
+  <div class="ft">
+    <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px"><span>TRACE</span><span style="color:#ffcf4a">64%</span></div><div class="trace"><i></i></div></div>
+    <div class="lives"><span style="font-size:12px;margin-right:8px;opacity:0.8">ATTEMPTS</span><i class="on"></i><i class="on"></i><i></i></div>
+  </div>
+</div>
+</body>
+</html>

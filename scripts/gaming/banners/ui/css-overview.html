@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>City Starter Server — package overview</title>
+<!-- Built interface for City Starter Server. Server name and resource names are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ff8a3d; --accent-ink: #1b0d03; }
+  .bg { background-image: url(/.gaming-render/street-hud.png); }
+  .body { grid-template-columns: 1.35fr 1fr; }
+  .groups { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .grp { background: var(--panel-2); border: 1px solid var(--line); border-radius: 11px; padding: 14px; }
+  .grp .t { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+  .grp .ic { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; font: 800 12px/1 Bahnschrift, sans-serif; color: #fff; }
+  .grp li { display: flex; align-items: center; gap: 8px; font-size: 12.5px; padding: 4px 0; color: #c8d3de; }
+  .grp li .v { margin-left: auto; color: var(--muted); font-size: 11px; }
+  .map { position: relative; height: 262px; border-radius: 10px; overflow: hidden; background: #0c131b; border: 1px solid var(--line); }
+  .map svg { position: absolute; inset: 0; }
+  .pin { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: #e8eef5; white-space: nowrap; }
+  .pin i { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(255,138,61,0.22); }
+  .steps li { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .steps li:first-child { border-top: 0; padding-top: 0; }
+  .chk { width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; flex: none; font-size: 12px; font-weight: 800; }
+  .chk.done { background: var(--ok); color: #03140c; }
+  .chk.todo { border: 2px solid #3a4756; }
+  .steps small { display: block; color: var(--muted); font-size: 11.5px; margin-top: 2px; }
+  .spec { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; font-size: 13px; }
+  .spec dt { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .spec dd { margin-top: 2px; }
+  .next { background: linear-gradient(135deg, rgba(255,138,61,0.16), rgba(255,138,61,0.04)); border-color: rgba(255,138,61,0.4); }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">packages.distrosource.local / city-starter-server</span></div>
+  <div class="app" style="flex:1; min-height:0">
+    <aside class="side">
+      <div class="brandrow"><span class="logo">DS</span><div><b>Server Package</b><small>Northgate RP</small></div></div>
+      <div class="nav on"><i></i>Overview</div>
+      <div class="nav"><i></i>Systems</div>
+      <div class="nav"><i></i>Setup wizard</div>
+      <div class="nav"><i></i>Updates<span class="n">1</span></div>
+      <div class="nav"><i></i>Branding</div>
+      <div class="nav"><i></i>Economy</div>
+      <div class="nav"><i></i>Staff &amp; permissions</div>
+      <div class="spacer"></div>
+      <div class="card" style="padding:12px;font-size:12px"><b style="font-size:13px">Qbox edition</b><div class="muted" style="margin-top:3px">Package 2026.09 · staging</div></div>
+    </aside>
+    <main class="main">
+      <div class="top">
+        <div><h1>City Starter Server</h1><div class="sub">Every system configured to work together · deployed to staging</div></div>
+        <div class="right"><span class="pill ok"><span class="dot"></span>Staging healthy</span><span class="btn">Open txAdmin</span><span class="btn primary">Promote to live</span></div>
+      </div>
+      <div class="body">
+        <div class="col">
+          <section class="card">
+            <div class="h">Included systems <span class="link">View all resources</span></div>
+            <div class="groups">
+              <div class="grp"><div class="t"><span class="ic" style="background:#3d6fd8">C</span>Core</div><ul>
+                <li><span class="dot"></span><span class="mono">qbx_core</span><span class="v">bridge</span></li>
+                <li><span class="dot"></span><span class="mono">ox_lib</span><span class="v">dependency</span></li>
+                <li><span class="dot"></span><span class="mono">oxmysql</span><span class="v">dependency</span></li></ul></div>
+              <div class="grp"><div class="t"><span class="ic" style="background:#ff8a3d">UI</span>Interfaces</div><ul>
+                <li><span class="dot"></span><span class="mono">ds_hud</span><span class="v">2.4</span></li>
+                <li><span class="dot"></span><span class="mono">ds_mdt</span><span class="v">1.9</span></li>
+                <li><span class="dot"></span><span class="mono">ds_phone</span><span class="v">3.1</span></li></ul></div>
+              <div class="grp"><div class="t"><span class="ic" style="background:#2fb37b">$</span>Jobs &amp; economy</div><ul>
+                <li><span class="dot"></span><span class="mono">ds_jobcenter</span><span class="v">1.6</span></li>
+                <li><span class="dot"></span><span class="mono">ds_business</span><span class="v">1.3</span></li>
+                <li><span class="dot"></span><span class="mono">ds_banking</span><span class="v">2.0</span></li></ul></div>
+              <div class="grp"><div class="t"><span class="ic" style="background:#9b6bff">H</span>Housing &amp; items</div><ul>
+                <li><span class="dot"></span><span class="mono">ds_housing</span><span class="v">1.2</span></li>
+                <li><span class="dot"></span><span class="mono">ds_inventory</span><span class="v">2.2</span></li>
+                <li><span class="dot warn"></span><span class="mono">ds_furniture</span><span class="v">needs config</span></li></ul></div>
+              <div class="grp"><div class="t"><span class="ic" style="background:#d6a33a">M</span>Interiors</div><ul>
+                <li><span class="dot"></span><span class="mono">ds_mlo_diner</span><span class="v">streamed</span></li>
+                <li><span class="dot"></span><span class="mono">ds_mlo_workshop</span><span class="v">streamed</span></li>
+                <li><span class="dot"></span><span class="mono">ds_mlo_medical</span><span class="v">streamed</span></li></ul></div>
+              <div class="grp"><div class="t"><span class="ic" style="background:#e0544f">V</span>Vehicles</div><ul>
+                <li><span class="dot"></span><span class="mono">ds_fleet_patrol</span><span class="v">add-on</span></li>
+                <li><span class="dot"></span><span class="mono">ds_fleet_ems</span><span class="v">add-on</span></li>
+                <li><span class="dot"></span><span class="mono">ds_fleet_civil</span><span class="v">add-on</span></li></ul></div>
+            </div>
+          </section>
+          <section class="card" style="flex:1">
+            <div class="h">City layout <span class="link">Edit locations</span></div>
+            <div class="map">
+              <svg viewBox="0 0 800 262" preserveAspectRatio="none">
+                <rect width="800" height="262" fill="#0c131b"/>
+                <path d="M0 196 C140 170 260 214 400 188 S660 150 800 176 L800 262 L0 262 Z" fill="#10263a"/>
+                <g stroke="#1d2a38" stroke-width="10" fill="none"><path d="M60 0 V180"/><path d="M250 0 V200"/><path d="M470 0 V190"/><path d="M680 0 V170"/><path d="M0 60 H800"/><path d="M0 128 H800"/></g>
+                <g stroke="#26384b" stroke-width="3" fill="none"><path d="M60 0 V180"/><path d="M250 0 V200"/><path d="M470 0 V190"/><path d="M680 0 V170"/><path d="M0 60 H800"/><path d="M0 128 H800"/></g>
+                <rect x="270" y="72" width="180" height="46" rx="6" fill="#15212e"/><rect x="80" y="72" width="150" height="46" rx="6" fill="#15212e"/><rect x="490" y="12" width="170" height="38" rx="6" fill="#162a1f"/>
+              </svg>
+              <span class="pin" style="left:17%;top:36%"><i></i>Eastside Diner</span>
+              <span class="pin" style="left:42%;top:40%"><i></i>Harbor Medical</span>
+              <span class="pin" style="left:66%;top:62%"><i></i>Eastside Auto</span>
+              <span class="pin" style="left:78%;top:14%"><i></i>Northgate PD</span>
+              <span class="pin" style="left:30%;top:86%"><i></i>Harbor docks · Job centre</span>
+            </div>
+          </section>
+        </div>
+        <div class="col">
+          <section class="card">
+            <div class="h">Staging checklist <span class="pill info">3 of 5</span></div>
+            <ul class="steps">
+              <li><span class="chk done">✓</span><div>Database schema imported<small>MariaDB 10.11 · 42 tables</small></div></li>
+              <li><span class="chk done">✓</span><div>Recipe deployed with txAdmin<small>All resources started without errors</small></div></li>
+              <li><span class="chk done">✓</span><div>Framework bridge verified<small>Qbox · jobs, money and vehicles linked</small></div></li>
+              <li><span class="chk todo"></span><div>Apply branding<small>Server name, colours, loading screen</small></div></li>
+              <li><span class="chk todo"></span><div>Tune economy<small>Wages, prices and taxes</small></div></li>
+            </ul>
+          </section>
+          <section class="card">
+            <div class="h">Server</div>
+            <dl class="spec">
+              <div><dt>Artifacts</dt><dd>Recommended</dd></div>
+              <div><dt>OneSync</dt><dd>Enabled</dd></div>
+              <div><dt>Slots</dt><dd class="num">128</dd></div>
+              <div><dt>Database</dt><dd>MariaDB 10.11</dd></div>
+            </dl>
+          </section>
+          <section class="card next">
+            <div class="h" style="color:#ffb27a">Next package update</div>
+            <div style="font-size:18px;font-weight:700">Package 2026.10</div>
+            <p class="muted" style="margin-top:6px;font-size:13px;line-height:1.5">Staging notes and changelog are ready. Apply on staging, run the checklist, then promote.</p>
+            <div class="row" style="margin-top:14px"><span class="btn primary">Read changelog</span><span class="btn">Apply to staging</span></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

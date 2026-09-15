@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>DistroSource Gaming — device rig</title>
+<!-- Cover backdrop for interface products: a built interface page (loaded live in an iframe) shown on a device
+     on the right two-thirds, leaving the left third clear for cover typography. 1600×1000.
+     Query: page (path to a ui/*.html), q (its query string), style=monitor|tablet|float, bg (render path), glow (hex). -->
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 1000px; overflow: hidden; }
+  body { background: radial-gradient(900px 640px at 70% 46%, #1d2a44 0%, #0d1424 52%, #070b14 100%); position: relative; perspective: 2400px; }
+  .bd { position: absolute; inset: -40px; background-size: cover; background-position: center; filter: blur(18px) brightness(0.35) saturate(0.9); }
+  .shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7,11,20,0.9) 0%, rgba(7,11,20,0.4) 40%, rgba(7,11,20,0.1) 100%); }
+  .glow { position: absolute; left: 820px; top: 170px; width: 700px; height: 560px; border-radius: 50%; filter: blur(40px); opacity: 0.5; }
+  .rig { position: absolute; left: 700px; top: 50%; width: 860px; transform: translateY(-50%) rotateY(-15deg) rotateX(3deg); transform-style: preserve-3d; }
+  .dev { position: relative; background: #07090d; box-shadow: 0 60px 120px -40px rgba(0,0,0,0.95), inset 0 0 0 1px #1c222c; }
+  .scr { position: relative; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; background: #0b1016; }
+  .scr iframe { position: absolute; left: 0; top: 0; width: 1600px; height: 1000px; border: 0; transform-origin: 0 0; }
+  .scr::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 72%, rgba(255,255,255,0.04) 100%); pointer-events: none; }
+  .monitor .dev { border-radius: 20px; padding: 15px; }
+  .monitor .scr { border-radius: 8px; }
+  .monitor .neck { width: 130px; height: 110px; margin: 0 auto; background: linear-gradient(90deg, #11151c, #1c222b 45%, #0e1217); clip-path: polygon(28% 0, 72% 0, 64% 100%, 36% 100%); }
+  .monitor .base { width: 360px; height: 24px; margin: -4px auto 0; border-radius: 50%; background: radial-gradient(ellipse at center, #1f252e 0%, #0d1015 70%); }
+  .tablet .dev { border-radius: 34px; padding: 22px; background: #0b0d11; box-shadow: 0 60px 120px -40px rgba(0,0,0,0.95), inset 0 0 0 2px #2a2f37, inset 0 0 0 8px #101318; }
+  .tablet .scr { border-radius: 14px; }
+  .float .dev { border-radius: 18px; padding: 0; background: transparent; box-shadow: 0 60px 140px -30px rgba(0,0,0,0.95), 0 0 0 1px rgba(255,255,255,0.08); overflow: hidden; }
+  .float .scr { border-radius: 18px; }
+  .neck, .base { display: none; }
+  .monitor .neck, .monitor .base { display: block; }
+</style>
+</head>
+<body>
+<div class="bd" id="bd"></div>
+<div class="shade"></div>
+<div class="glow" id="glow"></div>
+<div class="rig" id="rig">
+  <div class="dev"><div class="scr" id="scr"><iframe id="f"></iframe></div></div>
+  <div class="neck"></div>
+  <div class="base"></div>
+</div>
+<script>
+  window.__ready = false
+  const q = new URLSearchParams(location.search)
+  const rig = document.getElementById("rig")
+  rig.classList.add(q.get("style") || "monitor")
+  if (q.get("bg")) document.getElementById("bd").style.backgroundImage = `url(${q.get("bg")})`
+  const glow = q.get("glow") || "#ff8a3d"
+  document.getElementById("glow").style.background = `radial-gradient(closest-side, ${glow}, transparent)`
+  const f = document.getElementById("f")
+  const fit = () => { const w = document.getElementById("scr").getBoundingClientRect().width; f.style.transform = `scale(${document.getElementById("scr").clientWidth / 1600})` }
+  f.addEventListener("load", () => {
+    fit()
+    const inner = f.contentWindow
+    const wait = () => (inner.__ready === false ? setTimeout(wait, 50) : inner.document.fonts.ready.then(() => setTimeout(() => { window.__ready = true }, 300)))
+    wait()
+  })
+  f.src = `/scripts/gaming/banners/ui/${q.get("page")}${q.get("q") ? `?${q.get("q")}` : ""}`
+  fit()
+</script>
+</body>
+</html>

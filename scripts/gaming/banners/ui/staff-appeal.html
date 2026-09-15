@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Staff &amp; Moderation Ops — appeal review</title>
+<!-- Built interface for Staff & Moderation Ops: reviewing a ban appeal. Fictional case. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #e8a33d; --accent-ink: #1d1203; }
+  .bg { background-image: url(/.gaming-render/street-hud.png); }
+  .body { grid-template-columns: 1fr 1fr 380px; }
+  .rec dl { display: grid; grid-template-columns: auto 1fr; gap: 9px 14px; font-size: 13px; }
+  .rec dt { color: var(--muted); }
+  .clip { height: 200px; border-radius: 10px; background: url(/.gaming-render/street-hud.png) 60% 60% / 180%; margin-top: 14px; position: relative; border: 1px solid var(--line); }
+  .clip span { position: absolute; left: 10px; bottom: 10px; }
+  .letter { font-size: 14.5px; line-height: 1.7; color: #d3dce6; }
+  .letter p + p { margin-top: 12px; }
+  .opt { display: flex; gap: 12px; align-items: flex-start; padding: 13px; border-radius: 11px; border: 1px solid var(--line); background: var(--panel-2); font-size: 13.5px; margin-bottom: 10px; }
+  .opt.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .opt i { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #3a4756; flex: none; margin-top: 1px; }
+  .opt.on i { border: 5px solid var(--accent); }
+  .opt small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .note { height: 110px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); padding: 12px; font-size: 13px; color: #c9d3de; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">staff.northgate.gg · appeals · A-26-0031</span></div>
+  <div class="main" style="flex:1;min-height:0">
+    <div class="top"><div><h1>Ban appeal A-26-0031</h1><div class="sub">Submitted 2 days ago · second-level review</div></div><div class="right"><span class="pill warn">Awaiting decision</span></div></div>
+    <div class="body">
+      <section class="card rec">
+        <div class="h">Original action</div>
+        <dl><dt>Player</dt><dd><b>Blockhead22</b> · Minecraft</dd><dt>Action</dt><dd class="bad">Ban · 14 days</dd><dt>Reason</dt><dd>Griefing other players' builds at spawn (rule 04)</dd><dt>Issued by</dt><dd>Sade Adeyemi · moderator</dd><dt>Date</dt><dd class="mono">2026-09-11 18:40</dd><dt>Prior record</dt><dd>1 warning (spam)</dd></dl>
+        <div class="clip"><span class="pill dim">Evidence · rollback log + screenshot</span></div>
+      </section>
+      <section class="card">
+        <div class="h">Appeal</div>
+        <div class="letter">
+          <p>I broke the fountain at spawn because I thought it was part of the build event from last weekend. I didn't realise it was the permanent spawn.</p>
+          <p>I've read the rules again and I understand griefing covers any build that isn't mine. I rebuilt a copy on the creative server to show I'm not trying to wreck things.</p>
+          <p>I'd like to come back before the season event if possible.</p>
+        </div>
+        <div class="row" style="margin-top:16px"><span class="pill info">First appeal</span><span class="pill dim">Rollback completed</span></div>
+      </section>
+      <section class="card">
+        <div class="h">Decision</div>
+        <div class="opt"><i></i><div>Uphold the ban<small>14 days stands · player notified</small></div></div>
+        <div class="opt on"><i></i><div>Reduce to 5 days<small>Time served counts · final warning logged</small></div></div>
+        <div class="opt"><i></i><div>Lift the ban<small>Record kept as a warning</small></div></div>
+        <div class="h" style="margin:14px 0 8px">Internal note</div>
+        <div class="note">Genuine misunderstanding about the event build. Rollback done, no repeat pattern. Reduce with a final warning.</div>
+        <div class="row" style="margin-top:14px"><span class="btn" style="flex:1;justify-content:center">Escalate to admin</span><span class="btn primary" style="flex:1;justify-content:center">Submit decision</span></div>
+      </section>
+    </div>
+  </div>
+</div>
+</body>
+</html>

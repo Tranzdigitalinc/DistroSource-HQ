@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Sound Library — monthly picks</title>
+<!-- Built interface for Sound Library: choosing five sounds from the monthly drop. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ff6b5b; --accent-ink: #1c0604; }
+  body { background: #0a0d12; }
+  .page { position: absolute; inset: 0; padding: 50px 60px; display: flex; flex-direction: column; gap: 24px; background: radial-gradient(1000px 500px at 80% -10%, rgba(255,107,91,0.18), transparent 60%), #0a0d12; }
+  .hd { display: flex; align-items: flex-end; gap: 20px; }
+  .hd h1 { font-size: 34px; letter-spacing: -0.01em; }
+  .hd p { color: var(--muted); margin-top: 6px; font-size: 14px; }
+  .count { margin-left: auto; text-align: right; }
+  .count b { font: 800 44px/1 Bahnschrift, sans-serif; color: var(--accent); }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .sc { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px; position: relative; }
+  .sc.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); background: linear-gradient(180deg, rgba(255,107,91,0.1), var(--panel)); }
+  .sc .ck { position: absolute; right: 14px; top: 14px; width: 26px; height: 26px; border-radius: 8px; border: 2px solid #3a4756; display: grid; place-items: center; font-weight: 800; font-size: 13px; }
+  .sc.on .ck { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .sc b { font-size: 15px; display: block; padding-right: 30px; }
+  .sc small { color: var(--muted); font-size: 12px; }
+  .sc svg { height: 56px; width: 100%; margin: 12px 0 8px; color: #ff9d8f; }
+  .sc .row { font-size: 12px; }
+  .foot { margin-top: auto; display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hd"><div><div class="muted" style="font-size:12px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700">Sound Library · September drop</div><h1>Pick five to keep</h1><p>Every sound below is original and previewable. The five you pick stay licensed to you.</p></div><div class="count"><b>5 / 5</b><div class="muted" style="font-size:12px;margin-top:4px">picks this month</div></div></div>
+  <div class="grid">
+    <div class="sc on"><span class="ck">✓</span><b>Harbor Wail</b><small>Siren · long cycle</small><svg data-wave="7" data-shape="siren" data-bars="70" data-played="1" data-color="#ff9d8f"></svg><div class="row"><span class="pill info">Siren</span><span class="spacer"></span><span class="mono muted">0:10</span></div></div>
+    <div class="sc on"><span class="ck">✓</span><b>Northside Yelp</b><small>Siren · fast</small><svg data-wave="12" data-shape="siren" data-bars="70" data-played="1" data-color="#ff9d8f"></svg><div class="row"><span class="pill info">Siren</span><span class="spacer"></span><span class="mono muted">0:06</span></div></div>
+    <div class="sc"><span class="ck"></span><b>Priority Phaser</b><small>Siren · intersection</small><svg data-wave="19" data-shape="siren" data-bars="70"></svg><div class="row"><span class="pill info">Siren</span><span class="spacer"></span><span class="mono muted">0:04</span></div></div>
+    <div class="sc"><span class="ck"></span><b>Flat-six rev</b><small>Engine · sports</small><svg data-wave="21" data-shape="engine" data-bars="70"></svg><div class="row"><span class="pill warn">Engine</span><span class="spacer"></span><span class="mono muted">0:14</span></div></div>
+    <div class="sc on"><span class="ck">✓</span><b>V8 cold start</b><small>Engine · muscle</small><svg data-wave="33" data-shape="engine" data-bars="70" data-played="1" data-color="#ff9d8f"></svg><div class="row"><span class="pill warn">Engine</span><span class="spacer"></span><span class="mono muted">0:09</span></div></div>
+    <div class="sc"><span class="ck"></span><b>Diesel idle</b><small>Engine · box truck</small><svg data-wave="37" data-shape="engine" data-bars="70"></svg><div class="row"><span class="pill warn">Engine</span><span class="spacer"></span><span class="mono muted">0:20</span></div></div>
+    <div class="sc on"><span class="ck">✓</span><b>Air horn, double</b><small>Horn · fire apparatus</small><svg data-wave="41" data-shape="horn" data-bars="70" data-played="1" data-color="#ff9d8f"></svg><div class="row"><span class="pill bad">Horn</span><span class="spacer"></span><span class="mono muted">0:03</span></div></div>
+    <div class="sc"><span class="ck"></span><b>City horn, short</b><small>Horn · sedan</small><svg data-wave="44" data-shape="horn" data-bars="70"></svg><div class="row"><span class="pill bad">Horn</span><span class="spacer"></span><span class="mono muted">0:01</span></div></div>
+    <div class="sc"><span class="ck"></span><b>Diner at night</b><small>Ambience · interior</small><svg data-wave="52" data-shape="amb" data-bars="70"></svg><div class="row"><span class="pill ok">Ambience</span><span class="spacer"></span><span class="mono muted">1:30</span></div></div>
+    <div class="sc on"><span class="ck">✓</span><b>Harbor docks rain</b><small>Ambience · street</small><svg data-wave="64" data-shape="amb" data-bars="70" data-played="1" data-color="#ff9d8f"></svg><div class="row"><span class="pill ok">Ambience</span><span class="spacer"></span><span class="mono muted">2:00</span></div></div>
+    <div class="sc"><span class="ck"></span><b>Hospital corridor</b><small>Ambience · interior</small><svg data-wave="71" data-shape="amb" data-bars="70"></svg><div class="row"><span class="pill ok">Ambience</span><span class="spacer"></span><span class="mono muted">1:45</span></div></div>
+    <div class="sc"><span class="ck"></span><b>Workshop tools</b><small>Ambience · interior</small><svg data-wave="78" data-shape="amb" data-bars="70"></svg><div class="row"><span class="pill ok">Ambience</span><span class="spacer"></span><span class="mono muted">1:20</span></div></div>
+  </div>
+  <div class="foot"><span class="muted">Picks are kept after you cancel · unused picks don't roll over</span><span class="spacer"></span><span class="btn lg">Clear</span><span class="btn primary lg">Keep these 5 sounds</span></div>
+</div>
+<script src="/scripts/gaming/banners/ui/_wave.js"></script>
+</body>
+</html>

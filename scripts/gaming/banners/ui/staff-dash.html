@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Staff &amp; Moderation Ops — staff dashboard</title>
+<!-- Built interface for Staff & Moderation Ops. Players, reports and staff are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #e8a33d; --accent-ink: #1d1203; }
+  .bg { background-image: url(/.gaming-render/ui-server-dashboard.png); }
+  .body { grid-template-columns: 1.3fr 1fr; }
+  td.p { width: 64px; }
+  tr.sel td { background: rgba(232,163,61,0.08); }
+  .src { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .src i { width: 8px; height: 8px; border-radius: 2px; }
+  .hist li { display: grid; grid-template-columns: 92px 1fr auto; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13px; align-items: start; }
+  .hist li:first-child { border-top: 0; }
+  .hist small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .ids { display: grid; grid-template-columns: auto 1fr; gap: 7px 14px; font-size: 13px; }
+  .ids dt { color: var(--muted); }
+  .acts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .acts span { text-align: center; padding: 10px 0; border-radius: 9px; font-weight: 700; font-size: 13px; background: var(--panel-2); border: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">staff.northgate.gg · reports</span></div>
+  <div class="app" style="flex:1;min-height:0">
+    <aside class="side">
+      <div class="brandrow"><span class="logo">SO</span><div><b>Staff Ops</b><small>Northgate RP</small></div></div>
+      <div class="nav on"><i></i>Reports<span class="n">6</span></div>
+      <div class="nav"><i></i>Players</div>
+      <div class="nav"><i></i>Appeals<span class="n">2</span></div>
+      <div class="nav"><i></i>Actions log</div>
+      <div class="nav"><i></i>Handbook</div>
+      <div class="nav"><i></i>Training</div>
+      <div class="spacer"></div>
+      <div class="card" style="padding:12px;font-size:12px"><b style="font-size:13px"><span class="dot"></span> Rosa Delacroix</b><div class="muted" style="margin-top:3px">Senior admin · on duty</div></div>
+    </aside>
+    <main class="main">
+      <div class="top"><div><h1>Report queue</h1><div class="sub">FiveM, Minecraft and Discord in one queue</div></div><div class="right"><div class="tabs"><span class="on">Open</span><span>Mine</span><span>Closed</span></div></div></div>
+      <div class="body">
+        <section class="card flush">
+          <table>
+            <thead><tr><th style="padding:16px 0 10px 16px">Pri</th><th style="padding-top:16px">Report</th><th style="padding-top:16px">Source</th><th style="padding-top:16px">Age</th><th style="padding-top:16px">Assignee</th></tr></thead>
+            <tbody>
+              <tr class="sel"><td class="p" style="padding-left:16px"><span class="pill bad">P1</span></td><td><b>Vehicle deathmatch</b><div class="muted" style="font-size:12px">player #58 · by Keiko Hart</div></td><td><span class="src"><i style="background:#ff8a3d"></i>FiveM</span></td><td class="mono">14m</td><td>Rosa D.</td></tr>
+              <tr><td class="p" style="padding-left:16px"><span class="pill warn">P2</span></td><td><b>Griefing at spawn</b><div class="muted" style="font-size:12px">Blockhead22 · by 3 players</div></td><td><span class="src"><i style="background:#3ccf8e"></i>Minecraft</span></td><td class="mono">22m</td><td class="muted">Unassigned</td></tr>
+              <tr><td class="p" style="padding-left:16px"><span class="pill warn">P2</span></td><td><b>Stuck under the map</b><div class="muted" style="font-size:12px">Priya N. · self-report</div></td><td><span class="src"><i style="background:#ff8a3d"></i>FiveM</span></td><td class="mono">12m</td><td>Marek N.</td></tr>
+              <tr><td class="p" style="padding-left:16px"><span class="pill info">P3</span></td><td><b>Spam in #general</b><div class="muted" style="font-size:12px">new_account_91</div></td><td><span class="src"><i style="background:#6b77ff"></i>Discord</span></td><td class="mono">31m</td><td>Sade A.</td></tr>
+              <tr><td class="p" style="padding-left:16px"><span class="pill info">P3</span></td><td><b>Lost items after crash</b><div class="muted" style="font-size:12px">Jonas Berg</div></td><td><span class="src"><i style="background:#ff8a3d"></i>FiveM</span></td><td class="mono">3m</td><td class="muted">Unassigned</td></tr>
+              <tr><td class="p" style="padding-left:16px"><span class="pill dim">P4</span></td><td><b>Nickname breaks rules</b><div class="muted" style="font-size:12px">xX_edge_Xx</div></td><td><span class="src"><i style="background:#6b77ff"></i>Discord</span></td><td class="mono">1h</td><td class="muted">Unassigned</td></tr>
+            </tbody>
+          </table>
+        </section>
+        <div class="col">
+          <section class="card">
+            <div class="row" style="margin-bottom:12px"><span class="av" style="background:#5b6472">58</span><div><b style="font-size:16px">player #58</b><div class="muted" style="font-size:12px">Character: Dex Morrow · 41 h played</div></div><span class="pill warn" style="margin-left:auto">1 warning</span></div>
+            <dl class="ids"><dt>FiveM licence</dt><dd class="mono">license:3f9a…c21e</dd><dt>Discord</dt><dd>dexmorrow</dd><dt>Minecraft</dt><dd class="muted">Not linked</dd></dl>
+          </section>
+          <section class="card" style="flex:1">
+            <div class="h">History</div>
+            <ul class="hist">
+              <li><span class="mono muted">Today</span><div><b>Report · vehicle deathmatch</b><small>Clip attached · ticket-0142</small></div><span class="pill bad">Open</span></li>
+              <li><span class="mono muted">Sep 02</span><div><b>Warning · fail RP</b><small>Issued by Marek N. · rule 03</small></div><span class="pill warn">Warn</span></li>
+              <li><span class="mono muted">Aug 19</span><div><b>Note</b><small>Cooperative when spoken to in character</small></div><span class="pill dim">Note</span></li>
+            </ul>
+          </section>
+          <div class="acts"><span>Note</span><span style="color:var(--warn)">Warn</span><span>Kick</span><span style="color:var(--bad)">Ban</span></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Loading Screen Club — monthly set</title>
+<!-- Four styles of the built loading screen (load-screen.html) shown as one set. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  body { background: radial-gradient(1200px 600px at 50% -10%, #1c2436, #070a0f 70%); }
+  .grid { position: absolute; left: 60px; right: 60px; top: 110px; bottom: 50px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 28px 30px; }
+  .cell { display: flex; flex-direction: column; gap: 10px; }
+  .frame { flex: 1; border-radius: 14px; overflow: hidden; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08); }
+  iframe { position: absolute; left: 0; top: 0; width: 1600px; height: 1000px; border: 0; transform-origin: 0 0; }
+  .lab { display: flex; gap: 10px; align-items: center; font-size: 14px; }
+  .lab b { font-size: 15px; }
+  .hd { position: absolute; left: 60px; top: 44px; display: flex; align-items: baseline; gap: 16px; }
+  .hd h1 { font-size: 28px; }
+</style>
+</head>
+<body>
+<div class="hd"><h1>Loading Screen Club</h1><span class="muted">Four styles · one config file each</span></div>
+<div class="grid">
+  <div class="cell"><div class="frame"><iframe src="/scripts/gaming/banners/ui/load-screen.html?v=cinematic"></iframe></div><div class="lab"><b>Cinematic</b><span class="pill dim">September</span></div></div>
+  <div class="cell"><div class="frame"><iframe src="/scripts/gaming/banners/ui/load-screen.html?v=minimal"></iframe></div><div class="lab"><b>Minimal</b><span class="pill dim">August</span></div></div>
+  <div class="cell"><div class="frame"><iframe src="/scripts/gaming/banners/ui/load-screen.html?v=neon"></iframe></div><div class="lab"><b>Neon</b><span class="pill dim">July</span></div></div>
+  <div class="cell"><div class="frame"><iframe src="/scripts/gaming/banners/ui/load-screen.html?v=dusk"></iframe></div><div class="lab"><b>Dusk</b><span class="pill dim">June</span></div></div>
+</div>
+<script>
+  window.__ready = false
+  const frames = [...document.querySelectorAll("iframe")]
+  const fit = () => frames.forEach((f) => { const box = f.parentElement.getBoundingClientRect(); f.style.transform = `scale(${box.width / 1600}, ${box.height / 1000})` })
+  fit()
+  let n = 0
+  frames.forEach((f) => f.addEventListener("load", () => { if (++n === frames.length) setTimeout(() => { window.__ready = true }, 300) }))
+</script>
+</body>
+</html>

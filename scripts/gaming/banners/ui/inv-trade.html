@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Inventory Suite — trading</title>
+<!-- Built interface for Inventory Suite: player-to-player trade. Players are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #8f7bff; }
+  .bg { background-image: url(/.gaming-render/street-stream.png); filter: blur(10px) brightness(0.42); }
+  .trade { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 1240px; display: grid; grid-template-columns: 1fr 120px 1fr; gap: 0; align-items: stretch; }
+  .side2 { background: rgba(10,14,20,0.92); border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .side2.ready { border-color: rgba(60,207,142,0.55); box-shadow: 0 0 0 1px rgba(60,207,142,0.3); }
+  .who { display: flex; align-items: center; gap: 12px; }
+  .who b { font-size: 18px; }
+  .offer { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .offer span { aspect-ratio: 1; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: grid; place-items: center; font-size: 40px; position: relative; }
+  .offer span b { position: absolute; right: 7px; top: 5px; font-size: 11px; }
+  .offer span.empty { border-style: dashed; font-size: 18px; color: #4a5563; }
+  .cash { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); }
+  .cash b { font-size: 22px; }
+  .lock { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; font-weight: 700; }
+  .lock.on { background: rgba(60,207,142,0.12); color: var(--ok); }
+  .lock.off { background: var(--panel-2); color: var(--muted); }
+  .mid2 { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+  .ring { width: 92px; height: 92px; border-radius: 50%; border: 6px solid #2a3440; border-top-color: var(--ok); border-right-color: var(--ok); display: grid; place-items: center; font: 800 28px/1 Bahnschrift, sans-serif; background: rgba(10,14,20,0.9); }
+  .mid2 small { color: #c9d3de; font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="trade">
+  <section class="side2 ready">
+    <div class="who"><span class="av" style="background:#8f7bff">TV</span><div><b>You</b><div class="muted" style="font-size:12px">Tomas Varga</div></div><span class="pill ok" style="margin-left:auto">Locked in</span></div>
+    <div class="offer"><span>🔧<b>1</b></span><span>🧴<b>2</b></span><span>🛞<b>1</b></span><span class="empty">+</span><span class="empty">+</span><span class="empty">+</span><span class="empty">+</span><span class="empty">+</span></div>
+    <div class="cash"><span class="muted">Cash</span><b>$0</b></div>
+    <div class="lock on">✓ Offer locked · items held</div>
+  </section>
+  <div class="mid2"><div class="ring">3</div><small>Both locked.<br />Trading in 3 s</small></div>
+  <section class="side2 ready">
+    <div class="who"><span class="av" style="background:#3d6fd8">LF</span><div><b>Luca Ferretti</b><div class="muted" style="font-size:12px">Standing 1.2 m away</div></div><span class="pill ok" style="margin-left:auto">Locked in</span></div>
+    <div class="offer"><span>🔋<b>2</b></span><span>📻<b>1</b></span><span class="empty">+</span><span class="empty">+</span><span class="empty">+</span><span class="empty">+</span><span class="empty">+</span><span class="empty">+</span></div>
+    <div class="cash"><span class="muted">Cash</span><b class="ok">$350</b></div>
+    <div class="lock on">✓ Offer locked · items held</div>
+  </section>
+</div>
+<div class="row" style="position:absolute;left:50%;bottom:90px;transform:translateX(-50%);gap:12px"><span class="btn lg">Change offer</span><span class="btn lg" style="border-color:rgba(255,93,93,0.5);color:var(--bad)">Cancel trade</span></div>
+</body>
+</html>

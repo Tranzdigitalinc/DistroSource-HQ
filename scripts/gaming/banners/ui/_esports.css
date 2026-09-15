@@ -1,0 +1,7 @@
+/* Esports Team Kit design mockups. Teams, handles and fixtures are fictional.
+   Team emblems are simple geometric marks drawn in SVG. */
+@font-face { font-family: "Archivo"; src: url(/scripts/gaming/banners/fonts/archivo-latin.woff2) format("woff2"); font-weight: 100 900; font-display: block; }
+:root { --hawk: #ff5a36; --hawk-2: #1b1d2b; --wolf: #33a0ff; --ink: #0c0d14; }
+.ex { font-family: "Archivo", "Segoe UI", sans-serif; text-transform: uppercase; }
+.duo { position: absolute; inset: 0; background-size: cover; background-position: center; filter: grayscale(1) contrast(1.2) brightness(0.55); mix-blend-mode: luminosity; }
+.stripes { position: absolute; inset: 0; background: repeating-linear-gradient(-55deg, rgba(255,255,255,0.05) 0 18px, transparent 18px 44px); }

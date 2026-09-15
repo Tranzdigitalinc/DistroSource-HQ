@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Inventory Suite — inventory</title>
+<!-- Built interface for Inventory Suite: player inventory and a vehicle trunk. Items and serials are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #8f7bff; }
+  .bg { background-image: url(/.gaming-render/mlo-workshop.png); filter: blur(8px) brightness(0.4) saturate(0.95); }
+  .wrap { position: absolute; inset: 0; display: grid; grid-template-columns: 560px 110px 560px; justify-content: center; align-content: center; gap: 0; }
+  .panel { background: rgba(10,14,20,0.9); border: 1px solid rgba(255,255,255,0.07); border-radius: 18px; padding: 20px; backdrop-filter: blur(10px); }
+  .ph { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .ph b { font-size: 17px; }
+  .wt { margin-left: auto; font-size: 12.5px; color: var(--muted); }
+  .wbar { height: 6px; border-radius: 6px; background: #1d2632; margin-bottom: 16px; overflow: hidden; }
+  .wbar i { display: block; height: 100%; background: linear-gradient(90deg, #8f7bff, #c09bff); }
+  .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; }
+  .slot { aspect-ratio: 1; border-radius: 11px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.07); position: relative; display: grid; place-items: center; font-size: 38px; }
+  .slot .q { position: absolute; right: 7px; top: 5px; font-size: 11px; font-weight: 700; color: #cfd8e3; }
+  .slot .k { position: absolute; left: 7px; top: 5px; font: 700 10px/1 "Cascadia Mono", monospace; color: #8b9aab; }
+  .slot .d { position: absolute; left: 8px; right: 8px; bottom: 7px; height: 3px; border-radius: 3px; background: #26313d; overflow: hidden; }
+  .slot .d i { display: block; height: 100%; background: var(--ok); }
+  .slot.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 24px rgba(143,123,255,0.25); }
+  .slot.hot { background: rgba(143,123,255,0.08); }
+  .mid { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: var(--muted); font-size: 12px; }
+  .mid span { width: 52px; height: 52px; border-radius: 14px; background: rgba(10,14,20,0.9); border: 1px solid rgba(255,255,255,0.08); display: grid; place-items: center; font-size: 22px; color: #fff; }
+  .tip { position: absolute; left: 432px; top: 520px; width: 300px; background: rgba(12,16,24,0.97); border: 1px solid rgba(143,123,255,0.5); border-radius: 14px; padding: 14px 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); font-size: 12.5px; }
+  .tip b { font-size: 15px; display: block; }
+  .tip dl { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; margin-top: 10px; }
+  .tip dt { color: var(--muted); }
+  .tip dd { text-align: right; }
+  .hotbar { position: absolute; left: 50%; bottom: 44px; transform: translateX(-50%); display: flex; gap: 10px; }
+  .hotbar .slot { width: 74px; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+  <section class="panel">
+    <div class="ph"><span class="av" style="background:#8f7bff">TV</span><b>Tomas Varga</b><span class="wt">21.4 / 30 kg</span></div>
+    <div class="wbar"><i style="width:71%"></i></div>
+    <div class="grid">
+      <div class="slot hot"><span class="k">1</span>📱</div>
+      <div class="slot hot"><span class="k">2</span>🔦</div>
+      <div class="slot hot sel"><span class="k">3</span>🔧<span class="d"><i style="width:82%"></i></span></div>
+      <div class="slot hot"><span class="k">4</span>🥪<span class="q">×3</span></div>
+      <div class="slot hot"><span class="k">5</span>🥤<span class="q">×2</span></div>
+      <div class="slot">🩹<span class="q">×6</span></div>
+      <div class="slot">🔑<span class="q">×2</span></div>
+      <div class="slot">💵<span class="q">$840</span></div>
+      <div class="slot">📻</div>
+      <div class="slot">🧰<span class="d"><i style="width:40%;background:var(--warn)"></i></span></div>
+      <div class="slot">🪛</div>
+      <div class="slot">🔋<span class="q">×4</span></div>
+      <div class="slot">🧾</div>
+      <div class="slot">🪪</div>
+      <div class="slot"></div>
+      <div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div>
+    </div>
+  </section>
+  <div class="mid"><span>⇄</span>Drag to move<br />Shift + click to split</div>
+  <section class="panel">
+    <div class="ph"><span class="av" style="background:#2b3a4e">🚗</span><b>Trunk · Graphite sedan</b><span class="wt">38 / 60 kg</span></div>
+    <div class="wbar"><i style="width:63%"></i></div>
+    <div class="grid">
+      <div class="slot">🛞<span class="q">×1</span></div>
+      <div class="slot">⛽<span class="d"><i style="width:55%"></i></span></div>
+      <div class="slot">🧰</div>
+      <div class="slot">📦<span class="q">×4</span></div>
+      <div class="slot">📦<span class="q">×2</span></div>
+      <div class="slot">🦺</div>
+      <div class="slot">🧯<span class="d"><i style="width:90%"></i></span></div>
+      <div class="slot">🪝</div>
+      <div class="slot">🔩<span class="q">×40</span></div>
+      <div class="slot"></div>
+      <div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div>
+      <div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div>
+    </div>
+  </section>
+</div>
+<div class="tip"><b>Torque wrench</b><span class="muted">Tool · mechanic</span>
+  <dl><dt>Durability</dt><dd class="ok">82%</dd><dt>Serial</dt><dd class="mono">EA-7731</dd><dt>Quality</dt><dd>Workshop grade</dd><dt>Weight</dt><dd>1.2 kg</dd></dl>
+</div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Business Systems — supplier orders</title>
+<!-- Built interface for Business Systems: ordering stock and dispatching a delivery run. Fictional suppliers. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ff5e7a; --accent-ink: #1a0308; }
+  .bg { background-image: url(/.gaming-render/mlo-workshop.png); }
+  .body { grid-template-columns: 300px 1fr 360px; }
+  .sup li { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 11px; border: 1px solid var(--line); background: var(--panel-2); margin-bottom: 10px; font-size: 13px; }
+  .sup li.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .sup small { display: block; color: var(--muted); font-size: 12px; }
+  .qty { display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .qty span { width: 30px; height: 28px; display: grid; place-items: center; background: var(--panel-2); }
+  .qty b { width: 44px; text-align: center; font-size: 13px; }
+  .route { position: relative; height: 240px; border-radius: 12px; overflow: hidden; background: #0c131b; border: 1px solid var(--line); }
+  .route svg { position: absolute; inset: 0; }
+  .proj li { display: grid; grid-template-columns: 110px 1fr 70px; gap: 10px; align-items: center; padding: 8px 0; font-size: 13px; }
+  .bar.two { position: relative; }
+  .bar.two i.add { position: absolute; top: 0; height: 100%; background: rgba(60,207,142,0.8); border-radius: 0 8px 8px 0; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">Eastside Diner · suppliers</span></div>
+  <div class="main" style="flex:1;min-height:0">
+    <div class="top"><div><h1>Order stock</h1><div class="sub">Deliveries are driven by your staff or a supply business in the city</div></div><div class="right"><span class="btn">Order history</span><span class="btn primary">Place order · $1,284</span></div></div>
+    <div class="body">
+      <section class="card">
+        <div class="h">Suppliers</div>
+        <ul class="sup">
+          <li class="on"><span class="av" style="background:#2fb37b">HF</span><div><b>Harbor Foods</b><small>Meat, bread, dairy · 25 min</small></div></li>
+          <li><span class="av" style="background:#d6a33a">GR</span><div><b>Green Row Farms</b><small>Produce · 40 min</small></div></li>
+          <li><span class="av" style="background:#3d6fd8">CD</span><div><b>City Drinks Co.</b><small>Syrups, cans · 30 min</small></div></li>
+          <li><span class="av" style="background:#9b6bff">PP</span><div><b>Pack &amp; Paper</b><small>Packaging · 1 h</small></div></li>
+        </ul>
+      </section>
+      <section class="card flush">
+        <table>
+          <thead><tr><th style="padding:16px 0 10px 18px">Item</th><th style="padding-top:16px">In stock</th><th style="padding-top:16px">Unit</th><th style="padding-top:16px">Order</th><th style="padding-top:16px;text-align:right;padding-right:18px">Cost</th></tr></thead>
+          <tbody>
+            <tr><td style="padding-left:18px"><b>Beef patties</b><div class="muted" style="font-size:12px">Box of 40</div></td><td class="bad">12%</td><td>$96</td><td><span class="qty"><span>−</span><b>6</b><span>+</span></span></td><td style="text-align:right;padding-right:18px">$576</td></tr>
+            <tr><td style="padding-left:18px"><b>Burger buns</b><div class="muted" style="font-size:12px">Tray of 48</div></td><td class="warn">34%</td><td>$38</td><td><span class="qty"><span>−</span><b>5</b><span>+</span></span></td><td style="text-align:right;padding-right:18px">$190</td></tr>
+            <tr><td style="padding-left:18px"><b>Cheddar slices</b><div class="muted" style="font-size:12px">Pack of 100</div></td><td>48%</td><td>$42</td><td><span class="qty"><span>−</span><b>2</b><span>+</span></span></td><td style="text-align:right;padding-right:18px">$84</td></tr>
+            <tr><td style="padding-left:18px"><b>Milkshake mix</b><div class="muted" style="font-size:12px">5 L carton</div></td><td class="warn">22%</td><td>$54</td><td><span class="qty"><span>−</span><b>4</b><span>+</span></span></td><td style="text-align:right;padding-right:18px">$216</td></tr>
+            <tr><td style="padding-left:18px"><b>Frozen fries</b><div class="muted" style="font-size:12px">10 kg sack</div></td><td>60%</td><td>$36</td><td><span class="qty"><span>−</span><b>6</b><span>+</span></span></td><td style="text-align:right;padding-right:18px">$218</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <div class="col">
+        <section class="card">
+          <div class="h">Delivery run</div>
+          <div class="route">
+            <svg viewBox="0 0 360 240" preserveAspectRatio="none">
+              <g stroke="#1d2a38" stroke-width="9"><path d="M40 0 V240 M150 0 V240 M270 0 V240 M0 70 H360 M0 170 H360" /></g>
+              <path d="M40 210 V170 H150 V70 H270 V40" fill="none" stroke="#ff5e7a" stroke-width="4" stroke-dasharray="9 7" />
+              <circle cx="40" cy="210" r="9" fill="#2fb37b" /><circle cx="270" cy="40" r="9" fill="#ff5e7a" />
+            </svg>
+          </div>
+          <div class="row" style="margin-top:12px;font-size:13px"><span class="av" style="background:#2fb37b">JB</span><div><b>Jonas Berg</b><div class="muted" style="font-size:12px">Driver · work van</div></div><span class="pill info" style="margin-left:auto">ETA 18 min</span></div>
+        </section>
+        <section class="card">
+          <div class="h">After this order</div>
+          <ul class="proj">
+            <li><span>Beef patties</span><div class="bar two"><i style="width:12%;background:var(--bad)"></i><i class="add" style="left:12%;width:70%"></i></div><span class="muted">82%</span></li>
+            <li><span>Burger buns</span><div class="bar two"><i style="width:34%"></i><i class="add" style="left:34%;width:52%"></i></div><span class="muted">86%</span></li>
+            <li><span>Milkshake mix</span><div class="bar two"><i style="width:22%;background:var(--warn)"></i><i class="add" style="left:22%;width:58%"></i></div><span class="muted">80%</span></li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -181,7 +181,8 @@ export const GAMING_PRICE_BANDS = [
   { id: "under-15", label: "Under $15", min: 0, max: 15 },
   { id: "15-30", label: "$15 – $30", min: 15, max: 30 },
   { id: "30-60", label: "$30 – $60", min: 30, max: 60 },
-  { id: "60-plus", label: "$60+", min: 60, max: Number.POSITIVE_INFINITY },
+  { id: "60-100", label: "$60 – $100", min: 60, max: 100 },
+  { id: "100-plus", label: "$100+", min: 100, max: Number.POSITIVE_INFINITY },
 ] as const
 
 export type GamingPriceBand = (typeof GAMING_PRICE_BANDS)[number]["id"]

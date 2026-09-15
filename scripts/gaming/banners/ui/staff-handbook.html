@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Staff &amp; Moderation Ops — moderation handbook</title>
+<!-- Design mockup for Staff & Moderation Ops: a page of the editable moderation handbook. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  body { background: #d9dde3; color: #1c232d; }
+  .doc { position: absolute; left: 70px; top: 50px; right: 70px; bottom: 50px; background: #fbfbfa; border-radius: 14px; box-shadow: 0 30px 80px rgba(20,30,40,0.25); display: grid; grid-template-columns: 280px 1fr; overflow: hidden; }
+  .toc { background: #f1f2f4; padding: 30px 22px; border-right: 1px solid #e3e5e8; }
+  .toc b { font-size: 15px; display: block; margin-bottom: 18px; }
+  .toc li { padding: 7px 10px; border-radius: 7px; font-size: 14px; color: #4a5563; }
+  .toc li.on { background: #fff; color: #1c232d; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+  .toc .grp { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #8b95a3; margin: 18px 10px 6px; font-weight: 700; }
+  .page { padding: 44px 60px; overflow: hidden; }
+  .page .crumb { font-size: 13px; color: #8b95a3; }
+  .page h1 { font-size: 36px; margin: 8px 0 10px; letter-spacing: -0.01em; }
+  .page p.lead { font-size: 16px; color: #4a5563; line-height: 1.6; max-width: 820px; }
+  .flow { display: flex; align-items: center; gap: 0; margin: 28px 0 30px; }
+  .node { padding: 14px 18px; border-radius: 12px; background: #fff; border: 1px solid #e3e5e8; box-shadow: 0 2px 6px rgba(0,0,0,0.04); min-width: 190px; }
+  .node b { display: block; font-size: 15px; }
+  .node small { color: #6b7684; font-size: 12.5px; }
+  .node.hi { border-color: #e8a33d; box-shadow: 0 0 0 2px rgba(232,163,61,0.25); }
+  .arrow { width: 50px; height: 2px; background: #b9c0c9; position: relative; }
+  .arrow::after { content: ""; position: absolute; right: -2px; top: -4px; border-left: 8px solid #b9c0c9; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+  table { font-size: 14px; }
+  th { color: #6b7684; }
+  td { border-top: 1px solid #e8eaed; padding: 12px 10px 12px 0; }
+  .tagx { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+  .edit { position: absolute; right: 100px; top: 80px; display: flex; gap: 8px; }
+  .edit span { padding: 8px 12px; border-radius: 8px; background: #fff; border: 1px solid #e3e5e8; font-size: 13px; font-weight: 600; color: #4a5563; }
+</style>
+</head>
+<body>
+<div class="doc">
+  <aside class="toc">
+    <b>Northgate staff handbook</b>
+    <div class="grp">Rules</div>
+    <ul><li>Community rules</li><li>Roleplay standards</li><li>Rule templates</li></ul>
+    <div class="grp">Process</div>
+    <ul><li class="on">Escalation path</li><li>Evidence standards</li><li>Appeals</li><li>Staff conduct</li></ul>
+    <div class="grp">Training</div>
+    <ul><li>New moderator week</li><li>Scenario 12 · heist dispute</li><li>Scenario 13 · alt accounts</li></ul>
+  </aside>
+  <main class="page">
+    <div class="crumb">Process / Escalation path</div>
+    <h1>Escalation path</h1>
+    <p class="lead">Every report follows the same route, so players get consistent decisions no matter who picks it up. Replace role names and timings with your own; the structure is what matters.</p>
+    <div class="flow">
+      <div class="node"><b>Report</b><small>Ticket, in-game or Discord</small></div><span class="arrow"></span>
+      <div class="node hi"><b>Moderator</b><small>Warn, kick, bans ≤ 3 days</small></div><span class="arrow"></span>
+      <div class="node"><b>Senior moderator</b><small>Bans ≤ 14 days, appeals</small></div><span class="arrow"></span>
+      <div class="node"><b>Admin</b><small>Permanent bans, staff issues</small></div>
+    </div>
+    <h3 style="font-size:18px;margin-bottom:10px">Rule template</h3>
+    <table>
+      <thead><tr><th>Rule</th><th>What it covers</th><th>First time</th><th>Repeat</th></tr></thead>
+      <tbody>
+        <tr><td><b>02 · Random violence</b></td><td>Attacking without a roleplay reason</td><td><span class="tagx" style="background:#fff3dc;color:#9a6408">Warning</span></td><td><span class="tagx" style="background:#fde2e2;color:#a12626">3-day ban</span></td></tr>
+        <tr><td><b>03 · Value your life</b></td><td>Ignoring clear threats to your character</td><td><span class="tagx" style="background:#fff3dc;color:#9a6408">Warning</span></td><td><span class="tagx" style="background:#fde2e2;color:#a12626">1-day ban</span></td></tr>
+        <tr><td><b>04 · Griefing</b></td><td>Damaging builds or property that isn't yours</td><td><span class="tagx" style="background:#fde2e2;color:#a12626">3-day ban</span></td><td><span class="tagx" style="background:#fde2e2;color:#a12626">14-day ban</span></td></tr>
+        <tr><td><b>07 · Exploits</b></td><td>Using bugs for money, items or advantage</td><td><span class="tagx" style="background:#fde2e2;color:#a12626">7-day ban</span></td><td><span class="tagx" style="background:#2b2f36;color:#fff">Permanent</span></td></tr>
+      </tbody>
+    </table>
+  </main>
+</div>
+<div class="edit"><span>Edit page</span><span>History</span><span>Share with staff</span></div>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Plugin Suite — plugin config</title>
+<!-- Built interface for Plugin Suite: the commented YAML config for a crate. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #5ee6da; }
+  .bg { background-image: url(/.gaming-render/mc-spawn.png); }
+  .ed { display: grid; grid-template-columns: 280px 1fr 380px; height: 100%; }
+  .tree { background: #0d131a; border-right: 1px solid var(--line); padding: 16px 12px; font-size: 13px; font-family: "Cascadia Mono", monospace; }
+  .tree div { padding: 5px 8px; border-radius: 6px; color: #9fb0c2; white-space: nowrap; }
+  .tree div.on { background: #16283a; color: #fff; }
+  .code { background: #0a0f15; padding: 18px 0; font: 14px/1.7 "Cascadia Mono", Consolas, monospace; color: #d4dde7; overflow: hidden; }
+  .ln { display: grid; grid-template-columns: 50px 1fr; }
+  .ln i { color: #3e4c5c; text-align: right; padding-right: 16px; font-style: normal; }
+  .k { color: #7fc8ff; } .s { color: #b6e39a; } .n { color: #ffb27a; } .c { color: #5d6f82; font-style: italic; } .b { color: #d59bff; }
+  .ln.hl { background: rgba(94,230,218,0.07); box-shadow: inset 3px 0 0 var(--accent); }
+  .side3 { background: #0d131a; border-left: 1px solid var(--line); padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .check li { display: flex; gap: 10px; align-items: center; padding: 8px 0; font-size: 13px; border-top: 1px solid var(--line); }
+  .check li:first-child { border-top: 0; }
+  .sum { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">plugins / DSCrates / crates / legendary.yml</span></div>
+  <div class="ed" style="flex:1;min-height:0">
+    <aside class="tree">
+      <div>▾ plugins</div>
+      <div style="padding-left:20px">▾ DSCrates</div>
+      <div style="padding-left:36px">config.yml</div>
+      <div style="padding-left:36px">messages.yml</div>
+      <div style="padding-left:36px">▾ crates</div>
+      <div style="padding-left:52px">vote.yml</div>
+      <div style="padding-left:52px">rare.yml</div>
+      <div class="on" style="padding-left:52px">legendary.yml</div>
+      <div style="padding-left:20px">▸ DSShops</div>
+      <div style="padding-left:20px">▸ DSEnchants</div>
+      <div style="padding-left:20px">▸ DSMenus</div>
+      <div style="padding-left:20px">▸ PlaceholderAPI</div>
+    </aside>
+    <main class="code">
+      <div class="ln"><i>1</i><span class="c"># Legendary crate — opened with a legendary key.</span></div>
+      <div class="ln"><i>2</i><span class="c"># Chances are weights; they don't need to add up to 100.</span></div>
+      <div class="ln"><i>3</i><span><span class="k">display-name</span>: <span class="s">"&amp;d✦ Legendary Crate"</span></span></div>
+      <div class="ln"><i>4</i><span><span class="k">animation</span>: <span class="s">reel</span>          <span class="c"># reel | flip | burst</span></span></div>
+      <div class="ln"><i>5</i><span><span class="k">spin-seconds</span>: <span class="n">4</span></span></div>
+      <div class="ln"><i>6</i><span><span class="k">key</span>: <span class="s">legendary_key</span>   <span class="c"># item id from keys.yml</span></span></div>
+      <div class="ln"><i>7</i><span><span class="k">broadcast-rare</span>: <span class="b">true</span>  <span class="c"># announce rewards under 5%</span></span></div>
+      <div class="ln"><i>8</i><span></span></div>
+      <div class="ln"><i>9</i><span><span class="k">rewards</span>:</span></div>
+      <div class="ln hl"><i>10</i><span>  <span class="k">starforged_blade</span>:</span></div>
+      <div class="ln hl"><i>11</i><span>    <span class="k">chance</span>: <span class="n">2.5</span></span></div>
+      <div class="ln hl"><i>12</i><span>    <span class="k">item</span>: <span class="s">diamond_sword</span></span></div>
+      <div class="ln hl"><i>13</i><span>    <span class="k">custom-model-data</span>: <span class="n">41002</span>  <span class="c"># from the resource pack</span></span></div>
+      <div class="ln hl"><i>14</i><span>    <span class="k">enchants</span>: [<span class="s">sharpness:5</span>, <span class="s">unbreaking:3</span>, <span class="s">lifesteal:2</span>]</span></div>
+      <div class="ln"><i>15</i><span>  <span class="k">gems</span>:</span></div>
+      <div class="ln"><i>16</i><span>    <span class="k">chance</span>: <span class="n">9</span></span></div>
+      <div class="ln"><i>17</i><span>    <span class="k">command</span>: <span class="s">"gems give %player% 4"</span></span></div>
+      <div class="ln"><i>18</i><span>  <span class="k">money</span>:</span></div>
+      <div class="ln"><i>19</i><span>    <span class="k">chance</span>: <span class="n">28</span></span></div>
+      <div class="ln"><i>20</i><span>    <span class="k">economy</span>: <span class="n">5000</span>        <span class="c"># paid through Vault</span></span></div>
+      <div class="ln"><i>21</i><span>  <span class="k">food_bundle</span>:</span></div>
+      <div class="ln"><i>22</i><span>    <span class="k">chance</span>: <span class="n">36.5</span></span></div>
+      <div class="ln"><i>23</i><span>    <span class="k">items</span>: [<span class="s">bread:16</span>, <span class="s">apple:8</span>]</span></div>
+    </main>
+    <aside class="side3">
+      <div class="h" style="margin:0">Validation</div>
+      <ul class="check">
+        <li><span class="dot"></span>YAML syntax valid</li>
+        <li><span class="dot"></span>All item ids exist on 1.21</li>
+        <li><span class="dot"></span>Key <span class="mono">legendary_key</span> found</li>
+        <li><span class="dot warn"></span>Weights total 84 — shown as %</li>
+      </ul>
+      <div class="card" style="padding:14px"><div class="h" style="margin-bottom:6px">Effective chances</div>
+        <div class="sum"><span>Starforged Blade</span><b>2.98%</b></div><div class="sum"><span>Gems ×4</span><b>10.7%</b></div><div class="sum"><span>$5,000</span><b>33.3%</b></div><div class="sum"><span>Food bundle</span><b>43.5%</b></div></div>
+      <div class="spacer"></div>
+      <span class="btn primary" style="justify-content:center;height:40px">Save and /dscrates reload</span>
+    </aside>
+  </div>
+</div>
+</body>
+</html>

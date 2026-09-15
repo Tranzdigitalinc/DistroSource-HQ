@@ -1,11 +1,11 @@
 // Compose the final benchmark images for the storefront.
 //
 //   node scripts/gaming/banners/compose.mjs            # every product
-//   node scripts/gaming/banners/compose.mjs mlo-vault   # slugs containing "mlo-vault"
+//   node scripts/gaming/banners/compose.mjs mlo-vault,phone   # slugs containing any of these
 //
 // For each product: render the cover (scene or built interface underneath,
 // deterministic typography on top), take the two gallery sources, and write
-// 1600 / 1200 / 800 px WebP files to public/gaming/benchmark/<slug>/.
+// 1600 / 1200 / 800 px WebP files to public/gaming/catalog/<slug>/.
 // Sources are PNGs already rendered into .gaming-render/ or HTML pages that
 // are captured here first.
 import { chromium } from "playwright"
@@ -16,12 +16,12 @@ import { PRODUCTS } from "./compose.config.mjs"
 
 const ROOT = path.resolve(import.meta.dirname, "../../..")
 const HOST = "http://render.local"
-const OUT = path.join(ROOT, "public/gaming/benchmark")
+const OUT = path.join(ROOT, "public/gaming/catalog")
 const TMP = path.join(ROOT, ".gaming-render/compose")
 const WIDTHS = [1600, 1200, 800]
 const MIME = { ".html": "text/html; charset=utf-8", ".png": "image/png", ".webp": "image/webp", ".woff2": "font/woff2", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript", ".svg": "image/svg+xml" }
 
-const filter = process.argv[2]
+const filters = process.argv[2]?.split(",").filter(Boolean)
 fs.mkdirSync(TMP, { recursive: true })
 
 const browser = await chromium.launch({ headless: true, args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] })
@@ -64,7 +64,7 @@ async function writeRenditions(png, dir, base) {
 
 try {
   for (const product of PRODUCTS) {
-    if (filter && !product.slug.includes(filter)) continue
+    if (filters && !filters.some((f) => product.slug.includes(f))) continue
     const dir = path.join(OUT, product.slug)
     fs.mkdirSync(dir, { recursive: true })
     const bgPng = await source(product.cover.source, `${product.slug}-cover-bg`)

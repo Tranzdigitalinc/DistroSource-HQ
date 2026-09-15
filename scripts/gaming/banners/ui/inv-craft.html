@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Inventory Suite — crafting bench</title>
+<!-- Built interface for Inventory Suite: crafting bench. Recipes are example config. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #8f7bff; }
+  .bg { background-image: url(/.gaming-render/mlo-workshop.png); }
+  .screen { display: grid; grid-template-columns: 330px 1fr 360px; }
+  .pane { padding: 22px; display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+  .pane + .pane { border-left: 1px solid var(--line); }
+  .rec li { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px; border: 1px solid transparent; font-size: 14px; }
+  .rec li.on { background: rgba(143,123,255,0.1); border-color: rgba(143,123,255,0.45); }
+  .rec li i { font-size: 26px; font-style: normal; width: 42px; height: 42px; border-radius: 11px; background: var(--panel-2); display: grid; place-items: center; }
+  .rec small { display: block; color: var(--muted); font-size: 12px; }
+  .rec .lk { margin-left: auto; }
+  .hero { display: flex; gap: 20px; align-items: center; }
+  .hero .ic { width: 120px; height: 120px; border-radius: 26px; background: radial-gradient(circle at 40% 30%, rgba(143,123,255,0.35), rgba(143,123,255,0.06)); border: 1px solid rgba(143,123,255,0.4); display: grid; place-items: center; font-size: 66px; }
+  .mats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .mat { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); font-size: 13.5px; }
+  .mat i { font-style: normal; font-size: 26px; }
+  .mat .have { margin-left: auto; font-weight: 700; }
+  .prog { height: 14px; border-radius: 10px; background: #1d2632; overflow: hidden; }
+  .prog i { display: block; height: 100%; width: 64%; background: linear-gradient(90deg, #6f5cff, #b69bff); }
+  .mini { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .mini span { aspect-ratio: 1; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--line); display: grid; place-items: center; font-size: 26px; position: relative; }
+  .mini span b { position: absolute; right: 5px; top: 3px; font-size: 10px; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="tablet">
+  <div class="screen">
+    <section class="pane">
+      <div class="row"><span class="logo" style="background:linear-gradient(145deg,#6f5cff,#2d2470)">⚒</span><div><b style="font-size:15px">Workbench</b><div class="muted" style="font-size:12px">Eastside Auto · crafting skill 34</div></div></div>
+      <div class="field">⌕ <span>Search recipes</span></div>
+      <ul class="rec">
+        <li class="on"><i>🧰</i><div>Repair kit<small>Mechanic · level 2</small></div></li>
+        <li><i>🔓</i><div>Lockpick<small>Anyone · level 1</small></div></li>
+        <li><i>🩹</i><div>Bandage<small>Anyone · level 1</small></div></li>
+        <li><i>📻</i><div>Radio<small>Electronics · level 3</small></div></li>
+        <li><i>🛞</i><div>Tyre patch kit<small>Mechanic · level 2</small></div></li>
+        <li><i>🔋</i><div>Battery pack<small>Electronics · level 4</small></div><span class="lk pill dim">Locked</span></li>
+        <li><i>🪛</i><div>Advanced toolkit<small>Mechanic · level 5</small></div><span class="lk pill dim">Locked</span></li>
+      </ul>
+    </section>
+    <section class="pane" style="padding:30px">
+      <div class="hero"><span class="ic">🧰</span><div><div class="muted" style="font-size:12px;letter-spacing:0.14em;text-transform:uppercase;font-weight:700">Recipe</div><div style="font-size:30px;font-weight:700;margin-top:4px">Repair kit</div><div class="muted" style="font-size:13.5px;margin-top:6px">Restores a vehicle's engine to 60%. Durability 100%, 3 uses.</div><div class="row" style="margin-top:12px"><span class="pill info">+14 XP</span><span class="pill dim">45 s</span><span class="pill dim">1.5 kg</span></div></div></div>
+      <div class="h" style="margin:8px 0 0">Materials</div>
+      <div class="mats">
+        <div class="mat"><i>🔩</i><div>Steel bolts<div class="muted" style="font-size:12px">Need 12</div></div><span class="have ok">40</span></div>
+        <div class="mat"><i>🔧</i><div>Wrench<div class="muted" style="font-size:12px">Need 1 · not consumed</div></div><span class="have ok">1</span></div>
+        <div class="mat"><i>🧴</i><div>Engine oil<div class="muted" style="font-size:12px">Need 2</div></div><span class="have ok">3</span></div>
+        <div class="mat"><i>🧵</i><div>Rubber hose<div class="muted" style="font-size:12px">Need 2</div></div><span class="have warn">1</span></div>
+      </div>
+      <div class="card" style="padding:16px">
+        <div class="row" style="font-size:13px;margin-bottom:10px"><b>Crafting 2 of 3</b><span class="spacer"></span><span class="mono muted">00:16 left</span></div>
+        <div class="prog"><i></i></div>
+        <div class="muted" style="font-size:12px;margin-top:10px">Queue continues while you stay within 5 m of the bench.</div>
+      </div>
+      <div class="row"><span class="btn lg">Cancel queue</span><span class="spacer"></span><div class="tabs"><span>×1</span><span class="on">×3</span><span>×5</span></div><span class="btn primary lg">Craft</span></div>
+    </section>
+    <section class="pane">
+      <div class="h" style="margin:0">Your inventory <span class="link">21.4 / 30 kg</span></div>
+      <div class="mini"><span>🔩<b>40</b></span><span>🔧</span><span>🧴<b>3</b></span><span>🧵<b>1</b></span><span>🩹<b>6</b></span><span>🔑<b>2</b></span><span>📱</span><span>🔦</span><span>🥪<b>3</b></span><span>🥤<b>2</b></span><span>💵</span><span></span></div>
+      <div class="card" style="padding:14px"><div class="h" style="margin-bottom:6px">Output</div><div class="row"><span style="font-size:30px">🧰</span><div><b>Repair kit ×3</b><div class="muted" style="font-size:12px">Goes to your inventory, or the bench stash if full</div></div></div></div>
+    </section>
+  </div>
+</div>
+</body>
+</html>

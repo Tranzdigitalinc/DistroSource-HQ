@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Plugin Suite — crate menu</title>
+<!-- Built interface for Plugin Suite: an animated crate opening over the rendered spawn. Original pixel icons. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_mcgui.css" />
+<style>
+  .bg { background-image: url(/.gaming-render/mc-spawn.png); filter: blur(5px) brightness(0.55) saturate(1.05); }
+  .wrap { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -52%); display: flex; gap: 22px; align-items: flex-start; }
+  .reel { position: relative; }
+  .reel::before, .reel::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; }
+  .reel::before { top: -16px; border-top: 14px solid #f5cf4e; }
+  .reel::after { bottom: -16px; border-bottom: 14px solid #f5cf4e; }
+  .tbl { width: 330px; }
+  .tbl li { display: grid; grid-template-columns: 40px 1fr auto; gap: 10px; align-items: center; padding: 7px 0; border-top: 2px solid #262a3a; font-size: 14px; }
+  .tbl li:first-child { border-top: 0; }
+  .tbl canvas { width: 32px; height: 32px; image-rendering: pixelated; }
+  .keys { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 14px; color: #c7cbe0; }
+  .keys canvas { width: 36px; height: 36px; image-rendering: pixelated; }
+  body.cover .wrap { left: auto; right: 40px; transform: translateY(-50%) scale(0.84); transform-origin: right center; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+  <div class="mg">
+    <div class="t">✦ Legendary Crate <span class="s">opening…</span></div>
+    <div class="slots">
+      <div class="sl glass"></div><div class="sl glass"></div><div class="sl glass"></div><div class="sl glass"></div><div class="sl glass" style="box-shadow: inset 0 0 0 2px #f5cf4e"></div><div class="sl glass"></div><div class="sl glass"></div><div class="sl glass"></div><div class="sl glass"></div>
+    </div>
+    <div class="slots reel" style="margin:10px 0">
+      <div class="sl"><canvas data-icon="bread"></canvas><span class="q">16</span></div>
+      <div class="sl"><canvas data-icon="coin"></canvas><span class="q">64</span></div>
+      <div class="sl"><canvas data-icon="apple"></canvas><span class="q">8</span></div>
+      <div class="sl"><canvas data-icon="book"></canvas></div>
+      <div class="sl hl"><canvas data-icon="sword"></canvas></div>
+      <div class="sl"><canvas data-icon="potion"></canvas><span class="q">3</span></div>
+      <div class="sl"><canvas data-icon="gem"></canvas><span class="q">4</span></div>
+      <div class="sl"><canvas data-icon="pick"></canvas></div>
+      <div class="sl"><canvas data-icon="key"></canvas></div>
+    </div>
+    <div class="slots">
+      <div class="sl glass"></div><div class="sl glass"></div><div class="sl glass"></div><div class="sl glass"></div><div class="sl glass" style="box-shadow: inset 0 0 0 2px #f5cf4e"></div><div class="sl glass"></div><div class="sl glass"></div><div class="sl glass"></div><div class="sl glass"></div>
+    </div>
+    <div class="keys"><canvas data-icon="key"></canvas>Legendary key ×2 left · <span style="color:#5ee6da">/crates preview legendary</span></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="lore"><span class="n">Starforged Blade</span><br /><span class="g">Legendary · 2.5% chance</span><br /><span class="c">Sharpness V · Unbreaking III</span><br /><span class="y">Lifesteal II</span> <span class="g">(custom)</span></div>
+    <div class="mg tbl">
+      <div class="t" style="font-size:16px;margin-bottom:8px">Reward table</div>
+      <ul>
+        <li><canvas data-icon="sword"></canvas><span>Starforged Blade</span><span style="color:#c9a2ff">2.5%</span></li>
+        <li><canvas data-icon="gem"></canvas><span>Gems ×4</span><span style="color:#5ee6da">9%</span></li>
+        <li><canvas data-icon="pick"></canvas><span>Prospector Pick</span><span style="color:#5ee6da">6%</span></li>
+        <li><canvas data-icon="potion"></canvas><span>Haste potion ×3</span><span>18%</span></li>
+        <li><canvas data-icon="coin"></canvas><span>$5,000</span><span>28%</span></li>
+        <li><canvas data-icon="bread"></canvas><span>Food bundle</span><span>36.5%</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+<script src="/scripts/gaming/banners/ui/_pixel.js"></script>
+<script>if (new URLSearchParams(location.search).get("cover")) document.body.classList.add("cover")</script>
+</body>
+</html>

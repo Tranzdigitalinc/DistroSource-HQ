@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Emergency Services Suite — EMS treatment</title>
+<!-- Built interface for Emergency Services Suite: EMS triage and treatment. Patient and crew are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #26c6b0; --accent-ink: #03150f; }
+  .bg { background-image: url(/.gaming-render/mlo-medical.png); }
+  .screen { display: grid; grid-template-columns: 330px 1fr 380px; }
+  .pane { padding: 22px; display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+  .pane + .pane { border-left: 1px solid var(--line); }
+  .ttl { font-size: 22px; font-weight: 700; }
+  .vit { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .vit > div { background: var(--panel-2); border: 1px solid var(--line); border-radius: 11px; padding: 12px; }
+  .vit .l { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .vit .n { font-size: 26px; font-weight: 700; margin-top: 4px; }
+  .vit .n small { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .body2 { position: relative; flex: 1; display: grid; place-items: center; }
+  .body2 svg { height: 640px; }
+  .inj { position: absolute; display: flex; align-items: center; gap: 8px; font-size: 12.5px; background: rgba(11,16,22,0.92); border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px; }
+  .inj i { width: 10px; height: 10px; border-radius: 50%; }
+  .tx li { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .tx li:first-child { border-top: 0; padding-top: 2px; }
+  .chk { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; flex: none; font-size: 12px; font-weight: 800; }
+  .chk.done { background: var(--ok); color: #03140c; }
+  .chk.run { border: 2px solid var(--accent); box-shadow: 0 0 10px rgba(38,198,176,0.4); }
+  .chk.todo { border: 2px solid #3a4756; }
+  .tx small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .kit { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .kit span { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px; font-size: 12px; text-align: center; }
+  .kit b { display: block; font-size: 16px; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="tablet">
+  <div class="screen">
+    <section class="pane">
+      <div class="row"><span class="logo" style="background:linear-gradient(145deg,#1aa391,#0c4a42)">+</span><div><b style="font-size:15px">EMS · Treatment</b><div class="muted" style="font-size:12px">Medic 4 · Harbor Medical</div></div></div>
+      <div class="card" style="padding:16px">
+        <div class="row"><div><div class="ttl">Tomas Varga</div><div class="muted" style="font-size:12.5px;margin-top:3px">Male · 29 · Blood O+</div></div><span class="pill bad" style="margin-left:auto">Priority 1</span></div>
+        <div class="muted" style="font-size:12.5px;margin-top:10px;line-height:1.5">Motorbike collision · Harbor Fwy exit 14 · conscious, responding to voice</div>
+      </div>
+      <div class="vit">
+        <div><div class="l">Heart rate</div><div class="n warn">118 <small>bpm</small></div></div>
+        <div><div class="l">Blood pressure</div><div class="n">92/60</div></div>
+        <div><div class="l">SpO₂</div><div class="n">94<small>%</small></div></div>
+        <div><div class="l">Pain</div><div class="n bad">7<small>/10</small></div></div>
+      </div>
+      <div class="card" style="padding:14px"><div class="h" style="margin-bottom:8px">Blood loss</div><div class="bar" style="height:10px"><i style="width:38%;background:linear-gradient(90deg,#ffb547,#ff5d5d)"></i></div><div class="row muted" style="font-size:12px;margin-top:8px"><span>Moderate</span><span class="spacer"></span><span>Bleeding controlled</span></div></div>
+    </section>
+    <section class="pane">
+      <div class="row"><div class="h" style="margin:0">Injuries</div><span class="spacer"></span><div class="tabs"><span class="on">Front</span><span>Back</span></div></div>
+      <div class="body2">
+        <svg viewBox="0 0 240 520">
+          <g fill="#1d2a38" stroke="#355069" stroke-width="2">
+            <circle cx="120" cy="52" r="34" />
+            <rect x="80" y="92" width="80" height="170" rx="30" />
+            <rect x="40" y="100" width="34" height="160" rx="17" transform="rotate(8 57 100)" />
+            <rect x="166" y="100" width="34" height="160" rx="17" transform="rotate(-8 183 100)" />
+            <rect x="84" y="250" width="34" height="230" rx="17" />
+            <rect x="122" y="250" width="34" height="230" rx="17" />
+          </g>
+          <g><circle cx="52" cy="210" r="16" fill="rgba(255,93,93,0.35)" stroke="#ff5d5d" stroke-width="3" /><circle cx="128" cy="170" r="22" fill="rgba(255,181,71,0.3)" stroke="#ffb547" stroke-width="3" /><circle cx="140" cy="410" r="14" fill="rgba(255,181,71,0.3)" stroke="#ffb547" stroke-width="3" /></g>
+        </svg>
+        <span class="inj" style="left:4%;top:34%"><i style="background:#ff5d5d"></i><b>Left forearm</b> · deep laceration</span>
+        <span class="inj" style="right:4%;top:28%"><i style="background:#ffb547"></i><b>Ribs</b> · blunt trauma</span>
+        <span class="inj" style="right:8%;top:74%"><i style="background:#ffb547"></i><b>Right knee</b> · abrasion</span>
+      </div>
+    </section>
+    <section class="pane">
+      <div class="h" style="margin:0">Treatment</div>
+      <ul class="tx">
+        <li><span class="chk done">✓</span><div>Tourniquet · left arm<small>Applied 21:43 by Medic K. Hart</small></div></li>
+        <li><span class="chk done">✓</span><div>Dress laceration<small>Gauze and pressure bandage</small></div></li>
+        <li><span class="chk run"></span><div>IV fluids<small>500 ml saline · 2:40 remaining</small></div></li>
+        <li><span class="chk todo"></span><div>Pain relief<small>Requires rank Paramedic or above</small></div></li>
+        <li><span class="chk todo"></span><div>Transport to Harbor Medical<small>Bed 3 reserved · trauma bay</small></div></li>
+      </ul>
+      <div class="h" style="margin:4px 0 0">Kit</div>
+      <div class="kit"><span><b>6</b>Bandages</span><span><b>3</b>Gauze</span><span><b>2</b>IV bags</span><span><b>1</b>Splint</span><span><b>4</b>Ice packs</span><span><b>2</b>Tourniquets</span></div>
+      <div class="spacer"></div>
+      <div class="row"><span class="btn" style="flex:1;justify-content:center">Call for backup</span><span class="btn primary lg" style="flex:1;justify-content:center">Load for transport</span></div>
+    </section>
+  </div>
+</div>
+</body>
+</html>

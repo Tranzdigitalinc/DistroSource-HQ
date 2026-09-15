@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Housing Collection — property listings</title>
+<!-- Built interface for Housing Collection: property listings app. Addresses and agents are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #f0b44c; --accent-ink: #1d1203; }
+  .bg { background-image: url(/.gaming-render/apartment.png); }
+  .body { grid-template-columns: 1fr 420px; padding: 0; gap: 0; }
+  .list { padding: 22px 24px; display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .lc { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .lc.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .lc .img { height: 150px; background-size: cover; background-position: center; position: relative; }
+  .lc .img .pill { position: absolute; left: 10px; top: 10px; }
+  .lc .c { padding: 12px 14px; }
+  .lc b { font-size: 15px; display: block; }
+  .lc .pr { font-size: 18px; font-weight: 800; margin-top: 8px; }
+  .lc .meta { display: flex; gap: 12px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .detail { border-left: 1px solid var(--line); background: #0d131a; display: flex; flex-direction: column; min-height: 0; }
+  .detail .hero { height: 230px; background: url(/.gaming-render/apartment.png) 30% 60% / cover; }
+  .detail .in { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+  .feat { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .feat span { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 12.5px; }
+  .feat b { display: block; font-size: 15px; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">homes · Northgate property listings</span></div>
+  <div class="main" style="flex:1;min-height:0">
+    <div class="top"><div><h1>Homes</h1><div class="sub">Buy or rent · keys and rent handled in the city</div></div>
+      <div class="right"><div class="tabs"><span>Buy</span><span class="on">Rent</span></div><div class="field" style="width:260px">⌕ <span>Alta Heights</span></div><span class="btn">Filters</span></div></div>
+    <div class="body app" style="grid-template-columns:1fr 420px">
+      <section class="list">
+        <div class="row"><span class="h" style="margin:0">Available now</span><span class="spacer"></span><span class="muted" style="font-size:12.5px">Sorted by rent</span></div>
+        <div class="cards">
+          <div class="lc sel"><div class="img" style="background-image:url(/.gaming-render/apartment.png)"><span class="pill info">September</span></div><div class="c"><b>Apartment 12B · Alta Heights</b><div class="pr">$2,400<span class="muted" style="font-size:12px;font-weight:500"> / week</span></div><div class="meta"><span>2 bed</span><span>Skyline view</span><span>60 items</span></div></div></div>
+          <div class="lc"><div class="img" style="background-image:url(/.gaming-render/mlo-medical.png);background-position:70% 50%"></div><div class="c"><b>Studio 4 · Harbor Lofts</b><div class="pr">$950<span class="muted" style="font-size:12px;font-weight:500"> / week</span></div><div class="meta"><span>Studio</span><span>Near hospital</span><span>30 items</span></div></div></div>
+          <div class="lc"><div class="img" style="background-image:url(/.gaming-render/mlo-diner.png);background-position:80% 50%"></div><div class="c"><b>Flat above the diner</b><div class="pr">$1,300<span class="muted" style="font-size:12px;font-weight:500"> / week</span></div><div class="meta"><span>1 bed</span><span>Eastside</span><span>40 items</span></div></div></div>
+          <div class="lc"><div class="img" style="background-image:url(/.gaming-render/apartment.png);background-position:92% 40%;background-size:260%"><span class="pill dim">Penthouse</span></div><div class="c"><b>Penthouse · Vinewood Rise</b><div class="pr">$6,800<span class="muted" style="font-size:12px;font-weight:500"> / week</span></div><div class="meta"><span>3 bed</span><span>Terrace</span><span>120 items</span></div></div></div>
+          <div class="lc"><div class="img" style="background-image:url(/.gaming-render/mlo-workshop.png)"></div><div class="c"><b>Loft over Eastside Auto</b><div class="pr">$1,100<span class="muted" style="font-size:12px;font-weight:500"> / week</span></div><div class="meta"><span>1 bed</span><span>Workshop below</span><span>40 items</span></div></div></div>
+          <div class="lc"><div class="img" style="background-image:url(/.gaming-render/street-hud.png);background-position:85% 45%;background-size:220%"><span class="pill dim">Townhouse</span></div><div class="c"><b>Townhouse · Commerce St</b><div class="pr">$3,200<span class="muted" style="font-size:12px;font-weight:500"> / week</span></div><div class="meta"><span>2 bed</span><span>Garage</span><span>80 items</span></div></div></div>
+        </div>
+      </section>
+      <aside class="detail">
+        <div class="hero"></div>
+        <div class="in">
+          <div><div class="kick muted" style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase">Alta Heights · floor 12</div><div style="font-size:22px;font-weight:700;margin-top:4px">Apartment 12B</div></div>
+          <div class="feat"><span>Rent<b>$2,400 / week</b></span><span>Deposit<b>$4,800</b></span><span>Storage<b>400 kg stash</b></span><span>Wardrobe<b>2 outfit slots</b></span></div>
+          <div class="card" style="padding:14px"><div class="h" style="margin-bottom:8px">Key holders</div>
+            <ul class="list"><li><span class="av" style="background:#d6a33a">KH</span><div><b style="font-size:13px">Keiko Hart</b><div class="muted" style="font-size:12px">Tenant</div></div><span class="pill ok" style="margin-left:auto">Owner key</span></li>
+            <li><span class="av" style="background:#3d6fd8">LF</span><div><b style="font-size:13px">Luca Ferretti</b><div class="muted" style="font-size:12px">Shared key</div></div><span class="pill dim" style="margin-left:auto">Revoke</span></li></ul></div>
+          <div class="row"><span class="btn" style="flex:1;justify-content:center">Book a viewing</span><span class="btn primary" style="flex:1;justify-content:center">Rent now</span></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+</body>
+</html>

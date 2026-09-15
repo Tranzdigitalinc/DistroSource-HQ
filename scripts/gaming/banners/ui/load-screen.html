@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Loading Screen Club — loading screen</title>
+<!-- Built loading screen designs for Loading Screen Club.
+     ?v=cinematic (default) · neon · dusk · minimal. Server name is fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ff8a3d; }
+  body { background: #05070a; }
+  .bg { inset: 0; filter: none; }
+  .shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(4,6,10,0.88) 0%, rgba(4,6,10,0.55) 42%, rgba(4,6,10,0.1) 70%), linear-gradient(0deg, rgba(4,6,10,0.85) 0%, rgba(4,6,10,0) 40%); }
+  .logo2 { position: absolute; left: 90px; top: 250px; }
+  .mark { width: 96px; height: 96px; border-radius: 24px; display: grid; place-items: center; font: 800 38px/1 Bahnschrift, sans-serif; color: #fff; background: linear-gradient(145deg, var(--accent), color-mix(in srgb, var(--accent) 40%, #000)); box-shadow: 0 20px 50px color-mix(in srgb, var(--accent) 40%, transparent); }
+  .name { font: 800 120px/0.9 Bahnschrift, sans-serif; letter-spacing: 0.02em; margin-top: 30px; text-transform: uppercase; }
+  .tag { font-size: 22px; color: rgba(255,255,255,0.8); margin-top: 16px; letter-spacing: 0.02em; }
+  .prog { position: absolute; left: 90px; right: 90px; bottom: 90px; }
+  .prog .row { font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 12px; }
+  .prog .bar { height: 6px; background: rgba(255,255,255,0.14); }
+  .prog .bar i { width: 62%; background: var(--accent); box-shadow: 0 0 20px var(--accent); }
+  .tip { position: absolute; left: 90px; bottom: 150px; width: 560px; padding: 18px 20px; border-radius: 14px; background: rgba(10,14,20,0.66); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); font-size: 15px; line-height: 1.5; }
+  .tip b { display: block; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .music { position: absolute; right: 90px; bottom: 150px; width: 380px; padding: 14px 16px; border-radius: 14px; background: rgba(10,14,20,0.66); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); display: grid; grid-template-columns: 54px 1fr auto; gap: 14px; align-items: center; }
+  .music .art { width: 54px; height: 54px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), #2a1f5a); }
+  .music b { font-size: 14px; display: block; }
+  .music small { color: rgba(255,255,255,0.65); font-size: 12px; }
+  .music .pp { width: 38px; height: 38px; border-radius: 50%; background: #fff; color: #000; display: grid; place-items: center; font-size: 13px; }
+  .links { position: absolute; right: 90px; top: 70px; display: flex; gap: 12px; }
+  .links span { padding: 9px 14px; border-radius: 10px; background: rgba(10,14,20,0.6); border: 1px solid rgba(255,255,255,0.12); font-size: 13px; }
+  /* Minimal variant: split layout. */
+  body.minimal .bg, body.minimal .shade, body.minimal .logo2, body.minimal .tip, body.minimal .music, body.minimal .links { display: none; }
+  .split { display: none; position: absolute; inset: 0; grid-template-columns: 620px 1fr; }
+  body.minimal .split { display: grid; }
+  .split .l { background: #0b0f15; padding: 80px 70px; display: flex; flex-direction: column; gap: 26px; }
+  .split .r { background-size: cover; background-position: center; position: relative; }
+  .split .r::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #0b0f15 0%, rgba(11,15,21,0) 30%); }
+  .split h1 { font: 800 76px/0.95 Bahnschrift, sans-serif; letter-spacing: 0.02em; }
+  .rules li { display: flex; gap: 14px; padding: 10px 0; border-top: 1px solid #1e2733; font-size: 15px; color: #cfd8e3; }
+  .rules li:first-child { border-top: 0; }
+  .rules b { color: var(--accent); font-family: "Cascadia Mono", monospace; }
+  .staff { display: flex; gap: 10px; flex-wrap: wrap; }
+  body.minimal .prog { left: 70px; right: auto; width: 480px; bottom: 80px; }
+</style>
+</head>
+<body>
+<div class="bg" id="bg"></div>
+<div class="shade"></div>
+<div class="links"><span>discord.gg/northgate</span><span>northgate.gg</span></div>
+<div class="logo2"><div class="mark">NG</div><div class="name">Northgate</div><div class="tag">Serious roleplay · Season 4</div></div>
+<div class="tip"><b>Tip</b>Hold <span class="mono" style="background:rgba(255,255,255,0.12);padding:1px 6px;border-radius:5px">F1</span> in the city to open your phone. Your first job shift pays double this week.</div>
+<div class="music"><span class="art"></span><div><b>Night Drive</b><small>Northgate radio · 1:42 / 3:28</small></div><span class="pp">❚❚</span></div>
+<div class="split">
+  <div class="l">
+    <div class="mark" style="width:72px;height:72px;font-size:28px">NG</div>
+    <h1>NORTHGATE<br />ROLEPLAY</h1>
+    <div><div class="h">Server rules</div><ul class="rules"><li><b>01</b>Stay in character in the city</li><li><b>02</b>No random violence</li><li><b>03</b>Value your life</li><li><b>04</b>Report, don't retaliate</li></ul></div>
+    <div><div class="h">Staff on duty</div><div class="staff"><span class="pill ok">Rosa D. · admin</span><span class="pill info">Marek N. · mod</span><span class="pill info">Sade A. · mod</span></div></div>
+  </div>
+  <div class="r" id="r"></div>
+</div>
+<div class="prog"><div class="row"><span>Loading map data</span><span class="spacer"></span><span class="mono">62%</span></div><div class="bar"><i></i></div></div>
+<script>
+  const v = new URLSearchParams(location.search).get("v") || "cinematic"
+  const V = {
+    cinematic: { bg: "/.gaming-render/street-hud.png", accent: "#ff8a3d" },
+    neon: { bg: "/.gaming-render/street-stream.png", accent: "#ff3f8e" },
+    dusk: { bg: "/.gaming-render/street-patrol.png", accent: "#ffb547" },
+    minimal: { bg: "/.gaming-render/mlo-workshop.png", accent: "#4ad0ff" },
+  }[v]
+  document.body.classList.add(v)
+  document.documentElement.style.setProperty("--accent", V.accent)
+  document.getElementById("bg").style.backgroundImage = `url(${V.bg})`
+  document.getElementById("r").style.backgroundImage = `url(${V.bg})`
+</script>
+</body>
+</html>

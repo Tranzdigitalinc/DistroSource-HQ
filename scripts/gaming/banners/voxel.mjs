@@ -291,6 +291,12 @@ export class World {
           for (const f of faces) {
             const nb = this.get(x + f.n[0], y + f.n[1], z + f.n[2])
             if (nb && (nb === b || !TRANSPARENT.has(nb))) continue
+            // `solidEdges` treats ground beyond the world's sides as solid, so a
+            // landscape scene never shows its cut-away cross-section.
+            if (this.solidEdges && f.n[1] !== 1) {
+              const nx = x + f.n[0], ny = y + f.n[1], nz = z + f.n[2]
+              if (nx < 0 || nz < 0 || nx >= this.w || nz >= this.d || ny < 0) continue
+            }
             if (b === "water" && f.n[1] !== 1 && nb) continue
             const tex = def.all ?? def[f.kind] ?? def.side
             const top = b === "water" && f.n[1] === 1 ? 0.88 : 1

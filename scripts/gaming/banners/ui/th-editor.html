@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Thumbnail Studio — template layers</title>
+<!-- Design mockup for Thumbnail Studio: a template open in a design editor with named layers. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  @font-face { font-family: "Archivo"; src: url(/scripts/gaming/banners/fonts/archivo-latin.woff2) format("woff2"); font-weight: 100 900; font-display: block; }
+  :root { --accent: #7c6bff; }
+  body { background: #1e1f24; }
+  .ed { position: absolute; inset: 0; display: grid; grid-template-columns: 270px 1fr 300px; grid-template-rows: 52px 1fr; }
+  .bar3 { grid-column: 1 / -1; background: #2a2b31; display: flex; align-items: center; gap: 14px; padding: 0 16px; font-size: 13px; color: #c9cbd3; border-bottom: 1px solid #17181c; }
+  .bar3 b { color: #fff; }
+  .layers, .props { background: #26272d; padding: 14px; font-size: 13px; color: #d6d8df; }
+  .layers { border-right: 1px solid #17181c; }
+  .props { border-left: 1px solid #17181c; }
+  .lh { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8e909a; margin: 6px 0 10px; }
+  .ly { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; }
+  .ly.on { background: #3b3570; color: #fff; }
+  .ly i { width: 16px; height: 12px; border: 1.5px solid currentColor; border-radius: 2px; opacity: 0.7; }
+  .ly.sub { padding-left: 30px; }
+  .canvas { position: relative; background: #1a1b1f; display: grid; place-items: center; }
+  .art { position: relative; width: 960px; height: 540px; background: url(/.gaming-render/heist-vault.png) center / cover; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+  .art::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,0.6), rgba(0,0,0,0) 60%); }
+  .face { position: absolute; right: 40px; bottom: 0; width: 300px; height: 360px; border: 3px dashed rgba(255,255,255,0.7); border-bottom: 0; border-radius: 150px 150px 0 0; display: grid; place-items: center; color: rgba(255,255,255,0.8); font: 700 16px/1.3 "Segoe UI"; text-align: center; background: rgba(255,255,255,0.06); }
+  .tt { position: absolute; left: 44px; bottom: 60px; font: 900 96px/0.9 "Archivo", sans-serif; text-transform: uppercase; color: #fff; -webkit-text-stroke: 3px #000; paint-order: stroke fill; text-shadow: 0 8px 0 rgba(0,0,0,0.55); letter-spacing: -0.02em; }
+  .tt em { font-style: normal; background: #ffd23f; color: #111; -webkit-text-stroke: 0; padding: 0 12px; display: inline-block; transform: rotate(-2deg); text-shadow: none; }
+  .sel { position: absolute; left: 36px; bottom: 50px; width: 540px; height: 200px; border: 2px solid var(--accent); }
+  .sel i { position: absolute; width: 10px; height: 10px; background: #fff; border: 2px solid var(--accent); }
+  .ep { position: absolute; left: 44px; top: 36px; font: 900 26px/1 "Archivo"; background: #fff; color: #111; padding: 8px 12px; border-radius: 8px; }
+  .size { position: absolute; left: 50%; bottom: 60px; transform: translateX(-50%); display: flex; gap: 22px; align-items: flex-end; color: #8e909a; font-size: 12px; }
+  .mini { width: 168px; height: 94px; background: url(/.gaming-render/heist-vault.png) center / cover; position: relative; border-radius: 4px; }
+  .mini span { position: absolute; left: 8px; bottom: 10px; font: 900 17px/0.9 "Archivo"; color: #fff; -webkit-text-stroke: 1px #000; paint-order: stroke fill; }
+  .pr { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .pr span { background: #1f2025; border-radius: 6px; padding: 8px 10px; color: #c9cbd3; }
+  .sw { display: flex; gap: 8px; margin-bottom: 14px; }
+  .sw i { width: 30px; height: 30px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<div class="ed">
+  <div class="bar3"><b>Heist series · episode.fig</b><span>·</span><span>Thumbnail Studio · September pack</span><span style="margin-left:auto">1280 × 720</span><span class="btn primary" style="height:30px">Export PNG</span></div>
+  <aside class="layers">
+    <div class="lh">Layers</div>
+    <div class="ly"><i></i>Episode badge</div>
+    <div class="ly on"><i></i>Title</div>
+    <div class="ly sub"><i></i>Highlight word</div>
+    <div class="ly sub"><i></i>Stroke + drop</div>
+    <div class="ly"><i></i>Face cut-out</div>
+    <div class="ly"><i></i>Glow ring</div>
+    <div class="ly"><i></i>Left fade</div>
+    <div class="ly"><i></i>Capture · replace me</div>
+    <div class="lh" style="margin-top:20px">Styles</div>
+    <div class="ly"><span style="width:14px;height:14px;border-radius:3px;background:#ffd23f"></span>Series highlight</div>
+    <div class="ly"><span style="width:14px;height:14px;border-radius:3px;background:#fff"></span>Title white</div>
+  </aside>
+  <main class="canvas">
+    <div class="art">
+      <span class="ep">EP 12</span>
+      <div class="face">Face cut-out<br />drop your photo here</div>
+      <div class="tt">We cracked<br /><em>the vault</em></div>
+      <div class="sel"><i style="left:-6px;top:-6px"></i><i style="right:-6px;top:-6px"></i><i style="left:-6px;bottom:-6px"></i><i style="right:-6px;bottom:-6px"></i></div>
+    </div>
+    <div class="size"><div><div class="mini"><span>WE CRACKED<br />THE VAULT</span></div><div style="margin-top:6px">Feed size preview · readable ✓</div></div></div>
+  </main>
+  <aside class="props">
+    <div class="lh">Title</div>
+    <div class="pr"><span>Archivo Black</span><span>96 px</span><span>Line 0.9</span><span>Track −2%</span></div>
+    <div class="lh">Fill</div>
+    <div class="sw"><i style="background:#fff"></i><i style="background:#ffd23f"></i><i style="background:#ff5a5a"></i><i style="background:#5cc8ff"></i><i style="background:#7cff6b"></i></div>
+    <div class="lh">Stroke</div>
+    <div class="pr"><span>#000000</span><span>3 px outside</span></div>
+    <div class="lh">Contrast check</div>
+    <div class="pr"><span style="color:#7cff6b">AA · 9.8 : 1</span><span>At 168 px wide</span></div>
+    <div class="lh">Series</div>
+    <div class="pr"><span>Episode</span><span>Short</span><span>Live</span><span>Poster</span></div>
+  </aside>
+</div>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Business Systems — business dashboard</title>
+<!-- Built interface for Business Systems: the owner's dashboard for a player-run diner. Fictional figures. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ff5e7a; --accent-ink: #1a0308; }
+  .bg { background-image: url(/.gaming-render/mlo-diner.png); }
+  .body { grid-template-columns: 1.5fr 1fr; grid-template-rows: auto 1fr; }
+  .kpis { grid-column: 1 / -1; grid-template-columns: repeat(4, 1fr); }
+  .chart { height: 470px; position: relative; }
+  .chart svg { width: 100%; height: 100%; }
+  .stock li { display: grid; grid-template-columns: 120px 1fr 52px; gap: 12px; align-items: center; padding: 9px 0; font-size: 13px; }
+  .staff li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .staff li:first-child { border-top: 0; padding-top: 2px; }
+  .staff small { display: block; color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="tablet">
+  <div class="screen app">
+    <aside class="side">
+      <div class="brandrow"><span class="logo" style="background:linear-gradient(145deg,#c43a52,#5e1424)">ED</span><div><b>Eastside Diner</b><small>Owner · K. Hart</small></div></div>
+      <div class="nav on"><i></i>Dashboard</div>
+      <div class="nav"><i></i>Till</div>
+      <div class="nav"><i></i>Menu &amp; prices</div>
+      <div class="nav"><i></i>Stock<span class="n">3</span></div>
+      <div class="nav"><i></i>Suppliers</div>
+      <div class="nav"><i></i>Staff &amp; wages</div>
+      <div class="nav"><i></i>Accounts</div>
+      <div class="spacer"></div>
+      <div class="card" style="padding:12px;font-size:12px"><span class="pill ok">Open</span><div class="muted" style="margin-top:8px">Until 02:00 · late menu on</div></div>
+    </aside>
+    <main class="main">
+      <div class="top"><div><h1>Tonight at the diner</h1><div class="sub">Friday · open 7 h 40 min</div></div><div class="right"><div class="tabs"><span class="on">Today</span><span>Week</span><span>Month</span></div><span class="btn primary">Run payroll</span></div></div>
+      <div class="body">
+        <div class="kpis">
+          <div class="kpi"><div class="l">Sales</div><div class="v num">$4,820</div><div class="d ok">+18% on last Friday</div></div>
+          <div class="kpi"><div class="l">Orders</div><div class="v num">132</div><div class="d">Average $36.50</div></div>
+          <div class="kpi"><div class="l">Staff on shift</div><div class="v num">4</div><div class="d">Payroll $610 so far</div></div>
+          <div class="kpi"><div class="l">Stock alerts</div><div class="v num warn">3</div><div class="d">Patties below 15%</div></div>
+        </div>
+        <section class="card">
+          <div class="h">Sales by hour <span class="link">Export</span></div>
+          <div class="chart">
+            <svg viewBox="0 0 700 250" preserveAspectRatio="none">
+              <g stroke="#1f2b39"><path d="M0 50 H700 M0 110 H700 M0 170 H700 M0 230 H700" /></g>
+              <g fill="#ff5e7a">
+                <rect x="20" y="190" width="44" height="40" rx="5"/><rect x="90" y="170" width="44" height="60" rx="5"/><rect x="160" y="150" width="44" height="80" rx="5"/><rect x="230" y="120" width="44" height="110" rx="5"/><rect x="300" y="80" width="44" height="150" rx="5"/><rect x="370" y="60" width="44" height="170" rx="5"/><rect x="440" y="90" width="44" height="140" rx="5"/><rect x="510" y="70" width="44" height="160" rx="5"/><rect x="580" y="130" width="44" height="100" rx="5" opacity="0.45"/>
+              </g>
+              <path d="M42 200 L112 185 L182 176 L252 150 L322 128 L392 118 L462 132 L532 120 L602 150" fill="none" stroke="#ffd2da" stroke-width="3" stroke-dasharray="6 6" />
+              <g fill="#8b9aab" font-size="13" font-family="Segoe UI"><text x="30" y="248">18h</text><text x="170" y="248">20h</text><text x="310" y="248">22h</text><text x="450" y="248">00h</text><text x="590" y="248">02h</text></g>
+            </svg>
+          </div>
+          <div class="row" style="font-size:12px;color:var(--muted);gap:18px"><span><span class="dot" style="background:#ff5e7a;box-shadow:none"></span> Tonight</span><span>- - - Last Friday</span></div>
+        </section>
+        <div class="col">
+          <section class="card">
+            <div class="h">Stock <span class="link">Order stock</span></div>
+            <ul class="stock">
+              <li><span>Burger buns</span><div class="bar"><i style="width:34%"></i></div><span class="muted">34%</span></li>
+              <li><span>Beef patties</span><div class="bar"><i style="width:12%;background:var(--bad)"></i></div><span class="bad">12%</span></li>
+              <li><span>Fries</span><div class="bar"><i style="width:60%"></i></div><span class="muted">60%</span></li>
+              <li><span>Milkshake mix</span><div class="bar"><i style="width:22%;background:var(--warn)"></i></div><span class="warn">22%</span></li>
+              <li><span>Soda syrup</span><div class="bar"><i style="width:80%"></i></div><span class="muted">80%</span></li>
+            </ul>
+          </section>
+          <section class="card" style="flex:1">
+            <div class="h">On shift</div>
+            <ul class="staff">
+              <li><span class="av" style="background:#c43a52">KH</span><div><b>Keiko Hart</b><small>Owner · till</small></div><span class="pill ok" style="margin-left:auto">17:00</span></li>
+              <li><span class="av" style="background:#3d6fd8">MN</span><div><b>Marek Novak</b><small>Cook · grade 2</small></div><span class="pill ok" style="margin-left:auto">18:30</span></li>
+              <li><span class="av" style="background:#d6a33a">PN</span><div><b>Priya Nandakumar</b><small>Server</small></div><span class="pill ok" style="margin-left:auto">19:00</span></li>
+              <li><span class="av" style="background:#2fb37b">JB</span><div><b>Jonas Berg</b><small>Delivery driver</small></div><span class="pill info" style="margin-left:auto">On a run</span></li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

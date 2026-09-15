@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>City Starter Server — setup wizard</title>
+<!-- Built interface for City Starter Server: the branding step of the setup wizard. Fictional server. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ff8a3d; --accent-ink: #1b0d03; }
+  .bg { background-image: url(/.gaming-render/mlo-diner.png); }
+  .wiz { display: grid; grid-template-columns: 300px 1fr 400px; height: 100%; }
+  .stepper { background: #0d131a; border-right: 1px solid var(--line); padding: 30px 24px; }
+  .stepper h2 { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 22px; }
+  .st { display: flex; gap: 14px; padding: 12px 0; position: relative; }
+  .st .n { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; border: 2px solid #33404f; color: var(--muted); flex: none; background: #0d131a; z-index: 1; }
+  .st.done .n { background: var(--ok); border-color: var(--ok); color: #03140c; }
+  .st.on .n { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 5px rgba(255,138,61,0.15); }
+  .st b { display: block; font-size: 14px; }
+  .st small { color: var(--muted); font-size: 12px; }
+  .st:not(:last-child)::after { content: ""; position: absolute; left: 14px; top: 42px; bottom: -12px; width: 2px; background: #26313d; }
+  .form { padding: 32px 36px; display: flex; flex-direction: column; gap: 22px; overflow: hidden; }
+  .form h1 { font-size: 26px; letter-spacing: -0.01em; }
+  .form p.lead { color: var(--muted); font-size: 14px; margin-top: 6px; }
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 7px; letter-spacing: 0.02em; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .sw { display: flex; gap: 10px; }
+  .sw span { width: 44px; height: 44px; border-radius: 10px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
+  .sw span.sel { outline: 2px solid #fff; outline-offset: 3px; }
+  .drop { height: 120px; border: 2px dashed #33404f; border-radius: 12px; display: flex; align-items: center; gap: 18px; padding: 0 22px; color: var(--muted); font-size: 13px; }
+  .drop .lg { width: 76px; height: 76px; border-radius: 16px; background: linear-gradient(145deg, #c43a33, #7d1f1a); display: grid; place-items: center; font: 800 26px/1 Bahnschrift, sans-serif; color: #fff; }
+  .opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .opt { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--panel-2); font-size: 12.5px; }
+  .opt .img { height: 84px; background-size: cover; background-position: center; }
+  .opt div.c { padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; }
+  .opt.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 18px; }
+  .preview { background: #0a0f15; border-left: 1px solid var(--line); padding: 30px 26px; display: flex; flex-direction: column; gap: 16px; }
+  .preview h2 { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .pv { border-radius: 14px; overflow: hidden; border: 1px solid var(--line); position: relative; height: 200px; background: url(/.gaming-render/street-hud.png) center / cover; }
+  .pv::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,12,0.1), rgba(5,8,12,0.75)); }
+  .pv .name { position: absolute; left: 18px; bottom: 44px; z-index: 1; font: 800 30px/1 Bahnschrift, sans-serif; letter-spacing: 0.04em; }
+  .pv .bar { position: absolute; left: 18px; right: 18px; bottom: 22px; z-index: 1; height: 6px; background: rgba(255,255,255,0.18); }
+  .pv .bar i { width: 62%; background: #d8433b; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .hudpv { display: flex; gap: 10px; }
+  .ring { width: 46px; height: 46px; border-radius: 50%; border: 4px solid #d8433b; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">packages.distrosource.local / city-starter-server / setup</span></div>
+  <div class="wiz" style="flex:1;min-height:0">
+    <aside class="stepper">
+      <h2>Setup · Qbox edition</h2>
+      <div class="st done"><span class="n">✓</span><div><b>Database</b><small>Schema imported</small></div></div>
+      <div class="st done"><span class="n">✓</span><div><b>Framework</b><small>Qbox bridge verified</small></div></div>
+      <div class="st on"><span class="n">3</span><div><b>Branding</b><small>Name, colours, loading screen</small></div></div>
+      <div class="st"><span class="n">4</span><div><b>Economy</b><small>Wages, prices, taxes</small></div></div>
+      <div class="st"><span class="n">5</span><div><b>Staff</b><small>Groups and permissions</small></div></div>
+      <div class="st"><span class="n">6</span><div><b>Launch</b><small>Promote staging to live</small></div></div>
+    </aside>
+    <section class="form">
+      <div><h1>Make the city yours</h1><p class="lead">These settings are written to every interface, the loading screen and the phone in one pass.</p></div>
+      <div class="grid2">
+        <div><label>Server name</label><div class="field"><b>Northgate RP</b></div></div>
+        <div><label>Short name</label><div class="field"><b>NG</b></div></div>
+      </div>
+      <div class="grid2">
+        <div><label>Primary colour</label><div class="sw"><span class="sel" style="background:#d8433b"></span><span style="background:#3d6fd8"></span><span style="background:#2fb37b"></span><span style="background:#e7a93b"></span><span style="background:#9b6bff"></span></div></div>
+        <div><label>Interface theme</label><div class="tabs" style="width:max-content"><span class="on">Dark</span><span>Light</span><span>Auto</span></div></div>
+      </div>
+      <div><label>Logo</label><div class="drop"><span class="lg">NG</span><div><b style="color:var(--text);font-size:14px">northgate-logo.png</b><div>512 × 512 · used on the HUD, phone and loading screen</div></div><span class="btn" style="margin-left:auto">Replace</span></div></div>
+      <div><label>Loading screen</label>
+        <div class="opts">
+          <div class="opt sel"><div class="img" style="background-image:url(/.gaming-render/street-hud.png)"></div><div class="c"><b>Cinematic</b><span class="pill info">Selected</span></div></div>
+          <div class="opt"><div class="img" style="background-image:url(/.gaming-render/mlo-diner.png)"></div><div class="c"><b>Minimal</b></div></div>
+          <div class="opt"><div class="img" style="background-image:url(/.gaming-render/mlo-workshop.png)"></div><div class="c"><b>Split</b></div></div>
+        </div>
+      </div>
+      <div class="foot"><span class="btn">Back</span><div class="row"><span class="muted" style="font-size:12px">Saved to staging automatically</span><span class="btn primary lg">Continue to economy</span></div></div>
+    </section>
+    <aside class="preview">
+      <h2>Live preview</h2>
+      <div class="pv"><span class="name">NORTHGATE RP</span><span class="bar"><i></i></span></div>
+      <div class="card"><div class="h">HUD accents</div><div class="hudpv"><span class="ring">84</span><span class="ring" style="border-color:#3d6fd8">60</span><span class="ring" style="border-color:#e7a93b">72</span><span class="ring" style="border-color:#2fb37b">90</span></div></div>
+      <div class="card"><div class="h">Applies to</div><div class="chips"><span class="pill dim">ds_hud</span><span class="pill dim">ds_phone</span><span class="pill dim">ds_mdt</span><span class="pill dim">loading screen</span><span class="pill dim">ds_banking</span></div></div>
+    </aside>
+  </div>
+</div>
+</body>
+</html>

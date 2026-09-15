@@ -10,7 +10,7 @@
   image model — so titles are always spelled correctly.
 
   Query: bg, eyebrow, title, value, badge, align=left|right,
-         pos=bottom|middle|top, scrim=0..1, size=title px
+         pos=bottom|middle|top, scrim=0..1, size=title px, width=block max px
 -->
 <style>
   @font-face { font-family: "Archivo"; src: url(/scripts/gaming/banners/fonts/archivo-latin.woff2) format("woff2"); font-weight: 100 900; font-display: block; }
@@ -71,6 +71,7 @@
     else el.remove()
   }
   document.getElementById("title").style.fontSize = `${Number(q.get("size") || 120)}px`
+  if (q.get("width")) block.style.maxWidth = `${Number(q.get("width"))}px`
   const img = new Image()
   img.onload = () => document.fonts.ready.then(() => { window.__ready = true })
   img.onerror = () => { window.__ready = true }

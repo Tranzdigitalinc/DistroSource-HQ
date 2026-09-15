@@ -183,7 +183,7 @@ export default async function AdminGamingProductPage({ params }: { params: Promi
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
                   Edit <code className="rounded bg-background px-1 py-0.5 font-mono text-xs">lib/gaming/catalog/products.ts</code>. Images are produced by{" "}
                   <code className="rounded bg-background px-1 py-0.5 font-mono text-xs">scripts/gaming/banners/</code> and written to{" "}
-                  <code className="rounded bg-background px-1 py-0.5 font-mono text-xs">public/gaming/benchmark/</code>.
+                  <code className="rounded bg-background px-1 py-0.5 font-mono text-xs">public/gaming/catalog/</code>.
                 </p>
               </div>
             </CardHeader>

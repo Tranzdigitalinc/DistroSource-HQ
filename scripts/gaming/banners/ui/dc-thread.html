@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Discord Server Toolkit — ticket thread</title>
+<!-- Built interface for Discord Server Toolkit: a claimed player-report ticket. Fictional community. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_chat.css" />
+<style>
+  .claim { margin: 0 22px; border-radius: 8px; background: rgba(59,165,93,0.12); border: 1px solid rgba(59,165,93,0.4); padding: 10px 14px; font-size: 13.5px; display: flex; align-items: center; gap: 10px; }
+  .clip { margin-top: 8px; width: 420px; height: 236px; border-radius: 8px; background: url(/.gaming-render/street-hud.png) center / cover; position: relative; }
+  .clip::after { content: "▶"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 56px; height: 56px; border-radius: 50%; background: rgba(0,0,0,0.6); display: grid; place-items: center; color: #fff; font-size: 20px; }
+  .clip span { position: absolute; left: 10px; bottom: 10px; font-size: 12px; background: rgba(0,0,0,0.6); padding: 3px 8px; border-radius: 5px; }
+  .tpanel { background: #16181c; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+  .tpanel .box { background: #1f2227; border-radius: 10px; padding: 14px; font-size: 13px; }
+  .tpanel dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; }
+  .tpanel dt { color: #8a9099; }
+</style>
+</head>
+<body>
+<div class="chat">
+  <nav class="rail"><span class="on">NG</span><span>HV</span><span>PX</span></nav>
+  <aside class="chans">
+    <div class="srv">Northgate RP</div>
+    <div class="cat">Help</div>
+    <div class="ch"># support</div>
+    <div class="cat">Open tickets</div>
+    <div class="ch on">🎫 ticket-0142</div>
+    <div class="ch">🎫 ticket-0141</div>
+    <div class="ch">🎫 ticket-0139</div>
+    <div class="cat">Logs</div>
+    <div class="ch"># transcripts</div>
+  </aside>
+  <main class="msgs2">
+    <div class="chead"><b>🎫 ticket-0142</b><span class="d">Report a player · opened by Keiko Hart</span></div>
+    <div class="claim" style="margin-top:14px">✅ <b>Rosa Delacroix</b> claimed this ticket · first response in 4 min</div>
+    <div class="stream">
+      <div class="m"><span class="a" style="background:#d6a33a">KH</span><div><div class="who">Keiko Hart <small>Today at 21:58</small></div><p>Someone rammed my car three times outside the diner and drove off. Clip attached. Plate started with 2TRK.</p><div class="clip"><span>clip_2158.mp4 · 0:24</span></div></div></div>
+      <div class="m"><span class="a" style="background:#b83a3a">RD</span><div><div class="who" style="color:#e8a33d">Rosa Delacroix <small>Today at 22:02</small></div><p>Thanks Keiko. That plate is linked to an account on the server — I'm checking the logs now and I'll update you here.</p></div></div>
+      <div class="m"><span class="a" style="background:#c8363a">NG</span><div><div class="who">Northgate Bot <span class="bot">BOT</span><small>Today at 22:09</small></div>
+        <div class="embed" style="border-color:#e8a33d"><h4>Action logged</h4><p>Warning issued to <b>player #58</b> for vehicle deathmatch (rule 02). Linked from the staff dashboard by Rosa Delacroix.</p></div></div></div>
+    </div>
+    <div class="compose">Message 🎫 ticket-0142</div>
+  </main>
+  <aside class="tpanel">
+    <div class="cat" style="padding:0">Ticket</div>
+    <div class="box"><dl><dt>Status</dt><dd style="color:#3ba55d">Claimed</dd><dt>Category</dt><dd>Report a player</dd><dt>Opened</dt><dd>21:58</dd><dt>Staff</dt><dd>Rosa Delacroix</dd><dt>Linked</dt><dd>FiveM · player #58</dd></dl></div>
+    <div class="btns" style="flex-direction:column"><span class="g" style="text-align:center">Close with transcript</span><span style="text-align:center">Add a member</span><span style="text-align:center">Move category</span><span class="r" style="text-align:center">Escalate to admin</span></div>
+  </aside>
+</div>
+</body>
+</html>

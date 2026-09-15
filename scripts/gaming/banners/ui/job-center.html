@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Job Center — job centre</title>
+<!-- Built interface for Job Center: choosing a civilian job. Pay figures are example config values. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ffb020; --accent-ink: #1f1502; }
+  .bg { background-image: url(/.gaming-render/street-hud.png); }
+  .screen { display: grid; grid-template-columns: 1fr 470px; }
+  .jobs { padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+  .hdr { display: flex; align-items: center; gap: 14px; }
+  .hdr h1 { font-size: 24px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .job { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; grid-template-columns: 54px 1fr; gap: 6px 14px; }
+  .job.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); background: linear-gradient(135deg, rgba(255,176,32,0.1), var(--panel)); }
+  .job .ic { grid-row: span 3; width: 54px; height: 54px; border-radius: 14px; display: grid; place-items: center; font-size: 26px; }
+  .job b { font-size: 16px; }
+  .job .d { font-size: 12.5px; color: var(--muted); }
+  .job .m { display: flex; gap: 8px; margin-top: 4px; }
+  .detail { background: #0d131a; border-left: 1px solid var(--line); padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .lvl { display: flex; gap: 6px; }
+  .lvl span { flex: 1; height: 8px; border-radius: 8px; background: #1f2a36; }
+  .lvl span.on { background: var(--accent); }
+  .unl li { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .unl li:first-child { border-top: 0; }
+  .unl .n { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; font-weight: 800; background: var(--panel-2); }
+  .unl li.done .n { background: var(--accent); color: #1f1502; }
+  .routes span { display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); font-size: 13px; margin-bottom: 8px; }
+  .routes span.on { border-color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="tablet">
+  <div class="screen">
+    <section class="jobs">
+      <div class="hdr"><span class="logo" style="background:linear-gradient(145deg,#d99513,#6a4705)">JC</span><div><h1>Job centre</h1><div class="muted" style="font-size:13px">Sign on, pick a role, get paid per run</div></div><span class="spacer"></span><span class="pill ok"><span class="dot"></span>Off duty</span></div>
+      <div class="tabs" style="width:max-content"><span class="on">All jobs</span><span>Logistics</span><span>Public service</span><span>Transport</span></div>
+      <div class="grid">
+        <div class="job sel"><span class="ic" style="background:rgba(255,176,32,0.16)">🚚</span><b>Trucking</b><span class="d">Port and industrial freight · level 3 of 5</span><div class="m"><span class="pill warn">$180 – $320 / run</span><span class="pill dim">Box truck</span></div></div>
+        <div class="job"><span class="ic" style="background:rgba(74,163,255,0.16)">📦</span><b>Parcel delivery</b><span class="d">City drops with a van · level 4</span><div class="m"><span class="pill info">$90 – $160 / run</span><span class="pill dim">Van</span></div></div>
+        <div class="job"><span class="ic" style="background:rgba(60,207,142,0.16)">♻️</span><b>Sanitation</b><span class="d">Bin routes by district · level 2</span><div class="m"><span class="pill ok">$110 – $190 / run</span><span class="pill dim">Refuse truck</span></div></div>
+        <div class="job"><span class="ic" style="background:rgba(155,107,255,0.16)">🚌</span><b>Bus driver</b><span class="d">Timetabled city routes · new</span><div class="m"><span class="pill info">$140 – $210 / route</span><span class="pill dim">City bus</span></div></div>
+        <div class="job"><span class="ic" style="background:rgba(255,93,93,0.16)">🪝</span><b>Tow &amp; recovery</b><span class="d">Clear crashes and impound calls</span><div class="m"><span class="pill bad">$120 – $260 / call</span><span class="pill dim">Flatbed</span></div></div>
+        <div class="job"><span class="ic" style="background:rgba(255,176,32,0.16)">🚕</span><b>Taxi</b><span class="d">Fares across the city · tips</span><div class="m"><span class="pill warn">Meter + tips</span><span class="pill dim">Sedan</span></div></div>
+      </div>
+    </section>
+    <aside class="detail">
+      <div class="row"><span style="font-size:34px">🚚</span><div><div style="font-size:22px;font-weight:700">Trucking</div><div class="muted" style="font-size:12.5px">Your level 3 · 2,140 / 3,000 XP</div></div></div>
+      <div class="lvl"><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span></div>
+      <div class="card" style="padding:14px"><div class="h" style="margin-bottom:6px">Progression</div>
+        <ul class="unl">
+          <li class="done"><span class="n">1</span><span>Box truck · local depots</span><span class="muted">$180</span></li>
+          <li class="done"><span class="n">3</span><span>Port container runs</span><span class="muted">$260</span></li>
+          <li><span class="n">4</span><span>Rigid lorry · industrial</span><span class="muted">$290</span></li>
+          <li><span class="n">5</span><span>Tractor unit · long haul</span><span class="muted">$320</span></li>
+        </ul></div>
+      <div><div class="h">Choose a route</div>
+        <div class="routes"><span class="on"><b>Port → Industrial</b><span class="muted">4 stops · 6.2 km</span></span><span><b>Docks → Downtown</b><span class="muted">3 stops · 4.8 km</span></span><span><b>Airport freight</b><span class="muted">Level 4</span></span></div></div>
+      <div class="spacer"></div>
+      <span class="btn primary lg" style="justify-content:center;height:52px;font-size:16px">Sign on and collect the truck</span>
+    </aside>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,17 @@
+/* Plugin Suite GUI skin: a dark, rounded pixel-bordered menu style made for
+   DistroSource (not the vanilla game GUI). Icons come from _pixel.js. */
+.mg { background: #1d1f2a; border: 4px solid #0d0e14; box-shadow: inset 0 0 0 4px #2d3042, 0 30px 80px rgba(0,0,0,0.6); border-radius: 10px; padding: 22px; color: #f1f2f7; font-family: "Cascadia Mono", Consolas, monospace; }
+.mg .t { font-weight: 700; font-size: 22px; letter-spacing: 0.02em; display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.mg .t .s { font-size: 13px; color: #9aa0bb; font-weight: 400; margin-left: auto; }
+.slots { display: grid; grid-template-columns: repeat(9, 72px); gap: 8px; }
+.sl { width: 72px; height: 72px; background: #11121a; border: 3px solid #0b0c12; box-shadow: inset 0 0 0 2px #262a3a; border-radius: 6px; display: grid; place-items: center; position: relative; }
+.sl canvas { width: 48px; height: 48px; image-rendering: pixelated; }
+.sl .q { position: absolute; right: 5px; bottom: 2px; font-weight: 700; font-size: 14px; color: #fff; text-shadow: 2px 2px 0 #000; }
+.sl.glass { background: #1a1c28; box-shadow: inset 0 0 0 2px #2d3042; }
+.sl.hl { background: #2a2140; box-shadow: inset 0 0 0 2px #b68cff, 0 0 18px rgba(182,140,255,0.45); }
+.sl.gold { box-shadow: inset 0 0 0 2px #f5cf4e, 0 0 16px rgba(245,207,78,0.35); }
+.lore { background: #120f1c; border: 3px solid #2a1f47; border-radius: 6px; padding: 12px 14px; font-size: 14px; line-height: 1.55; box-shadow: 0 12px 30px rgba(0,0,0,0.5); }
+.lore .n { color: #c9a2ff; font-weight: 700; }
+.lore .g { color: #7f86a8; }
+.lore .y { color: #f5cf4e; }
+.lore .c { color: #5ee6da; }

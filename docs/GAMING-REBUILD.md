@@ -6,8 +6,8 @@ Working branch: `gaming/clean-rebuild` (from `main` at `72b7ff3`, the live produ
 
 Phase 1 (this document): checkpoint, reference research, audit, classification, architecture.
 Phase 2: cleanup and the new Gaming storefront system.
-Phase 3: exactly six benchmark products, 18 final images, deployed to a Vercel preview.
-**HARD STOP** after phase 3 until the owner writes `APPROVED`. Products 7–100 are not started before then.
+Phase 3: exactly six benchmark products, 18 final images, deployed to a Vercel preview. Approved by the owner on 2026-09-15.
+Phase 4: products 7–26 — twenty more subscriptions at the same standard, each with a different monthly price drawn at random between $10 and $150 (see below). All 26 products remain `launching`.
 
 ## Recovery checkpoint
 
@@ -109,7 +109,7 @@ Studied for patterns only. No assets, copy, logos, CSS or layouts were taken.
 3. **Typography** is set deterministically in `cover.html` (real HTML/CSS with the bundled Archivo and JetBrains Mono, OFL — see `fonts/OFL.txt`), captured by Playwright. No model spells a title.
 4. **Export** with sharp: 1600×1000 WebP cover and two 1600×1000 gallery views, each with 1200 and 800 renditions (the site runs with `images.unoptimized`, so responsive sizes are pre-built). Product visual ≈ 75–85% of the cover.
 
-Commands (renders land in the git-ignored `.gaming-render/`; `compose.mjs` writes `public/gaming/benchmark/<slug>/`):
+Commands (renders land in the git-ignored `.gaming-render/`; `compose.mjs` writes `public/gaming/catalog/<slug>/`):
 
 ```bash
 node scripts/gaming/banners/render.mjs --scene mlo-diner --out .gaming-render/mlo-diner.png --spp 1200
@@ -138,6 +138,41 @@ Pipeline notes learned on the benchmark:
 | 6 | Community Brand Kit | Creator & Branding | creator plan | $24 | $229 | 20% |
 
 Savings are computed from the prices at render time and rounded down.
+
+## Products 7–26
+
+Twenty monthly prices were drawn at random (unique integers from $10 to $150, excluding the benchmark prices), then assigned by scope so the largest plans carry the highest prices. Annual price ≈ 9.6 months, rounded down to $5 (about 20% off). Records live in `lib/gaming/catalog/records/{fivem,minecraft,community-creator}.ts`; the benchmark six moved unchanged to `records/benchmark.ts`.
+
+| # | Product | Area | Model | Monthly | Annual |
+| --- | --- | --- | --- | --- | --- |
+| 7 | City Starter Server | FiveM | server owner + update plan | $149 | $1,430 |
+| 8 | Heist Series | FiveM | vault + monthly drop | $137 | $1,315 |
+| 9 | Phone OS | FiveM | update plan | $59 | $565 |
+| 10 | Prison Network Setup | Minecraft | server owner + update plan | $144 | $1,380 |
+| 11 | Housing Collection | FiveM | pick & keep + monthly drop | $128 | $1,225 |
+| 12 | Discord Server Toolkit | Community | vault + update plan | $58 | $555 |
+| 13 | Emergency Services Suite | FiveM | vault + update plan | $142 | $1,360 |
+| 14 | Minigame Arenas | Minecraft | vault + monthly drop | $140 | $1,340 |
+| 15 | Business Systems | FiveM | vault + monthly drop | $118 | $1,130 |
+| 16 | Esports Team Kit | Creator | creator plan | $91 | $870 |
+| 17 | Job Center | FiveM | monthly drop + vault | $65 | $620 |
+| 18 | Plugin Suite | Minecraft | vault + update plan | $95 | $910 |
+| 19 | Economy & Banking Suite | FiveM | update plan | $88 | $840 |
+| 20 | Staff & Moderation Ops | Community | membership | $79 | $755 |
+| 21 | Inventory Suite | FiveM | update plan | $32 | $305 |
+| 22 | Skyblock Islands | Minecraft | pick & keep | $18 | $170 |
+| 23 | Thumbnail Studio | Creator | creator plan | $21 | $200 |
+| 24 | Resource Pack Studio | Minecraft | monthly drop | $38 | $360 |
+| 25 | Sound Library | FiveM | pick & keep | $15 | $140 |
+| 26 | Loading Screen Club | FiveM | creator plan | $10 | $95 |
+
+A `$100+` price band was added to the filters for the higher plans.
+
+Imagery for 7–26 (60 images) follows the same rules: built interfaces for anything with a UI (about 50 pages in `ui/`, sharing `_kit.css`), path-traced interiors for the vault and apartment, and voxel scenes for the Minecraft builds. Additions to the pipeline:
+
+- `ui/rig.html` puts a live interface page on a monitor, tablet or floating card in the right two-thirds of a cover, so interface products get a cover with room for the title.
+- `voxel-blocks.mjs` registers extra original block textures (ores, team colours, the "Hearthside" resource-pack set) and an `island()` helper; `World.solidEdges` hides a landscape's cut-away sides.
+- `compose.mjs` accepts a comma-separated list of slug fragments; `cover.html` accepts `width` to wrap long titles.
 
 ## Gates
 

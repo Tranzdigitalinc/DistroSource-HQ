@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Job Center — delivery route HUD</title>
+<!-- Built interface for Job Center: the in-game route HUD over the rendered street. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ffb020; }
+  .bg { background-image: url(/.gaming-render/street-hud.png); }
+  .glass { background: rgba(9,13,18,0.82); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; }
+  .job { position: absolute; left: 36px; top: 34px; padding: 12px 16px; display: flex; gap: 12px; align-items: center; }
+  .job .ic { width: 40px; height: 40px; border-radius: 11px; background: rgba(255,176,32,0.18); display: grid; place-items: center; font-size: 20px; }
+  .next { position: absolute; right: 36px; top: 34px; width: 420px; padding: 18px 20px; }
+  .next .k { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .next .t { font-size: 22px; font-weight: 700; margin-top: 6px; }
+  .dist { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; }
+  .dist b { font: 800 44px/1 Bahnschrift, sans-serif; }
+  .cargo li { display: flex; justify-content: space-between; padding: 7px 0; border-top: 1px solid rgba(255,255,255,0.07); font-size: 13px; }
+  .cargo li:first-child { border-top: 0; }
+  .map { position: absolute; left: 36px; bottom: 36px; width: 330px; height: 230px; overflow: hidden; }
+  .map svg { width: 100%; height: 100%; }
+  .stops { position: absolute; left: 50%; bottom: 40px; transform: translateX(-40%); padding: 14px 20px; display: flex; align-items: center; gap: 0; }
+  .st { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); width: 78px; }
+  .st i { width: 16px; height: 16px; border-radius: 50%; border: 3px solid #3a4756; background: #0b1016; }
+  .st.done i { background: var(--ok); border-color: var(--ok); }
+  .st.cur i { border-color: var(--accent); box-shadow: 0 0 0 5px rgba(255,176,32,0.25); }
+  .st.cur { color: #fff; font-weight: 700; }
+  .ln { width: 30px; height: 3px; background: #3a4756; margin: 0 -24px; margin-bottom: 17px; }
+  .ln.done { background: var(--ok); }
+  .pay { position: absolute; right: 36px; bottom: 36px; padding: 14px 18px; text-align: right; }
+  .pay b { display: block; font: 800 30px/1 Bahnschrift, sans-serif; color: var(--ok); margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="bg sharp"></div>
+<div class="glass job"><span class="ic">📦</span><div><b>Parcel delivery</b><div class="muted" style="font-size:12px">Level 4 · Eastside route</div></div><span class="pill warn" style="margin-left:12px">Stop 3 of 8</span></div>
+<div class="glass next">
+  <div class="k">Next stop</div>
+  <div class="t">24/7 Market · Commerce St</div>
+  <div class="dist"><b>420</b><span class="muted">m · 1 min · on time</span></div>
+  <ul class="cargo" style="margin-top:12px">
+    <li><span>Parcel #A-3318 · medium</span><span class="muted">Front door</span></li>
+    <li><span>Parcel #A-3319 · small</span><span class="muted">Signature</span></li>
+  </ul>
+</div>
+<div class="glass map">
+  <svg viewBox="0 0 330 230">
+    <rect width="330" height="230" fill="#0c131b" />
+    <g stroke="#1c2a39" stroke-width="12"><path d="M60 0 V230 M180 0 V230 M280 0 V230 M0 60 H330 M0 150 H330" /></g>
+    <path d="M60 230 V150 H180 V60 H280" fill="none" stroke="#ffb020" stroke-width="5" />
+    <circle cx="60" cy="200" r="7" fill="#fff" /><circle cx="180" cy="60" r="8" fill="#ffb020" /><circle cx="280" cy="60" r="6" fill="#8b9aab" /><circle cx="180" cy="150" r="6" fill="#3ccf8e" />
+    <path d="M60 192 l-7 14 l7 -4 l7 4 z" fill="#fff" />
+  </svg>
+</div>
+<div class="glass stops">
+  <div class="st done"><i></i>Depot</div><span class="ln done"></span>
+  <div class="st done"><i></i>Stop 1</div><span class="ln done"></span>
+  <div class="st done"><i></i>Stop 2</div><span class="ln done"></span>
+  <div class="st cur"><i></i>Stop 3</div><span class="ln"></span>
+  <div class="st"><i></i>Stop 4</div><span class="ln"></span>
+  <div class="st"><i></i>…</div><span class="ln"></span>
+  <div class="st"><i></i>Depot</div>
+</div>
+<div class="glass pay"><span class="muted" style="font-size:12px">This run so far</span><b>+$64</b></div>
+</body>
+</html>

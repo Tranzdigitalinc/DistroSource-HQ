@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Esports Team Kit — match-day board</title>
+<!-- Design mockup for Esports Team Kit: a match-day poster with the matching result and schedule posts. Fictional teams. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_esports.css" />
+<style>
+  body { background: radial-gradient(1100px 700px at 70% 40%, #20243a, #090a10 70%); }
+  .poster { position: absolute; left: 640px; top: 70px; width: 580px; height: 860px; border-radius: 10px; overflow: hidden; background: var(--hawk-2); box-shadow: 0 50px 120px rgba(0,0,0,0.7); transform: rotate(2deg); }
+  .poster .duo { background-image: url(/.gaming-render/mc-arena-cover.png); opacity: 0.5; }
+  .poster .band { position: absolute; left: -40px; right: -40px; top: 300px; height: 190px; background: var(--hawk); transform: rotate(-8deg); }
+  .poster .md { position: absolute; left: 44px; top: 50px; font-size: 26px; font-weight: 800; letter-spacing: 0.2em; color: #fff; }
+  .poster .vs { position: absolute; left: 0; right: 0; top: 330px; display: flex; align-items: center; justify-content: center; gap: 26px; }
+  .poster .vs b { font-size: 60px; font-weight: 900; color: #fff; letter-spacing: -0.02em; }
+  .poster .big { position: absolute; left: 40px; top: 110px; font-size: 118px; font-weight: 900; line-height: 0.86; color: #fff; letter-spacing: -0.03em; }
+  .poster .info { position: absolute; left: 44px; right: 44px; bottom: 56px; display: flex; justify-content: space-between; align-items: flex-end; color: #fff; }
+  .poster .info .t { font-size: 58px; font-weight: 900; line-height: 1; }
+  .poster .info .s { font-size: 18px; font-weight: 700; letter-spacing: 0.12em; opacity: 0.85; margin-top: 8px; }
+  .poster .league { font-size: 16px; font-weight: 700; letter-spacing: 0.16em; text-align: right; opacity: 0.9; }
+  .card2 { position: absolute; border-radius: 10px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
+  .result { left: 1270px; top: 560px; width: 280px; height: 360px; background: #10121c; transform: rotate(-4deg); }
+  .result .top2 { height: 180px; background: var(--hawk); position: relative; display: grid; place-items: center; }
+  .result .sc { font-size: 76px; font-weight: 900; color: #fff; letter-spacing: -0.02em; }
+  .result .lab { padding: 18px 20px; color: #fff; }
+  .sched { left: 1262px; top: 84px; width: 280px; height: 350px; background: #f3efe6; color: #111; transform: rotate(5deg); padding: 24px; }
+  .sched h4 { font-size: 30px; font-weight: 900; line-height: 0.95; }
+  .sched li { display: flex; justify-content: space-between; padding: 11px 0; border-top: 2px solid #1112; font-size: 15px; font-weight: 800; }
+  .sw { position: absolute; left: 90px; bottom: 90px; display: flex; gap: 10px; }
+  .sw span { width: 44px; height: 44px; border-radius: 10px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15); }
+</style>
+</head>
+<body>
+<div class="poster ex">
+  <div class="duo"></div><div class="stripes"></div>
+  <div class="band"></div>
+  <div class="md">Match day · Week 9</div>
+  <div class="big">Grand<br />Final</div>
+  <div class="vs">
+    <svg width="96" height="96" viewBox="0 0 96 96"><path d="M48 6 L88 30 L78 78 L48 90 L18 78 L8 30 Z" fill="#1b1d2b" stroke="#fff" stroke-width="4"/><path d="M26 40 L48 26 L70 40 L60 46 L48 40 L36 46 Z M34 56 L48 48 L62 56 L48 74 Z" fill="#ff5a36"/></svg>
+    <b>VS</b>
+    <svg width="96" height="96" viewBox="0 0 96 96"><circle cx="48" cy="48" r="42" fill="#0e2340" stroke="#fff" stroke-width="4"/><path d="M26 30 L38 44 L48 36 L58 44 L70 30 L66 58 L48 72 L30 58 Z" fill="#33a0ff"/></svg>
+  </div>
+  <div class="info"><div><div class="t">FRI 20:00</div><div class="s">Harbor Hawks vs Northgate Wolves</div></div><div class="league">Harbor League<br />Division 2</div></div>
+</div>
+<div class="card2 sched ex"><h4>This<br />week</h4><ul style="margin-top:16px"><li><span>Tue</span><span>Scrim · Lynx</span></li><li><span>Thu</span><span>Semi · Owls</span></li><li><span>Fri</span><span style="color:#ff5a36">Final · Wolves</span></li><li><span>Sun</span><span>Community cup</span></li></ul></div>
+<div class="card2 result ex"><div class="top2"><span class="sc">3–1</span></div><div class="lab"><div style="font-size:14px;font-weight:700;letter-spacing:0.16em;opacity:0.7">Full time</div><div style="font-size:26px;font-weight:900;margin-top:6px;line-height:1">Hawks take<br />the semi</div></div></div>
+<div class="sw"><span style="background:#ff5a36"></span><span style="background:#1b1d2b"></span><span style="background:#f3efe6"></span><span style="background:#33a0ff"></span></div>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Heist Series — planning board</title>
+<!-- Built interface for Heist Series. Bank, crew and handles are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ff4d5e; --accent-ink: #1a0306; --bg: #0b0d12; --panel: #11141b; --panel-2: #171b24; --line: #252b38; }
+  .bg { background-image: url(/.gaming-render/heist-vault.png); }
+  .screen { display: grid; grid-template-columns: 300px 1fr 330px; }
+  .pane { padding: 22px; display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+  .pane + .pane { border-left: 1px solid var(--line); }
+  .ttl { font: 800 24px/1 Bahnschrift, sans-serif; letter-spacing: 0.02em; }
+  .kick { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .crew li { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); margin-bottom: 10px; }
+  .crew .role { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .crew b { font-size: 14px; }
+  .crew .st { margin-left: auto; }
+  .plan { position: relative; flex: 1; border-radius: 12px; background: #0a1420; border: 1px solid #1d3147; overflow: hidden; }
+  .plan .gridbg { position: absolute; inset: 0; background-image: linear-gradient(#12253a 1px, transparent 1px), linear-gradient(90deg, #12253a 1px, transparent 1px); background-size: 28px 28px; opacity: 0.7; }
+  .plan svg { position: absolute; inset: 0; }
+  .lbl { position: absolute; font: 700 11px/1.2 "Cascadia Mono", monospace; letter-spacing: 0.06em; color: #9cc4ea; text-transform: uppercase; }
+  .mk { position: absolute; transform: translate(-50%, -50%); width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 800 12px/1 Bahnschrift, sans-serif; color: #fff; background: var(--accent); box-shadow: 0 0 0 5px rgba(255,77,94,0.2); }
+  .tl li { display: grid; grid-template-columns: 58px 1fr; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .tl li:first-child { border-top: 0; }
+  .tl .t { color: var(--accent); }
+  .req li { display: flex; align-items: center; gap: 10px; padding: 7px 0; font-size: 13px; }
+  .cta { background: var(--accent); color: #fff; border-radius: 12px; padding: 16px; text-align: center; font: 800 18px/1 Bahnschrift, sans-serif; letter-spacing: 0.08em; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="tablet">
+  <div class="screen">
+    <section class="pane">
+      <div><div class="kick">Heist · Harborline Savings</div><div class="ttl" style="margin-top:8px">VAULT 02</div><div class="muted" style="font-size:12.5px;margin-top:6px">Time-locked vault · downtown branch</div></div>
+      <div class="h" style="margin:0">Crew · 4 of 4</div>
+      <ul class="crew">
+        <li><span class="av" style="background:#8b3ad8">RK</span><div><div class="role">Hacker</div><b>R. Kestrel</b></div><span class="st pill ok">Ready</span></li>
+        <li><span class="av" style="background:#d8843a">TV</span><div><div class="role">Driver</div><b>T. Varga</b></div><span class="st pill ok">Ready</span></li>
+        <li><span class="av" style="background:#3a8bd8">MO</span><div><div class="role">Drill</div><b>M. Osei</b></div><span class="st pill ok">Ready</span></li>
+        <li><span class="av" style="background:#3ab08a">LF</span><div><div class="role">Lookout</div><b>L. Ferretti</b></div><span class="st pill warn">Gearing up</span></li>
+      </ul>
+      <div class="card" style="padding:14px">
+        <div class="h" style="margin-bottom:8px">Take</div>
+        <div style="font-size:24px;font-weight:700" class="num">$180k – $240k</div>
+        <div class="muted" style="font-size:12px;margin-top:4px">Split 30 / 25 / 25 / 20 · set in config</div>
+      </div>
+    </section>
+    <section class="pane">
+      <div class="row"><div class="h" style="margin:0">Floor plan · approach</div><div class="spacer"></div><div class="tabs"><span class="on">Ground</span><span>Vault level</span><span>Roof</span></div></div>
+      <div class="plan">
+        <div class="gridbg"></div>
+        <svg viewBox="0 0 700 520" preserveAspectRatio="none">
+          <g fill="none" stroke="#5fa6e6" stroke-width="3">
+            <rect x="40" y="40" width="620" height="440" />
+            <path d="M40 200 H300 V40" /><path d="M300 200 V330 H40" /><path d="M430 40 V480" /><path d="M430 260 H660" />
+          </g>
+          <g fill="#0a1420" stroke="#5fa6e6" stroke-width="3"><circle cx="560" cy="150" r="54" /><circle cx="560" cy="150" r="30" /></g>
+          <g stroke="#ff4d5e" stroke-width="2" opacity="0.9"><path d="M440 110 L660 130" /><path d="M440 140 L660 170" /><path d="M440 175 L660 200" /></g>
+          <g fill="rgba(255,196,80,0.16)" stroke="rgba(255,196,80,0.6)" stroke-width="1.5"><path d="M290 50 L230 130 L330 130 Z" /><path d="M650 250 L560 300 L640 340 Z" /><path d="M50 340 L140 400 L60 440 Z" /></g>
+          <path d="M120 480 V400 H250 V260 H380 V150 H480" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="10 8" />
+          <path d="M470 150 L500 150" stroke="#fff" stroke-width="3" marker-end="url(#a)" />
+          <defs><marker id="a" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#fff" /></marker></defs>
+        </svg>
+        <span class="lbl" style="left:9%;top:18%">Lobby</span>
+        <span class="lbl" style="left:9%;top:47%">Tellers</span>
+        <span class="lbl" style="left:47%;top:18%">Offices</span>
+        <span class="lbl" style="left:66%;top:56%">Security room</span>
+        <span class="lbl" style="left:73%;top:12%;color:#ffd08a">Vault 02</span>
+        <span class="lbl" style="left:64%;top:40%;color:#ff8a95">Laser grid</span>
+        <span class="mk" style="left:17%;top:92%">1</span>
+        <span class="mk" style="left:36%;top:50%">2</span>
+        <span class="mk" style="left:54%;top:29%">3</span>
+        <span class="mk" style="left:83%;top:57%;background:#ffb547;box-shadow:0 0 0 5px rgba(255,181,71,0.22)">H</span>
+      </div>
+      <div class="row" style="font-size:12px;gap:18px" class="muted"><span><span class="dot bad"></span> Lasers</span><span><span class="dot warn"></span> Camera cones</span><span style="color:#fff">- - - Crew route</span><span class="muted">H · hack the security room before the lasers</span></div>
+    </section>
+    <section class="pane">
+      <div class="h" style="margin:0">Timeline</div>
+      <ul class="tl mono">
+        <li><span class="t">00:00</span><span>Enter through the loading bay</span></li>
+        <li><span class="t">00:45</span><span>Hack the security room</span></li>
+        <li><span class="t">01:30</span><span>Lasers down · 90 s window</span></li>
+        <li><span class="t">02:10</span><span>Drill the time lock</span></li>
+        <li><span class="t">04:00</span><span>Silent alarm → dispatch</span></li>
+        <li><span class="t">05:30</span><span>Exit to the getaway car</span></li>
+      </ul>
+      <div class="card" style="padding:14px">
+        <div class="h" style="margin-bottom:6px">Requirements</div>
+        <ul class="req">
+          <li><span class="dot"></span>Police on duty: 5 of 4 required</li>
+          <li><span class="dot"></span>Branch cooldown ready</li>
+          <li><span class="dot"></span>Laptop · thermite ×2 · drill</li>
+          <li><span class="dot warn"></span>Lookout still gearing up</li>
+        </ul>
+      </div>
+      <div class="spacer"></div>
+      <div class="cta">START WHEN READY</div>
+    </section>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Business Systems — till</title>
+<!-- Built interface for Business Systems: the point-of-sale till. Menu and prices are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ff5e7a; --accent-ink: #1a0308; }
+  .bg { background-image: url(/.gaming-render/mlo-diner.png); filter: blur(10px) brightness(0.5) saturate(1.1); }
+  .screen { display: grid; grid-template-columns: 200px 1fr 400px; }
+  .cats { background: #0d131a; border-right: 1px solid var(--line); padding: 18px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .cats span { padding: 16px 14px; border-radius: 12px; font-weight: 700; font-size: 15px; background: var(--panel-2); border: 1px solid var(--line); }
+  .cats span.on { background: var(--accent); color: #fff; border-color: transparent; }
+  .menu { padding: 20px; display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 150px; gap: 14px; align-content: start; }
+  .mi { border-radius: 14px; background: var(--panel); border: 1px solid var(--line); padding: 14px; display: flex; flex-direction: column; }
+  .mi .ic { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 26px; }
+  .mi b { font-size: 15px; margin-top: auto; }
+  .mi .p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .mi.hot { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .ticket { background: #0d131a; border-left: 1px solid var(--line); padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .ticket li { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; padding: 11px 0; border-top: 1px dashed #26313d; font-size: 14px; }
+  .ticket li:first-child { border-top: 0; }
+  .ticket li small { display: block; color: var(--muted); font-size: 12px; }
+  .q { width: 26px; height: 26px; border-radius: 7px; background: var(--panel-2); display: grid; place-items: center; font-weight: 700; font-size: 12px; }
+  .tot div { display: flex; justify-content: space-between; font-size: 14px; padding: 4px 0; color: var(--muted); }
+  .tot div.big { color: var(--text); font-size: 26px; font-weight: 800; padding-top: 10px; }
+  .pay { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pay span { padding: 16px 0; text-align: center; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); font-weight: 700; }
+  .pay span.on { background: var(--accent); color: #fff; border-color: transparent; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="tablet">
+  <div class="screen">
+    <aside class="cats">
+      <div class="row" style="padding:4px 4px 12px"><span class="logo" style="background:linear-gradient(145deg,#c43a52,#5e1424)">ED</span><b>Till 1</b></div>
+      <span class="on">Burgers</span><span>Sides</span><span>Shakes</span><span>Drinks</span><span>Desserts</span><span>Combos</span>
+      <div class="spacer"></div>
+      <div class="muted" style="font-size:12px;padding:4px">Server · Priya N.<br />Shift 19:00 – 02:00</div>
+    </aside>
+    <section class="menu">
+      <div class="mi hot"><span class="ic" style="background:rgba(255,94,122,0.16)">🍔</span><b>Eastside Classic</b><span class="p">$14.00</span></div>
+      <div class="mi"><span class="ic" style="background:rgba(255,181,71,0.16)">🍔</span><b>Double Smash</b><span class="p">$18.50</span></div>
+      <div class="mi"><span class="ic" style="background:rgba(60,207,142,0.16)">🥬</span><b>Garden Stack</b><span class="p">$13.00</span></div>
+      <div class="mi"><span class="ic" style="background:rgba(255,94,122,0.16)">🌶️</span><b>Harbor Heat</b><span class="p">$16.00</span></div>
+      <div class="mi"><span class="ic" style="background:rgba(74,163,255,0.16)">🧀</span><b>Melt &amp; Bacon</b><span class="p">$17.00</span></div>
+      <div class="mi"><span class="ic" style="background:rgba(155,107,255,0.16)">🍄</span><b>Mushroom Swiss</b><span class="p">$15.50</span></div>
+      <div class="mi"><span class="ic" style="background:rgba(255,181,71,0.16)">🍟</span><b>Add fries</b><span class="p">+$4.00</span></div>
+      <div class="mi"><span class="ic" style="background:rgba(255,181,71,0.16)">🧅</span><b>Onion rings</b><span class="p">+$5.00</span></div>
+      <div class="mi"><span class="ic" style="background:rgba(255,94,122,0.16)">🥤</span><b>Make it a combo</b><span class="p">+$6.50</span></div>
+    </section>
+    <aside class="ticket">
+      <div class="row"><b style="font-size:18px">Order #1184</b><span class="spacer"></span><span class="pill info">Table 4</span></div>
+      <ul>
+        <li><span class="q">2</span><div>Eastside Classic<small>No onion · one medium</small></div><span>$28.00</span></li>
+        <li><span class="q">1</span><div>Harbor Heat<small>Extra jalapeños</small></div><span>$16.00</span></li>
+        <li><span class="q">3</span><div>Fries<small>Combo</small></div><span>$12.00</span></li>
+        <li><span class="q">2</span><div>Chocolate shake</div><span>$13.00</span></li>
+        <li><span class="q">1</span><div>Cola</div><span>$3.50</span></li>
+      </ul>
+      <div class="spacer"></div>
+      <div class="tot"><div><span>Subtotal</span><span>$72.50</span></div><div><span>City tax 8%</span><span>$5.80</span></div><div class="big"><span>Total</span><span>$78.30</span></div></div>
+      <div class="pay"><span class="on">Card</span><span>Cash</span><span>Invoice</span></div>
+      <span class="btn primary lg" style="justify-content:center;height:54px;font-size:17px">Charge $78.30</span>
+    </aside>
+  </div>
+</div>
+</body>
+</html>

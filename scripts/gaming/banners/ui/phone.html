@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Phone OS</title>
+<!-- Built interface for Phone OS. ?v=home (cover), ?v=chat (messages + bank), ?v=apps (garage + social).
+     Names, balances and posts are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #5b8cff; }
+  body { background: #06080c; }
+  .bg { background-image: url(/.gaming-render/street-hud.png); filter: blur(14px) brightness(0.45) saturate(1); }
+  .stage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 90px; }
+  body.home .stage { justify-content: flex-end; padding-right: 40px; gap: 50px; }
+  .phone { width: 392px; height: 826px; border-radius: 58px; background: #0b0d10; padding: 12px; box-shadow: 0 50px 120px -30px rgba(0,0,0,0.9), inset 0 0 0 2px #2a2e35, inset 0 0 0 6px #111418; position: relative; flex: none; }
+  .phone.tilt { transform: rotate(-6deg) translateY(30px); opacity: 0.94; }
+  .scr { width: 100%; height: 100%; border-radius: 47px; overflow: hidden; position: relative; background: #0f1319; color: #fff; }
+  .island { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 118px; height: 34px; border-radius: 20px; background: #000; z-index: 5; }
+  .sb { height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 8px 30px 0; font-size: 15px; font-weight: 600; }
+  .wall { position: absolute; inset: 0; background: linear-gradient(160deg, #22325e 0%, #6b3d73 48%, #e0805a 100%); }
+  .wall::after { content: ""; position: absolute; inset: 0; background: radial-gradient(400px 300px at 70% 20%, rgba(255,255,255,0.18), transparent 60%); }
+  .homec { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; }
+  .widget { margin: 14px 20px 6px; border-radius: 24px; background: rgba(255,255,255,0.16); backdrop-filter: blur(20px); padding: 16px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .widget .t { font-size: 12px; opacity: 0.8; }
+  .widget .v { font-size: 24px; font-weight: 700; margin-top: 2px; }
+  .apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px 0; padding: 18px 20px; }
+  .app { display: flex; flex-direction: column; align-items: center; gap: 7px; font-size: 11.5px; font-weight: 500; }
+  .app i { width: 62px; height: 62px; border-radius: 17px; display: grid; place-items: center; font: 800 22px/1 Bahnschrift, sans-serif; color: #fff; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.12); }
+  .dock { margin: auto 14px 16px; border-radius: 32px; background: rgba(255,255,255,0.18); backdrop-filter: blur(20px); padding: 14px 16px; display: flex; justify-content: space-between; }
+  .dock i { width: 62px; height: 62px; border-radius: 17px; display: grid; place-items: center; font: 800 22px/1 Bahnschrift, sans-serif; }
+  .notif { position: absolute; top: 60px; left: 12px; right: 12px; z-index: 4; border-radius: 22px; background: rgba(30,33,40,0.86); backdrop-filter: blur(20px); padding: 13px 15px; display: flex; gap: 12px; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+  .notif i { width: 38px; height: 38px; border-radius: 10px; background: #2fb37b; display: grid; place-items: center; font: 800 16px/1 Bahnschrift, sans-serif; }
+  .notif b { font-size: 13.5px; }
+  .notif p { font-size: 12.5px; opacity: 0.85; margin-top: 1px; }
+  /* In-app screens */
+  .appbar { padding: 6px 20px 12px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #1d232d; }
+  .appbar h2 { font-size: 22px; }
+  .msgs { padding: 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .b { max-width: 78%; padding: 10px 14px; border-radius: 20px; font-size: 14px; line-height: 1.4; }
+  .b.in { background: #232a35; border-bottom-left-radius: 6px; align-self: flex-start; }
+  .b.out { background: var(--accent); border-bottom-right-radius: 6px; align-self: flex-end; }
+  .b.loc { padding: 0; overflow: hidden; width: 230px; }
+  .b.loc div { height: 110px; background: url(/.gaming-render/mlo-workshop.png) center / cover; }
+  .b.loc p { padding: 8px 12px; font-size: 12.5px; }
+  .ts { font-size: 11px; color: #7d8898; text-align: center; margin: 6px 0; }
+  .input { position: absolute; left: 14px; right: 14px; bottom: 18px; height: 44px; border-radius: 22px; background: #1b212a; display: flex; align-items: center; padding: 0 16px; color: #7d8898; font-size: 14px; }
+  .bank { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+  .bal { border-radius: 22px; padding: 20px; background: linear-gradient(135deg, #2fb37b, #1a6f58); }
+  .bal .t { font-size: 12px; opacity: 0.85; }
+  .bal .v { font-size: 34px; font-weight: 800; margin-top: 4px; }
+  .acts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .acts span { background: #1b212a; border-radius: 14px; padding: 12px; font-size: 12.5px; text-align: center; font-weight: 600; }
+  .tx li { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid #1d232d; font-size: 13.5px; }
+  .tx li:first-child { border-top: 0; }
+  .tx i { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; font: 800 14px/1 Bahnschrift, sans-serif; background: #232a35; }
+  .tx .a { margin-left: auto; font-weight: 700; }
+  .veh { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .vc { border-radius: 20px; background: #171c24; overflow: hidden; }
+  .vc .img { height: 120px; background-size: cover; background-position: center; }
+  .vc .c { padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+  .vc b { font-size: 15px; }
+  .vc .plate { margin-left: auto; }
+  .feed { padding: 12px 14px; display: flex; flex-direction: column; gap: 12px; }
+  .post { border-radius: 18px; background: #171c24; padding: 12px; }
+  .post .who { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .post .who .av { width: 30px; height: 30px; font-size: 11px; }
+  .post p { font-size: 13.5px; margin: 9px 0; line-height: 1.4; }
+  .post .img { height: 150px; border-radius: 12px; background-size: cover; background-position: center; }
+  .post .meta { display: flex; gap: 18px; font-size: 12px; color: #7d8898; margin-top: 9px; }
+  .tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: 74px; border-top: 1px solid #1d232d; background: #0f1319; display: flex; justify-content: space-around; align-items: center; font-size: 11px; color: #7d8898; padding-bottom: 12px; }
+  .tabbar span.on { color: var(--accent); font-weight: 700; }
+  .vv { display: none; }
+  body.home .vv.home, body.chat .vv.chat, body.apps .vv.apps { display: block; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="vignette"></div>
+<div class="stage">
+  <!-- Cover: home screen with a notification, lock screen phone behind. -->
+  <div class="phone tilt vv home"><div class="scr"><div class="wall"></div><div class="island"></div>
+    <div class="homec" style="align-items:center;padding-top:110px"><div style="font-size:18px;font-weight:600;opacity:0.9">Friday 18 September</div><div style="font-size:92px;font-weight:700;letter-spacing:-0.03em;margin-top:4px">21:47</div>
+      <div class="notif" style="position:relative;top:auto;left:auto;right:auto;margin-top:30px;width:340px"><i style="background:#5b8cff">M</i><div><b>Rosa D.</b><p>Meet at Eastside Auto in 10?</p></div></div>
+    </div></div></div>
+  <div class="phone vv home"><div class="scr"><div class="wall"></div><div class="island"></div>
+    <div class="homec">
+      <div class="sb"><span>21:47</span><span>●●● 5G ▮</span></div>
+      <div class="notif"><i>$</i><div><b>Bank · Salary received</b><p>+$1,250.00 from Harbor Medical Centre</p></div></div>
+      <div class="widget" style="margin-top:84px"><div><div class="t">Bank balance</div><div class="v">$24,380</div></div><div><div class="t">Next job</div><div class="v" style="font-size:18px">Shift 22:00</div></div></div>
+      <div class="apps">
+        <div class="app"><i style="background:#2fb37b">✉</i>Messages</div>
+        <div class="app"><i style="background:#3ccf6e">☎</i>Phone</div>
+        <div class="app"><i style="background:#1f8f66">$</i>Bank</div>
+        <div class="app"><i style="background:#e0544f">G</i>Garage</div>
+        <div class="app"><i style="background:#23262c">◉</i>Camera</div>
+        <div class="app"><i style="background:linear-gradient(135deg,#ffb547,#e0544f,#9b6bff)">✿</i>Photos</div>
+        <div class="app"><i style="background:#5b8cff">C</i>Chirp</div>
+        <div class="app"><i style="background:#ff8a3d">J</i>Jobs</div>
+        <div class="app"><i style="background:#3d6fd8">⌖</i>Maps</div>
+        <div class="app"><i style="background:#9b6bff">♪</i>Music</div>
+        <div class="app"><i style="background:#d6a33a">H</i>Homes</div>
+        <div class="app"><i style="background:#5b6472">⚙</i>Settings</div>
+      </div>
+      <div class="dock"><i style="background:#3ccf6e">☎</i><i style="background:#2fb37b">✉</i><i style="background:#1f8f66">$</i><i style="background:#5b8cff">C</i></div>
+    </div></div></div>
+
+  <!-- Messages and bank. -->
+  <div class="phone vv chat"><div class="scr"><div class="island"></div><div class="sb"><span>21:49</span><span>●●● 5G ▮</span></div>
+    <div class="appbar"><span class="av" style="background:#e0544f">RD</span><div><h2 style="font-size:17px">Rosa D.</h2><div style="font-size:12px;color:#7d8898">Eastside Auto</div></div></div>
+    <div class="msgs">
+      <div class="ts">Today 21:31</div>
+      <div class="b in">Your car's ready. New brakes and the paint's touched up.</div>
+      <div class="b out">Legend. How much do I owe you?</div>
+      <div class="b in">$850. I'll send an invoice to your bank app.</div>
+      <div class="b in loc"><div></div><p>📍 Eastside Auto · Commerce St</p></div>
+      <div class="b out">Paying now. Meet there in 10?</div>
+      <div class="b in">👍 Bay 2</div>
+    </div>
+    <div class="input">Message</div></div></div>
+  <div class="phone vv chat"><div class="scr"><div class="island"></div><div class="sb"><span>21:50</span><span>●●● 5G ▮</span></div>
+    <div class="appbar"><h2>Bank</h2><span style="margin-left:auto;font-size:13px;color:var(--accent)">Accounts</span></div>
+    <div class="bank">
+      <div class="bal"><div class="t">Current account · •• 4127</div><div class="v">$23,530.00</div><div class="t" style="margin-top:6px">Savings $8,200 · Loan $4,600 left</div></div>
+      <div class="acts"><span>Transfer</span><span>Invoices<br /><b style="color:#ffb547">1 due</b></span><span>Cards</span></div>
+      <ul class="tx">
+        <li><i style="color:#e0544f">G</i><div>Eastside Auto<div style="font-size:12px;color:#7d8898">Invoice #1182 · paid</div></div><span class="a">−$850.00</span></li>
+        <li><i style="color:#2fb37b">$</i><div>Harbor Medical Centre<div style="font-size:12px;color:#7d8898">Salary</div></div><span class="a ok">+$1,250.00</span></li>
+        <li><i style="color:#ffb547">L</i><div>Loan repayment<div style="font-size:12px;color:#7d8898">Instalment 4 of 12</div></div><span class="a">−$400.00</span></li>
+        <li><i style="color:#5b8cff">F</i><div>Fuel · Harbor Gas<div style="font-size:12px;color:#7d8898">Yesterday</div></div><span class="a">−$62.40</span></li>
+      </ul>
+    </div></div></div>
+
+  <!-- Garage and social feed. -->
+  <div class="phone vv apps"><div class="scr"><div class="island"></div><div class="sb"><span>18:12</span><span>●●● 5G ▮</span></div>
+    <div class="appbar"><h2>Garage</h2><span style="margin-left:auto;font-size:13px;color:var(--accent)">4 vehicles</span></div>
+    <div class="veh">
+      <div class="vc"><div class="img" style="background-image:url(/.gaming-render/street-stream.png)"></div><div class="c"><div><b>Patrol sedan</b><div style="font-size:12px;color:#7d8898">Department vehicle</div></div><span class="plate mono">NG 1A12</span></div></div>
+      <div class="vc"><div class="c"><div><b>Graphite sedan</b><div style="font-size:12px;color:#7d8898">Legion Square garage</div></div><span class="pill ok" style="margin-left:auto">In garage</span></div></div>
+      <div class="vc"><div class="c"><div><b>Crew-cab pickup</b><div style="font-size:12px;color:#7d8898">Impound · $350 release</div></div><span class="pill bad" style="margin-left:auto">Impounded</span></div></div>
+      <div class="vc"><div class="c"><div><b>Work van</b><div style="font-size:12px;color:#7d8898">Out · Harbor docks</div></div><span class="pill info" style="margin-left:auto">Track</span></div></div>
+    </div>
+    <div class="tabbar"><span class="on">Vehicles</span><span>Keys</span><span>Valet</span></div></div></div>
+  <div class="phone vv apps"><div class="scr"><div class="island"></div><div class="sb"><span>18:14</span><span>●●● 5G ▮</span></div>
+    <div class="appbar"><h2>Chirp</h2><span style="margin-left:auto;font-size:13px;color:var(--accent)">Post</span></div>
+    <div class="feed">
+      <div class="post"><div class="who"><span class="av" style="background:#d6a33a">ED</span><b>Eastside Diner</b><span style="color:#7d8898">· 12m</span></div><p>Late menu is on until 2am. Patrol units eat for half price tonight 🍔</p><div class="img" style="background-image:url(/.gaming-render/mlo-diner.png)"></div><div class="meta"><span>Reply</span><span>Share</span></div></div>
+      <div class="post"><div class="who"><span class="av" style="background:#16706c">HM</span><b>Harbor Medical</b><span style="color:#7d8898">· 1h</span></div><p>Blood drive at reception tomorrow from 18:00.</p></div>
+    </div>
+    <div class="tabbar"><span class="on">Home</span><span>Search</span><span>Alerts</span><span>Profile</span></div></div></div>
+</div>
+<script>
+  const v = new URLSearchParams(location.search).get("v") || "home"
+  document.body.classList.add(v)
+</script>
+</body>
+</html>

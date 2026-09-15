@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>City Starter Server — monthly update</title>
+<!-- Built interface for City Starter Server: a monthly package update with its changelog. Fictional content. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ff8a3d; --accent-ink: #1b0d03; }
+  .bg { background-image: url(/.gaming-render/mlo-workshop.png); }
+  .body { grid-template-columns: 1.4fr 1fr; }
+  .hero { display: flex; align-items: center; gap: 18px; }
+  .hero .ver { font: 800 40px/1 Bahnschrift, sans-serif; letter-spacing: 0.01em; }
+  .diff { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
+  .diff div { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .diff b { font-size: 22px; display: block; }
+  .diff span { font-size: 12px; color: var(--muted); }
+  .sec { margin-top: 4px; }
+  .sec h4 { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin: 16px 0 8px; display: flex; align-items: center; gap: 8px; }
+  .sec li { display: flex; gap: 10px; font-size: 13.5px; padding: 7px 0; color: #d3dce6; line-height: 1.45; }
+  .sec li .mono { color: var(--accent); font-size: 12px; flex: none; width: 128px; }
+  .tag { width: 8px; height: 8px; border-radius: 2px; }
+  .steps li { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .steps li:first-child { border-top: 0; padding-top: 0; }
+  .chk { width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; flex: none; font-size: 12px; font-weight: 800; }
+  .chk.done { background: var(--ok); color: #03140c; }
+  .chk.run { border: 2px solid var(--accent); }
+  .chk.todo { border: 2px solid #3a4756; }
+  .steps small { display: block; color: var(--muted); font-size: 11.5px; margin-top: 2px; }
+  .term { background: #070b10; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; font-size: 12px; line-height: 1.7; color: #9fb0c2; }
+  .term b { color: var(--ok); font-weight: 600; }
+  .term i { color: var(--accent); font-style: normal; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">packages.distrosource.local / city-starter-server / updates / 2026.10</span></div>
+  <div class="app" style="flex:1;min-height:0">
+    <aside class="side">
+      <div class="brandrow"><span class="logo">DS</span><div><b>Server Package</b><small>Northgate RP</small></div></div>
+      <div class="nav"><i></i>Overview</div>
+      <div class="nav"><i></i>Systems</div>
+      <div class="nav"><i></i>Setup wizard</div>
+      <div class="nav on"><i></i>Updates<span class="n">1</span></div>
+      <div class="nav"><i></i>Branding</div>
+      <div class="nav"><i></i>Economy</div>
+      <div class="nav"><i></i>Staff &amp; permissions</div>
+    </aside>
+    <main class="main">
+      <div class="top"><div><h1>Monthly package update</h1><div class="sub">Tested as one city before release · apply on staging first</div></div><div class="right"><span class="btn">Download notes</span><span class="btn primary">Apply to staging</span></div></div>
+      <div class="body">
+        <section class="card" style="overflow:hidden">
+          <div class="hero"><span class="ver">2026.10</span><div><span class="pill info">Ready for staging</span><div class="muted" style="font-size:12.5px;margin-top:6px">Qbox and QBCore editions · released to your Gaming Library</div></div></div>
+          <div class="diff"><div><b class="ok">+3</b><span>resources added</span></div><div><b>11</b><span>resources updated</span></div><div><b>27</b><span>fixes</span></div><div><b>0</b><span>breaking changes</span></div></div>
+          <div class="sec">
+            <h4><span class="tag" style="background:var(--ok)"></span>Added</h4>
+            <ul>
+              <li><span class="mono">ds_business</span>Nightclub business type with door list, bar till and DJ booth</li>
+              <li><span class="mono">ds_jobcenter</span>Bus driver job with three city routes</li>
+              <li><span class="mono">ds_mlo_nightclub</span>Nightclub interior placed at Vespucci Row</li>
+            </ul>
+            <h4><span class="tag" style="background:var(--accent)"></span>Changed</h4>
+            <ul>
+              <li><span class="mono">ds_banking</span>Loan repayments now appear on the phone's bank app</li>
+              <li><span class="mono">ds_hud</span>Seatbelt and fuel warnings follow the branding colour</li>
+              <li><span class="mono">economy.lua</span>Delivery wages +8% to match the new bus route</li>
+            </ul>
+            <h4><span class="tag" style="background:#4aa3ff"></span>Fixed</h4>
+            <ul>
+              <li><span class="mono">ds_inventory</span>Trunk weight now respects the vehicle class limit</li>
+              <li><span class="mono">ds_housing</span>Shared keys persist after a server restart</li>
+            </ul>
+          </div>
+        </section>
+        <div class="col">
+          <section class="card">
+            <div class="h">Staging checklist</div>
+            <ul class="steps">
+              <li><span class="chk done">✓</span><div>Back up the live database<small>Snapshot 2026-10-01 04:00 · verified</small></div></li>
+              <li><span class="chk done">✓</span><div>Apply 2026.10 to staging<small>Recipe diff applied · 14 resources</small></div></li>
+              <li><span class="chk run"></span><div>Run the smoke test<small>Jobs, bank, phone, housing</small></div></li>
+              <li><span class="chk todo"></span><div>Review config changes<small>economy.lua, config.lua (2 files)</small></div></li>
+              <li><span class="chk todo"></span><div>Schedule the live restart<small>Next window 06:00</small></div></li>
+            </ul>
+          </section>
+          <section class="card" style="flex:1">
+            <div class="h">Staging console</div>
+            <div class="term mono">
+              [txAdmin] recipe <i>city-starter/2026.10</i> applied<br />
+              [resources] started ds_business <b>ok</b><br />
+              [resources] started ds_jobcenter <b>ok</b><br />
+              [resources] started ds_mlo_nightclub <b>ok</b><br />
+              [db] migration 2026_10_business_nightclub <b>ok</b><br />
+              [smoke] bank → phone loan sync <b>ok</b><br />
+              [smoke] bus route 1 · 12 stops <i>running…</i>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

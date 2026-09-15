@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Sound Library — sound browser</title>
+<!-- Built interface for Sound Library: browsing the month's sounds. Sound names are fictional. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ff6b5b; --accent-ink: #1c0604; }
+  .bg { background-image: url(/.gaming-render/street-patrol.png); }
+  .body { grid-template-columns: 1fr 330px; grid-template-rows: auto 1fr; }
+  .now { grid-column: 1 / -1; display: grid; grid-template-columns: 76px 1fr 220px; gap: 22px; align-items: center; }
+  .play { width: 76px; height: 76px; border-radius: 50%; background: var(--accent); display: grid; place-items: center; font-size: 28px; color: #fff; box-shadow: 0 10px 30px rgba(255,107,91,0.35); }
+  .big { height: 110px; width: 100%; color: var(--accent); }
+  .meta dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 13px; }
+  .meta dt { color: var(--muted); }
+  .rows li { display: grid; grid-template-columns: 34px 220px 1fr 70px 120px 40px; gap: 16px; align-items: center; padding: 11px 16px; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .rows li:first-child { border-top: 0; }
+  .rows li.on { background: rgba(255,107,91,0.08); }
+  .rows .pb { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; font-size: 11px; }
+  .rows svg { height: 34px; width: 100%; color: #ff9d8f; }
+  .rows small { display: block; color: var(--muted); font-size: 12px; }
+  .pick { width: 26px; height: 26px; border-radius: 8px; border: 2px solid #3a4756; display: grid; place-items: center; font-size: 13px; font-weight: 800; }
+  .pick.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .picks li { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .picks li:first-child { border-top: 0; }
+  .slots { display: flex; gap: 8px; margin: 6px 0 12px; }
+  .slots i { flex: 1; height: 8px; border-radius: 6px; background: #26313d; }
+  .slots i.on { background: var(--accent); }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="window">
+  <div class="titlebar"><i></i><i></i><i></i><span class="url">DistroSource Gaming Library · Sound Library · September drop</span></div>
+  <div class="app" style="flex:1;min-height:0">
+    <aside class="side">
+      <div class="brandrow"><span class="logo">♪</span><div><b>Sound Library</b><small>September drop</small></div></div>
+      <div class="nav on"><i></i>All sounds<span class="n">24</span></div>
+      <div class="nav"><i></i>Sirens<span class="n">8</span></div>
+      <div class="nav"><i></i>Engines<span class="n">7</span></div>
+      <div class="nav"><i></i>Horns<span class="n">4</span></div>
+      <div class="nav"><i></i>Ambience<span class="n">5</span></div>
+      <div class="spacer"></div>
+      <div class="nav"><i></i>My kept sounds</div>
+    </aside>
+    <main class="main">
+      <div class="top"><div><h1>September drop</h1><div class="sub">Preview everything, keep five</div></div><div class="right"><div class="field" style="width:260px">⌕ <span>Search sounds</span></div></div></div>
+      <div class="body">
+        <section class="card now">
+          <span class="play">▶</span>
+          <div><div class="row"><b style="font-size:17px">Harbor Wail · long cycle</b><span class="pill info">Siren</span></div><svg class="big" data-wave="7" data-shape="siren" data-bars="170" data-played="0.42"></svg><div class="row mono muted" style="font-size:12px"><span>0:04.2</span><span class="spacer"></span><span>0:10.0</span></div></div>
+          <div class="meta"><dl><dt>Type</dt><dd>Siren tone bank</dd><dt>Format</dt><dd>.awc · 48 kHz</dd><dt>Loop</dt><dd>Seamless</dd><dt>Size</dt><dd>1.8 MB</dd></dl></div>
+        </section>
+        <section class="card flush">
+          <ul class="rows">
+            <li class="on"><span class="pb">❚❚</span><div><b>Harbor Wail</b><small>Siren · long cycle</small></div><svg data-wave="7" data-shape="siren" data-bars="90"></svg><span class="mono muted">0:10</span><span class="pill info">Siren</span><span class="pick on">✓</span></li>
+            <li><span class="pb">▶</span><div><b>Northside Yelp</b><small>Siren · fast</small></div><svg data-wave="12" data-shape="siren" data-bars="90"></svg><span class="mono muted">0:06</span><span class="pill info">Siren</span><span class="pick on">✓</span></li>
+            <li><span class="pb">▶</span><div><b>Flat-six rev</b><small>Engine · sports</small></div><svg data-wave="21" data-shape="engine" data-bars="90"></svg><span class="mono muted">0:14</span><span class="pill warn">Engine</span><span class="pick"></span></li>
+            <li><span class="pb">▶</span><div><b>V8 cold start</b><small>Engine · muscle</small></div><svg data-wave="33" data-shape="engine" data-bars="90"></svg><span class="mono muted">0:09</span><span class="pill warn">Engine</span><span class="pick on">✓</span></li>
+            <li><span class="pb">▶</span><div><b>Air horn, double</b><small>Horn · fire apparatus</small></div><svg data-wave="41" data-shape="horn" data-bars="90"></svg><span class="mono muted">0:03</span><span class="pill bad">Horn</span><span class="pick"></span></li>
+            <li><span class="pb">▶</span><div><b>Diner at night</b><small>Ambience · interior</small></div><svg data-wave="52" data-shape="amb" data-bars="90"></svg><span class="mono muted">1:30</span><span class="pill ok">Ambience</span><span class="pick"></span></li>
+            <li><span class="pb">▶</span><div><b>Harbor docks rain</b><small>Ambience · street</small></div><svg data-wave="64" data-shape="amb" data-bars="90"></svg><span class="mono muted">2:00</span><span class="pill ok">Ambience</span><span class="pick"></span></li>
+          </ul>
+        </section>
+        <section class="card">
+          <div class="h">Your picks <span class="link">3 of 5</span></div>
+          <div class="slots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+          <ul class="picks"><li><span class="pick on">✓</span>Harbor Wail</li><li><span class="pick on">✓</span>Northside Yelp</li><li><span class="pick on">✓</span>V8 cold start</li></ul>
+          <div class="muted" style="font-size:12px;line-height:1.5;margin-top:12px">Picks are kept after you cancel. Unused picks don't roll over.</div>
+          <span class="btn primary" style="justify-content:center;margin-top:14px;height:40px">Keep 3 sounds</span>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="/scripts/gaming/banners/ui/_wave.js"></script>
+</body>
+</html>

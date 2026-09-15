@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Job Center — shift summary</title>
+<!-- Built interface for Job Center: end-of-shift summary. Pay figures are example config values. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #ffb020; --accent-ink: #1f1502; }
+  .bg { background-image: url(/.gaming-render/street-patrol.png); }
+  .modal { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 1100px; height: 740px; border-radius: 22px; background: var(--bg); box-shadow: 0 50px 140px -30px rgba(0,0,0,0.9), 0 0 0 1px #1d2530; display: grid; grid-template-columns: minmax(0, 1fr) 420px; overflow: hidden; }
+  .l { padding: 34px; display: flex; flex-direction: column; gap: 20px; }
+  .r { background: #0d131a; border-left: 1px solid var(--line); padding: 34px; display: flex; flex-direction: column; gap: 18px; }
+  .big { font: 800 64px/1 Bahnschrift, sans-serif; color: var(--ok); }
+  .brk li { display: flex; justify-content: space-between; padding: 11px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .brk li:first-child { border-top: 0; }
+  .brk li.tot { font-weight: 800; font-size: 17px; border-top: 2px solid #2b3a4c; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .stats div { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  .stats b { display: block; font-size: 24px; }
+  .stats span { font-size: 12px; color: var(--muted); }
+  .runs { width: 100%; height: 190px; display: block; }
+  .xp { height: 12px; border-radius: 10px; background: #1f2a36; overflow: hidden; }
+  .xp i { display: block; height: 100%; width: 88%; background: linear-gradient(90deg, #d99513, #ffb020); }
+  .unlock { border: 1px solid rgba(255,176,32,0.4); background: linear-gradient(135deg, rgba(255,176,32,0.14), rgba(255,176,32,0.03)); border-radius: 14px; padding: 16px; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="modal">
+  <section class="l">
+    <div><div class="muted" style="font-size:12px;letter-spacing:0.14em;text-transform:uppercase;font-weight:700">Shift complete · Parcel delivery</div><div style="font-size:28px;font-weight:700;margin-top:6px">Good shift, Jonas.</div></div>
+    <div class="row" style="align-items:flex-end;gap:16px"><span class="big">$486</span><span class="muted" style="padding-bottom:8px">paid to your bank account</span></div>
+    <div class="stats"><div><b>5</b><span>Runs</span></div><div><b>38</b><span>Parcels delivered</span></div><div><b>1h 52m</b><span>On duty</span></div></div>
+    <div class="card"><div class="h">Pay per run</div>
+      <svg class="runs" viewBox="0 0 620 150" preserveAspectRatio="none">
+        <g stroke="#1f2b39"><path d="M0 30 H620 M0 80 H620 M0 130 H620" /></g>
+        <g fill="#ffb020"><rect x="30" y="70" width="80" height="60" rx="6"/><rect x="150" y="50" width="80" height="80" rx="6"/><rect x="270" y="80" width="80" height="50" rx="6"/><rect x="390" y="40" width="80" height="90" rx="6"/><rect x="510" y="56" width="80" height="74" rx="6"/></g>
+        <g fill="#0b1016" font-size="14" font-weight="700" font-family="Segoe UI" text-anchor="middle"><text x="70" y="96">$82</text><text x="190" y="80">$104</text><text x="310" y="108">$71</text><text x="430" y="72">$118</text><text x="550" y="86">$111</text></g>
+      </svg>
+    </div>
+  </section>
+  <aside class="r">
+    <div class="h" style="margin:0">Breakdown</div>
+    <ul class="brk">
+      <li><span>Base pay · 38 parcels</span><span>$380</span></li>
+      <li><span>Distance bonus</span><span class="ok">+$62</span></li>
+      <li><span>On-time bonus · 36 of 38</span><span class="ok">+$72</span></li>
+      <li><span>Van damage</span><span class="bad">−$28</span></li>
+      <li class="tot"><span>Total</span><span>$486</span></li>
+    </ul>
+    <div><div class="row" style="font-size:13px;margin-bottom:8px"><b>Level 4</b><span class="spacer"></span><span class="muted">2,640 / 3,000 XP</span></div><div class="xp"><i></i></div></div>
+    <div class="unlock"><div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#ffcf7a;font-weight:700">Next unlock · level 5</div><div style="font-size:16px;font-weight:700;margin-top:6px">Express van and the Vinewood route</div><div class="muted" style="font-size:12.5px;margin-top:4px">+18% base pay per parcel</div></div>
+    <div class="spacer"></div>
+    <div class="row"><span class="btn lg" style="flex:1;justify-content:center">Sign off</span><span class="btn primary lg" style="flex:1;justify-content:center">Another run</span></div>
+  </aside>
+</div>
+</body>
+</html>

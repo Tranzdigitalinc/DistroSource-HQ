@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Esports Team Kit — stream scoreboard</title>
+<!-- Design mockup for Esports Team Kit: scoreboard, lower third and map veto over rendered gameplay. Fictional teams. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_esports.css" />
+<style>
+  .bg { background-image: url(/.gaming-render/mc-arena-cover.png); }
+  .sb { position: absolute; left: 50%; top: 26px; transform: translateX(-50%); display: flex; align-items: stretch; height: 74px; box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
+  .sb .tm { display: flex; align-items: center; gap: 14px; padding: 0 22px; color: #fff; font-size: 30px; font-weight: 900; letter-spacing: 0.02em; }
+  .sb .tm.l { background: #ff5a36; }
+  .sb .tm.r { background: #33a0ff; }
+  .sb .sc { background: #0c0d14; color: #fff; display: flex; align-items: center; gap: 18px; padding: 0 26px; font-size: 44px; font-weight: 900; }
+  .sb .sc small { font-size: 13px; font-weight: 700; letter-spacing: 0.16em; color: #9aa0bb; display: block; text-align: center; }
+  .map { position: absolute; left: 50%; top: 100px; transform: translateX(-50%); background: rgba(12,13,20,0.9); color: #fff; padding: 6px 18px; font-size: 14px; font-weight: 700; letter-spacing: 0.16em; }
+  .lt { position: absolute; left: 60px; bottom: 60px; display: flex; align-items: stretch; box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
+  .lt .bar2 { width: 12px; background: #ff5a36; }
+  .lt .txt { background: #0c0d14; color: #fff; padding: 16px 26px; }
+  .lt .txt b { font-size: 30px; font-weight: 900; display: block; line-height: 1; }
+  .lt .txt span { font-size: 15px; font-weight: 700; letter-spacing: 0.14em; color: #ff8c6e; }
+  .veto { position: absolute; right: 60px; bottom: 60px; width: 360px; background: rgba(12,13,20,0.92); color: #fff; padding: 18px 20px; box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
+  .veto h4 { font-size: 15px; font-weight: 800; letter-spacing: 0.16em; margin-bottom: 10px; }
+  .veto li { display: flex; justify-content: space-between; padding: 9px 0; border-top: 2px solid #1d2030; font-size: 17px; font-weight: 800; }
+  .veto li:first-child { border-top: 0; }
+  .veto .x { color: #6a6f86; text-decoration: line-through; }
+  .cams { position: absolute; left: 60px; top: 26px; display: flex; gap: 10px; }
+  .cam { width: 170px; height: 100px; background: #1b1d2b; border-top: 5px solid #ff5a36; position: relative; }
+  .cam.w { border-top-color: #33a0ff; }
+  .cam span { position: absolute; left: 8px; bottom: 6px; color: #fff; font-size: 13px; font-weight: 800; letter-spacing: 0.1em; }
+</style>
+</head>
+<body>
+<div class="bg sharp"></div>
+<div class="cams ex"><div class="cam"><span>Kestrel</span></div><div class="cam w"><span>Lupo</span></div></div>
+<div class="sb ex">
+  <div class="tm l"><svg width="44" height="44" viewBox="0 0 96 96"><path d="M48 6 L88 30 L78 78 L48 90 L18 78 L8 30 Z" fill="#1b1d2b" stroke="#fff" stroke-width="6"/><path d="M26 40 L48 26 L70 40 L60 46 L48 40 L36 46 Z M34 56 L48 48 L62 56 L48 74 Z" fill="#ff5a36"/></svg>Hawks</div>
+  <div class="sc"><span>2</span><div><small>Map 3</small><span style="font-size:22px">14:32</span></div><span>1</span></div>
+  <div class="tm r">Wolves<svg width="44" height="44" viewBox="0 0 96 96"><circle cx="48" cy="48" r="42" fill="#0e2340" stroke="#fff" stroke-width="6"/><path d="M26 30 L38 44 L48 36 L58 44 L70 30 L66 58 L48 72 L30 58 Z" fill="#33a0ff"/></svg></div>
+</div>
+<div class="map ex">Harbor League · Grand final · Best of 5</div>
+<div class="lt ex"><span class="bar2"></span><div class="txt"><b>Sam Reyes &amp; Ade Bello</b><span>On the call tonight</span></div></div>
+<div class="veto ex"><h4>Map veto</h4><ul><li><span>Four Isles</span><span style="color:#ff5a36">Hawks pick</span></li><li><span>Sky Forge</span><span style="color:#33a0ff">Wolves pick</span></li><li class="x"><span>Old Harbor</span><span>Banned</span></li><li><span>Quartz Ring</span><span style="color:#f5cf4e">Decider</span></li></ul></div>
+</body>
+</html>

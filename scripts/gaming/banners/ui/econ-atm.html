@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Economy &amp; Banking Suite — ATM</title>
+<!-- Built interface for Economy & Banking Suite: the ATM screen in a machine bezel. Fictional bank. -->
+<link rel="stylesheet" href="/scripts/gaming/banners/ui/_kit.css" />
+<style>
+  :root { --accent: #2fc28a; }
+  .bg { background-image: url(/.gaming-render/street-stream.png); }
+  .atm { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -48%); width: 1060px; height: 820px; border-radius: 30px; background: linear-gradient(180deg, #3a4048, #1e2227); padding: 30px 40px 40px; box-shadow: 0 60px 140px -30px rgba(0,0,0,0.95), inset 0 2px 0 rgba(255,255,255,0.12); }
+  .brand { display: flex; align-items: center; gap: 12px; color: #e9edf1; font: 800 18px/1 Bahnschrift, sans-serif; letter-spacing: 0.08em; margin-bottom: 20px; }
+  .brand i { width: 30px; height: 30px; border-radius: 8px; background: #2fc28a; }
+  .scr { height: 600px; border-radius: 14px; background: linear-gradient(180deg, #0c2a22, #071913); box-shadow: inset 0 0 0 10px #0b0d10, inset 0 0 60px rgba(47,194,138,0.12); padding: 44px 50px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; gap: 26px 40px; color: #eafff6; }
+  .greet { grid-column: 1 / -1; display: flex; align-items: flex-end; justify-content: space-between; }
+  .greet h1 { font-size: 36px; font-weight: 700; }
+  .greet .bal { text-align: right; }
+  .greet .bal b { font: 800 40px/1 Bahnschrift, sans-serif; display: block; margin-top: 6px; }
+  .amts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-content: start; }
+  .amts span { height: 86px; border-radius: 14px; background: rgba(47,194,138,0.12); border: 2px solid rgba(47,194,138,0.45); display: grid; place-items: center; font: 800 30px/1 Bahnschrift, sans-serif; }
+  .amts span.sel { background: #2fc28a; color: #04150e; border-color: #2fc28a; }
+  .opts { display: flex; flex-direction: column; gap: 16px; }
+  .opts span { height: 70px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.12); display: flex; align-items: center; padding: 0 24px; font-size: 20px; font-weight: 600; }
+  .opts span b { margin-left: auto; font-size: 22px; opacity: 0.6; }
+  .deck { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+  .slot { width: 240px; height: 16px; border-radius: 8px; background: #0b0d10; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8); position: relative; }
+  .slot::after { content: ""; position: absolute; left: 20px; right: 20px; top: 5px; height: 6px; border-radius: 3px; background: #2fc28a; box-shadow: 0 0 10px #2fc28a; }
+  .keys { display: grid; grid-template-columns: repeat(3, 40px); gap: 8px; }
+  .keys span { height: 32px; border-radius: 6px; background: #2b3037; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.5); display: grid; place-items: center; color: #aab4be; font-size: 13px; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="atm">
+  <div class="brand"><i></i>NORTHGATE SAVINGS</div>
+  <div class="scr">
+    <div class="greet"><div><div style="opacity:0.7;font-size:16px">Card •• 4127</div><h1>Hello, Tomas</h1></div><div class="bal"><span style="opacity:0.7;font-size:16px">Available balance</span><b>$23,530.00</b></div></div>
+    <div><div style="opacity:0.7;font-size:15px;margin-bottom:14px">Withdraw cash</div><div class="amts"><span>$50</span><span>$100</span><span class="sel">$200</span><span>$500</span><span>$1,000</span><span style="font-size:22px">Other</span></div></div>
+    <div class="opts"><div style="opacity:0.7;font-size:15px">Or</div><span>Deposit cash<b>›</b></span><span>Transfer<b>›</b></span><span>Pay an invoice<b>›</b></span><span>Mini statement<b>›</b></span></div>
+  </div>
+  <div class="deck"><div class="slot"></div><div class="keys"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div><div class="slot" style="width:320px"></div></div>
+</div>
+</body>
+</html>
