@@ -9,6 +9,7 @@
 
 import { db } from "@/lib/db"
 import {
+  categories,
   entitlements,
   membershipCreditLedger,
   membershipPlans,
@@ -33,11 +34,12 @@ import {
 } from "@/lib/fungies"
 import {
   computeRemainingCredits,
+  findClaimOption,
   generateSubscriptionReference,
-  getActiveMembership,
-  getFungiesPlanBilling,
   getMembershipPlanBySlug,
+  listActiveMemberships,
   lockSubscriptionCredits,
+  planBilling,
 } from "@/lib/membership"
 import { and, asc, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
@@ -75,7 +77,7 @@ export async function startMembershipCheckout(input: {
 
   // Each tier bills as a plan of the Fungies membership product. Checked
   // before anything is written, so an unmapped plan never leaves a pending row.
-  const billing = getFungiesPlanBilling(plan.slug)
+  const billing = planBilling(plan)
   if (!billing) {
     console.error("[v0] No Fungies plan mapped for membership plan", { slug: plan.slug })
     return { error: "That membership plan isn't available right now. Please try again later." }
@@ -89,9 +91,12 @@ export async function startMembershipCheckout(input: {
   if (!EMAIL_PATTERN.test(email)) return { error: "Enter a valid email address." }
   const billingName = (input.name || session?.user?.name || email.split("@")[0]).trim()
 
-  // One active membership per account. A canceled/expired member may resubscribe.
-  const existing = await getActiveMembership(ownerId)
-  if (existing) return { error: "You already have an active membership. Manage it from your account." }
+  // An account may hold several plans (a club plus All-Access, say), but only
+  // one subscription per plan. A canceled/expired one may be restarted.
+  const active = await listActiveMemberships(ownerId)
+  if (active.some((row) => row.plan.id === plan.id)) {
+    return { error: `You're already subscribed to ${plan.name}. Manage it from your account.` }
+  }
 
   const priceUsd = input.interval === "year" ? plan.annualPriceUsd : plan.monthlyPriceUsd
   const reference = generateSubscriptionReference()
@@ -177,12 +182,22 @@ export async function confirmMembershipCheckout(
  * they keep the benefits they've paid for until it lapses. The webhook flips
  * the status to canceled/expired when the period actually ends.
  */
-export async function cancelMyMembership(): Promise<{ success: true } | { error: string }> {
+export async function cancelMyMembership(planSlug?: string): Promise<{ success: true } | { error: string }> {
   const userId = await getUserId()
   await enforceRateLimit("membership-manage", RATE_LIMITS.membershipManage, userId)
 
-  const membership = await getActiveMembership(userId)
-  if (!membership) return { error: "You don't have an active membership to cancel." }
+  // With several plans possible, the caller names which one to cancel. Naming
+  // none is only unambiguous when exactly one is active.
+  const active = await listActiveMemberships(userId)
+  if (!active.length) return { error: "You don't have an active subscription to cancel." }
+  const membership = planSlug ? active.find((row) => row.plan.slug === planSlug) : active.length === 1 ? active[0] : null
+  if (!membership) {
+    return {
+      error: planSlug
+        ? "You don't have an active subscription to that plan."
+        : "You have more than one subscription. Choose the one to cancel from your account.",
+    }
+  }
 
   const { subscription } = membership
   // Without the Fungies id the cancellation can't reach Fungies, and marking
@@ -220,16 +235,15 @@ export async function redeemMembershipCredit(input: {
   const userId = await getUserId()
   await enforceRateLimit("membership-credit-redeem", RATE_LIMITS.membershipCreditRedeem, userId)
 
-  const membership = await getActiveMembership(userId)
-  if (!membership) return { error: "You need an active membership to use download credits." }
-  const { subscription, plan } = membership
-
-  const remaining = await computeRemainingCredits(subscription, plan)
-  if (remaining !== null && remaining < 1) {
-    return { error: "You've used all of this cycle's download credits. They reset next billing period." }
-  }
-
-  const [product] = await db.select().from(products).where(eq(products.id, input.productId)).limit(1)
+  // The product's category decides which plans may claim it, so it is read
+  // alongside the product itself.
+  const [row] = await db
+    .select({ product: products, categorySlug: categories.slug })
+    .from(products)
+    .innerJoin(categories, eq(categories.id, products.categoryId))
+    .where(eq(products.id, input.productId))
+    .limit(1)
+  const product = row?.product
   if (
     !product ||
     product.status !== "published" ||
@@ -249,12 +263,15 @@ export async function redeemMembershipCredit(input: {
   const license = input.licenseId ? licenseRows.find((l) => l.id === input.licenseId) : licenseRows[0]
   if (!license) return { error: "This product can't be claimed with a credit." }
 
-  // Enforce the plan's per-credit value cap (null = no cap, i.e. Elite).
-  if (plan.creditValueCapUsd !== null) {
-    const cap = Number.parseFloat(plan.creditValueCapUsd)
-    if (Number.parseFloat(license.price) > cap) {
-      return { error: `This product is above your plan's per-credit value (${plan.name} covers up to $${cap.toFixed(0)}).` }
-    }
+  // Which plan pays: scope must cover the category and the cap must cover the
+  // price. Re-checked inside the transaction below before anything is written.
+  const option = await findClaimOption(userId, { categorySlug: row.categorySlug, priceUsd: Number.parseFloat(license.price) })
+  if (!option) {
+    return { error: "None of your subscriptions cover this product. Check the plan's departments and per-claim value." }
+  }
+  const { subscription, plan } = option
+  if (option.remaining !== null && option.remaining < 1) {
+    return { error: `You've used all of this cycle's ${plan.name} claims. They reset next billing period.` }
   }
 
   const [owned] = await db

@@ -611,6 +611,16 @@ export const membershipPlans = pgTable("membership_plans", {
   monthlyCredits: integer("monthlyCredits"),
   // Largest single-product price one credit may claim. null = no cap.
   creditValueCapUsd: numeric("creditValueCapUsd", { precision: 10, scale: 2 }),
+  // membership = the original store-wide tiers; club | bundle | all-access are
+  // the scoped "pick & keep" plans. See scripts/db/add-subscription-clubs.sql.
+  kind: text("kind").notNull().default("membership"),
+  // Category slugs a claim may come from; [] = the whole store.
+  scopeCategorySlugs: jsonb("scopeCategorySlugs").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
+  // Where this plan bills in Fungies. Without a plan id it cannot be checked out.
+  fungiesProductId: text("fungiesProductId"),
+  fungiesPlanId: text("fungiesPlanId"),
+  // Gaming claims per cycle; 0 until Gaming plans have real deliverables.
+  gamingClaims: integer("gamingClaims").notNull().default(0),
   perks: jsonb("perks").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
   isPopular: boolean("isPopular").notNull().default(false),
   isActive: boolean("isActive").notNull().default(true),

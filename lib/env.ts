@@ -236,6 +236,19 @@ export function isFungiesConfigured(): boolean {
   )
 }
 
+/**
+ * Subscription clubs — the scoped "pick & keep" plans (clubs, bundles,
+ * All-Access) that live alongside the three membership tiers.
+ *
+ * Off unless explicitly enabled, because a club can only be sold once its
+ * Fungies product and plan exist; until then the page would offer a
+ * subscription that cannot be checked out. The plans themselves are also
+ * inactive in the database until published.
+ */
+export function areSubscriptionClubsEnabled(): boolean {
+  return process.env.SUBSCRIPTION_CLUBS_ENABLED?.trim() === "1"
+}
+
 /** Polar API mode. Defaults to sandbox so a misconfiguration cannot take real money. */
 export function getPolarServer(): "production" | "sandbox" {
   return process.env.POLAR_SERVER?.trim() === "production" ? "production" : "sandbox"

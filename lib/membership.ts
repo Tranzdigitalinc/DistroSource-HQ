@@ -25,7 +25,7 @@ import {
   type FungiesEvent,
   type FungiesSubscriptionStatus,
 } from "@/lib/fungies"
-import { and, eq, gte, sql } from "drizzle-orm"
+import { and, eq, gte, inArray, sql } from "drizzle-orm"
 
 export type MembershipPlan = typeof membershipPlans.$inferSelect
 export type Subscription = typeof subscriptions.$inferSelect
@@ -69,6 +69,22 @@ export function getFungiesPlanBilling(slug: string): { productId: string; varian
   return { productId: FUNGIES_MEMBERSHIP_PRODUCT_ID, variantId: FUNGIES_PLAN_VARIANT_IDS[slug] }
 }
 
+/**
+ * Where a plan bills. Clubs and bundles carry their own Fungies ids on the
+ * row (written by the admin sync); the three original tiers still resolve
+ * through the constants above.
+ */
+export function planBilling(plan: MembershipPlan): { productId: string; variantId: string } | null {
+  if (plan.fungiesProductId && plan.fungiesPlanId) return { productId: plan.fungiesProductId, variantId: plan.fungiesPlanId }
+  return getFungiesPlanBilling(plan.slug)
+}
+
+/** A plan with an empty scope claims from the whole store; a club is limited. */
+export function planCoversCategory(plan: MembershipPlan, categorySlug: string | null): boolean {
+  const scope = plan.scopeCategorySlugs ?? []
+  return scope.length === 0 || (categorySlug !== null && scope.includes(categorySlug))
+}
+
 /** Our local status a Fungies status maps to. `active` is the only one that
  * grants benefits; `paused` keeps access per Fungies' own semantics. */
 export function mapFungiesStatus(status: FungiesSubscriptionStatus): Subscription["status"] {
@@ -90,12 +106,26 @@ export function mapFungiesStatus(status: FungiesSubscriptionStatus): Subscriptio
   }
 }
 
-/** All active plans, cheapest first — for the pricing page (RSC-safe read). */
+/**
+ * The store-wide membership tiers, cheapest first — for /membership (RSC-safe).
+ * Deliberately scoped to `kind = 'membership'`: scoped clubs and bundles are
+ * plans in the same table but belong on their own page, and must never appear
+ * in the three-tier pricing grid.
+ */
 export async function listActiveMembershipPlans(): Promise<MembershipPlan[]> {
   return db
     .select()
     .from(membershipPlans)
-    .where(eq(membershipPlans.isActive, true))
+    .where(and(eq(membershipPlans.isActive, true), eq(membershipPlans.kind, "membership")))
+    .orderBy(membershipPlans.sortOrder)
+}
+
+/** Active club, bundle and All-Access plans, for the subscriptions page. */
+export async function listSubscriptionPlans(): Promise<MembershipPlan[]> {
+  return db
+    .select()
+    .from(membershipPlans)
+    .where(and(eq(membershipPlans.isActive, true), inArray(membershipPlans.kind, ["club", "bundle", "all-access"])))
     .orderBy(membershipPlans.sortOrder)
 }
 
@@ -155,10 +185,9 @@ export async function getProductCreditClaim(
   userId: string | null | undefined,
   product: { id: number; status: string; assetStatus: string; isBundle: boolean; isFree: boolean; rightsStatus: string },
   cheapestLicensePriceUsd: number | null,
-): Promise<{ canClaim: boolean; remaining: number | null } | null> {
-  const membership = await getActiveMembership(userId)
-  if (!membership || !userId) return null
-  const { subscription, plan } = membership
+  categorySlug: string | null = null,
+): Promise<{ canClaim: boolean; remaining: number | null; planName: string; planSlug: string } | null> {
+  if (!userId) return null
 
   const eligibleProduct =
     product.status === "published" &&
@@ -168,11 +197,6 @@ export async function getProductCreditClaim(
     SELLABLE_RIGHTS_STATUSES.has(product.rightsStatus)
   if (!eligibleProduct) return null
 
-  // Respect the plan's per-credit value cap (null = unlimited value, Elite).
-  if (plan.creditValueCapUsd !== null && cheapestLicensePriceUsd !== null) {
-    if (cheapestLicensePriceUsd > Number.parseFloat(plan.creditValueCapUsd)) return null
-  }
-
   const [owned] = await db
     .select({ id: entitlements.id })
     .from(entitlements)
@@ -180,8 +204,48 @@ export async function getProductCreditClaim(
     .limit(1)
   if (owned) return null
 
-  const remaining = await computeRemainingCredits(subscription, plan)
-  return { canClaim: remaining === null || remaining > 0, remaining }
+  const option = await findClaimOption(userId, { categorySlug, priceUsd: cheapestLicensePriceUsd })
+  if (!option) return null
+  return {
+    canClaim: option.remaining === null || option.remaining > 0,
+    remaining: option.remaining,
+    planName: option.plan.name,
+    planSlug: option.plan.slug,
+  }
+}
+
+export interface ClaimOption {
+  subscription: Subscription
+  plan: MembershipPlan
+  remaining: number | null
+}
+
+/**
+ * Which of the caller's active plans should pay for this product, or null when
+ * none may. A plan qualifies when its scope covers the product's category and
+ * its per-claim value cap covers the price. Tightly scoped clubs are preferred
+ * over store-wide plans, so a member's broader credits are spent last; among
+ * equals, the largest remaining balance wins. Plans that qualify but are out
+ * of credits are still returned (so the UI can say "no claims left this
+ * cycle") when nothing spendable is available.
+ */
+export async function findClaimOption(
+  userId: string | null | undefined,
+  opts: { categorySlug: string | null; priceUsd: number | null },
+): Promise<ClaimOption | null> {
+  const rows = await listActiveMemberships(userId)
+  const candidates: ClaimOption[] = []
+  for (const row of rows) {
+    if (!planCoversCategory(row.plan, opts.categorySlug)) continue
+    if (row.plan.creditValueCapUsd !== null && opts.priceUsd !== null && opts.priceUsd > Number.parseFloat(row.plan.creditValueCapUsd)) continue
+    candidates.push({ ...row, remaining: await computeRemainingCredits(row.subscription, row.plan) })
+  }
+  if (!candidates.length) return null
+  const spendable = candidates.filter((c) => c.remaining === null || c.remaining > 0)
+  const scopeWidth = (c: ClaimOption) => (c.plan.scopeCategorySlugs ?? []).length || Number.MAX_SAFE_INTEGER
+  return (spendable.length ? spendable : candidates).sort(
+    (a, b) => scopeWidth(a) - scopeWidth(b) || (b.remaining ?? Number.MAX_SAFE_INTEGER) - (a.remaining ?? Number.MAX_SAFE_INTEGER),
+  )[0]
 }
 
 function addInterval(from: Date, interval: string): Date {
@@ -200,14 +264,28 @@ function addInterval(from: Date, interval: string): Date {
 export async function getActiveMembership(
   userId: string | null | undefined,
 ): Promise<{ subscription: Subscription; plan: MembershipPlan } | null> {
-  if (!userId) return null
-  const [row] = await db
+  const rows = await listActiveMemberships(userId)
+  if (!rows.length) return null
+  // An account may now hold several plans (clubs, bundles, All-Access). For
+  // store-wide benefits — the checkout discount, the account header — the best
+  // one wins: highest discount, then the dearer plan.
+  return rows.reduce((best, row) => {
+    if (row.plan.discountPercent !== best.plan.discountPercent) return row.plan.discountPercent > best.plan.discountPercent ? row : best
+    return Number.parseFloat(row.plan.monthlyPriceUsd) > Number.parseFloat(best.plan.monthlyPriceUsd) ? row : best
+  })
+}
+
+/** Every active subscription on the account, each with its plan. */
+export async function listActiveMemberships(
+  userId: string | null | undefined,
+): Promise<{ subscription: Subscription; plan: MembershipPlan }[]> {
+  if (!userId) return []
+  return db
     .select({ subscription: subscriptions, plan: membershipPlans })
     .from(subscriptions)
     .innerJoin(membershipPlans, eq(subscriptions.planId, membershipPlans.id))
     .where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, "active")))
-    .limit(1)
-  return row ?? null
+    .orderBy(membershipPlans.sortOrder)
 }
 
 /** Store-wide discount percent for a member, or 0. Used by checkout pricing. */

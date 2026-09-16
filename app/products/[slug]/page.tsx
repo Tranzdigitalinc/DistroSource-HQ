@@ -85,6 +85,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     await getOptionalUserId(),
     product,
     ownCheapest ? Number.parseFloat(ownCheapest.price) : null,
+    category.slug,
   )
   const partnerRow = related.find((r) => r.licenses.length > 0 && (r.product.coverImageUrl ?? r.images[0]?.url) && !r.product.isFree)
   const partnerCheapest = partnerRow ? cheapestOf(partnerRow.licenses) : null
