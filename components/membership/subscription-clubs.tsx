@@ -8,6 +8,7 @@
 
 import { useCallback, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import Link from "next/link"
 import { toast } from "sonner"
 import { motion } from "motion/react"
@@ -23,6 +24,7 @@ export interface ClubPlanView {
   slug: string
   name: string
   tagline: string | null
+  imageUrl: string | null
   monthlyPriceUsd: number
   annualPriceUsd: number
   monthlyCredits: number | null
@@ -228,8 +230,20 @@ function ClubCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: Math.min(index, 5) * 0.06, ease: [0.16, 1, 0.3, 1] }}
-      className="flex flex-col rounded-3xl border border-border bg-card p-6"
+      className="flex flex-col overflow-hidden rounded-3xl border border-border bg-card"
     >
+      {plan.imageUrl && (
+        <div className="relative aspect-video w-full">
+          <Image
+            src={plan.imageUrl}
+            alt={`${plan.name} cover`}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover"
+          />
+        </div>
+      )}
+      <div className="flex flex-1 flex-col p-6">
       <h3 className="font-display text-lg font-bold text-foreground">{plan.name}</h3>
       {plan.tagline && <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{plan.tagline}</p>}
 
@@ -280,6 +294,7 @@ function ClubCard({
           </li>
         ))}
       </ul>
+      </div>
     </motion.div>
   )
 }

@@ -621,6 +621,8 @@ export const membershipPlans = pgTable("membership_plans", {
   fungiesPlanId: text("fungiesPlanId"),
   // Gaming claims per cycle; 0 until Gaming plans have real deliverables.
   gamingClaims: integer("gamingClaims").notNull().default(0),
+  // Cover shown on the /subscriptions card; null renders the card text-only.
+  imageUrl: text("imageUrl"),
   perks: jsonb("perks").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
   isPopular: boolean("isPopular").notNull().default(false),
   isActive: boolean("isActive").notNull().default(true),

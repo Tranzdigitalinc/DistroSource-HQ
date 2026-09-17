@@ -53,6 +53,7 @@ export default async function SubscriptionsPage() {
     slug: p.slug,
     name: p.name,
     tagline: p.tagline,
+    imageUrl: p.imageUrl,
     monthlyPriceUsd: Number.parseFloat(p.monthlyPriceUsd),
     annualPriceUsd: Number.parseFloat(p.annualPriceUsd),
     monthlyCredits: p.monthlyCredits,
