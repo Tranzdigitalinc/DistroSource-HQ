@@ -283,7 +283,7 @@ export async function createTampayCheckout(input: {
   try {
     const billingEmail = input.billingEmail.trim()
     const billingName = input.billingName.trim()
-    const paymentMethod: TampayPaymentMethod = "lahza"
+    const paymentMethod: TampayPaymentMethod = input.paymentMethod
     if (!EMAIL_PATTERN.test(billingEmail)) return { error: "Enter a valid email address for your order confirmation." }
     if (!billingName) return { error: "Enter the name on this order." }
 

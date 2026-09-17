@@ -20,7 +20,7 @@ import "server-only"
 
 const TAMPAY_API_BASE = "https://tampay.io/api/v1"
 
-export type TampayPaymentMethod = "togo" | "lahza" | "stripe"
+export type TampayPaymentMethod = "togo" | "lahza" | "moyasar" | "stripe"; // Moyasar uses the same TamPay API key as the other methods.
 
 export interface TampayCustomer {
   name: string
