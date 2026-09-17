@@ -20,7 +20,9 @@ import { Check, ChevronDown, CreditCard, Crypto, Download, Lock, Store, User, Wa
 import { cn } from "@/lib/utils"
 
 type PaymentProvider = "polar" | "tampay" | "card2crypto" | "fungies"
-  // The action itself (lib/actions/checkout.ts) enforces Lahza server-side.
+  // TamPay authenticates all of its payment methods with the same server-side
+  // TAMPAY_API_KEY. The selected method is still sent explicitly so TamPay
+  // can route the hosted checkout through Lahza or Moyasar.
   const TAMPAY_ENABLED = true
 
 const CARD_ICONS = ["visa", "mastercard", "american-express", "apple-pay", "google-pay"]
@@ -93,7 +95,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const [isPending, startTransition] = useTransition()
   const [polarCheckoutUrl, setPolarCheckoutUrl] = useState<string | null>(null)
   const [paymentProvider, setPaymentProvider] = useState<PaymentProvider>("polar")
-  const tampaySubMethod = "lahza" as const
+  const [tampaySubMethod, setTampaySubMethod] = useState<"lahza" | "moyasar">("lahza")
   const [tampayOrder, setTampayOrder] = useState<{ orderNumber: string; url: string } | null>(null)
   const [card2cryptoOrder, setCard2cryptoOrder] = useState<{ orderNumber: string; url: string } | null>(null)
   const [fungiesOrder, setFungiesOrder] = useState<{ orderNumber: string; url: string; fallbackUrl: string; billingData: FungiesBillingData } | null>(null)
@@ -378,16 +380,28 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                   </span>
                 </button>
                 {TAMPAY_ENABLED && (
-                  <button type="button" onClick={() => setPaymentProvider("tampay")} aria-pressed={paymentProvider === "tampay"} className={optionClass(paymentProvider === "tampay")}>
-                    <Radio active={paymentProvider === "tampay"} />
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                        <Wallet size={ICON_SIZE.base} weight="duotone" className="text-primary" aria-hidden="true" />
-                        TamPay
+                  <>
+                    <button type="button" onClick={() => { setTampaySubMethod("lahza"); setPaymentProvider("tampay") }} aria-pressed={paymentProvider === "tampay" && tampaySubMethod === "lahza"} className={optionClass(paymentProvider === "tampay" && tampaySubMethod === "lahza")}>
+                      <Radio active={paymentProvider === "tampay" && tampaySubMethod === "lahza"} />
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                          <Wallet size={ICON_SIZE.base} weight="duotone" className="text-primary" aria-hidden="true" />
+                          Lahza
+                        </span>
+                        <span className="mt-1 block text-xs text-muted-foreground">Secure checkout via TamPay</span>
                       </span>
-                      <span className="mt-1 block text-xs text-muted-foreground">Secure card checkout</span>
-                    </span>
-                  </button>
+                    </button>
+                    <button type="button" onClick={() => { setTampaySubMethod("moyasar"); setPaymentProvider("tampay") }} aria-pressed={paymentProvider === "tampay" && tampaySubMethod === "moyasar"} className={optionClass(paymentProvider === "tampay" && tampaySubMethod === "moyasar")}>
+                      <Radio active={paymentProvider === "tampay" && tampaySubMethod === "moyasar"} />
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                          <Wallet size={ICON_SIZE.base} weight="duotone" className="text-primary" aria-hidden="true" />
+                          Moyasar
+                        </span>
+                        <span className="mt-1 block text-xs text-muted-foreground">Secure card checkout via TamPay</span>
+                      </span>
+                    </button>
+                  </>
                 )}
                 {fungiesEnabled && (
                   <button type="button" onClick={() => setPaymentProvider("fungies")} aria-pressed={paymentProvider === "fungies"} className={optionClass(paymentProvider === "fungies")}>
