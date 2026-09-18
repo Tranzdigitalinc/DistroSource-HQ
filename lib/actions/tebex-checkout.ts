@@ -9,6 +9,9 @@ import { getOwnerId, getSession } from "@/lib/session"
 import { generateOrderNumber } from "@/lib/format"
 import { EMAIL_PATTERN } from "@/lib/checkout-core"
 import { addTebexPackage, createTebexBasket, isTebexConfigured } from "@/lib/tebex"
+import { getGamingProductBySlug } from "@/lib/gaming/queries"
+import { gamingSubscriptions } from "@/lib/db/schema"
+import { generateGamingReference } from "@/lib/gaming/billing"
 
 export async function createTebexCheckout(input: { billingEmail: string; billingName: string; couponCode?: string }): Promise<{ ident: string; orderNumber: string } | { error: string }> {
   if (!isTebexConfigured()) return { error: "Tebex checkout is not configured." }
@@ -53,6 +56,32 @@ export async function createTebexCheckout(input: { billingEmail: string; billing
     })
     console.error("[v0] Tebex checkout creation failed:", error)
     return { error: error instanceof Error ? error.message : "Could not start Tebex checkout." }
+  }
+}
+
+export async function createGamingTebexCheckout(input: { slug: string; billingEmail?: string }): Promise<{ ident: string; reference: string } | { error: string }> {
+  if (!isTebexConfigured()) return { error: "Tebex checkout is not configured." }
+  const product = getGamingProductBySlug(input.slug)
+  if (!product || product.availability !== "on-sale" || product.pricing.kind !== "subscription" || !product.pricing.annual) {
+    return { error: "This gaming product is not available for one-time checkout." }
+  }
+  const ownerId = await getOwnerId()
+  const session = await getSession()
+  const email = (session?.user?.email || input.billingEmail || "").trim()
+  if (!EMAIL_PATTERN.test(email)) return { error: "Enter a valid email address." }
+  const reference = generateGamingReference()
+  const [pending] = await db.insert(gamingSubscriptions).values({
+    reference, userId: ownerId, productSlug: product.slug, interval: "one-time", status: "pending",
+    priceUsd: product.pricing.annual.toFixed(2), billingName: session?.user?.name || email.split("@")[0], billingEmail: email,
+  }).returning({ id: gamingSubscriptions.id })
+  try {
+    const basket = await createTebexBasket({ orderNumber: reference, email })
+    await addTebexPackage({ basketIdent: basket.ident, packageId: product.id, quantity: 1, variableData: { product_slug: product.slug, billing: "one-time" } })
+    return { ident: basket.ident, reference }
+  } catch (error) {
+    await db.delete(gamingSubscriptions).where(eq(gamingSubscriptions.id, pending.id))
+    console.error("[v0] Gaming Tebex checkout creation failed:", error)
+    return { error: "Could not start Tebex checkout." }
   }
 }
 

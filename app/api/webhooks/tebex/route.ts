@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm"
 import { NextResponse } from "next/server"
 
 import { db } from "@/lib/db"
-import { operationEvents, orders } from "@/lib/db/schema"
+import { gamingSubscriptions, operationEvents, orders } from "@/lib/db/schema"
 import { fulfillPendingOrder } from "@/lib/checkout-core"
 
 export const runtime = "nodejs"
@@ -99,6 +99,21 @@ export async function POST(request: Request) {
 
     const orderNumber = orderNumberFromPayload(payload)
     if (!orderNumber) return NextResponse.json({ error: "Tebex payment has no DistroSource order number." }, { status: 400 })
+
+    if (orderNumber.startsWith("GAME-")) {
+      const [gamingPurchase] = await db.select().from(gamingSubscriptions).where(eq(gamingSubscriptions.reference, orderNumber)).limit(1)
+      if (!gamingPurchase) return NextResponse.json({ error: "Gaming purchase not found." }, { status: 404 })
+      if (gamingPurchase.status !== "active") {
+        await db.update(gamingSubscriptions).set({ status: "active", updatedAt: new Date() }).where(eq(gamingSubscriptions.id, gamingPurchase.id))
+      }
+      if (id) {
+        await db.insert(operationEvents).values({
+          eventType: "tebex_webhook", entityType: "gaming_purchase", entityId: id, status: "resolved", payload,
+          createdBy: gamingPurchase.userId, resolvedAt: new Date(),
+        })
+      }
+      return NextResponse.json({ received: true, fulfilled: true, gaming: true })
+    }
 
     const [order] = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber)).limit(1)
     if (!order) return NextResponse.json({ error: "Order not found." }, { status: 404 })

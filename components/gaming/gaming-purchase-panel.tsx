@@ -6,6 +6,8 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FungiesCheckout, type FungiesBillingData, type FungiesConfirmResult } from "@/components/checkout/fungies-checkout"
+import { TebexCheckout } from "@/components/checkout/tebex-checkout"
+import { createGamingTebexCheckout } from "@/lib/actions/tebex-checkout"
 import { confirmGamingCheckout, startGamingCheckout } from "@/lib/actions/gaming-subscriptions"
 import { useSession } from "@/lib/auth-client"
 import { annualSaving, formatGamingPrice } from "@/lib/gaming/catalog/pricing"
@@ -49,6 +51,7 @@ export function GamingPurchasePanel({ slug, pricing, availability, cadence, afte
   const [interval, setInterval] = useState<Interval>("month")
   const [email, setEmail] = useState("")
   const [checkout, setCheckout] = useState<StartedCheckout | null>(null)
+  const [tebexCheckout, setTebexCheckout] = useState<{ ident: string; reference: string } | null>(null)
   const [starting, startTransition] = useTransition()
   const saving = annualSaving(pricing)
   const recurring = pricing.kind === "subscription"
@@ -70,6 +73,22 @@ export function GamingPurchasePanel({ slug, pricing, availability, cadence, afte
     [router],
   )
 
+  function handleTebexPurchase() {
+    const trimmed = email.trim()
+    if (isGuest && !EMAIL.test(trimmed)) {
+      toast.error("Enter your email to purchase.")
+      return
+    }
+    startTransition(async () => {
+      const result = await createGamingTebexCheckout({ slug, billingEmail: isGuest ? trimmed : undefined })
+      if ("error" in result) {
+        toast.error(result.error)
+        return
+      }
+      setTebexCheckout(result)
+    })
+  }
+
   function handleSubscribe(e: React.FormEvent) {
     e.preventDefault()
     const trimmed = email.trim()
@@ -85,6 +104,10 @@ export function GamingPurchasePanel({ slug, pricing, availability, cadence, afte
       }
       setCheckout(result)
     })
+  }
+
+  if (tebexCheckout) {
+    return <TebexCheckout ident={tebexCheckout.ident} onCancel={() => setTebexCheckout(null)} />
   }
 
   if (checkout) {
@@ -149,6 +172,7 @@ export function GamingPurchasePanel({ slug, pricing, availability, cadence, afte
         </div>
 
         {onSale ? (
+          <>
           <form onSubmit={handleSubscribe} className="flex flex-col gap-2" noValidate>
             {isGuest && (
               <div className="flex flex-col gap-1.5">
@@ -177,6 +201,10 @@ export function GamingPurchasePanel({ slug, pricing, availability, cadence, afte
                 : "Billed securely by Fungies, the merchant of record. Cancel anytime from your account."}
             </p>
           </form>
+          <Button type="button" variant="outline" size="lg" className="mt-2 w-full font-semibold" onClick={handleTebexPurchase} disabled={starting} aria-busy={starting}>
+            {starting ? "Opening checkout…" : "Buy once with Tebex"}
+          </Button>
+          </>
         ) : (
           <div className="flex flex-col gap-2">
             <Button size="lg" className="w-full font-semibold" disabled aria-describedby="gaming-launch-note">
