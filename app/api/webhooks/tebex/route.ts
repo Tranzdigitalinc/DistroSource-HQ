@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from "node:crypto"
+import { createHash, createHmac, timingSafeEqual } from "node:crypto"
 import { and, eq } from "drizzle-orm"
 import { NextResponse } from "next/server"
 
@@ -16,7 +16,8 @@ function getWebhookSecret() {
 
 function isValidSignature(rawBody: string, signature: string | null) {
   if (!signature) return false
-  const expected = createHmac("sha256", getWebhookSecret()).update(rawBody, "utf8").digest("hex")
+  const bodyHash = createHash("sha256").update(rawBody, "utf8").digest("hex")
+  const expected = createHmac("sha256", getWebhookSecret()).update(bodyHash, "utf8").digest("hex")
   const provided = signature.trim().toLowerCase().replace(/^sha256=/, "")
   if (!/^[a-f0-9]{64}$/.test(provided)) return false
   return timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(provided, "hex"))
