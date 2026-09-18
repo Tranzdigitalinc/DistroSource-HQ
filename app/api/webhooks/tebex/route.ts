@@ -5,6 +5,12 @@ import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { operationEvents, orders } from "@/lib/db/schema"
 import { fulfillPendingOrder } from "@/lib/checkout-core"
+import {
+  fulfillGamingTebexPayment,
+  isGamingReference,
+  reconcileGamingTebexRecurring,
+  type TebexRecurringEvent,
+} from "@/lib/gaming/billing"
 
 export const runtime = "nodejs"
 
@@ -45,13 +51,30 @@ function eventId(payload: Record<string, unknown>) {
   return findString(payload, ["id", "event_id", "eventId"]) ?? null
 }
 
+/** Our reference rides the basket custom and, for subscriptions, the package custom too. */
 function orderNumberFromPayload(payload: Record<string, unknown>) {
   return findString(payload, [
     "distrosource_order_number",
+    "gaming_reference",
     "order_number",
     "orderNumber",
     "custom_order_number",
   ])
+}
+
+/** Tebex dates look like "2021-08-19T13:03:30.000000Z" or "2022-12-30T16:43:06". */
+function parseTebexDate(value: unknown): Date | null {
+  if (typeof value !== "string" || !value.trim()) return null
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+const RECURRING_TYPES: Record<string, TebexRecurringEvent> = {
+  recurringpaymentstarted: "recurring-payment.started",
+  recurringpaymentrenewed: "recurring-payment.renewed",
+  recurringpaymentended: "recurring-payment.ended",
+  recurringpaymentcancellationrequested: "recurring-payment.cancellation.requested",
+  recurringpaymentcancellationaborted: "recurring-payment.cancellation.aborted",
 }
 
 export async function POST(request: Request) {
@@ -82,40 +105,89 @@ export async function POST(request: Request) {
       if (alreadyHandled) return NextResponse.json({ received: true, duplicate: true })
     }
 
+    const record = async (status: "resolved" | "ignored", createdBy?: string | null) => {
+      if (!id) return
+      await db.insert(operationEvents).values({
+        eventType: "tebex_webhook",
+        entityType: "payment",
+        entityId: id,
+        status,
+        payload,
+        createdBy: createdBy ?? null,
+        resolvedAt: new Date(),
+      })
+    }
+
     const normalizedType = type.replace(/[^a-z0-9]/g, "")
-    if (normalizedType !== "paymentcompleted" && normalizedType !== "paymentcomplete") {
-      if (id) {
-        await db.insert(operationEvents).values({
-          eventType: "tebex_webhook",
-          entityType: "payment",
-          entityId: id,
-          status: "ignored",
-          payload,
-          resolvedAt: new Date(),
-        })
+
+    // --- Gaming subscription renewals and lifecycle -------------------------
+    const recurringType = RECURRING_TYPES[normalizedType]
+    if (recurringType) {
+      const subject = (payload.subject ?? {}) as Record<string, unknown>
+      const recurringReference = typeof subject.reference === "string" ? subject.reference.trim() : ""
+      if (!recurringReference) {
+        await record("ignored")
+        return NextResponse.json({ received: true, ignored: "recurring event without a reference" })
       }
+      const status = subject.status as Record<string, unknown> | undefined
+      const statusId = typeof status?.id === "number" ? status.id : null
+      const lastPayment = (subject.last_payment ?? subject.initial_payment ?? {}) as Record<string, unknown>
+      const result = await reconcileGamingTebexRecurring({
+        type: recurringType,
+        recurringReference,
+        statusId,
+        nextPaymentAt: parseTebexDate(subject.next_payment_at),
+        lastPaymentAt: parseTebexDate(lastPayment.created_at),
+        cancelReason: typeof subject.cancel_reason === "string" ? subject.cancel_reason : null,
+        eventId: id,
+      })
+
+      // recurring-payment.started can arrive before payment.completed: when no
+      // row holds the reference yet, activate from our GAME- reference instead.
+      if (!result.handled && recurringType === "recurring-payment.started") {
+        const reference = orderNumberFromPayload(payload)
+        if (reference && isGamingReference(reference)) {
+          const activated = await fulfillGamingTebexPayment({
+            reference,
+            recurringReference,
+            paidAt: parseTebexDate(lastPayment.created_at) ?? parseTebexDate(subject.created_at),
+            eventId: id,
+          })
+          await record(activated.handled ? "resolved" : "ignored")
+          return NextResponse.json({ received: true, fulfilled: activated.handled })
+        }
+      }
+
+      await record(result.handled ? "resolved" : "ignored")
+      return NextResponse.json({ received: true, fulfilled: result.handled })
+    }
+
+    if (normalizedType !== "paymentcompleted" && normalizedType !== "paymentcomplete") {
+      await record("ignored")
       return NextResponse.json({ received: true, ignored: type || "unknown" })
     }
 
     const orderNumber = orderNumberFromPayload(payload)
     if (!orderNumber) return NextResponse.json({ error: "Tebex payment has no DistroSource order number." }, { status: 400 })
 
+    // --- Gaming subscription activation -------------------------------------
+    if (isGamingReference(orderNumber)) {
+      const result = await fulfillGamingTebexPayment({
+        reference: orderNumber,
+        recurringReference: findString(payload, ["recurring_payment_reference"]),
+        paidAt: parseTebexDate(findString(payload, ["settled_at"]) ?? findString(payload, ["created_at"])),
+        eventId: id,
+      })
+      await record(result.handled ? "resolved" : "ignored")
+      return NextResponse.json({ received: true, fulfilled: result.handled })
+    }
+
+    // --- One-time store order -----------------------------------------------
     const [order] = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber)).limit(1)
     if (!order) return NextResponse.json({ error: "Order not found." }, { status: 404 })
 
     await fulfillPendingOrder(order, { paymentMethod: "tebex" })
-
-    if (id) {
-      await db.insert(operationEvents).values({
-        eventType: "tebex_webhook",
-        entityType: "payment",
-        entityId: id,
-        status: "resolved",
-        payload,
-        createdBy: order.userId,
-        resolvedAt: new Date(),
-      })
-    }
+    await record("resolved", order.userId)
 
     return NextResponse.json({ received: true, fulfilled: true })
   } catch (error) {

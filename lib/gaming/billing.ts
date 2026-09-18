@@ -221,6 +221,133 @@ export async function listGamingSubscriptions(userId: string): Promise<GamingSub
   }
 }
 
+// --- Tebex-billed Gaming subscriptions --------------------------------------
+// The Tebex counterpart of the Fungies flow above: a payment.completed webhook
+// activates the row, and recurring-payment.* webhooks renew or end it. The
+// row's provider column keeps the two processors strictly apart.
+
+/**
+ * Activates a Tebex-billed Gaming subscription from a payment.completed
+ * webhook. Idempotent: re-activation only refreshes the period, so duplicate
+ * delivery and recurring-payment.started arriving after payment.completed are
+ * both safe.
+ */
+export async function fulfillGamingTebexPayment(input: {
+  reference: string | null
+  recurringReference: string | null
+  paidAt: Date | null
+  eventId: string | null
+}): Promise<{ handled: boolean }> {
+  const row = input.reference ? await findRow(input.reference, null) : null
+  if (!row) {
+    console.error("[v0] Tebex payment for an unknown Gaming subscription", { reference: input.reference, eventId: input.eventId })
+    return { handled: false }
+  }
+  if (row.provider !== "tebex") {
+    console.error("[v0] Tebex payment arrived for a non-Tebex Gaming subscription", { reference: row.reference, provider: row.provider })
+    return { handled: false }
+  }
+
+  const periodStart = input.paidAt ?? row.currentPeriodStart ?? new Date()
+  const periodEnd = addInterval(periodStart, row.interval)
+  const isRenewal = row.status === "active"
+
+  await db
+    .update(gamingSubscriptions)
+    .set({
+      status: "active",
+      tebexRecurringReference: input.recurringReference ?? row.tebexRecurringReference,
+      currentPeriodStart: periodStart,
+      currentPeriodEnd: periodEnd,
+      cancelAtPeriodEnd: false,
+      updatedAt: new Date(),
+    })
+    .where(eq(gamingSubscriptions.id, row.id))
+
+  await db.insert(operationEvents).values({
+    eventType: isRenewal ? "gaming_subscription_renewed" : "gaming_subscription_activated",
+    entityType: "gaming_subscription",
+    entityId: row.reference,
+    status: "resolved",
+    payload: { provider: "tebex", productSlug: row.productSlug, interval: row.interval, tebexRecurringReference: input.recurringReference, eventId: input.eventId },
+    createdBy: row.userId,
+    resolvedAt: new Date(),
+  })
+
+  return { handled: true }
+}
+
+export type TebexRecurringEvent = "recurring-payment.started" | "recurring-payment.renewed" | "recurring-payment.ended" | "recurring-payment.cancellation.requested" | "recurring-payment.cancellation.aborted"
+
+/**
+ * Reconciles recurring-payment.* webhooks against the row that holds the
+ * tbx-r- reference. nextPaymentAt comes from Tebex's own subject; the period
+ * start falls back to the last payment date and then to now.
+ */
+export async function reconcileGamingTebexRecurring(input: {
+  type: TebexRecurringEvent
+  recurringReference: string
+  statusId: number | null
+  nextPaymentAt: Date | null
+  lastPaymentAt: Date | null
+  cancelReason: string | null
+  eventId: string | null
+}): Promise<{ handled: boolean }> {
+  const [row] = await db
+    .select()
+    .from(gamingSubscriptions)
+    .where(eq(gamingSubscriptions.tebexRecurringReference, input.recurringReference))
+    .limit(1)
+  if (!row) {
+    console.error("[v0] Tebex recurring event for an unknown Gaming subscription", { reference: input.recurringReference, type: input.type })
+    return { handled: false }
+  }
+
+  const now = new Date()
+  if (input.type === "recurring-payment.started" || input.type === "recurring-payment.renewed") {
+    const periodStart = input.lastPaymentAt ?? row.currentPeriodStart ?? now
+    await db
+      .update(gamingSubscriptions)
+      .set({
+        status: "active",
+        currentPeriodStart: periodStart,
+        currentPeriodEnd: input.nextPaymentAt ?? addInterval(periodStart, row.interval),
+        cancelAtPeriodEnd: false,
+        updatedAt: now,
+      })
+      .where(eq(gamingSubscriptions.id, row.id))
+  } else if (input.type === "recurring-payment.ended") {
+    // Tebex status 4 = expired (failed renewals), 5 = cancelled as requested.
+    const status = input.statusId === 4 ? "expired" : "canceled"
+    await db
+      .update(gamingSubscriptions)
+      .set({ status, canceledAt: row.canceledAt ?? now, updatedAt: now })
+      .where(eq(gamingSubscriptions.id, row.id))
+  } else if (input.type === "recurring-payment.cancellation.requested") {
+    await db
+      .update(gamingSubscriptions)
+      .set({ cancelAtPeriodEnd: true, updatedAt: now })
+      .where(eq(gamingSubscriptions.id, row.id))
+  } else if (input.type === "recurring-payment.cancellation.aborted") {
+    await db
+      .update(gamingSubscriptions)
+      .set({ cancelAtPeriodEnd: false, updatedAt: now })
+      .where(eq(gamingSubscriptions.id, row.id))
+  }
+
+  await db.insert(operationEvents).values({
+    eventType: `gaming_tebex_${input.type.replace(/[^a-z0-9]+/g, "_")}`,
+    entityType: "gaming_subscription",
+    entityId: row.reference,
+    status: "resolved",
+    payload: { type: input.type, tebexRecurringReference: input.recurringReference, statusId: input.statusId, cancelReason: input.cancelReason, eventId: input.eventId },
+    createdBy: row.userId,
+    resolvedAt: now,
+  })
+
+  return { handled: true }
+}
+
 /** One subscription by reference, only if `ownerId` (an account or guest id) owns it. */
 export async function findGamingSubscription(reference: string, ownerId: string): Promise<GamingSubscription | null> {
   try {

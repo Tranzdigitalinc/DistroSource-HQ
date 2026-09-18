@@ -21,9 +21,12 @@ interface GamingPurchasePanelProps {
   cadence?: string
   /** First cancellation line. */
   afterCancel?: string
+  /** Show Tebex alongside Fungies as a payment-method choice. */
+  tebexEnabled?: boolean
 }
 
 type Interval = "month" | "year"
+type Provider = "fungies" | "tebex"
 
 interface StartedCheckout {
   reference: string
@@ -37,18 +40,21 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 /**
  * Price, billing interval and the purchase action.
  *
- * Subscribing needs only an email: the Fungies checkout opens over the page,
- * the price is resolved on the server from the catalogue, and the
- * subscription activates once Fungies' signed webhook confirms the payment.
- * A guest creates an account afterwards, on /gaming/subscribed. A product
- * that is not `on-sale` never offers checkout.
+ * Subscribing needs only an email. With Fungies the checkout opens over the
+ * page; with Tebex the buyer is sent to Tebex's hosted checkout and returns to
+ * /gaming/subscribed. In both cases the price is resolved on the server from
+ * the catalogue and the subscription activates only once the provider's
+ * signed webhook confirms the payment. A guest creates an account afterwards,
+ * on /gaming/subscribed. A product that is not `on-sale` never offers checkout.
  */
-export function GamingPurchasePanel({ slug, pricing, availability, cadence, afterCancel }: GamingPurchasePanelProps) {
+export function GamingPurchasePanel({ slug, pricing, availability, cadence, afterCancel, tebexEnabled = false }: GamingPurchasePanelProps) {
   const router = useRouter()
   const { data: session, isPending: sessionPending } = useSession()
   const [interval, setInterval] = useState<Interval>("month")
+  const [provider, setProvider] = useState<Provider>("fungies")
   const [email, setEmail] = useState("")
   const [checkout, setCheckout] = useState<StartedCheckout | null>(null)
+  const [redirecting, setRedirecting] = useState(false)
   const [starting, startTransition] = useTransition()
   const saving = annualSaving(pricing)
   const recurring = pricing.kind === "subscription"
@@ -78,13 +84,29 @@ export function GamingPurchasePanel({ slug, pricing, availability, cadence, afte
       return
     }
     startTransition(async () => {
-      const result = await startGamingCheckout({ slug, interval: yearly ? "year" : "month", email: isGuest ? trimmed : undefined })
+      const result = await startGamingCheckout({ slug, interval: yearly ? "year" : "month", email: isGuest ? trimmed : undefined, provider })
       if ("error" in result) {
         toast.error(result.error)
         return
       }
+      if (result.provider === "tebex") {
+        // Tebex bills on its own hosted checkout; the buyer returns to
+        // /gaming/subscribed, where the webhook-activated row is waiting.
+        setRedirecting(true)
+        window.location.assign(result.checkoutUrl)
+        return
+      }
       setCheckout(result)
     })
+  }
+
+  if (redirecting) {
+    return (
+      <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card px-5 py-10 text-center">
+        <p className="font-display text-lg font-semibold text-foreground">Taking you to Tebex…</p>
+        <p className="text-sm text-muted-foreground">You&apos;ll pay on Tebex&apos;s secure checkout and come straight back.</p>
+      </div>
+    )
   }
 
   if (checkout) {
@@ -105,6 +127,26 @@ export function GamingPurchasePanel({ slug, pricing, availability, cadence, afte
   return (
     <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-[0_24px_60px_-40px_oklch(0.2_0.03_258/0.5)]">
       <div className="flex flex-col gap-4 px-5 pb-5 pt-5">
+        {tebexEnabled && onSale && (
+          <div role="radiogroup" aria-label="Payment method" className="grid grid-cols-2 gap-1 rounded-lg bg-secondary p-1">
+            {(["fungies", "tebex"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={provider === value}
+                onClick={() => setProvider(value)}
+                className={cn(
+                  "flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-semibold transition-colors",
+                  provider === value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {value === "fungies" ? "Fungies" : "Tebex"}
+              </button>
+            ))}
+          </div>
+        )}
+
         {recurring && saving && (
           <div role="radiogroup" aria-label="Billing interval" className="grid grid-cols-2 gap-1 rounded-lg bg-secondary p-1">
             {(["month", "year"] as const).map((value) => (
@@ -172,9 +214,13 @@ export function GamingPurchasePanel({ slug, pricing, availability, cadence, afte
             </Button>
             <p className="flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
               <ShieldCheck size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
-              {isGuest
-                ? "Pay securely with Fungies, the merchant of record. No account needed to pay; you'll create one after, to manage your subscription."
-                : "Billed securely by Fungies, the merchant of record. Cancel anytime from your account."}
+              {provider === "tebex"
+                ? isGuest
+                  ? "Pay securely on Tebex's hosted checkout, the merchant of record. No account needed to pay; you'll create one after, to manage your subscription."
+                  : "Billed securely by Tebex, the merchant of record. Cancel anytime from your account."
+                : isGuest
+                  ? "Pay securely with Fungies, the merchant of record. No account needed to pay; you'll create one after, to manage your subscription."
+                  : "Billed securely by Fungies, the merchant of record. Cancel anytime from your account."}
             </p>
           </form>
         ) : (

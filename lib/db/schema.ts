@@ -707,6 +707,12 @@ export const gamingSubscriptions = pgTable("gaming_subscriptions", {
   fungiesOfferId: text("fungiesOfferId"),
   // Populated from the first payment_success; renewals match on this.
   fungiesSubscriptionId: text("fungiesSubscriptionId").unique(),
+  // Which processor bills this subscription. fungies = single-use recurring
+  // offer; tebex = Tebex recurring payment (tebexRecurringReference = tbx-r-…).
+  provider: text("provider").notNull().default("fungies"),
+  // Tebex's recurring payment reference; renewals match on this. Unique in the
+  // database via a partial index (scripts/db/add-gaming-tebex.sql).
+  tebexRecurringReference: text("tebexRecurringReference"),
   currentPeriodStart: timestamp("currentPeriodStart"),
   currentPeriodEnd: timestamp("currentPeriodEnd"),
   cancelAtPeriodEnd: boolean("cancelAtPeriodEnd").notNull().default(false),

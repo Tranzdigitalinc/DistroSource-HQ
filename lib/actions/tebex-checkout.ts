@@ -8,7 +8,8 @@ import { computeOrderPricing } from "@/lib/checkout-core"
 import { getOwnerId, getSession } from "@/lib/session"
 import { generateOrderNumber } from "@/lib/format"
 import { EMAIL_PATTERN } from "@/lib/checkout-core"
-import { addTebexPackage, createTebexBasket, isTebexConfigured } from "@/lib/tebex"
+import { addTebexCustomPackage, createTebexBasket, isTebexConfigured } from "@/lib/tebex"
+import { getAppUrl } from "@/lib/env"
 
 export async function createTebexCheckout(input: { billingEmail: string; billingName: string; couponCode?: string }): Promise<{ ident: string; orderNumber: string } | { error: string }> {
   if (!isTebexConfigured()) return { error: "Tebex checkout is not configured." }
@@ -22,7 +23,6 @@ export async function createTebexCheckout(input: { billingEmail: string; billing
   const cookieStore = await cookies()
   const pricing = await computeOrderPricing(ownerId, input.couponCode, session, cookieStore)
   if (pricing.total <= 0) return { error: "Your order total is $0 after discounts — use the free checkout instead." }
-  if (pricing.validatedItems.some((item) => !item.productSku?.trim())) return { error: "One or more products are not configured for Tebex yet. Please choose another payment method." }
 
   const orderNumber = generateOrderNumber()
   const [pending] = await db.transaction(async (tx) => {
@@ -41,9 +41,23 @@ export async function createTebexCheckout(input: { billingEmail: string; billing
   })
 
   try {
-    const basket = await createTebexBasket({ orderNumber, email })
+    const basket = await createTebexBasket({
+      completeUrl: `${getAppUrl()}/checkout/success?order=${encodeURIComponent(orderNumber)}`,
+      cancelUrl: `${getAppUrl()}/checkout?payment=cancelled`,
+      custom: { distrosource_order_number: orderNumber, email },
+      email,
+    })
     for (const item of pricing.validatedItems) {
-      await addTebexPackage({ basketIdent: basket.ident, packageId: item.productSku!, quantity: item.quantity, variableData: { license_type: item.licenseType } })
+      // Inline custom packages: no pre-created Tebex package needed, and the
+      // price always matches what the catalogue charged for this order.
+      await addTebexCustomPackage({
+        basketIdent: basket.ident,
+        name: item.productName,
+        priceUsd: item.unitPriceUsd,
+        quantity: item.quantity,
+        type: "single",
+        custom: { license_type: item.licenseType },
+      })
     }
     return { ident: basket.ident, orderNumber }
   } catch (error) {

@@ -9,6 +9,7 @@ import { GamingGallery } from "@/components/gaming/gaming-gallery"
 import { GamingPurchasePanel } from "@/components/gaming/gaming-purchase-panel"
 import { Button } from "@/components/ui/button"
 import { getGamingProductBySlug, getGamingProductSlugs, getRelatedGamingProducts } from "@/lib/gaming/queries"
+import { isTebexConfigured } from "@/lib/tebex"
 import { FRAMEWORK_LABEL, FRAMEWORK_ORDER, SUBSCRIPTION_MODELS, categoryLabel, platformLabel } from "@/lib/gaming/catalog/taxonomy"
 import { formatGamingPrice, listPrice } from "@/lib/gaming/catalog/pricing"
 import { Check, ChevronRight } from "@/lib/storefront-icons"
@@ -215,7 +216,7 @@ export default async function GamingProductPage({ params }: { params: Promise<{ 
                 </ul>
               </div>
 
-              <GamingPurchasePanel slug={product.slug} pricing={product.pricing} availability={product.availability} cadence={product.cadence?.[0]} afterCancel={product.afterCancel?.[0]} />
+              <GamingPurchasePanel slug={product.slug} pricing={product.pricing} availability={product.availability} cadence={product.cadence?.[0]} afterCancel={product.afterCancel?.[0]} tebexEnabled={isTebexConfigured()} />
 
               <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-xl border border-border bg-card px-5 py-4 text-sm">
                 {facts.map(([k, v]) => (
