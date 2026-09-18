@@ -206,7 +206,7 @@ export function FungiesCheckout({ orderNumber, checkoutUrl, fallbackUrl, billing
       window.clearTimeout(timeoutId)
       document.removeEventListener("visibilitychange", onVisible)
     }
-  }, [orderNumber, onPaid, pollGeneration])
+  }, [confirm, orderNumber, onPaid, pollGeneration])
 
   const resumePolling = useCallback(() => {
     settledRef.current = false

@@ -34,7 +34,6 @@ import { getOrCreateDeviceId } from "@/lib/device"
 import { buildPaymentRiskContext } from "@/lib/payment-risk"
 import { getAppUrl, isCard2CryptoConfigured, isFungiesConfigured } from "@/lib/env"
 import { FUNGIES_MIN_USD, buildFungiesCheckoutUrl, buildFungiesElementUrl, createFungiesCheckoutElement, createFungiesOffer } from "@/lib/fungies"
-import { addTebexPackage, createTebexBasket, getTebexBasket, isTebexConfigured } from "@/lib/tebex"
 import {
   EMAIL_PATTERN,
   computeOrderPricing,
