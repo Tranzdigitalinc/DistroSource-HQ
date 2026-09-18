@@ -11,6 +11,8 @@ import { PolarInlineCheckout } from "@/components/checkout/polar-inline-checkout
 import { TampayWaiting } from "@/components/checkout/tampay-waiting"
 import { Card2CryptoWaiting } from "@/components/checkout/card2crypto-waiting"
 import { FungiesCheckout, type FungiesBillingData } from "@/components/checkout/fungies-checkout"
+import { TebexCheckout } from "@/components/checkout/tebex-checkout"
+import { createTebexCheckout } from "@/lib/actions/tebex-checkout"
 import { CheckoutLineItem, type CheckoutItem } from "@/components/checkout/checkout-line-item"
 import { OrderSummary } from "@/components/checkout/order-summary"
 import { saveAbandonedCart } from "@/lib/actions/recovery"
@@ -19,7 +21,7 @@ import { formatUsd } from "@/lib/format"
 import { Check, ChevronDown, CreditCard, Crypto, Download, Lock, Store, User, Wallet, ICON_SIZE } from "@/lib/storefront-icons"
 import { cn } from "@/lib/utils"
 
-type PaymentProvider = "polar" | "tampay" | "card2crypto" | "fungies"
+type PaymentProvider = "polar" | "tampay" | "card2crypto" | "fungies" | "tebex"
   // TamPay authenticates all of its payment methods with the same server-side
   // TAMPAY_API_KEY. The selected method is still sent explicitly so TamPay
   // can route the hosted checkout through Lahza or Moyasar.
@@ -99,13 +101,14 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
   const [tampayOrder, setTampayOrder] = useState<{ orderNumber: string; url: string } | null>(null)
   const [card2cryptoOrder, setCard2cryptoOrder] = useState<{ orderNumber: string; url: string } | null>(null)
   const [fungiesOrder, setFungiesOrder] = useState<{ orderNumber: string; url: string; fallbackUrl: string; billingData: FungiesBillingData } | null>(null)
+  const [tebexOrder, setTebexOrder] = useState<{ ident: string; orderNumber: string } | null>(null)
   const nameRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
 
   const discount = Math.round(subtotal * (discountPercent / 100) * 100) / 100
   const total = Math.max(0, subtotal - discount)
   const itemCount = orderItems.reduce((n, i) => n + i.quantity, 0)
-  const paymentInProgress = Boolean(polarCheckoutUrl) || Boolean(tampayOrder) || Boolean(card2cryptoOrder) || Boolean(fungiesOrder)
+  const paymentInProgress = Boolean(polarCheckoutUrl) || Boolean(tampayOrder) || Boolean(card2cryptoOrder) || Boolean(fungiesOrder) || Boolean(tebexOrder)
   const payLabel = `Pay ${formatUsd(total)}`
 
   function validateContact(): boolean {
@@ -142,6 +145,19 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
         } catch (error) {
           await saveAbandonedCart({ email, subtotalUsd: subtotal, items: orderItems })
           toast.error(error instanceof Error ? error.message : "Could not start TamPay checkout.")
+        }
+      })
+      return
+    }
+
+    if (paymentProvider === "tebex") {
+      startTransition(async () => {
+        try {
+          const checkout = await createTebexCheckout({ billingEmail: email.trim(), billingName: name.trim(), couponCode })
+          if ("error" in checkout) { toast.error(checkout.error); return }
+          setTebexOrder(checkout)
+        } catch (error) {
+          toast.error(error instanceof Error ? error.message : "Could not start Tebex checkout.")
         }
       })
       return
@@ -213,6 +229,7 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
     setTampayOrder(null)
     setCard2cryptoOrder(null)
     setFungiesOrder(null)
+    setTebexOrder(null)
   }
 
   const optionClass = (active: boolean) =>
@@ -276,6 +293,9 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                 onPaid={(orderNumber) => router.push(`/checkout/success?order=${encodeURIComponent(orderNumber)}`)}
                 onCancel={handleCancelPayment}
               />
+            )}
+            {tebexOrder && (
+              <TebexCheckout ident={tebexOrder.ident} onCancel={handleCancelPayment} />
             )}
             {card2cryptoEnabled && card2cryptoOrder && (
               <Card2CryptoWaiting
@@ -403,6 +423,13 @@ export function CheckoutForm({ defaultEmail, defaultName, subtotal, discountPerc
                     </button>
                   </>
                 )}
+                <button type="button" onClick={() => setPaymentProvider("tebex")} aria-pressed={paymentProvider === "tebex"} className={optionClass(paymentProvider === "tebex")}>
+                  <Radio active={paymentProvider === "tebex"} />
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2 text-sm font-semibold text-foreground"><Store size={ICON_SIZE.base} weight="duotone" className="text-primary" aria-hidden="true" />Tebex</span>
+                    <span className="mt-1 block text-xs text-muted-foreground">Secure inline checkout</span>
+                  </span>
+                </button>
                 {fungiesEnabled && (
                   <button type="button" onClick={() => setPaymentProvider("fungies")} aria-pressed={paymentProvider === "fungies"} className={optionClass(paymentProvider === "fungies")}>
                     <Radio active={paymentProvider === "fungies"} />

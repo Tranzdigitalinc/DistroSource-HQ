@@ -85,6 +85,7 @@ export interface OrderPricing {
   validatedItems: {
     productId: number
     licenseId: number
+    productSku: string | null
     productName: string
     productVersion: string
     licenseType: string
@@ -150,6 +151,7 @@ export async function computeOrderPricing(
     return {
       productId: r.product.id,
       licenseId: r.license.id,
+      productSku: r.product.sku,
       productName: r.product.name,
       productVersion: r.product.currentVersion,
       licenseType: r.license.licenseType,
