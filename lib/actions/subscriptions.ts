@@ -12,7 +12,6 @@ import {
   categories,
   entitlements,
   membershipCreditLedger,
-  membershipPlans,
   orderItems,
   orders,
   productLicenses,
@@ -20,7 +19,7 @@ import {
   subscriptions,
 } from "@/lib/db/schema"
 import { EMAIL_PATTERN } from "@/lib/checkout-core"
-import { getOptionalUserId, getOwnerId, getSession, getUserId } from "@/lib/session"
+import { getOwnerId, getSession, getUserId } from "@/lib/session"
 import { RATE_LIMITS, enforceRateLimit } from "@/lib/rate-limit"
 import { generateOrderNumber } from "@/lib/format"
 import { isFungiesConfigured } from "@/lib/env"

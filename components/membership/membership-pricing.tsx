@@ -1,10 +1,10 @@
 "use client"
 
-import { useCallback, useMemo, useState, useTransition } from "react"
+import { useCallback, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { toast } from "sonner"
-import { AnimatePresence, motion } from "motion/react"
+import { motion } from "motion/react"
 import { ArrowRight, Check, Flame, Sparkles, Zap, ShieldCheck, ICON_SIZE } from "@/lib/storefront-icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
